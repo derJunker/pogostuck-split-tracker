@@ -15,6 +15,7 @@ app.on("ready", () => {
         }
     });
     const indexHTML = path.join(__dirname, "/index.html");
+    mainWindow.setMenu(null);
     mainWindow
         .loadFile(indexHTML)
         .then(() => {

@@ -14,6 +14,7 @@ export function openSettingsWindow(mainWindow: BrowserWindow) {
         parent: mainWindow,
         webPreferences: { nodeIntegration: false, contextIsolation: true }
     });
+    settingsWindow.setMenu(null);
     const settingsHTML = path.join(__dirname, "settings.html");
     settingsWindow.loadFile(settingsHTML).catch((e) => console.error(e));
     settingsWindow.on('closed', () => { settingsWindow = null; });

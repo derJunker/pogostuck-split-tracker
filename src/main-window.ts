@@ -30,7 +30,7 @@ app.on("ready", () => {
         if (mainWindow) openSettingsWindow(mainWindow);
     })
 
-    ipcMain.on("save-settings", (event, settings: Settings) => {
+    ipcMain.handle("save-settings", (event, settings: Settings) => {
         if (!existsSync(settingsPath)) {
             writeFileSync(settingsPath, JSON.stringify(settings, null, 2), { flag: "w" });
         } else {

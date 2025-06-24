@@ -1,9 +1,12 @@
 {
   "name": "pogostuck-split-tracker",
-  "version": "1.0.0",
+  "version": "0.0.1-dev",
   "description": "split tracker for the game \"pogostuck by superku\"",
-  "main": "index.js",
-  "scripts": {},
+  "main": "build/index.js",
+  "scripts": {
+    "compile": "tsc && copyfiles -f src/index.html build",
+    "start": "npm run compile && electron ."
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/derJunker/pogostuck-split-tracker.git"
@@ -15,6 +18,10 @@
   },
   "homepage": "https://github.com/derJunker/pogostuck-split-tracker#readme",
   "dependencies": {
-    "electron": "^37.0.0"
+    "electron": "^37.0.0",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "copyfiles": "^2.4.1"
   }
 }

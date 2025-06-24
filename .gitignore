@@ -134,3 +134,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+/build/
+/.idea/modules.xml
+/.idea/pogostuck-split-tracker.iml
+/.idea/vcs.xml

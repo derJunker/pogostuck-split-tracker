@@ -12,7 +12,11 @@ export function openSettingsWindow(mainWindow: BrowserWindow) {
         height: 600,
         modal: true,
         parent: mainWindow,
-        webPreferences: { nodeIntegration: false, contextIsolation: true }
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
+        }
     });
     const settingsHTML = path.join(__dirname, "settings.html");
     settingsWindow.loadFile(settingsHTML).catch((e) => console.error(e));

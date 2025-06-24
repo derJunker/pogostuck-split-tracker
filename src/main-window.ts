@@ -1,6 +1,10 @@
 import { app, BrowserWindow, ipcMain } from "electron";
+import { writeFileSync, existsSync } from "fs";
 import * as path from "path";
 import { openSettingsWindow } from "./settings-window";
+import { Settings } from "./types/settings";
+
+const settingsPath = path.join(__dirname, "settings.json");
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -24,5 +28,24 @@ app.on("ready", () => {
 
     ipcMain.on("open-settings", () => {
         if (mainWindow) openSettingsWindow(mainWindow);
+    })
+
+    ipcMain.on("save-settings", (event, settings: Settings) => {
+        if (!existsSync(settingsPath)) {
+            writeFileSync(settingsPath, JSON.stringify(settings, null, 2), { flag: "w" });
+        } else {
+            writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        }
+    })
+
+    ipcMain.handle("load-settings", () => {
+        if (existsSync(settingsPath)) {
+            const settingsData = require(settingsPath);
+            return settingsData as Settings;
+        } else {
+            return {
+                pogostuckConfigPath: ""
+            }
+        }
     })
 });

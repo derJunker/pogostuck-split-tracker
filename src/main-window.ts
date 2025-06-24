@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
-import { openSettingsWindow } from "./settings";
+import { openSettingsWindow } from "./settings-window";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -15,7 +15,6 @@ app.on("ready", () => {
         }
     });
     const indexHTML = path.join(__dirname, "/index.html");
-    mainWindow.setMenu(null);
     mainWindow
         .loadFile(indexHTML)
         .then(() => {

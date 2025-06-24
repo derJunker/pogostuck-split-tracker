@@ -8,6 +8,11 @@ app.on("ready", () => {
     mainWindow = new BrowserWindow({
         width: 600,
         height: 400,
+        webPreferences: {
+            preload: __dirname + '/preload.js',
+            contextIsolation: true,
+            nodeIntegration: false
+        }
     });
     const indexHTML = path.join(__dirname, "/index.html");
     mainWindow

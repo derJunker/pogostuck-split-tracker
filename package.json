@@ -5,7 +5,8 @@
   "main": "build/index.js",
   "scripts": {
     "compile": "tsc && copyfiles -f src/index.html build",
-    "start": "npm run compile && electron ."
+    "start": "npm run compile && electron .",
+    "dist": "npm run compile && electron-builder"
   },
   "repository": {
     "type": "git",
@@ -18,10 +19,22 @@
   },
   "homepage": "https://github.com/derJunker/pogostuck-split-tracker#readme",
   "dependencies": {
-    "electron": "^37.0.0",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
-    "copyfiles": "^2.4.1"
+    "copyfiles": "^2.4.1",
+    "electron-builder": "^26.0.12",
+    "electron": "^37.0.0"
+  },
+  "build": {
+    "files": [
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }

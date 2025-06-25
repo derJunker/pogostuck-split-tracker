@@ -2,7 +2,7 @@
   "name": "pogostuck-split-tracker",
   "version": "0.0.1-dev",
   "description": "split tracker for the game \"pogostuck by superku\"",
-  "main": "build/main-window.js",
+  "main": "build/main-process/main.js",
   "scripts": {
     "compile": "tsc && copyfiles -f src/*.{html,js,css} assets/**/* build/",
     "start": "npm run compile && electron .",
@@ -19,12 +19,13 @@
   },
   "homepage": "https://github.com/derJunker/pogostuck-split-tracker#readme",
   "dependencies": {
+    "chokidar": "^4.0.3",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "electron-builder": "^26.0.12",
-    "electron": "^37.0.0"
+    "electron": "^37.0.0",
+    "electron-builder": "^26.0.12"
   },
   "build": {
     "files": [

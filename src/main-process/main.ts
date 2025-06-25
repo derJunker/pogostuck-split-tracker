@@ -1,0 +1,60 @@
+import {app, BrowserWindow, ipcMain} from "electron";
+import {existsSync, writeFileSync} from "fs";
+import * as path from "path";
+import {openSettingsWindow} from "./settings-window";
+import {Settings} from "../types/settings";
+import {FileWatcher} from "./logs-watcher";
+
+const settingsPath = path.join(app.getPath("userData"), "settings.json");
+
+let currentSettings: Settings | null = null;
+let mainWindow: BrowserWindow | null = null;
+
+let logWatcher: FileWatcher = new FileWatcher();
+app.on("ready", () => {
+    mainWindow = new BrowserWindow({
+        width: 600,
+        height: 400,
+        webPreferences: {
+            preload: __dirname + '/preload.js',
+            contextIsolation: true,
+            nodeIntegration: false
+        }
+    });
+    const indexHTML = path.join(__dirname, "..", "index.html");
+    mainWindow
+        .loadFile(indexHTML)
+        .then(() => {
+            // IMPLEMENT FANCY STUFF HERE
+        })
+        .catch((e) => console.error(e));
+
+    ipcMain.on("open-settings", () => {
+        if (mainWindow) openSettingsWindow(mainWindow);
+    })
+
+    ipcMain.handle("save-settings", (event, settings: Settings) => {
+        logWatcher.startWatching(settings.pogostuckConfigPath, "acklog.txt")
+        writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        currentSettings = settings;
+    })
+
+    ipcMain.handle("load-settings", () => {
+        currentSettings = loadSettings();
+        return currentSettings;
+    })
+
+    currentSettings = loadSettings();
+    console.log("Current settings loaded:", currentSettings);
+    logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");
+});
+
+function loadSettings(): Settings {
+    if (existsSync(settingsPath)) {
+        return JSON.parse(require("fs").readFileSync(settingsPath, "utf-8"));
+    } else {
+        return {
+            pogostuckConfigPath: ""
+        };
+    }
+}

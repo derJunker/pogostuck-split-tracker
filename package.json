@@ -4,7 +4,7 @@
   "description": "split tracker for the game \"pogostuck by superku\"",
   "main": "build/main-window.js",
   "scripts": {
-    "compile": "tsc && copyfiles -f src/*.{html,js,css} build",
+    "compile": "tsc && copyfiles -f src/*.{html,js,css} assets/**/* build/",
     "start": "npm run compile && electron .",
     "dist": "npm run compile && electron-builder"
   },
@@ -30,11 +30,22 @@
     "files": [
       "build/**/*"
     ],
+    "icon": "build/icon.ico",
     "directories": {
       "buildResources": "build"
     },
     "win": {
-      "target": "nsis"
+      "target": {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "include": "build/installer.nsh"
     }
   }
 }

@@ -4,7 +4,7 @@ import * as path from "path";
 import { openSettingsWindow } from "./settings-window";
 import { Settings } from "./types/settings";
 
-const settingsPath = path.join(__dirname, "settings.json");
+const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -31,16 +31,12 @@ app.on("ready", () => {
     })
 
     ipcMain.handle("save-settings", (event, settings: Settings) => {
-        if (!existsSync(settingsPath)) {
-            writeFileSync(settingsPath, JSON.stringify(settings, null, 2), { flag: "w" });
-        } else {
-            writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-        }
+        writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
     })
 
     ipcMain.handle("load-settings", () => {
         if (existsSync(settingsPath)) {
-            const settingsData = require(settingsPath);
+            const settingsData = JSON.parse(require("fs").readFileSync(settingsPath, "utf-8"));
             return settingsData as Settings;
         } else {
             return {

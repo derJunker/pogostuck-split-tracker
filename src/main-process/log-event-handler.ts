@@ -1,21 +1,24 @@
 import { FileWatcher } from './logs-watcher';
-import { getLevelNameByKey, getCheckpointNameByKey, getModeNameByKey } from "../types/pogo-index-mapping";
 
-const playerState: { map: string, mode: string, passedSplit: string } = {
-    map: '',
-    mode: '',
-    passedSplit: '',
+
+const playerState: { map: number, mode: number, recordedSplits: {split: number, time: number}[] } = {
+    map: -1,
+    mode: -1,
+    recordedSplits: [],
 }
 
-export function registerLogEventHandlers(fileWatcher: FileWatcher) {
+export function registerLogEventHandlers(fileWatcher: FileWatcher, mainWindow: Electron.BrowserWindow) {
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
         (match) => {
             const { map, mode, run } = match.groups!;
-            if (playerState.map !== map || playerState.mode !== mode) {
-                playerState.map = getLevelNameByKey(parseInt(map)) || map;
-                playerState.mode = getModeNameByKey(parseInt(map), parseInt(mode)) || mode;
-                console.log(`Player state updated: map=${playerState.map}, mode=${playerState.mode}, passedSplit=${playerState.passedSplit}`);
+            const mapNum = parseInt(map);
+            const modeNum = parseInt(mode);
+            if (playerState.map !== mapNum || playerState.mode !== modeNum) {
+                playerState.map = mapNum;
+                playerState.mode = modeNum;
+                mainWindow.webContents.send('map-or-mode-changed', { map: mapNum  + "", mode: modeNum + ""});
+                console.log(`Player state updated: map=${playerState.map}, mode=${playerState.mode},`);
             }
         }
     );
@@ -24,14 +27,18 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher) {
         (match) => {
             const { checkpoint, old, time, overwrittenTime } = match.groups!;
             // TODO check if pb split etc.
-            console.log(`Player checkpoint updated: checkpoint=${checkpoint}, old=${old}, time=${time}, overwrittenTime=${overwrittenTime}, passedSplit=${playerState.passedSplit}`);
+            const split = parseInt(checkpoint);
+            const timeMs = Math.round(parseFloat(time) * 1000);
+            playerState.recordedSplits.push({ split, time: timeMs });
+            mainWindow.webContents.send("split-passed", { splitName: `Split ${split}`, splitTime: timeMs });
+            console.log(`Checkpoint recorded: split=${split}, time=${timeMs}, overwrittenTime=${overwrittenTime}`);
         }
     )
     fileWatcher.registerListener(
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             const { localDead, dontResetTime, map3IsAGo } = match.groups!;
-            playerState.passedSplit = '';
+            playerState.recordedSplits = [];
             console.log(`Player reset: localDead=${localDead}, dontResetTime=${dontResetTime}, map3IsAGo=${map3IsAGo}`);
         }
     )

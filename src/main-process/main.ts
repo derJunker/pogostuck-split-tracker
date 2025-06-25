@@ -12,7 +12,6 @@ let currentSettings: Settings | null = null;
 let mainWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
-registerLogEventHandlers(logWatcher)
 
 app.on("ready", () => {
     mainWindow = new BrowserWindow({
@@ -24,6 +23,7 @@ app.on("ready", () => {
             nodeIntegration: false
         }
     });
+    registerLogEventHandlers(logWatcher, mainWindow)
     const indexHTML = path.join(__dirname, "..", "index.html");
     mainWindow
         .loadFile(indexHTML)

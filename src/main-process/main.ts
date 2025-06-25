@@ -4,6 +4,7 @@ import * as path from "path";
 import {openSettingsWindow} from "./settings-window";
 import {Settings} from "../types/settings";
 import {FileWatcher} from "./logs-watcher";
+import {registerLogEventHandlers} from "./log-event-handler";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
@@ -11,6 +12,8 @@ let currentSettings: Settings | null = null;
 let mainWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
+registerLogEventHandlers(logWatcher)
+
 app.on("ready", () => {
     mainWindow = new BrowserWindow({
         width: 600,
@@ -45,7 +48,6 @@ app.on("ready", () => {
     })
 
     currentSettings = loadSettings();
-    console.log("Current settings loaded:", currentSettings);
     logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");
 });
 

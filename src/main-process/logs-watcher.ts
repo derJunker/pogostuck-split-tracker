@@ -8,6 +8,7 @@ export class FileWatcher {
     private lastSize = 0;
     private currentDir = '';
     private currentFile = '';
+    private listeners: { regex: RegExp, callback: (match: RegExpMatchArray) => void }[] = [];
 
     startWatching(dirPath: string, fileName: string) {
         this.stopWatching();
@@ -36,6 +37,10 @@ export class FileWatcher {
         });
     }
 
+    registerListener(regex: RegExp, callback: (match: RegExpMatchArray) => void) {
+        this.listeners.push({ regex, callback });
+    }
+
     private watchFile(filePath: string) {
         this.stopFileWatcher();
         this.fileWatcher = chokidar.watch(filePath, { persistent: true, usePolling: true, interval: 500 });
@@ -50,6 +55,12 @@ export class FileWatcher {
                     stream.on('data', (data) => {
                         const newLines = data.toString().split('\n').filter(Boolean);
                         newLines.forEach(line => {
+                            this.listeners.forEach(listener => {
+                                const match = line.match(listener.regex);
+                                if (match) {
+                                    listener.callback(match);
+                                }
+                            });
                         });
                     });
                     this.lastSize = stats.size;

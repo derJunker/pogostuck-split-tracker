@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { writeFileSync, existsSync } from "fs";
 import * as path from "path";
 import { openSettingsWindow } from "./settings-window";
-import { Settings } from "./types/settings";
+import { Settings } from "../types/settings";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 

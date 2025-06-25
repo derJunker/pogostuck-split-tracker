@@ -1,5 +1,5 @@
 import {contextBridge, ipcRenderer} from 'electron';
-import {Settings} from "./types/settings";
+import {Settings} from "../types/settings";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     openSettingsWindow: () => ipcRenderer.send('open-settings'),

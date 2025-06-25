@@ -10,7 +10,6 @@ export class FileWatcher {
     private currentFile = '';
 
     startWatching(dirPath: string, fileName: string) {
-        console.log("startWatching called with:", dirPath, fileName);
         this.stopWatching();
         this.currentDir = dirPath;
         this.currentFile = fileName;
@@ -21,22 +20,18 @@ export class FileWatcher {
             if (path.basename(addedPath) === fileName && !this.fileWatcher) {
                 this.lastSize = 0;
                 this.watchFile(filePath);
-                console.log('Datei gefunden und Überwachung gestartet.');
             }
         });
         this.dirWatcher.on('unlink', (removedPath: string) => {
             if (path.basename(removedPath) === fileName) {
                 this.stopFileWatcher();
-                console.log('Datei entfernt, Überwachung gestoppt.');
             }
         });
 
         // Falls Datei schon existiert
         fs.access(filePath, fs.constants.F_OK, (err) => {
-            console.log("Überprüfe, ob die Datei existiert:", filePath);
             if (!err) {
                 this.watchFile(filePath);
-                console.log('Datei existiert bereits, Überwachung gestartet.');
             }
         });
     }
@@ -55,8 +50,6 @@ export class FileWatcher {
                     stream.on('data', (data) => {
                         const newLines = data.toString().split('\n').filter(Boolean);
                         newLines.forEach(line => {
-                            // Hier kannst du jede neue Zeile verarbeiten
-                            console.log('Neue Zeile:', line);
                         });
                     });
                     this.lastSize = stats.size;
@@ -81,6 +74,5 @@ export class FileWatcher {
         this.stopFileWatcher();
         this.currentDir = '';
         this.currentFile = '';
-        console.log('Überwachung gestoppt.');
     }
 }

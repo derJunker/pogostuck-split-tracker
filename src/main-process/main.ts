@@ -5,6 +5,7 @@ import {openSettingsWindow} from "./settings-window";
 import {Settings} from "../types/settings";
 import {FileWatcher} from "./logs-watcher";
 import {registerLogEventHandlers} from "./log-event-handler";
+import {openOverlayWindow} from "./split-overlay-window";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
@@ -31,6 +32,7 @@ app.on("ready", () => {
             // IMPLEMENT FANCY STUFF HERE
         })
         .catch((e) => console.error(e));
+    openOverlayWindow(mainWindow);
 
     ipcMain.on("open-settings", () => {
         if (mainWindow) openSettingsWindow(mainWindow);

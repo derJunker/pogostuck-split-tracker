@@ -1,0 +1,28 @@
+import path from "path";
+import {BrowserWindow, screen} from "electron";
+
+
+export function openOverlayWindow(mainWindow: BrowserWindow) {
+    const overlayHTML = path.join(__dirname, "..", "overlay.html");
+    const overlayWidth = 400;
+    const overlayHeight = 600;
+
+    const overlayWindow = new BrowserWindow({
+        width: overlayWidth,
+        height: overlayHeight,
+        x: screen.getPrimaryDisplay().workArea.width - overlayWidth,
+        y: 0,
+        parent: mainWindow,
+        alwaysOnTop: true,
+        frame: false,
+        transparent: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            // preload: new URL("preload.js", import.meta.url).href
+        }
+    });
+
+    overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
+    overlayWindow.on('closed', () => { /* Handle window close if needed */ });
+}

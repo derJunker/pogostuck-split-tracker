@@ -14,9 +14,16 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         y: 0,
         parent: mainWindow,
         alwaysOnTop: true,
-        frame: false,
         transparent: true,
         type: 'toolbar',
+        titleBarOverlay: {
+            color: '#00000000',
+            symbolColor: '#000000',
+            height: 0,
+        },
+        skipTaskbar: true,
+        autoHideMenuBar: true,
+        enableLargerThanScreen: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,

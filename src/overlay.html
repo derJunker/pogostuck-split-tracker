@@ -5,13 +5,41 @@
     <style>
         body {
             color: #fff;
-            --shadow-width: 3px;
-            text-shadow:
-                    calc(-1 * var(--shadow-width)) calc(-1 * var(--shadow-width)) 0 #000,
-                    var(--shadow-width) calc(-1 * var(--shadow-width)) 0 #000,
-                    calc(-1 * var(--shadow-width)) var(--shadow-width) 0 #000,
-                    var(--shadow-width) var(--shadow-width) 0 #000;
             font-family: 'Courier Prime', monospace;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            user-focus: false;
+            -webkit-app-region: drag;
+            -webkit-text-stroke-width: 1px;
+            -webkit-text-stroke-color: black;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td.region {
+            text-align: right;
+            padding-right: 0.2em;
+            white-space: nowrap;
+        }
+        td.value {
+            text-align: right;
+            min-width: 3.5em;
+            padding-left: 0.2em;
+            padding-right: 1.2em;
+            white-space: nowrap;
+        }
+        td.delta-time {
+            text-align: right;
+            min-width: 2.5em;
+            padding-right: 0.8em;
+            white-space: nowrap;
+        }
+        td.segment-time {
+            text-align: right;
+            min-width: 4em;
+            white-space: nowrap;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +47,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <p>Bones: [20]</p>
+<table>
+    <tr>
+        <td class="region">Bones</td>
+        <td class="value">[120]</td>
+        <td class="delta-time">+30.5</td>
+        <td class="segment-time">00:30.5</td>
+    </tr>
+    <tr>
+        <td class="region">Wind</td>
+        <td class="value">[20]</td>
+        <td class="delta-time">-10.2</td>
+        <td class="segment-time">00:10.2</td>
+    </tr>
+    <tr>
+        <td class="region">Grapes</td>
+        <td class="value">[40]</td>
+        <td class="delta-time">+05.0</td>
+        <td class="segment-time">00:05.0</td>
+    </tr>
+    <tr>
+        <td class="region">Trees</td>
+        <td class="value">[10]</td>
+        <td class="delta-time">-02.5</td>
+        <td class="segment-time">00:02.5</td>
+    </tr>
+    <tr>
+        <td class="region">Pineapples</td>
+        <td class="value">[50]</td>
+        <td class="delta-time">+15.0</td>
+        <td class="segment-time">00:15.0</td>
+    </tr>
+    <tr>
+        <td class="region">Palm Trees</td>
+        <td class="value">[0]</td>
+        <td class="delta-time">-</td>
+        <td class="segment-time">-</td>
+    </tr>
+    <tr>
+        <td class="region">Mushrooms</td>
+        <td class="value">[110]</td>
+        <td class="delta-time">+60.0</td>
+        <td class="segment-time">01:00.0</td>
+    </tr>
+    <tr>
+        <td class="region">Flowers</td>
+        <td class="value">[5]</td>
+        <td class="delta-time">+83.4</td>
+        <td class="segment-time">01:23.4</td>
+    </tr>
+    <tr>
+        <td class="region">Ice</td>
+        <td class="value">[2]</td>
+        <td class="delta-time">-12.7</td>
+        <td class="segment-time">00:12.7</td>
+    </tr>
+    <tr>
+        <td class="region">PB</td>
+        <td class="value"></td>
+        <td class="delta-time"></td>
+        <td class="segment-time"></td>
+    </tr>
+    <tr>
+        <td class="region">Sum of Best</td>
+        <td class="value"></td>
+        <td class="delta-time"></td>
+        <td class="segment-time"></td>
+    </tr>
+</table>
 </body>
 </html>

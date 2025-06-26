@@ -4,8 +4,8 @@ import {BrowserWindow, screen} from "electron";
 
 export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "overlay.html");
-    const overlayWidth = 400;
-    const overlayHeight = 600;
+    const overlayWidth = 600;
+    const overlayHeight = 400;
 
     const overlayWindow = new BrowserWindow({
         width: overlayWidth,
@@ -16,12 +16,17 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         alwaysOnTop: true,
         frame: false,
         transparent: true,
+        type: 'toolbar',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             // preload: new URL("preload.js", import.meta.url).href
         }
     });
+
+    overlayWindow.on("ready-to-show", () => {
+        overlayWindow.show();
+    })
 
     overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
     overlayWindow.on('closed', () => { /* Handle window close if needed */ });

@@ -25,7 +25,7 @@ app.on("ready", () => {
         }
     });
     registerLogEventHandlers(logWatcher, mainWindow)
-    const indexHTML = path.join(__dirname, "..", "index.html");
+    const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow
         .loadFile(indexHTML)
         .then(() => {

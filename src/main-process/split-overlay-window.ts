@@ -3,9 +3,9 @@ import {BrowserWindow, screen} from "electron";
 
 
 export function openOverlayWindow(mainWindow: BrowserWindow) {
-    const overlayHTML = path.join(__dirname, "..", "overlay.html");
-    const overlayWidth = 600;
-    const overlayHeight = 400;
+    const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
+    const overlayWidth = 550;
+    const overlayHeight = 380;
 
     const overlayWindow = new BrowserWindow({
         width: overlayWidth,
@@ -15,15 +15,9 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         parent: mainWindow,
         alwaysOnTop: true,
         transparent: true,
-        type: 'toolbar',
-        titleBarOverlay: {
-            color: '#00000000',
-            symbolColor: '#000000',
-            height: 0,
-        },
+        frame: false,
+        // no menu stuff
         skipTaskbar: true,
-        autoHideMenuBar: true,
-        enableLargerThanScreen: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,

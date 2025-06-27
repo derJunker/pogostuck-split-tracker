@@ -18,7 +18,7 @@ export function openSettingsWindow(mainWindow: BrowserWindow) {
             preload: path.join(__dirname, 'preload.js')
         }
     });
-    const settingsHTML = path.join(__dirname, "..", "settings.html");
+    const settingsHTML = path.join(__dirname, "..", "frontend", "settings.html");
     settingsWindow.loadFile(settingsHTML).catch((e) => console.error(e));
     settingsWindow.on('closed', () => { settingsWindow = null; });
 }

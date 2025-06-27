@@ -4,7 +4,7 @@
   "description": "split tracker for the game \"pogostuck by superku\"",
   "main": "build/main-process/main.js",
   "scripts": {
-    "compile": "tsc && copyfiles -f src/*.{html,js,css} assets/**/* build/",
+    "compile": "tsc && copyfiles -f src/frontend/*.{html,css} build/frontend && copyfiles -f assets/**/* build/assets",
     "start": "npm run compile && electron .",
     "dist": "npm run compile && electron-builder"
   },
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "electron": "^37.0.0",
+    "electron": "35.2.1",
     "electron-builder": "^26.0.12"
   },
   "build": {

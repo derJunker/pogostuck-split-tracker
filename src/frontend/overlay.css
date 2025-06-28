@@ -1,22 +1,30 @@
 body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
-    font-size: 1.4rem;,
+    font-size: 1.9rem;
     font-weight: bold;
     user-focus: false;
     -webkit-app-region: drag;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
     user-select: none;
+    /*background: #8d8d8d;*/
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+    height: 100vh;
+    margin: 0;
 }
 
 #splits {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, auto);
     gap: 0.2em 0.5em;
     width: max-content;
     min-width: 0;
     max-width: 100vw;
+    justify-items: end;
 }
 .split {
     display: grid;
@@ -25,5 +33,43 @@ body {
 }
 .split > span {
     padding: 0 0.3em;
-    text-align: center;
+    text-align: right;
+}
+.split > span.split-diff {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    min-width: 8ch;
+    padding: 0 0.3em;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    text-align: right;
+    gap: 0.3ch;
+    justify-self: stretch;
+}
+.split > span.split-diff.late {
+    color: #f66;
+}
+.split > span.split-diff.early {
+    color: #6f6;
+}
+.split > span.split-diff.golden {
+    color: #ffd700;
+}
+.split > span.split-diff .sign {
+    display: inline-block;
+    width: 1.5ch;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    font-size: 1em;
+}
+.split > span.split-diff .num {
+    display: inline-block;
+    min-width: 6ch;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    font-size: 1em;
 }

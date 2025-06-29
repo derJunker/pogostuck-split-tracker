@@ -17,13 +17,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="overlay.css">
+    <script type="module" src="overlay.js"></script>
 </head>
 <body>
-    <div class="split" id="0">
-        <span class="split-name">Bones</span>
-        <span class="reset-count">[20]</span>
-        <span class="time-diff late"> +12.5</span>
-        <span class="split-time"> 31.5</span>
-    </div>
+<div>
+    <div>Map: <span id="map-name"></span> Mode: <span id="mode-name"></span></div>
+</div>
+<div id="splits">
+<!--    Preview how js loads in files -->
+<!--    <div class="split" id="0">-->
+<!--        <span class="split-name">Bone</span>-->
+<!--        <span class="split-resets">10</span>-->
+<!--        <span class="split-diff late"><span class="sign">+</span><span class="num">12.345</span></span>-->
+<!--        <span class="split-time">0:31.465</span>-->
+<!--    </div>-->
+<!--    <div class="split" id="1">-->
+<!--        <span class="split-name">Wind</span>-->
+<!--        <span class="split-resets">40</span>-->
+<!--        <span class="split-diff early"><span class="sign">-</span><span class="num">1.234</span></span>-->
+<!--        <span class="split-time">0:29.231</span>-->
+<!--    </div>-->
+<!--    <div class="split" id="2">-->
+<!--        <span class="split-name">Grapes</span>-->
+<!--        <span class="split-resets">30</span>-->
+<!--        <span class="split-diff golden"><span class="sign">-</span><span class="num">3.221</span></span>-->
+<!--        <span class="split-time">0:59.231</span>-->
+<!--    </div>-->
+</div>
+<div style="display: flex;">
+    <button id="next-split-btn">load split</button>
+    <button id="reset-split-btn">reset split</button>
+</div>
 </body>
 </html>

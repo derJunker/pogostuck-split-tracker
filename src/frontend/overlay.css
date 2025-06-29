@@ -3,7 +3,6 @@ body {
     font-family: 'Courier Prime', monospace;
     font-size: 1.9rem;
     font-weight: bold;
-    user-focus: false;
     -webkit-app-region: drag;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: black;
@@ -15,6 +14,11 @@ body {
     justify-content: flex-start;
     height: 100vh;
     margin: 0;
+}
+
+button {
+    -webkit-app-region: no-drag;
+    user-select: auto;
 }
 
 #splits {

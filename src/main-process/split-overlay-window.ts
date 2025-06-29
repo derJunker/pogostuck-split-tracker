@@ -4,8 +4,8 @@ import {BrowserWindow, screen} from "electron";
 
 export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
-    const overlayWidth = 575;
-    const overlayHeight = 400;
+    const overlayWidth = 700;
+    const overlayHeight = 350;
 
     const overlayWindow = new BrowserWindow({
         width: overlayWidth,

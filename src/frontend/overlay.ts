@@ -53,6 +53,16 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: string, diff: string, 
     }
 }
 
+function updateSplitResets(splitKey: number, newResetCount: number) {
+    const splitDiv = document.getElementById(splitKey.toString());
+    if (splitDiv) {
+        const resetsSpan = splitDiv.querySelector('.split-resets');
+        if (resetsSpan) {
+            resetsSpan.textContent = newResetCount.toString();
+        }
+    }
+}
+
 let splitCounter = 0;
 
 loadMapMode(
@@ -71,25 +81,6 @@ loadMapMode(
     ]
 );
 
-document.querySelector("#load-mode-btn")?.addEventListener("click", () => {
-    loadMapMode(
-        'Map 1',
-        'reg',
-        [
-            { key: 0, splitName: 'Bones', splitTime: "0:17.465", resetCount: 22 },
-            { key: 1, splitName: 'Wind', splitTime: "0:40.231", resetCount: 90 },
-            { key: 2, splitName: 'Grapes', splitTime: "1:02.231", resetCount: 19 },
-            { key: 3, splitName: 'Trees', splitTime: "1:17.231", resetCount: 15 },
-            { key: 4, splitName: 'Pineapples', splitTime: "0:00.000", resetCount: 0 },
-            { key: 5, splitName: "Palm Trees", splitTime: "1:40.151", resetCount: 120 },
-            { key: 6, splitName: "Mushrooms", splitTime: "2:27.755", resetCount: 45 },
-            { key: 7, splitName: "Flowers", splitTime: "2:08.144", resetCount: 30 },
-            { key: 8, splitName: "Ice", splitTime: "2:29.066", resetCount: 60 },
-        ]
-    );
-    splitCounter = 0;
-})
-
 document.querySelector("#next-split-btn")?.addEventListener("click", () => {
     const diffs = [
         { diff: "-0:00.500", type: "golden" },
@@ -101,3 +92,10 @@ document.querySelector("#next-split-btn")?.addEventListener("click", () => {
     addSplitTimeAndDiff(splitCounter, "1:23.456", diffs[random].diff, diffs[random].type);
     splitCounter++;
 })
+
+document.querySelector("#reset-split-btn")?.addEventListener("click", () => {
+    const splitKey = splitCounter - 1;
+    if (splitKey >= 0) {
+        updateSplitResets(splitKey, Math.floor(Math.random() * 10));
+    }
+});

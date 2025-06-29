@@ -21,7 +21,7 @@ function loadMapMode(map: string, mode: string, splits: {key:number, splitName: 
 
             const resetsSpan = document.createElement('span');
             resetsSpan.className = 'split-resets';
-            resetsSpan.textContent = `[${split.resetCount}]`;
+            resetsSpan.textContent = `${split.resetCount}`;
             splitDiv.appendChild(resetsSpan);
 
             const diffSpan = document.createElement('span');

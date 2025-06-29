@@ -78,3 +78,9 @@ button {
     font-family: inherit;
     font-size: 1em;
 }
+.split-resets::before {
+    content: '[';
+}
+.split-resets::after {
+    content: ']';
+}

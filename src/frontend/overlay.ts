@@ -39,19 +39,39 @@ function loadMapMode(map: string, mode: string, splits: {key:number, splitName: 
     }
 }
 
-function addSplitTimeAndDiff(splitKey: number, splitTime: string, diff: string, type: string) {
+function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number) {
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
         const timeSpan = splitDiv.querySelector('.split-time');
-        if (timeSpan) timeSpan.textContent = splitTime;
+        if (timeSpan) timeSpan.textContent = formatTime(splitTime);
 
         const diffSpan = splitDiv.querySelector('.split-diff');
         if (diffSpan) {
-            diffSpan.textContent = diff;
-            diffSpan.className = 'split-diff ' + type;
+            // Vorzeichen bestimmen
+            let sign = '';
+            if (diff > 0) sign = '+';
+            else if (diff < 0) sign = '-';
+            // Absoluten Wert für die Anzeige
+            const absDiff = Math.abs(diff);
+            // Alte Inhalte entfernen
+            diffSpan.innerHTML = '';
+            // <span class="sign"> und <span class="num"> erzeugen
+            const signSpan = document.createElement('span');
+            signSpan.className = 'sign';
+            signSpan.textContent = sign;
+            diffSpan.appendChild(signSpan);
+            const numSpan = document.createElement('span');
+            numSpan.className = 'num';
+            numSpan.textContent = formatTime(absDiff);
+            diffSpan.appendChild(numSpan);
+            // Typenklasse setzen
+            const type = diff < 0 ? "early" : diff > 0 ? "late" : "";
+            diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
     }
 }
+
+
 
 // TODO add send logic from backend
 function updateSplitResets(splitKey: number, newResetCount: number) {
@@ -70,26 +90,35 @@ window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
         mapAndMode.map,
         mapAndMode.mode,
         [
-            { key: 0, splitName: 'Bones', splitTime: "0:17.465", resetCount: 22 },
-            { key: 1, splitName: 'Wind', splitTime: "0:40.231", resetCount: 90 },
-            { key: 2, splitName: 'Grapes', splitTime: "1:02.231", resetCount: 19 },
-            { key: 3, splitName: 'Trees', splitTime: "1:17.231", resetCount: 15 },
+            { key: 0, splitName: 'Bones', splitTime: "0:17.465", resetCount: 0 },
+            { key: 1, splitName: 'Wind', splitTime: "0:40.231", resetCount: 0 },
+            { key: 2, splitName: 'Grapes', splitTime: "1:02.231", resetCount: 0 },
+            { key: 3, splitName: 'Trees', splitTime: "1:17.231", resetCount: 0 },
             { key: 4, splitName: 'Pineapples', splitTime: "0:00.000", resetCount: 0 },
-            { key: 5, splitName: "Palm Trees", splitTime: "1:40.151", resetCount: 120 },
-            { key: 6, splitName: "Mushrooms", splitTime: "2:27.755", resetCount: 45 },
-            { key: 7, splitName: "Flowers", splitTime: "2:08.144", resetCount: 30 },
-            { key: 8, splitName: "Ice", splitTime: "2:29.066", resetCount: 60 },
+            { key: 5, splitName: "Palm Trees", splitTime: "1:40.151", resetCount: 0 },
+            { key: 6, splitName: "Mushrooms", splitTime: "2:27.755", resetCount: 0 },
+            { key: 7, splitName: "Flowers", splitTime: "2:08.144", resetCount: 0 },
+            { key: 8, splitName: "Ice", splitTime: "2:29.066", resetCount: 0 },
         ]
     );
 });
 
 window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number }) => {
-    const diffs = [
-        { diff: "-0:00.500", type: "golden" },
-        { diff: "+0:00.123", type: "late" },
-        { diff: "-0:00.234", type: "early" },
-        { diff: "+0:00.000", type: "exact" }
-    ];
+    const diffs = [-0.5, 0.123, -0.234, 0.0];
     const random = Math.floor(Math.random() * 4);
-    // addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime + "", diffs[random].diff, diffs[random].type);
+    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, diffs[random]);
 });
+
+function formatTime(seconds: number): string {
+    const sign = seconds < 0 ? '-' : '';
+    const absSeconds = Math.abs(seconds);
+    const mins = Math.floor(absSeconds / 60);
+    const secs = Math.floor(absSeconds % 60);
+    const ms = Math.round((absSeconds - Math.floor(absSeconds)) * 1000);
+
+    const minsStr = mins.toString().padStart(2, '0');
+    const secsStr = secs.toString().padStart(2, '0');
+    const msStr = ms.toString().padStart(3, '0');
+
+    return `${sign}${minsStr}:${secsStr}.${msStr}`;
+}

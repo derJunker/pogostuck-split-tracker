@@ -16,12 +16,11 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         alwaysOnTop: true,
         transparent: true,
         frame: false,
-        // no menu stuff
         skipTaskbar: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            // preload: new URL("preload.js", import.meta.url).href
+            preload: path.join(__dirname, "preload.js"),
         }
     });
 
@@ -31,4 +30,5 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
 
     overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
     overlayWindow.on('closed', () => { /* Handle window close if needed */ });
+    return overlayWindow
 }

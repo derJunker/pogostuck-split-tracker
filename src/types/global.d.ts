@@ -8,7 +8,7 @@ declare global { interface Window {
         onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent,
                                         mapAndMode: { map: string, mode: string }) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
-                                   splitInfo: { splitName: string, splitTime: number }) => void) => void;
+                                   splitInfo: { splitIndex: number, splitTime: number, splitDiff: number }) => void) => void;
     };
 } }
 export {};

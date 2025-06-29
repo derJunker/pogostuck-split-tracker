@@ -12,6 +12,7 @@ const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
 let currentSettings: Settings | null = null;
 let mainWindow: BrowserWindow | null = null;
+let overlayWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
 let stateTracker: CurrentStateTracker = new CurrentStateTracker();
@@ -26,7 +27,6 @@ app.on("ready", () => {
             nodeIntegration: false
         }
     });
-    registerLogEventHandlers(logWatcher, stateTracker)
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow
         .loadFile(indexHTML)
@@ -34,7 +34,8 @@ app.on("ready", () => {
             // IMPLEMENT FANCY STUFF HERE
         })
         .catch((e) => console.error(e));
-    openOverlayWindow(mainWindow);
+    overlayWindow = openOverlayWindow(mainWindow);
+    registerLogEventHandlers(logWatcher, stateTracker, overlayWindow)
 
     ipcMain.on("open-settings", () => {
         if (mainWindow) openSettingsWindow(mainWindow);

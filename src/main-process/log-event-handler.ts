@@ -1,14 +1,18 @@
 import { FileWatcher } from './logs-watcher';
 import {CurrentStateTracker} from "../data/current-state-tracker";
+import {BrowserWindow, ipcMain} from "electron";
 
-export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker) {
+export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, overlayWindow: BrowserWindow) {
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
         (match) => {
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
             const modeNum = parseInt(mode);
-            stateTracker.updateMapAndMode(mapNum, modeNum);
+            const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
+            if (changed) {
+                overlayWindow.webContents.send('map-or-mode-changed', { map: mapNum.toString(), mode: modeNum.toString() });
+            }
         }
     );
     fileWatcher.registerListener(
@@ -16,13 +20,16 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         (match) => {
             const { checkpoint, old, time, overwrittenTime } = match.groups!;
             const split = parseInt(checkpoint);
-            stateTracker.passedSplit(split, parseFloat(time))
+            const timeAsFloat  = parseFloat(time);
+            stateTracker.passedSplit(split, timeAsFloat)
+            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: -1});
         }
     )
     fileWatcher.registerListener(
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             stateTracker.resetRun();
+            overlayWindow.webContents.send('map-or-mode-changed', { map: stateTracker.getCurrentMap().toString(), mode: stateTracker.getCurrentMode().toString() });
         }
     )
     fileWatcher.registerListener(

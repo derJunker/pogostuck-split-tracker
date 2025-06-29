@@ -11,7 +11,7 @@ export class CurrentStateTracker {
     // golden splits (all time best singular splits)
     private bestSplits: { split: number, time: number }[] = [];
 
-    public updateMapAndMode(map: number, mode: number): void {
+    public updateMapAndMode(map: number, mode: number): boolean {
         if (this.map !== map || this.mode !== mode) {
             this.map = map;
             this.mode = mode;
@@ -19,7 +19,9 @@ export class CurrentStateTracker {
             this.finalTime = -1;
             // TODO update pb, pbSplits, and bestSplits
             console.log(`Map changed to ${map}, mode changed to ${mode}`);
+            return true;
         }
+        return false;
     }
 
     public passedSplit(split: number, time: number): void {
@@ -48,5 +50,12 @@ export class CurrentStateTracker {
         // TODO save the recorded splits for data
         this.recordedSplits = [];
         this.finalTime = -1;
+    }
+
+    public getCurrentMap(): number {
+        return this.map;
+    }
+    public getCurrentMode(): number {
+        return this.mode;
     }
 }

@@ -6,5 +6,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveSettings: (settings: any) => ipcRenderer.invoke('save-settings', settings),
     loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
     onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: { map: string, mode: string }) => void) => ipcRenderer.on('map-or-mode-changed', callback),
-    onSplitPassed: (callback: (event: Electron.IpcRendererEvent, splitInfo: { splitName: string, splitTime: number }) => void) => ipcRenderer.on('split-passed', callback),
+    onSplitPassed: (callback: (event: Electron.IpcRendererEvent, splitInfo: { splitIndex: number, splitTime: number, splitDiff: number}) => void) => ipcRenderer.on('split-passed', callback),
 });

@@ -53,6 +53,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: string, diff: string, 
     }
 }
 
+// TODO add send logic from backend
 function updateSplitResets(splitKey: number, newResetCount: number) {
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
@@ -63,25 +64,26 @@ function updateSplitResets(splitKey: number, newResetCount: number) {
     }
 }
 
-let splitCounter = 0;
+window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
+                                       mapAndMode:{map: string, mode: string}) => {
+    loadMapMode(
+        mapAndMode.map,
+        mapAndMode.mode,
+        [
+            { key: 0, splitName: 'Bones', splitTime: "0:17.465", resetCount: 22 },
+            { key: 1, splitName: 'Wind', splitTime: "0:40.231", resetCount: 90 },
+            { key: 2, splitName: 'Grapes', splitTime: "1:02.231", resetCount: 19 },
+            { key: 3, splitName: 'Trees', splitTime: "1:17.231", resetCount: 15 },
+            { key: 4, splitName: 'Pineapples', splitTime: "0:00.000", resetCount: 0 },
+            { key: 5, splitName: "Palm Trees", splitTime: "1:40.151", resetCount: 120 },
+            { key: 6, splitName: "Mushrooms", splitTime: "2:27.755", resetCount: 45 },
+            { key: 7, splitName: "Flowers", splitTime: "2:08.144", resetCount: 30 },
+            { key: 8, splitName: "Ice", splitTime: "2:29.066", resetCount: 60 },
+        ]
+    );
+});
 
-loadMapMode(
-    'Map 1',
-    'reg',
-    [
-        { key: 0, splitName: 'Bones', splitTime: "0:17.465", resetCount: 22 },
-        { key: 1, splitName: 'Wind', splitTime: "0:40.231", resetCount: 90 },
-        { key: 2, splitName: 'Grapes', splitTime: "1:02.231", resetCount: 19 },
-        { key: 3, splitName: 'Trees', splitTime: "1:17.231", resetCount: 15 },
-        { key: 4, splitName: 'Pineapples', splitTime: "0:00.000", resetCount: 0 },
-        { key: 5, splitName: "Palm Trees", splitTime: "1:40.151", resetCount: 120 },
-        { key: 6, splitName: "Mushrooms", splitTime: "2:27.755", resetCount: 45 },
-        { key: 7, splitName: "Flowers", splitTime: "2:08.144", resetCount: 30 },
-        { key: 8, splitName: "Ice", splitTime: "2:29.066", resetCount: 60 },
-    ]
-);
-
-document.querySelector("#next-split-btn")?.addEventListener("click", () => {
+window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number }) => {
     const diffs = [
         { diff: "-0:00.500", type: "golden" },
         { diff: "+0:00.123", type: "late" },
@@ -89,13 +91,5 @@ document.querySelector("#next-split-btn")?.addEventListener("click", () => {
         { diff: "+0:00.000", type: "exact" }
     ];
     const random = Math.floor(Math.random() * 4);
-    addSplitTimeAndDiff(splitCounter, "1:23.456", diffs[random].diff, diffs[random].type);
-    splitCounter++;
-})
-
-document.querySelector("#reset-split-btn")?.addEventListener("click", () => {
-    const splitKey = splitCounter - 1;
-    if (splitKey >= 0) {
-        updateSplitResets(splitKey, Math.floor(Math.random() * 10));
-    }
+    // addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime + "", diffs[random].diff, diffs[random].type);
 });

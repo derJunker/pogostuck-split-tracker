@@ -24,8 +24,10 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const { checkpoint, old, time, overwrittenTime } = match.groups!;
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
+            const pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
+            const diff = timeAsFloat - pbTime;
             stateTracker.passedSplit(split, timeAsFloat)
-            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: -1});
+            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff});
         }
     )
     fileWatcher.registerListener(

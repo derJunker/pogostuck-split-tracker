@@ -99,9 +99,7 @@ window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
 });
 
 window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number }) => {
-    const diffs = [-0.5, 0.123, -0.234, 0.0];
-    const random = Math.floor(Math.random() * 4);
-    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, diffs[random]);
+    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff);
 });
 
 function formatTime(seconds: number): string {

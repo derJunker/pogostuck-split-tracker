@@ -85,14 +85,14 @@ function updateSplitResets(splitKey: number, newResetCount: number) {
 }
 
 window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
-                                       mapAndMode:{map: string, mode: string, splits: string[]}) => {
+                                       mapAndMode:{ map: string; mode: string; splits: { name: string; split: number; time: number }[] }) => {
     loadMapMode(
         mapAndMode.map,
         mapAndMode.mode,
         mapAndMode.splits.map((split, index) => ({
             key: index,
-            splitName: split,
-            splitTime: '00:00.000',
+            splitName: split.name,
+            splitTime: formatTime(split.time),
             resetCount: 0
         }))
     );

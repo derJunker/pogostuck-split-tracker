@@ -10,6 +10,7 @@ import {CurrentStateTracker} from "../data/current-state-tracker";
 import {initMappings} from "./create-index-mappings";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
+import {PbSplitTracker} from "../data/pb-split-tracker";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
@@ -18,8 +19,9 @@ let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
-let stateTracker: CurrentStateTracker = new CurrentStateTracker();
+const stateTracker: CurrentStateTracker = new CurrentStateTracker();
 const indexToNamesMappings = initMappings();
+const pbSplitTracker = new PbSplitTracker();
 
 app.on("ready", () => {
 
@@ -36,10 +38,11 @@ app.on("ready", () => {
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);
-    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, overlayWindow);
+    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, overlayWindow);
 
     initSettingsListeners()
     currentSettings = loadSettings();
+    pbSplitTracker.readPbSplitsFromFile(path.join(currentSettings.pogostuckSteamUserDataPath, "settings.txt"), indexToNamesMappings);
 
 
     logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");

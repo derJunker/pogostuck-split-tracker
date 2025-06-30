@@ -21,6 +21,7 @@ app.on("ready", () => {
     mainWindow = new BrowserWindow({
         width: 600,
         height: 400,
+        show: false,
         webPreferences: {
             preload: __dirname + '/preload.js',
             contextIsolation: true,

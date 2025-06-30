@@ -34,7 +34,8 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             stateTracker.resetRun();
-            onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, overlayWindow);
+            if (stateTracker.getCurrentMode() >= 0 && stateTracker.getCurrentMap() >= 0)
+                onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, overlayWindow);
         }
     )
     fileWatcher.registerListener(

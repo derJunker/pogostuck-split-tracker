@@ -6,14 +6,10 @@ export class FileWatcher {
     private dirWatcher: FSWatcher | null = null;
     private fileWatcher: FSWatcher | null = null;
     private lastSize = 0;
-    private currentDir = '';
-    private currentFile = '';
     private listeners: { regex: RegExp, callback: (match: RegExpMatchArray) => void }[] = [];
 
     startWatching(dirPath: string, fileName: string) {
         this.stopWatching();
-        this.currentDir = dirPath;
-        this.currentFile = fileName;
         const filePath = path.join(dirPath, fileName);
 
         this.dirWatcher = chokidar.watch(dirPath, { persistent: true, depth: 0 });
@@ -29,7 +25,6 @@ export class FileWatcher {
             }
         });
 
-        // Falls Datei schon existiert
         fs.access(filePath, fs.constants.F_OK, (err) => {
             if (!err) {
                 this.watchFile(filePath);
@@ -83,7 +78,5 @@ export class FileWatcher {
             this.dirWatcher = null;
         }
         this.stopFileWatcher();
-        this.currentDir = '';
-        this.currentFile = '';
     }
 }

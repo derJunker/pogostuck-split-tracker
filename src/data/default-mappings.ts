@@ -2,23 +2,23 @@ import {PogoLevel} from "../types/pogo-index-mapping";
 
 export const defaultMappings: PogoLevel[] = [
     {
-        mapLevel: "Map 1",
+        levelName: "Map 1",
         mapIndex: 0,
         splits: [ "Bones", "Wind", "Grapes", "Trees", "Pineapples", "Palm Trees", "Mushrooms", "Flowers", "Ice"],
         modes: [
             {
                 key: 0,
-                name: "Regular",
+                name: "Reg",
                 settingsName: "Checkpoint"
             },
             {
                 key: 1,
-                name: "Skipless",
+                name: "NoSkip",
                 settingsName: "Skipless"
             },
             {
                 key: 2,
-                name: "Invisible",
+                name: "Invis",
                 settingsName: "Invisible"
             },
             {
@@ -40,6 +40,38 @@ export const defaultMappings: PogoLevel[] = [
                 key: 7,
                 name: "Puzzle",
                 settingsName: "Map1Puzzle_"
+            }
+        ]
+    },
+    {
+        levelName: "Map 2",
+        mapIndex: 8,
+        splits: [ "Ants", "Coconuts", "Slopes", "Wind", "Bees", "Vines", "Pillars", "Duck", "Plums", "Snake" ],
+        modes: [
+            {
+                key: 12,
+                name: "Reg",
+                settingsName: "MonolithDefault"
+            },
+            {
+                key: 13,
+                name: "DJ",
+                settingsName: "MonolithDouble"
+            },
+            {
+                key: 14,
+                name: "720",
+                settingsName: "Monolith720_"
+            },
+            {
+                key: 15,
+                name: "Puzzle",
+                settingsName: "MonolithPuzzle_"
+            },
+            {
+                key: 16,
+                name: "UD",
+                settingsName: "MonolithUpDown_"
             }
         ]
     }

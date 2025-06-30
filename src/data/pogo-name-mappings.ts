@@ -7,18 +7,20 @@ export class PogoNameMappings {
         this.nameMappings = nameMappings;
     }
 
-    public getMapModeAndSplits(mapIndex: number, modeIndex: number) {
+    public getMapModeAndSplits(mapIndex: number, modeIndex: number): { map: string, mode: string, splits: string[] } {
         const map = this.nameMappings.find(m => m.mapIndex === mapIndex);
         if (!map) {
-            throw new Error(`Map with index ${mapIndex} not found`);
+            console.log(`Map with index ${mapIndex} not found`)
+            return { map: mapIndex + "", mode: modeIndex + "", splits: ["Map not found"]}
         }
 
         const mode = map.modes.find(m => m.key === modeIndex);
         if (!mode) {
-            throw new Error(`Mode with index ${modeIndex} not found for map ${map.mapLevel}`);
+            console.log(`Mode with index ${modeIndex} not found for map ${map.levelName}`);
+            return { map: map.levelName, mode: modeIndex + "", splits: ["Mode not found"] }
         }
 
 
-        return { map: map.mapLevel, mode: mode.name, splits: map.splits };
+        return { map: map.levelName, mode: mode.name, splits: map.splits };
     }
 }

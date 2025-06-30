@@ -1,5 +1,5 @@
 export interface PogoLevel {
-    mapLevel: string;
+    levelName: string;
     mapIndex: number;
     splits: string[];
     modes: {

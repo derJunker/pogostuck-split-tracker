@@ -74,5 +74,32 @@ export const defaultMappings: PogoLevel[] = [
                 settingsName: "MonolithUpDown_"
             }
         ]
+    },
+    {
+        levelName: "Map 3",
+        mapIndex: 9,
+        splits: ["Checkpoint 1", "Checkpoint 2", "Checkpoint 3", "Checkpoint 4", "Checkpoint 5", "Checkpoint 6", "Checkpoint 7", "Checkpoint 8"],
+        modes: [
+            {
+                key: 20,
+                name: "Reg",
+                settingsName: "Map3Default"
+            },
+            {
+                key: 21,
+                name: "DJ",
+                settingsName: "Map3Boost"
+            },
+            {
+                key: 22,
+                name: "Puzzle",
+                settingsName: "Map3Puzzle"
+            },
+            {
+                key: 23,
+                name: "UD",
+                settingsName: "Map3UpsideDown_"
+            }
+        ]
     }
 ]

@@ -42,7 +42,6 @@ app.on("ready", () => {
     currentSettings = loadSettings();
 
 
-
     logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");
 });
 
@@ -67,6 +66,7 @@ function loadSettings(): Settings {
     if (existsSync(settingsPath)) {
         return JSON.parse(require("fs").readFileSync(settingsPath, "utf-8"));
     } else {
+        console.log(`Settings file not found at ${settingsPath}. Creating default settings.`);
         return {
             pogostuckConfigPath: "",
             pogostuckSteamUserDataPath: "",

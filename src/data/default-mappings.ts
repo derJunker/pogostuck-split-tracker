@@ -101,5 +101,34 @@ export const defaultMappings: PogoLevel[] = [
                 settingsName: "Map3UpsideDown_"
             }
         ]
+    },
+    {
+        levelName: "Micro Map 1",
+        mapIndex: 99,
+        splits: ["Bones", "Wind", "Grapes", "Trees", "Pineapples", "Palm Trees", "Mushrooms", "Flowers", "Ice"],
+        modes: [
+            {
+                key: 30,
+                name: "reg",
+                settingsName: "Map1SmallRegular_"
+            },
+            {
+                key: 31,
+                name: "no boost",
+                settingsName: "Map1SmallNoBoost_"
+            }
+        ]
+    },
+    {
+        levelName: "Dracula's Castle",
+        mapIndex: 100,
+        splits: ["Mushrooms", "Cellar", "Moving Blocks", "Ice", "Pillars"],
+        modes: [
+            {
+                key: 27,
+                name: "reg",
+                settingsName: "Drakula_"
+            }
+        ]
     }
 ]

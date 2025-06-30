@@ -1,4 +1,5 @@
-export type Settings = {
+export interface Settings {
     pogostuckConfigPath: string;
-};
+    pogostuckSteamUserDataPath: string;
+}
 

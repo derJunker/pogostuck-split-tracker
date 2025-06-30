@@ -85,16 +85,16 @@ function updateSplitResets(splitKey: number, newResetCount: number) {
 }
 
 window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
-                                       mapAndMode:{map: string, mode: string}) => {
+                                       mapAndMode:{map: string, mode: string, splits: string[]}) => {
     loadMapMode(
         mapAndMode.map,
         mapAndMode.mode,
         [
-            { key: 0, splitName: 'Bones', splitTime: "0:17.465", resetCount: 0 },
-            { key: 1, splitName: 'Wind', splitTime: "0:40.231", resetCount: 0 },
-            { key: 2, splitName: 'Grapes', splitTime: "1:02.231", resetCount: 0 },
-            { key: 3, splitName: 'Trees', splitTime: "1:17.231", resetCount: 0 },
-            { key: 4, splitName: 'Pineapples', splitTime: "0:00.000", resetCount: 0 },
+            { key: 0, splitName: "Bones", splitTime: "0:17.465", resetCount: 0 },
+            { key: 1, splitName: "Wind", splitTime: "0:40.231", resetCount: 0 },
+            { key: 2, splitName: "Grapes", splitTime: "1:02.231", resetCount: 0 },
+            { key: 3, splitName: "Trees", splitTime: "1:17.231", resetCount: 0 },
+            { key: 4, splitName: "Pineapples", splitTime: "0:00.000", resetCount: 0 },
             { key: 5, splitName: "Palm Trees", splitTime: "1:40.151", resetCount: 0 },
             { key: 6, splitName: "Mushrooms", splitTime: "2:27.755", resetCount: 0 },
             { key: 7, splitName: "Flowers", splitTime: "2:08.144", resetCount: 0 },

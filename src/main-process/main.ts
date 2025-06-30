@@ -7,6 +7,9 @@ import {FileWatcher} from "./logs-watcher";
 import {registerLogEventHandlers} from "./log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "../data/current-state-tracker";
+import {initMappings} from "./create-index-mappings";
+import {PogoLevel} from "../types/pogo-index-mapping";
+import {PogoNameMappings} from "../data/pogo-name-mappings";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
@@ -16,8 +19,10 @@ let overlayWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
 let stateTracker: CurrentStateTracker = new CurrentStateTracker();
+const indexToNamesMappings = initMappings();
 
 app.on("ready", () => {
+
     mainWindow = new BrowserWindow({
         width: 600,
         height: 400,
@@ -29,15 +34,19 @@ app.on("ready", () => {
         }
     });
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
-    mainWindow
-        .loadFile(indexHTML)
-        .then(() => {
-            // IMPLEMENT FANCY STUFF HERE
-        })
-        .catch((e) => console.error(e));
+    mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);
-    registerLogEventHandlers(logWatcher, stateTracker, overlayWindow)
+    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, overlayWindow);
 
+    initSettingsListeners()
+    currentSettings = loadSettings();
+
+
+
+    logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");
+});
+
+function initSettingsListeners() {
     ipcMain.on("open-settings", () => {
         if (mainWindow) openSettingsWindow(mainWindow);
     })
@@ -52,17 +61,15 @@ app.on("ready", () => {
         currentSettings = loadSettings();
         return currentSettings;
     })
-
-    currentSettings = loadSettings();
-    logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");
-});
+}
 
 function loadSettings(): Settings {
     if (existsSync(settingsPath)) {
         return JSON.parse(require("fs").readFileSync(settingsPath, "utf-8"));
     } else {
         return {
-            pogostuckConfigPath: ""
+            pogostuckConfigPath: "",
+            pogostuckSteamUserDataPath: "",
         };
     }
 }

@@ -1,17 +1,20 @@
 import { FileWatcher } from './logs-watcher';
 import {CurrentStateTracker} from "../data/current-state-tracker";
 import {BrowserWindow, ipcMain} from "electron";
+import {PogoLevel} from "../types/pogo-index-mapping";
+import {PogoNameMappings} from "../data/pogo-name-mappings";
 
-export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, overlayWindow: BrowserWindow) {
+export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow) {
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
         (match) => {
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
             const modeNum = parseInt(mode);
+            const mapModeAndSplits = nameMappings.getMapModeAndSplits(mapNum, modeNum);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
-                overlayWindow.webContents.send('map-or-mode-changed', { map: mapNum.toString(), mode: modeNum.toString() });
+                overlayWindow.webContents.send('map-or-mode-changed', mapModeAndSplits);
             }
         }
     );
@@ -29,7 +32,8 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             stateTracker.resetRun();
-            overlayWindow.webContents.send('map-or-mode-changed', { map: stateTracker.getCurrentMap().toString(), mode: stateTracker.getCurrentMode().toString() });
+            const mapModeAndSplits = nameMappings.getMapModeAndSplits(stateTracker.getCurrentMap(), stateTracker.getCurrentMode());
+            overlayWindow.webContents.send('map-or-mode-changed', mapModeAndSplits);
         }
     )
     fileWatcher.registerListener(

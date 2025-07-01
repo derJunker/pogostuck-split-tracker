@@ -57,8 +57,6 @@ export class PbSplitTracker {
             mode: Number(mode),
             times: times.sort((a, b) => a.split - b.split)
         }));
-        console.log(`Loaded ${this.modeTimes.length} modes with splits from ${filePath}`);
-        console.log(`Mode splits: ${JSON.stringify(this.modeTimes, null, 2)}`);
     }
 
     public getPbSplitsForMode(mode: number): { split: number, time: number }[] {

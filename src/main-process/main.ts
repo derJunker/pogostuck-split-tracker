@@ -11,6 +11,8 @@ import {initMappings} from "./create-index-mappings";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
+import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
+import {readGoldenSplits} from "./read-golden-splits";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
@@ -22,6 +24,8 @@ let logWatcher: FileWatcher = new FileWatcher();
 const stateTracker: CurrentStateTracker = new CurrentStateTracker();
 const indexToNamesMappings = initMappings();
 const pbSplitTracker = new PbSplitTracker();
+
+const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits())
 
 app.on("ready", () => {
 

@@ -21,11 +21,10 @@ let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
-const stateTracker: CurrentStateTracker = new CurrentStateTracker();
+const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits())
+const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker);
 const indexToNamesMappings = initMappings();
 const pbSplitTracker = new PbSplitTracker();
-
-const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits())
 
 app.on("ready", () => {
 

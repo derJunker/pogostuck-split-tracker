@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/derJunker/pogostuck-split-tracker#readme",
   "dependencies": {
+    "@paymoapp/active-window": "^2.1.2",
     "better-sqlite3": "^12.2.0",
     "chokidar": "^4.0.3",
     "typescript": "^5.8.3"

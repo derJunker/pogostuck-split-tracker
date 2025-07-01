@@ -26,8 +26,8 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const timeAsFloat  = parseFloat(time);
             const pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
             const diff = timeAsFloat - pbTime;
-            stateTracker.passedSplit(split, timeAsFloat)
-            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff});
+            const wasGolden = stateTracker.passedSplit(split, timeAsFloat)
+            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden});
         }
     )
     fileWatcher.registerListener(

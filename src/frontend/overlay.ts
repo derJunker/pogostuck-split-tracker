@@ -39,7 +39,7 @@ function loadMapMode(map: string, mode: string, splits: {key:number, splitName: 
     }
 }
 
-function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number) {
+function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean) {
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
         const timeSpan = splitDiv.querySelector('.split-time');
@@ -65,7 +65,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number) 
             numSpan.textContent = formatTime(absDiff);
             diffSpan.appendChild(numSpan);
             // Typenklasse setzen
-            const type = diff < 0 ? "early" : diff > 0 ? "late" : "";
+            const type = golden ? "golden" : diff < 0 ? "early" : diff > 0 ? "late" : "";
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
     }
@@ -98,8 +98,8 @@ window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
     );
 });
 
-window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number }) => {
-    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff);
+window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => {
+    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden);
 });
 
 function formatTime(seconds: number): string {

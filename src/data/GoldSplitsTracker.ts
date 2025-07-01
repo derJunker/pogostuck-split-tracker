@@ -15,4 +15,15 @@ export class GoldSplitsTracker {
         }
         return null;
     }
+
+    public getPbForMode(modeIndex: number): number {
+        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
+        return modeSplits ? modeSplits.pb : 0;
+    }
+
+    public updateGoldSplit(modeIndex: number, splitIndex: number, newTime: number): void {
+        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
+        modeSplits.goldenSplits[splitIndex] = newTime;
+        console.log(`Updated gold split for mode ${modeIndex}, split ${splitIndex} to ${newTime}`);
+    }
 }

@@ -1,3 +1,5 @@
+import {GoldSplitsTracker} from "./GoldSplitsTracker";
+
 export class CurrentStateTracker {
     private mode: number = -1;
     private map: number = -1;
@@ -5,11 +7,12 @@ export class CurrentStateTracker {
     private finalTime: number = -1;
 
     private pb: number = 0;
-    // splits of the current personal best run
-    private pbSplits: { split: number, time: number }[] = [];
 
-    // golden splits (all time best singular splits)
-    private bestSplits: { split: number, time: number }[] = [];
+    private goldSplitsTracker: GoldSplitsTracker;
+
+    constructor(goldenSplitsTracker: GoldSplitsTracker) {
+        this.goldSplitsTracker = goldenSplitsTracker;
+    }
 
     public updateMapAndMode(map: number, mode: number): boolean {
         if (this.map !== map || this.mode !== mode) {
@@ -17,21 +20,23 @@ export class CurrentStateTracker {
             this.mode = mode;
             this.recordedSplits = [];
             this.finalTime = -1;
-            // TODO update pb, pbSplits, and bestSplits
+            this.pb = this.goldSplitsTracker.getPbForMode(this.mode);
             console.log(`Map changed to ${map}, mode changed to ${mode}`);
             return true;
         }
         return false;
     }
 
-    public passedSplit(split: number, time: number): void {
+    public passedSplit(split: number, time: number): boolean {
         this.recordedSplits.push({ split, time: time });
-        if (this.bestSplits[split] === undefined || this.bestSplits[split].time > time) {
-            this.pbSplits[split] = { split, time: time };
+        let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, split)
+        if (!goldSplit || goldSplit > time) {
+            this.goldSplitsTracker.updateGoldSplit(this.mode, split, time)
             console.log(`New best split for ${split}: ${time}`)
-            // TODO write this to a file
+            return true;
         } else {
             console.log(`Split passed: ${split} at time ${time}`);
+            return false;
         }
     }
 
@@ -41,8 +46,7 @@ export class CurrentStateTracker {
         if (this.finalTime > this.pb) {
             console.log(`New personal best: ${this.finalTime}`);
             this.pb = this.finalTime;
-            this.pbSplits = [...this.recordedSplits];
-            // TODO write this to a file
+            // TODO write this to a file && update the UI
         }
     }
 

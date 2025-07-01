@@ -13,8 +13,15 @@ import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {readGoldenSplits} from "./read-golden-splits";
+import ActiveWindow, {WindowInfo} from "@paymoapp/active-window";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
+
+ActiveWindow.initialize();
+if (!ActiveWindow.requestPermissions()) {
+    console.log('Error: You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
+    process.exit(0);
+}
 
 let currentSettings: Settings | null = null;
 let mainWindow: BrowserWindow | null = null;

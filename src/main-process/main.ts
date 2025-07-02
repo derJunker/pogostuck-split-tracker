@@ -48,7 +48,7 @@ app.on("ready", () => {
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);
-    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, overlayWindow);
+    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow);
 
     initSettingsListeners()
     currentSettings = loadSettings();

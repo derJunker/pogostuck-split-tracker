@@ -1,6 +1,7 @@
 import {GoldenSplitsForMode} from "../types/golden-splits";
 
 export class GoldSplitsTracker {
+    private changed: boolean = false;
     private goldenSplits: GoldenSplitsForMode[];
 
     constructor(goldenSplits: GoldenSplitsForMode[]) {
@@ -23,7 +24,16 @@ export class GoldSplitsTracker {
 
     public updateGoldSplit(modeIndex: number, splitIndex: number, newTime: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
+        this.changed = true;
         modeSplits.goldenSplits[splitIndex] = newTime;
         console.log(`Updated gold split for mode ${modeIndex}, split ${splitIndex} to ${newTime}`);
+    }
+
+    public hasChanged(): boolean {
+        return this.changed;
+    }
+
+    public getGoldenSplits() {
+        return this.goldenSplits;
     }
 }

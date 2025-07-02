@@ -53,3 +53,8 @@ export function readGoldenSplits(): GoldenSplitsForMode[] {
         return emptyGoldenSplitsWithDefaultValues;
     }
 }
+
+export function writeGoldenSplits(goldenSplits: GoldenSplitsForMode[]): void {
+    console.log("Writing Golden Splits to file:", goldenSplitFilePath);
+    fs.writeFileSync(goldenSplitFilePath, JSON.stringify(goldenSplits, null, 2));
+}

@@ -4,8 +4,12 @@ import {BrowserWindow, ipcMain} from "electron";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
+import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
+import {writeGoldenSplits} from "./read-golden-splits";
 
-export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker, overlayWindow: BrowserWindow) {
+export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
+                                         pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker, overlayWindow: BrowserWindow) {
+    // map or mode gets logged
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
         (match) => {
@@ -18,6 +22,8 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             }
         }
     );
+
+    // split gets logged
     fileWatcher.registerListener(
         /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\), old\((?<old>-?\d+)\) runTimeCurrent\((?<time>\d+\.\d+)\), cpTime\((?<overwrittenTime>\d+\.\d+)\)/,
         (match) => {
@@ -30,21 +36,38 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden});
         }
     )
+
+    // player reset gets logged
     fileWatcher.registerListener(
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             stateTracker.resetRun();
             if (stateTracker.getCurrentMode() >= 0 && stateTracker.getCurrentMap() >= 0)
                 onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, overlayWindow);
+            if (goldenSplitsTracker.hasChanged())
+                writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
         }
     )
+
+    // player run finish gets logged
     fileWatcher.registerListener(
         /playerRunFinish at frame \d+: requestProgressUploadTime\((?<time>\d+)\) <\? bestTime\((?<bestTime>\d+)\) replayRecordActive\((?<replayRecordActive>\d+)\) numFinishes\((?<numFinishes>\d+)\) skipless\((?<skipless>\d+)\) isConnectedToSteamServers\((?<isConnectedToSteamServers>\d+)\)/,
         (match) => {
             const { time, bestTime, replayRecordActive, numFinishes, skipless, isConnectedToSteamServers } = match.groups!;
             stateTracker.finishedRun(parseFloat(time), skipless === "1")
+            if (goldenSplitsTracker.hasChanged())
+                writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
         }
     )
+    // when going into the menu or closing the window save the golden splits, to reduce lag during play
+    fileWatcher.registerListener(
+        /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
+        () => {
+            console.log("Menu opened or closed, resetting run state.");
+            if (goldenSplitsTracker.hasChanged())
+                writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
+        }
+    );
 }
 
 function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker, overlayWindow: BrowserWindow) {

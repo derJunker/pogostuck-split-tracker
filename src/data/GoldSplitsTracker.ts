@@ -22,6 +22,14 @@ export class GoldSplitsTracker {
         return modeSplits ? modeSplits.pb : 0;
     }
 
+    public getSumOfBest(modeNum: number) {
+        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
+        if (modeSplits) {
+            return modeSplits.goldenSplits.reduce((sum, time) => sum + time, 0);
+        }
+        return -1;
+    }
+
     public updateGoldSplit(modeIndex: number, splitIndex: number, newTime: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
         this.changed = true;

@@ -17,7 +17,6 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         parent: mainWindow,
         transparent: true,
         frame: false,
-        focusable: false,
         show: false,
         webPreferences: {
             nodeIntegration: false,
@@ -26,10 +25,10 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         }
     });
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
-    addPogostuckOpenedListener(overlayWindow)
+    // addPogostuckOpenedListener(overlayWindow)
 
     overlayWindow.on("ready-to-show", () => {
-        if (pogostuckIsActiveWindow)
+        // if (pogostuckIsActiveWindow)
             overlayWindow.show();
     })
 

@@ -6,6 +6,7 @@ import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {writeGoldenSplits} from "./read-golden-splits";
+import {mapAndModeChanged} from "../types/global";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
                                          pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker, overlayWindow: BrowserWindow) {
@@ -18,7 +19,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const modeNum = parseInt(mode);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
-                onMapOrModeChanged(mapNum, modeNum, nameMappings, pbSplitTracker, overlayWindow);
+                onMapOrModeChanged(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow);
             }
         }
     );
@@ -43,7 +44,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         (match) => {
             stateTracker.resetRun();
             if (stateTracker.getCurrentMode() >= 0 && stateTracker.getCurrentMap() >= 0)
-                onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, overlayWindow);
+                onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow);
             if (goldenSplitsTracker.hasChanged())
                 writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
         }
@@ -70,17 +71,25 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     );
 }
 
-function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker, overlayWindow: BrowserWindow) {
+function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
+                            goldenSplitTracker: GoldSplitsTracker, overlayWindow: BrowserWindow) {
     const mapModeAndSplits: { map: string; mode: string; splits: string[] } = nameMappings.getMapModeAndSplits(mapNum, modeNum);
     const pbSplitTimes: { split: number; time: number }[] = pbSplitTracker.getPbSplitsForMode(modeNum);
-    const mapModeAndSplitsWithTimes: { map: string; mode: string; splits: { name: string; split: number; time: number }[] } = {
+
+    const pbTime = goldenSplitTracker.getPbForMode(modeNum);
+    const sumOfBest = goldenSplitTracker.getSumOfBest(modeNum);
+    console.log(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
+
+    const mapModeAndSplitsWithTimes: mapAndModeChanged = {
         map: mapModeAndSplits.map,
         mode: mapModeAndSplits.mode,
         splits: mapModeAndSplits.splits.map((splitName, i) => ({
             name: splitName,
             split: pbSplitTimes[i]!.split,
             time: pbSplitTimes[i]!.time
-        }))
+        })),
+        pb: pbTime,
+        sumOfBest: sumOfBest
     };
     overlayWindow.webContents.send('map-or-mode-changed', mapModeAndSplitsWithTimes);
 }

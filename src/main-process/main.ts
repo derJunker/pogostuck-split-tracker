@@ -28,9 +28,9 @@ let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
-const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits())
-const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker);
 const indexToNamesMappings = initMappings();
+const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings))
+const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker);
 const pbSplitTracker = new PbSplitTracker();
 
 app.on("ready", () => {
@@ -53,6 +53,7 @@ app.on("ready", () => {
     initSettingsListeners()
     currentSettings = loadSettings();
     pbSplitTracker.readPbSplitsFromFile(path.join(currentSettings.pogostuckSteamUserDataPath, "settings.txt"), indexToNamesMappings);
+    goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
 
 
     logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");

@@ -81,4 +81,8 @@ export class PbSplitTracker {
         }
         return splitTime.time;
     }
+
+    public getAllPbSplits(): ModeSplits[] {
+        return this.modeTimes;
+    }
 }

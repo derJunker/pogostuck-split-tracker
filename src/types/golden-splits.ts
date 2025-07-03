@@ -1,5 +1,5 @@
 export interface GoldenSplitsForMode {
     modeIndex: number;
-    goldenSplits: number[],
+    goldenSplits: (number)[],
     pb: number
 }

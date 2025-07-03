@@ -77,8 +77,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             numSpan.className = 'num';
             numSpan.textContent = formatTime(absDiff, true);
             diffSpan.appendChild(numSpan);
-            // Typenklasse setzen
-            const type =  diff > 0 ? "late" : golden ? "golden" : diff < 0 ? "early" : "";
+            const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
     }

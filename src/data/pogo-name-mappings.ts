@@ -7,6 +7,10 @@ export class PogoNameMappings {
         this.nameMappings = nameMappings;
     }
 
+    public getAllLevels(): PogoLevel[] {
+        return this.nameMappings;
+    }
+
     public getMapModeAndSplits(mapIndex: number, modeIndex: number): { map: string, mode: string, splits: string[] } {
         const map = this.nameMappings.find(m => m.mapIndex === mapIndex);
         if (!map) {

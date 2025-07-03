@@ -33,7 +33,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const timeAsFloat  = parseFloat(time);
             const pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
             const diff = timeAsFloat - pbTime;
-            const wasGolden = stateTracker.passedSplit(split, timeAsFloat)
+            const wasGolden = stateTracker.passedSplit(split, timeAsFloat, stateTracker.getLastSplitTime())
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden});
         }
     )
@@ -88,7 +88,7 @@ function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoN
             split: pbSplitTimes[i]!.split,
             time: pbSplitTimes[i]!.time
         })),
-        pb: pbTime,
+        pb: pbTime === Infinity ? -1 : pbTime,
         sumOfBest: sumOfBest
     };
     overlayWindow.webContents.send('map-or-mode-changed', mapModeAndSplitsWithTimes);

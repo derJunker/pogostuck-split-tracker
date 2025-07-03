@@ -1,55 +1,42 @@
 import path from "path";
 import {app} from "electron";
-import {existsSync} from "fs";
-import fs from "fs";
+import fs, {existsSync} from "fs";
 import {GoldenSplitsForMode} from "../types/golden-splits";
+import {PogoNameMappings} from "../data/pogo-name-mappings";
 
 const goldenSplitFilePath = path.join(app.getPath("userData"), "golden-splits.json");
 
-const emptyGoldenSplitsWithDefaultValues: GoldenSplitsForMode[] = [
-    // Map 1
-    { modeIndex: 0, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 1, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 2, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 3, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 4, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 6, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 7, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    // Map 2
-    { modeIndex: 12, goldenSplits: [0,0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 13, goldenSplits: [0,0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 14, goldenSplits: [0,0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 15, goldenSplits: [0,0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 16, goldenSplits: [0,0,0,0,0,0,0,0,0,0], pb: 0 },
-    // Map 3
-    { modeIndex: 20, goldenSplits: [0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 21, goldenSplits: [0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 22, goldenSplits: [0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 23, goldenSplits: [0,0,0,0,0,0,0,0], pb: 0 },
-    // Micro Map 1
-    { modeIndex: 30, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    { modeIndex: 31, goldenSplits: [0,0,0,0,0,0,0,0,0], pb: 0 },
-    // Dracula's Castle
-    { modeIndex: 27, goldenSplits: [0,0,0,0,0], pb: 0 },
-]
-
-export function readGoldenSplits(): GoldenSplitsForMode[] {
+export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): GoldenSplitsForMode[] {
     if (existsSync(goldenSplitFilePath)) {
         try {
             const data = require(goldenSplitFilePath);
             if (Array.isArray(data)) {
-                console.log("Loaded Golden Splits from file");
-                return data;
+                return data.map((item: any) => ({
+                    ...item,
+                    goldenSplits: Array.isArray(item.goldenSplits)
+                        ? item.goldenSplits.map((v: any) => v === null ? Infinity : v)
+                        : item.goldenSplits
+                }));
             } else {
                 console.error("Expected an array for Golden Splits but got:", typeof data);
-                return emptyGoldenSplitsWithDefaultValues;
+                return []
             }
         } catch (error) {
             console.error("Error reading golden splits:", error);
-            return emptyGoldenSplitsWithDefaultValues;
+            return []
         }
     } else {
-        fs.writeFileSync(goldenSplitFilePath, JSON.stringify(emptyGoldenSplitsWithDefaultValues, null, 2));
+        const allLevels = indexToNamesMappings.getAllLevels()
+        const emptyGoldenSplitsWithDefaultValues: GoldenSplitsForMode[] = allLevels.flatMap(level =>
+            level.modes.map(mode => {
+                return {
+                    modeIndex: mode.key,
+                    goldenSplits: Array(level.splits.length+1).fill(Infinity),
+                    pb: Infinity
+                }
+            })
+        );
+        writeGoldenSplits(emptyGoldenSplitsWithDefaultValues)
         return emptyGoldenSplitsWithDefaultValues;
     }
 }

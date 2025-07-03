@@ -27,11 +27,16 @@ export class CurrentStateTracker {
         return false;
     }
 
-    public passedSplit(split: number, time: number): boolean {
+    public passedSplit(split: number, time: number, lastSplit: {split:number, time:number}): boolean {
+        while (this.recordedSplits.length < lastSplit.split) {
+            console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
+            this.recordedSplits.push({ split: this.recordedSplits.length, time: 0 });
+        }
+        const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({ split, time: time });
         let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, split)
-        if (!goldSplit || goldSplit > time) {
-            this.goldSplitsTracker.updateGoldSplit(this.mode, split, time)
+        if (!goldSplit || goldSplit > splitTime) {
+            this.goldSplitsTracker.updateGoldSplit(this.mode, split, splitTime)
             console.log(`New best split for ${split}: ${time}`)
             return true;
         } else {
@@ -61,5 +66,15 @@ export class CurrentStateTracker {
     }
     public getCurrentMode(): number {
         return this.mode;
+    }
+
+    public getLastSplitTime() {
+        if (this.recordedSplits.length === 0) {
+            return {
+                split: -1,
+                time: 0
+            }
+        }
+        return this.recordedSplits[this.recordedSplits.length - 1];
     }
 }

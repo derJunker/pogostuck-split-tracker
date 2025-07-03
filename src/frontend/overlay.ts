@@ -53,6 +53,7 @@ function loadMapMode(mapAndModeChanged: {
 }
 
 function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean) {
+    console.log(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
         const timeSpan = splitDiv.querySelector('.split-time');
@@ -75,6 +76,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             diffSpan.appendChild(signSpan);
             const numSpan = document.createElement('span');
             numSpan.className = 'num';
+            console.log(`Adding split diff: ${absDiff} (golden: ${golden})`);
             numSpan.textContent = formatTime(absDiff, true);
             diffSpan.appendChild(numSpan);
             const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
@@ -111,6 +113,13 @@ window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {
     addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden);
 });
 
+window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfBest: number) => {
+    const sumOfBestSpan = document.getElementById('sum-of-best');
+    if (sumOfBestSpan) {
+        sumOfBestSpan.textContent = formatTime(sumOfBest);
+    }
+});
+
 function formatTime(seconds: number, noZeroFill: boolean = false): string {
     const sign = seconds < 0 ? '-' : '';
     const absSeconds = Math.abs(seconds);
@@ -118,19 +127,20 @@ function formatTime(seconds: number, noZeroFill: boolean = false): string {
     const secs = Math.floor(absSeconds % 60);
     const ms = Math.round((absSeconds - Math.floor(absSeconds)) * 1000);
 
+    const msStr = ms.toString().padStart(3, '0').slice(0, 3);
+
     if (noZeroFill) {
         if (mins > 0) {
-            return `${sign}${mins}:${secs}.${ms}`;
+            return `${sign}${mins}:${secs}.${msStr}`;
         } else if (secs > 0) {
-            return `${sign}${secs}.${ms}`;
+            return `${sign}${secs}.${msStr}`;
         } else {
-            return `${sign}${ms / 1000}`.replace(/^(\d)\./, '0.$1');
+            return `${sign}0.${msStr}`;
         }
     }
 
     const minsStr = mins.toString().padStart(2, '0');
     const secsStr = secs.toString().padStart(2, '0');
-    const msStr = ms.toString().padStart(3, '0');
 
     return `${sign}${minsStr}:${secsStr}.${msStr}`;
 }

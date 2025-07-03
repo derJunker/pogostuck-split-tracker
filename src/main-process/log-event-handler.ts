@@ -35,6 +35,9 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const diff = timeAsFloat - pbTime;
             const wasGolden = stateTracker.passedSplit(split, timeAsFloat, stateTracker.getLastSplitTime())
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden});
+            if (wasGolden) {
+                overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.getSumOfBest(stateTracker.getCurrentMode()));
+            }
         }
     )
 

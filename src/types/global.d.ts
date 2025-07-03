@@ -1,4 +1,5 @@
 import {Settings} from "./settings";
+import {ipcRenderer} from "electron";
 
 export interface mapAndModeChanged {
     map: string;
@@ -17,6 +18,7 @@ declare global { interface Window {
                                         mapAndMode: mapAndModeChanged) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => void;
+        onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
     };
 } }
 export {};

@@ -133,8 +133,11 @@ input[type="checkbox"] {
     pointer-events: none;
     position: absolute;
     right: 0.8em;
-    top: 50%;
+    top: 55%;
     transform: translateY(-50%);
+    height: auto;
+    display: flex;
+    align-items: center;
     font-size: 0.85em;
     color: #fff;
     z-index: 2;
@@ -142,6 +145,11 @@ input[type="checkbox"] {
     line-height: 1;
     font-family: 'Courier Prime', monospace;
     letter-spacing: -0.1em;
+}
+.dropdown-arrow img {
+    display: block;
+    width: 10px;
+    height: 5px;
 }
 .dropdown option {
     background: #000;
@@ -184,4 +192,14 @@ input[type="checkbox"] {
     color: #888;
     opacity: 1;
     font-style: italic;
+}
+
+#map-n-mode-split-selection > *,
+.menu-content > * {
+    padding-top: .3rem;
+}
+
+button:active {
+    transform: scale(1.04);
+    transition-duration: 0.3s;
 }

@@ -25,22 +25,19 @@
                         <option value="old">Old</option>
                     </select>
                     <span class="dropdown-arrow">
-                        <svg width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-                            <polyline points="1,1 5,4 9,1" stroke="white" stroke-width="3" fill="none"
-                                      stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <img src="../assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
                     </span>
                 </div>
             </div>
             <div id="paths-content" class="menu-content">
-                <div>
+                <div class="text-input-container">
                     <label for="steam-path-text" class="input-label">
                         Steam Path:
                     </label>
                     <input type="text" id="steam-path-text" class="input-field" placeholder="Select Steam folder...">
                     <button id="select-steam-path-btn" type="button">Select Folder</button>
                 </div>
-                <div>
+                <div class="text-input-container">
                     <label for="pogo-path-text" class="input-label">
                         Pogo Path:
                     </label>
@@ -50,7 +47,75 @@
 
             </div>
             <div id="split-skips-content" class="menu-content">
-                <h3>Split Skips</h3>
+                <div id="map-n-mode-selection">
+                    <div class="dropdown-container">
+                        <label for="map-select">Map: </label>
+                        <select id="map-select" class="dropdown">
+                            <option value="new">Map 1</option>
+                            <option value="old">Map 2</option>
+                        </select>
+                        <span class="dropdown-arrow">
+                        <img src="../assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                    </span>
+                    </div>
+                    <div class="dropdown-container">
+                        <label for="mode-select">Mode: </label>
+                        <select id="mode-select" class="dropdown">
+                            <option value="new">Regular</option>
+                            <option value="old">Skipless</option>
+                        </select>
+                        <span class="dropdown-arrow">
+                        <img src="../assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                    </span>
+                    </div>
+                </div>
+                <div id="map-n-mode-split-selection">
+                    <div class="toggle-switch">
+                        <label for="checkpoint-0" class="toggle-label">Checkpoint 1</label>
+                        <input type="checkbox" id="checkpoint-0" class="toggle-checkbox">
+                        <span id="checkpoint-0-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-1" class="toggle-label">Checkpoint 2</label>
+                        <input type="checkbox" id="checkpoint-1" class="toggle-checkbox">
+                        <span id="checkpoint-1-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-2" class="toggle-label">Checkpoint 3</label>
+                        <input type="checkbox" id="checkpoint-2" class="toggle-checkbox">
+                        <span id="checkpoint-2-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-3" class="toggle-label">Checkpoint 4</label>
+                        <input type="checkbox" id="checkpoint-3" class="toggle-checkbox">
+                        <span id="checkpoint-3-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-4" class="toggle-label">Checkpoint 5</label>
+                        <input type="checkbox" id="checkpoint-4" class="toggle-checkbox">
+                        <span id="checkpoint-4-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-5" class="toggle-label">Checkpoint 6</label>
+                        <input type="checkbox" id="checkpoint-5" class="toggle-checkbox">
+                        <span id="checkpoint-5-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-6" class="toggle-label">Checkpoint 7</label>
+                        <input type="checkbox" id="checkpoint-6" class="toggle-checkbox">
+                        <span id="checkpoint-6-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-7" class="toggle-label">Checkpoint 8</label>
+                        <input type="checkbox" id="checkpoint-7" class="toggle-checkbox">
+                        <span id="checkpoint-7-custom" class="custom-checkbox"></span>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="checkpoint-8" class="toggle-label">Checkpoint 9</label>
+                        <input type="checkbox" id="checkpoint-8" class="toggle-checkbox">
+                        <span id="checkpoint-8-custom" class="custom-checkbox"></span>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="index.js"></script>

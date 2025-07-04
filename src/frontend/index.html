@@ -13,7 +13,24 @@
         </div>
         <div id="menu-content">
             <div id="design-content" class="menu-content">
-                <h3>Design</h3>
+                <div class="toggle-switch">
+                    <label for="ignore-skipped-splits" class="toggle-label">Hide skipped splits:</label>
+                    <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
+                    <span id="ignore-skipped-splits-custom" class="custom-checkbox"></span>
+                </div>
+                <div class="dropdown-container">
+                    <label for="split-naming-select">Split Names: </label>
+                    <select id="split-naming-select" class="dropdown">
+                        <option value="new">New</option>
+                        <option value="old">Old</option>
+                    </select>
+                    <span class="dropdown-arrow">
+                        <svg width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+                            <polyline points="1,1 5,4 9,1" stroke="white" stroke-width="3" fill="none"
+                                      stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </div>
             </div>
             <div id="paths-content" class="menu-content">
                 <h3>Paths</h3>

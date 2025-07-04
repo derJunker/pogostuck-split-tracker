@@ -48,9 +48,112 @@ body {
 .menu-content {
     opacity: 1;
     transition: opacity 0.3s;
+    margin-top: 1rem;
+    margin-left: 1rem;
 }
 
 .menu-content.hide {
     opacity: 0;
     pointer-events: none;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+.custom-checkbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 6px;
+    position: relative;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: background 0.2s, border 0.2s;
+    margin-left: 0.5em;
+}
+.custom-checkbox::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.custom-checkbox.checked {
+    background: #000;
+    border: 2px solid #000;
+}
+.custom-checkbox.checked::after {
+    opacity: 1;
+}
+
+.dropdown {
+    background: #000;
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 6px;
+    padding: 0.25em 2.2em 0.25em 0.5em; /* mehr Platz rechts für das Symbol */
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: bold;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    transition: border 0.2s, background 0.2s, color 0.2s;
+    position: relative;
+    background-image: none;
+    /* Native Arrow für Edge/IE entfernen */
+    /* Für Firefox */
+    scrollbar-width: thin;
+}
+/* Für IE10+ */
+.dropdown::-ms-expand {
+    display: none;
+}
+/* Für Chrome, Safari, neuere Edge */
+.dropdown::-webkit-inner-spin-button,
+.dropdown::-webkit-outer-spin-button,
+.dropdown::-webkit-search-cancel-button,
+.dropdown::-webkit-search-decoration,
+.dropdown::-webkit-search-results-button,
+.dropdown::-webkit-search-results-decoration {
+    display: none;
+}
+.dropdown::-webkit-input-placeholder {
+    color: #fff;
+}
+.dropdown::-webkit-select-placeholder {
+    color: #fff;
+}
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-arrow {
+    pointer-events: none;
+    position: absolute;
+    right: 0.8em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85em;
+    color: #fff;
+    z-index: 2;
+    transition: color 0.2s;
+    line-height: 1;
+    font-family: 'Courier Prime', monospace;
+    letter-spacing: -0.1em;
+}
+.dropdown option {
+    background: #000;
+    color: #fff;
 }

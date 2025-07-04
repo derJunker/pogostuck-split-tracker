@@ -11,7 +11,7 @@ import {initMappings} from "./create-index-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {readGoldenSplits} from "./read-golden-splits";
-import ActiveWindow, {WindowInfo} from "@paymoapp/active-window";
+import ActiveWindow from "@paymoapp/active-window";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 
@@ -37,6 +37,8 @@ app.on("ready", () => {
         width: 600,
         height: 400,
         show: true,
+        autoHideMenuBar: true,
+        thickFrame: true,
         webPreferences: {
             preload: __dirname + '/preload.js',
             contextIsolation: true,

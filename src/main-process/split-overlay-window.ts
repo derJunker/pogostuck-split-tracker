@@ -25,10 +25,10 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         }
     });
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
-    // addPogostuckOpenedListener(overlayWindow)
+    addPogostuckOpenedListener(overlayWindow)
 
     overlayWindow.on("ready-to-show", () => {
-        // if (pogostuckIsActiveWindow)
+        if (pogostuckIsActiveWindow)
             overlayWindow.show();
     })
 

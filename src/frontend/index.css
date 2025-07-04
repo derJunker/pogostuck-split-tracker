@@ -99,28 +99,21 @@ input[type="checkbox"] {
 .dropdown {
     background: #000;
     color: #fff;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 6px;
-    padding: 0.25em 2.2em 0.25em 0.5em; /* mehr Platz rechts für das Symbol */
+    padding: 0.25em 2em 0.25em 0.5em;
     font-size: 1rem;
-    font-family: inherit;
+    font-family: 'Courier Prime', monospace;
     font-weight: bold;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
     appearance: none;
     -webkit-appearance: none;
-    -moz-appearance: none;
     outline: none;
     transition: border 0.2s, background 0.2s, color 0.2s;
     position: relative;
-    background-image: none;
-    /* Native Arrow für Edge/IE entfernen */
-    /* Für Firefox */
-    scrollbar-width: thin;
+    box-shadow: none;
 }
-/* Für IE10+ */
-.dropdown::-ms-expand {
-    display: none;
-}
-/* Für Chrome, Safari, neuere Edge */
 .dropdown::-webkit-inner-spin-button,
 .dropdown::-webkit-outer-spin-button,
 .dropdown::-webkit-search-cancel-button,
@@ -130,9 +123,6 @@ input[type="checkbox"] {
     display: none;
 }
 .dropdown::-webkit-input-placeholder {
-    color: #fff;
-}
-.dropdown::-webkit-select-placeholder {
     color: #fff;
 }
 .dropdown-container {
@@ -156,4 +146,42 @@ input[type="checkbox"] {
 .dropdown option {
     background: #000;
     color: #fff;
+    border-radius: 0;
+    font-family: 'Courier Prime', monospace;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+}
+
+.button, button {
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    padding: 0.25rem 1rem;
+}
+
+.input-field, input[type="text"], input[type="password"], input[type="email"] {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    outline: none;
+    box-shadow: none;
+    padding: 0.25rem 0.8rem;
+}
+.input-field::placeholder {
+    color: #888;
+    opacity: 1;
+    font-style: italic;
 }

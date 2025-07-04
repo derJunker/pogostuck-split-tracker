@@ -54,23 +54,25 @@ window.addEventListener('DOMContentLoaded', () => {
             div.style.display = 'none';
         }
     });
-    // Custom Checkbox Binding
-    const checkbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement | null;
-    const customCheckbox = document.getElementById('ignore-skipped-splits-custom') as HTMLElement | null;
-    if (checkbox && customCheckbox) {
-        const syncCustomCheckbox = () => {
-            if (checkbox.checked) {
-                customCheckbox.classList.add('checked');
-            } else {
-                customCheckbox.classList.remove('checked');
-            }
-        };
-        customCheckbox.addEventListener('click', () => {
-            checkbox.checked = !checkbox.checked;
-            checkbox.dispatchEvent(new Event('change'));
+
+    document.querySelectorAll('input[type="checkbox"][id]').forEach(inputEl => {
+        const checkbox = inputEl as HTMLInputElement;
+        const customCheckbox = document.getElementById(checkbox.id + '-custom') as HTMLElement | null;
+        if (customCheckbox) {
+            const syncCustomCheckbox = () => {
+                if (checkbox.checked) {
+                    customCheckbox.classList.add('checked');
+                } else {
+                    customCheckbox.classList.remove('checked');
+                }
+            };
+            customCheckbox.addEventListener('click', () => {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+                syncCustomCheckbox();
+            });
+            checkbox.addEventListener('change', syncCustomCheckbox);
             syncCustomCheckbox();
-        });
-        checkbox.addEventListener('change', syncCustomCheckbox);
-        syncCustomCheckbox();
-    }
+        }
+    });
 });

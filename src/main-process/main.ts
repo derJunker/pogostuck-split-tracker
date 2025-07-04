@@ -8,8 +8,6 @@ import {registerLogEventHandlers} from "./log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "../data/current-state-tracker";
 import {initMappings} from "./create-index-mappings";
-import {PogoLevel} from "../types/pogo-index-mapping";
-import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {readGoldenSplits} from "./read-golden-splits";
@@ -38,7 +36,7 @@ app.on("ready", () => {
     mainWindow = new BrowserWindow({
         width: 600,
         height: 400,
-        show: false,
+        show: true,
         webPreferences: {
             preload: __dirname + '/preload.js',
             contextIsolation: true,

@@ -1,0 +1,22 @@
+body {
+    font-family: 'Courier Prime', monospace;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+#menu-bar {
+    background: black;
+    color: white;
+    display: flex;
+    flex-direction: row;
+}
+
+.menu-btn {
+    border-right: white solid 2px;
+    padding-inline: 1rem;
+}
+
+.active.menu-btn {
+    background: white;
+    color: black;
+}

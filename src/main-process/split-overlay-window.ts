@@ -54,7 +54,7 @@ function addPogostuckOpenedListener(overlayWindow: BrowserWindow) {
 
 function pogostuckIsActive(winInfo: WindowInfo | null) : boolean {
     if (!winInfo) return false;
-    const isPogostuck = winInfo.title === "Pogostuck" && winInfo.application === "Pogostuck.exe";
+    const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
     // TODO use "path" attribute to read steam dir of pogostuck for acklog.txt
     pogostuckIsActiveWindow = isPogostuck;
     return isPogostuck;

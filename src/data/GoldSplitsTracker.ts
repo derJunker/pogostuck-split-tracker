@@ -82,11 +82,10 @@ export class GoldSplitsTracker {
             let {mode, times} = modeSplit;
             const pbTime = this.getPbForMode(mode);
             const splitTimes = calculateSplitTimes(times, pbTime);
-            console.log(`Updating gold splits for mode ${mode} with PB time ${pbTime} and split times:`, splitTimes);
             const goldenSplits = this.goldenSplits.find(gs => gs.modeIndex === mode);
-            console.log(`Golden splits for mode ${mode}:`, goldenSplits);
             splitTimes.forEach((time, index) => {
                 if (time && time < goldenSplits!.goldenSplits[index] && time > 0 ) {
+                    console.log(`Updating gold split for mode ${mode}, index ${index} to ${time}`);
                     this.updateGoldSplit(mode, index, time);
                 }
             });

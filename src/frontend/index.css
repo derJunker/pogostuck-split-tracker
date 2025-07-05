@@ -257,3 +257,10 @@ label {
 .menu-content {
     margin-inline: .5rem;
 }
+
+@media (max-width: 580px) {
+    #paths-content {
+        grid-template-columns: max-content;
+    }
+
+}

@@ -5,6 +5,18 @@ const contentDivs = document.querySelectorAll('.menu-content');
 let hideTimeout: ReturnType<typeof setTimeout> | null = null;
 let showTimeout: ReturnType<typeof setTimeout> | null = null;
 
+let settings: {
+    // Paths
+    pogostuckConfigPath: string;
+    pogostuckSteamUserDataPath: string;
+    // Design
+    hideSkippedSplits: boolean,
+    showNewSplitNames: boolean
+
+    // split skips
+    skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
+}
+
 menuButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         if (hideTimeout) {
@@ -41,7 +53,9 @@ menuButtons.forEach(btn => {
     });
 });
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+    settings = await window.electronAPI.loadSettings()
+
     menuButtons.forEach(btn => {
         const div = document.getElementById(btn.id.replace('-btn', '-content')) as HTMLElement | null;
         if (div && !btn.classList.contains('active')) {
@@ -71,3 +85,5 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+document.getElementById("")

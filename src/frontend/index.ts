@@ -1,8 +1,3 @@
-document.getElementById('settings-btn')?.addEventListener('click', () => {
-    window.electronAPI.openSettingsWindow();
-});
-
-
 // tab changing :)
 const menuButtons = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');

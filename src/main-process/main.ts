@@ -1,7 +1,6 @@
 import {app, BrowserWindow, ipcMain} from "electron";
 import {existsSync, writeFileSync} from "fs";
 import * as path from "path";
-import {openSettingsWindow} from "./settings-window";
 import {Settings} from "../types/settings";
 import {FileWatcher} from "./logs-watcher";
 import {registerLogEventHandlers} from "./log-event-handler";
@@ -60,10 +59,6 @@ app.on("ready", () => {
 });
 
 function initSettingsListeners() {
-    ipcMain.on("open-settings", () => {
-        if (mainWindow) openSettingsWindow(mainWindow);
-    })
-
     ipcMain.handle("save-settings", (event, settings: Settings) => {
         logWatcher.startWatching(settings.pogostuckConfigPath, "acklog.txt")
         writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
@@ -84,6 +79,12 @@ function loadSettings(): Settings {
         return {
             pogostuckConfigPath: "",
             pogostuckSteamUserDataPath: "",
+            // design
+            hideSkippedSplits: false,
+            showNewSplitNames: true,
+
+            // split skip
+            skippedSplits: []
         };
     }
 }

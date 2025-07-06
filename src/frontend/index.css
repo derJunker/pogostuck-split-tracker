@@ -23,6 +23,7 @@
 }
 
 body {
+    background: #fff;
     font-family: var(--font-family);
     font-size: var(--font-size);
     font-weight: var(--font-weight);
@@ -272,6 +273,10 @@ label {
     display: contents;
 }
 
+#setup-guide-content {
+    padding-bottom: 2rem;
+}
+
 .menu-content {
     margin-inline: .5rem;
 }
@@ -293,4 +298,27 @@ input[type="text"]:focus {
 
 .menu-btn {
     border: none;
+}
+
+ul {
+    list-style: initial;
+    padding-left: 1.5rem;
+}
+
+li {
+    padding: 0.4rem 0;
+}
+
+code {
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 4px black;
+    line-height: 1.4rem;
+    white-space: nowrap;
+}
+
+b {
+    text-decoration: underline;
 }

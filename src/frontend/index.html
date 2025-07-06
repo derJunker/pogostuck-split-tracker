@@ -8,11 +8,62 @@
     </head>
     <body>
         <div id="menu-bar">
-            <button id="design-btn" class="active menu-btn">Design</button>
+            <button id="setup-guide-btn" class="active menu-btn">Setup</button>
+            <button id="design-btn" class="menu-btn">Design</button>
             <button id="paths-btn" class="menu-btn">Paths</button>
-            <button id="split-skips-btn" class="menu-btn">Split Skips</button>
+            <button id="split-skips-btn" class="menu-btn">Split-Skips</button>
         </div>
         <div id="menu-content">
+            <div id="setup-guide-content" class="menu-content">
+                Hi! Ty for using my Program :)<br>
+                <br>
+                Before you can use the splits-program, you need to set up a few things.<br>
+                <br>
+                <ul>
+                    <li>
+                        <b>Add Steam Start-Option:</b> You need to add "-diag" as a start-option to your Pogostuck
+                                                       steam execution
+                                                       config. This is needed so the game writes the logs that this
+                                                       program reads for split detection etc.
+                        <br>
+                        <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
+                            Launch Options and add "-diag" (without quotes) to the text field.</i>
+
+                    </li>
+                    <li>
+                        <b>Steam Userdata Path:</b> You need to input your steam userdata path (in the <code>Paths</code>
+                                                    tab). It
+                                                    is used to
+                                                    read through your <code>Settings.txt</code>, so i can read out
+                        your current split times.
+                        <br>
+                        Most likely it will be something similar to this:<br>
+                        <code>C:\Program Files (x86)\Steam\userdata\$steam-user-id\688130\remote</code>
+                    </li>
+                    <li>
+                        <b>Pogo Path:</b> You need to input your Pogostuck path (in the Path tab as well). It is needed
+                                          for basically everything. In there the before mentioned logs are put.
+                        <br>
+                        <i>It should be looking similar to this: <br>
+                            <code>C:\SteamLibrary\steamapps\common\Pogostuck</code></i>
+                    </li>
+                    <li>
+                        <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
+                                          So you have to enter it manually. So you need to do that under the TODO tab.
+                    </li>
+                    <li>
+                        <b>Enter Split Skips:</b> If you do any skips that skip a whole split - notably palm- and
+                                                  anvil-skip - you need to set this manually.
+                                                  Otherwise the sum-of-best-splits calculation will be wrong.
+                        <br> You can do this under the Split-Skips tab.
+                    </li>
+                </ul>
+                <br>
+                <br>
+                Thats it :D. I hope you have fun. If you find any bugs or have any other feedback you can dm me on
+                discord 👍.
+
+            </div>
             <div id="design-content" class="menu-content">
                 <div class="toggle-switch">
                     <label for="ignore-skipped-splits" class="toggle-label">Hide skipped splits:</label>
@@ -69,7 +120,6 @@
                     </div>
                 </div>
                 <div id="map-n-mode-split-selection">
-
                 </div>
             </div>
         </div>

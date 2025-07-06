@@ -14,6 +14,7 @@ declare global { interface Window {
     electronAPI: {
         loadSettings: () => Promise<Settings>;
         getMappings: () => Promise<PogoLevel[]>;
+        getPbs: () => Promise<{mode: number, time: number}[]>;
         onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent,
                                         mapAndMode: mapAndModeChanged) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
@@ -27,6 +28,7 @@ declare global { interface Window {
         onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<Settings>;
 
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;
+        onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
     };
 } }
 

@@ -46,6 +46,10 @@ body {
     flex-direction: row;
     padding-top: 5px;
     padding-inline: 5px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 
 .menu-btn {
@@ -251,11 +255,20 @@ label {
     user-select: none;
     cursor:  pointer;
 }
-
+#pbs-content,
 #design-content {
     display: grid;
     grid-template-columns: max-content max-content;
     gap: 0.5em 1em;
+}
+
+#pbs-content > h3 {
+    grid-column: 1 / -1;
+    margin-bottom: 0.5rem;
+    background: lightgray;
+    text-align: center;
+    width: 100%;
+    padding: 0.5rem;
 }
 
 #design-content > div {

@@ -28,6 +28,11 @@ let mappings: {
     }[];
 }[] = [];
 
+let pbs : {
+    mode: number;
+    time: number;
+}[]
+
 let mapSelect: HTMLSelectElement | null;
 let modeSelect: HTMLSelectElement | null;
 
@@ -69,8 +74,8 @@ menuButtons.forEach(btn => {
 
 window.addEventListener('DOMContentLoaded', async () => {
     settings = await window.electronAPI.loadSettings();
-    console.log("Settings loaded: ", settings);
     mappings = await window.electronAPI.getMappings();
+    pbs = await window.electronAPI.getPbs();
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
     syncInitialCheckboxes()
@@ -83,6 +88,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         updateCheckpoints()
     });
     modeSelect.addEventListener('change', updateCheckpoints);
+    addPbsAsInputs()
+    setPbsToInputs()
 
 
     menuButtons.forEach(btn => {
@@ -92,6 +99,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             div.style.display = 'none';
         }
     });
+
+    addPbModeChangeListeners();
 });
 
 function syncInitialCheckboxes() {
@@ -288,6 +297,86 @@ function updateModesForLevel() {
         modeSelect!.appendChild(modeOption);
     });
 
-    modeSelect.selectedIndex = 0; // Reset to first mode
-    updateCheckpoints(); // Update checkpoints for the new map and mode
+    modeSelect.selectedIndex = 0;
+    updateCheckpoints();
+}
+
+
+function addPbModeChangeListeners() {
+    document.querySelectorAll('input[type="text"][id^="pb-mode-"]').forEach(input => {
+            input.addEventListener('input', async (e) => {
+                const time = parsePbTime((input as HTMLInputElement).value)
+                console.log(`PB time entered: ${(input as HTMLInputElement).value}`);
+                if (time < 0) {
+                    console.error(`Invalid PB time format: ${(input as HTMLInputElement).value}`);
+                    return;
+                }
+                const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
+                console.log(`PB entered for mode ${modeIndex}: ${time}`);
+                await window.electronAPI.onPbEntered({mode: modeIndex, time: time});
+            });
+    });
+}
+
+function addPbsAsInputs() {
+    const pbContentDiv = document.getElementById('pbs-content');
+    if (!pbContentDiv) return;
+    pbContentDiv.innerHTML = ''; // Clear existing content
+    mappings.forEach(map => {
+        const mapHeader = document.createElement('h3');
+        mapHeader.textContent = map.levelName;
+        pbContentDiv.appendChild(mapHeader);
+
+        map.modes.forEach(mode => {
+            const label = document.createElement('label');
+            label.setAttribute('for', `pb-mode-${mode.key}`);
+            label.textContent = `${mode.name}:`;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = `pb-mode-${mode.key}`;
+            input.className = 'input-field';
+            input.placeholder = '00:00:00.000';
+
+            pbContentDiv.appendChild(label);
+            pbContentDiv.appendChild(input);
+        });
+    });
+
+}
+
+function setPbsToInputs() {
+    document.querySelectorAll('input[type="text"][id^="pb-mode-"]').forEach(input => {
+        const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
+        const pb = pbs.find(p => p.mode === modeIndex);
+        if (pb) {
+            (input as HTMLInputElement).value = formatPbTime(pb.time);
+        }
+    });
+}
+
+function formatPbTime(seconds: number): string {
+    const absSeconds = Math.abs(seconds);
+    const mins = Math.floor(absSeconds / 60);
+    const secs = Math.floor(absSeconds % 60);
+    const ms = Math.round((absSeconds - Math.floor(absSeconds)) * 1000);
+
+    const msStr = ms.toString().padStart(3, '0').slice(0, 3);
+
+    const minsStr = mins.toString().padStart(2, '0');
+    const secsStr = secs.toString().padStart(2, '0');
+
+    return `${minsStr}:${secsStr}.${msStr}`;
+}
+
+function parsePbTime(timeStr: string): number {
+    // Erwartetes Format: "MM:SS.mmm"
+    const match = /^(\d{2}):(\d{2})\.(\d{3})$/.exec(timeStr);
+    if (!match) {
+        return -1;
+    }
+    const mins = parseInt(match[1], 10);
+    const secs = parseInt(match[2], 10);
+    const ms = parseInt(match[3], 10);
+    return mins * 60 + secs + ms / 1000;
 }

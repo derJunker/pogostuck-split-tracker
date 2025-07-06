@@ -1,5 +1,7 @@
 import {GoldenSplitsForMode} from "../types/golden-splits";
 import {PbSplitTracker} from "./pb-split-tracker";
+import {ipcMain} from "electron";
+import {writeGoldenSplits} from "../main-process/read-golden-splits";
 
 export function calculateSplitTimes(times: {split: number, time: number}[], pbTime: number|null): (number)[] {
     const n = times.length;
@@ -50,6 +52,13 @@ export class GoldSplitsTracker {
         return modeSplits ? modeSplits.pb : 0;
     }
 
+    public getPbs(): {mode: number, time: number}[] {
+        return this.goldenSplits.map(gs => ({
+            mode: gs.modeIndex,
+            time: gs.pb
+        }));
+    }
+
     public getSumOfBest(modeNum: number) {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
@@ -66,6 +75,16 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
         this.changed = true;
         modeSplits.goldenSplits[splitIndex] = newTime;
+    }
+
+    public updatePbForMode(modeIndex: number, newPb: number): void {
+        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
+        if (modeSplits) {
+            if (modeSplits.pb !== newPb) {
+                modeSplits.pb = newPb;
+                this.changed = true;
+            }
+        }
     }
 
     public hasChanged(): boolean {
@@ -89,6 +108,19 @@ export class GoldSplitsTracker {
                     this.updateGoldSplit(mode, index, time);
                 }
             });
+        })
+    }
+
+    public initListeners() {
+        ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
+            console.log(`PB entered for mode ${modeAndTime.mode}: ${modeAndTime.time}`);
+            const {mode, time} = modeAndTime;
+            const pbTime = this.getPbForMode(mode);
+            if (pbTime !== time) {
+                console.log(`New PB for mode ${mode}: ${time}`);
+                this.updatePbForMode(mode, time);
+                writeGoldenSplits(this.goldenSplits)
+            }
         })
     }
 }

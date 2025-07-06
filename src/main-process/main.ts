@@ -33,7 +33,7 @@ app.on("ready", () => {
     mainWindow = new BrowserWindow({
         width: 650,
         height: 450,
-        resizable: false,
+        resizable: true,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,
@@ -51,8 +51,10 @@ app.on("ready", () => {
     settingsManager.init()
     pbSplitTracker.readPbSplitsFromFile(path.join(settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), indexToNamesMappings);
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
+    goldenSplitsTracker.initListeners();
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
+    ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())
 });
 
 

@@ -48,10 +48,10 @@ app.on("ready", () => {
     overlayWindow = openOverlayWindow(mainWindow);
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow);
 
-    settingsManager.init()
+    settingsManager.init(overlayWindow, goldenSplitsTracker, stateTracker, pbSplitTracker, indexToNamesMappings)
     pbSplitTracker.readPbSplitsFromFile(path.join(settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), indexToNamesMappings);
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
-    goldenSplitsTracker.initListeners();
+    goldenSplitsTracker.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings);
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())

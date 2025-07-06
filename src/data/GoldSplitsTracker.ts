@@ -1,7 +1,10 @@
 import {GoldenSplitsForMode} from "../types/golden-splits";
 import {PbSplitTracker} from "./pb-split-tracker";
-import {ipcMain} from "electron";
+import {BrowserWindow, ipcMain} from "electron";
 import {writeGoldenSplits} from "../main-process/read-golden-splits";
+import {onMapOrModeChanged} from "../main-process/log-event-handler";
+import {CurrentStateTracker} from "./current-state-tracker";
+import {PogoNameMappings} from "./pogo-name-mappings";
 
 export function calculateSplitTimes(times: {split: number, time: number}[], pbTime: number|null): (number)[] {
     const n = times.length;
@@ -111,7 +114,8 @@ export class GoldSplitsTracker {
         })
     }
 
-    public initListeners() {
+    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker,
+                         pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
             console.log(`PB entered for mode ${modeAndTime.mode}: ${modeAndTime.time}`);
             const {mode, time} = modeAndTime;
@@ -120,6 +124,9 @@ export class GoldSplitsTracker {
                 console.log(`New PB for mode ${mode}: ${time}`);
                 this.updatePbForMode(mode, time);
                 writeGoldenSplits(this.goldenSplits)
+                const mapNum = indexToNamesMappings.getAllLevels()
+                    .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
+                onMapOrModeChanged(mapNum, mode, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow)
             }
         })
     }

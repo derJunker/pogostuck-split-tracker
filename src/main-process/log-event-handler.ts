@@ -75,7 +75,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     );
 }
 
-function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
+export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
                             goldenSplitTracker: GoldSplitsTracker, overlayWindow: BrowserWindow) {
     const mapModeAndSplits: { map: string; mode: string; splits: string[] } = nameMappings.getMapModeAndSplits(mapNum, modeNum);
     const pbSplitTimes: { split: number; time: number }[] = pbSplitTracker.getPbSplitsForMode(modeNum);

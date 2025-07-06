@@ -1,8 +1,13 @@
-import {app, ipcMain} from "electron";
+import {app, BrowserWindow, ipcMain} from "electron";
 import {Settings} from "../types/settings";
 import fs, {existsSync} from "fs";
 import path from "path";
 import {FileWatcher} from "./logs-watcher";
+import {onMapOrModeChanged} from "./log-event-handler";
+import { CurrentStateTracker } from "../data/current-state-tracker";
+import { GoldSplitsTracker } from "../data/GoldSplitsTracker";
+import { PbSplitTracker } from "../data/pb-split-tracker";
+import { PogoNameMappings } from "../data/pogo-name-mappings";
 
 export class SettingsManager {
     private settingsPath: string;
@@ -11,14 +16,15 @@ export class SettingsManager {
     public currentSettings: Settings;
 
 
-    constructor(logWatcher:FileWatcher) {
+    constructor(logWatcher: FileWatcher) {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
         this.currentSettings = this.loadSettings();
         this.logWatcher = logWatcher;
         this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
     }
 
-    public init() {
+    public init(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker, pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
+        indexToNamesMappings.switchMap1SplitNames(this.currentSettings.showNewSplitNames)
         ipcMain.handle("load-settings", () => {
             return this.currentSettings;
         });
@@ -31,6 +37,10 @@ export class SettingsManager {
         ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
             this.currentSettings.showNewSplitNames = showNewSplits;
             this.saveSettings()
+            const mapNum = stateTracker.getCurrentMap()
+            const modeNum = stateTracker.getCurrentMode();
+            indexToNamesMappings.switchMap1SplitNames(showNewSplits)
+            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow)
             return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {

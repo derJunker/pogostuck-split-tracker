@@ -27,4 +27,12 @@ export class PogoNameMappings {
 
         return { map: map.levelName, mode: mode.name, splits: map.splits };
     }
+
+    public switchMap1SplitNames(setToNewNames: boolean) {
+        const newNames = ["Bones", "Wind", "Grapes", "Tree", "Pineapples", "Palm Trees", "Mushrooms", "Flowers", "Ice"]
+        const oldNames = ["Bone Pit", "Grapes", "Tree", "Pineapples", "Palm Trees", "Mushrooms", "Anvil", "Ice", "Egg"];
+        const namesToUse = setToNewNames ? newNames : oldNames;
+        const map1 = this.nameMappings.find(level => level.mapIndex === 0)!
+        map1.splits = map1.splits.map((split, index) => namesToUse[index]);
+    }
 }

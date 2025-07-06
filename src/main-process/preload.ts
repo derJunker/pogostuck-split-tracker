@@ -2,12 +2,14 @@ import {contextBridge, ipcRenderer} from 'electron';
 import {Settings} from "../types/settings";
 import {mapAndModeChanged} from "../types/global";
 import {PogoLevel} from "../types/pogo-index-mapping";
+import IpcRendererEvent = Electron.IpcRendererEvent;
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
     getMappings: (): Promise<PogoLevel[]> => ipcRenderer.invoke('get-mappings'),
     getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
-    onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: mapAndModeChanged) => void) => ipcRenderer.on('map-or-mode-changed', callback),
+    onMapOrModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: mapAndModeChanged) => void) => ipcRenderer.on('map-or-mode-changed', callback),
+    mainMenuOpened: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('main-menu-opened', callback),
     onSplitPassed: (callback: (event: Electron.IpcRendererEvent, splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => ipcRenderer.on('split-passed', callback),
     onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => ipcRenderer.on('golden-split-passed', callback),
 

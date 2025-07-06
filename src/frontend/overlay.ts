@@ -1,3 +1,5 @@
+import IpcRendererEvent = Electron.IpcRendererEvent;
+
 function loadMapMode(mapAndModeChanged: {
     map: string;
     mode: string;
@@ -6,7 +8,6 @@ function loadMapMode(mapAndModeChanged: {
     sumOfBest: number
 }) {
     const { map, mode, splits, pb, sumOfBest } = mapAndModeChanged;
-    console.log(`Loading map: ${map}, mode: ${mode}, splits: ${JSON.stringify(splits)}, pb: ${pb}, sumOfBest: ${sumOfBest}`);
     // Set map and mode
     // const mapName = document.getElementById('map-name');
     // const modeName = document.getElementById('mode-name');
@@ -47,9 +48,16 @@ function loadMapMode(mapAndModeChanged: {
     }
     // Sum of Best und PB setzen
     const sumOfBestSpan = document.getElementById('sum-of-best');
-    if (sumOfBestSpan) sumOfBestSpan.textContent = formatTime(sumOfBest);
+    if (sumOfBestSpan) {
+        console.log(`Setting sum of best to ${sumOfBest}`);
+        sumOfBestSpan.textContent = formatTime(sumOfBest);
+    }
     const pbTimeSpan = document.getElementById('pb-time');
-    if (pbTimeSpan) pbTimeSpan.textContent = formatTime(pb);
+    if (pbTimeSpan) {
+        pbTimeSpan.textContent = formatTime(pb);
+    }
+    document.getElementById('totals')!.style!.display = 'inline';
+    document.getElementById('active-msg')!.style!.display = 'none';
 }
 
 function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean) {
@@ -110,6 +118,26 @@ window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
                                            sumOfBest: number
                                        }) => {
     loadMapMode(mapAndMode);
+});
+
+window.electronAPI.mainMenuOpened(() => {
+    console.log(`Main menu opened, clearing splits`);
+    const splitsDiv = document.getElementById('splits');
+    if (splitsDiv) {
+        splitsDiv.innerHTML = '';
+        console.log(`Cleared splits`);
+    }
+    const sumOfBestSpan = document.getElementById('sum-of-best');
+    if (sumOfBestSpan) {
+        sumOfBestSpan.textContent = '';
+        console.log(`Cleared sum of best`);
+    }
+    const pbTimeSpan = document.getElementById('pb-time');
+    if (pbTimeSpan) {
+        pbTimeSpan.textContent = '';
+    }
+    document.getElementById('totals')!.style!.display = 'None';
+    document.getElementById('active-msg')!.style!.display = 'inline';
 });
 
 window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => {

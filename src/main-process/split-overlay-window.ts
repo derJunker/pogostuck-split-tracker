@@ -7,7 +7,7 @@ let pogostuckIsActiveWindow = false;
 export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
     const overlayWidth = 530;
-    const overlayHeight = 270;
+    const overlayHeight = 290;
 
     const overlayWindow = new BrowserWindow({
         width: overlayWidth,

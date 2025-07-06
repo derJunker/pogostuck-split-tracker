@@ -68,9 +68,17 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     fileWatcher.registerListener(
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
-            console.log("Menu opened or closed, resetting run state.");
             if (goldenSplitsTracker.hasChanged())
                 writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
+        }
+    );
+
+    // match: levelLoadMenu - START at frame 53577 (level_current 0)
+    fileWatcher.registerListener(
+        /levelLoadMenu - START at frame/,
+        (match) => {
+            console.log(`Menu opened, hiding splits`);
+            overlayWindow.webContents.send("main-menu-opened")
         }
     );
 }

@@ -17,6 +17,7 @@ declare global { interface Window {
         getPbs: () => Promise<{mode: number, time: number}[]>;
         onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent,
                                         mapAndMode: mapAndModeChanged) => void) => void;
+        mainMenuOpened: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;

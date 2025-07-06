@@ -51,7 +51,7 @@ app.on("ready", () => {
     pbSplitTracker.readPbSplitsFromFile(path.join(settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), indexToNamesMappings);
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
 
-    ipcMain.handle("get-mappings", () => indexToNamesMappings)
+    ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
 
     logWatcher.startWatching(settingsManager.getPogoStuckConfigPath(), "acklog.txt");
 });

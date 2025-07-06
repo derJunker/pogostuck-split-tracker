@@ -8,17 +8,17 @@ export const defaultMappings: PogoLevel[] = [
         modes: [
             {
                 key: 0,
-                name: "Reg",
+                name: "Regular",
                 settingsName: "Checkpoint"
             },
             {
                 key: 1,
-                name: "NoSkip",
+                name: "Skipless",
                 settingsName: "Skipless"
             },
             {
                 key: 2,
-                name: "Invis",
+                name: "Invisible",
                 settingsName: "Invisible"
             },
             {
@@ -50,17 +50,17 @@ export const defaultMappings: PogoLevel[] = [
         modes: [
             {
                 key: 12,
-                name: "Reg",
+                name: "Regular",
                 settingsName: "MonolithDefault"
             },
             {
                 key: 13,
-                name: "DJ",
+                name: "Double-Jump",
                 settingsName: "MonolithDouble"
             },
             {
                 key: 14,
-                name: "720",
+                name: "720°",
                 settingsName: "Monolith720_"
             },
             {
@@ -82,12 +82,12 @@ export const defaultMappings: PogoLevel[] = [
         modes: [
             {
                 key: 20,
-                name: "Reg",
+                name: "Regular",
                 settingsName: "Map3Default"
             },
             {
                 key: 21,
-                name: "DJ",
+                name: "Double-Jump",
                 settingsName: "Map3Boost"
             },
             {
@@ -109,12 +109,12 @@ export const defaultMappings: PogoLevel[] = [
         modes: [
             {
                 key: 30,
-                name: "reg",
+                name: "Regular",
                 settingsName: "Map1SmallRegular_"
             },
             {
                 key: 31,
-                name: "no boost",
+                name: "Boostless",
                 settingsName: "Map1SmallNoBoost_"
             }
         ]
@@ -126,7 +126,7 @@ export const defaultMappings: PogoLevel[] = [
         modes: [
             {
                 key: 27,
-                name: "reg",
+                name: "Regular",
                 settingsName: "Drakula_"
             }
         ]

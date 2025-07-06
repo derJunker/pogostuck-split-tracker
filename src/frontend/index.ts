@@ -96,6 +96,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             syncCustomCheckbox();
 
             if (checkbox.id.startsWith('checkpoint-')) {
+                console.log("added change listener for checkpoint checkbox: ", checkbox.id);
                 checkbox.addEventListener('change', updateSkippedSplits);
             }
         }
@@ -115,18 +116,18 @@ document.getElementById('split-naming-select')?.addEventListener('change', async
 });
 
 // Steam Path
-document.getElementById('select-steam-path-btn')?.addEventListener('click', async () => {
-    const input = document.getElementById('steam-path-text') as HTMLInputElement;
-    if (input?.value) {
-        await window.electronAPI.onSteamUserDataPathChanged(input.value);
+const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
+steamPathInput.addEventListener('input', async () => {
+    if (steamPathInput.value) {
+        await window.electronAPI.onSteamUserDataPathChanged(steamPathInput.value);
     }
 });
 
 // Pogo Path
-document.getElementById('select-pogo-path-btn')?.addEventListener('click', async () => {
-    const input = document.getElementById('pogo-path-text') as HTMLInputElement;
-    if (input?.value) {
-        await window.electronAPI.onPogostuckConfigPathChanged(input.value);
+const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
+pogoPathInput.addEventListener('input', async () => {
+    if (pogoPathInput.value) {
+        await window.electronAPI.onPogostuckConfigPathChanged(pogoPathInput.value);
     }
 });
 
@@ -160,6 +161,5 @@ const updateSkippedSplits = async () => {
         mode: modeObj.key,
         skippedSplitIndices
     }];
-
     await window.electronAPI.onSkipSplitsChanged(skippedSplits);
 };

@@ -50,13 +50,13 @@ button {
     gap: 0.3ch;
     justify-self: stretch;
 }
-.split > span.split-diff.late {
+.late {
     color: #f66;
 }
-.split > span.split-diff.early {
+.early {
     color: #6f6;
 }
-.split > span.split-diff.golden {
+.golden {
     color: #ffd700;
 }
 .split > span.split-diff .sign {

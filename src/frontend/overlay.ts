@@ -56,8 +56,12 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
     console.log(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
+        const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
         const timeSpan = splitDiv.querySelector('.split-time');
-        if (timeSpan) timeSpan.textContent = formatTime(splitTime);
+        if (timeSpan) {
+            timeSpan.textContent = formatTime(splitTime);
+            timeSpan.className = timeSpan.className + " " + type
+        }
 
         const diffSpan = splitDiv.querySelector('.split-diff');
         if (diffSpan) {
@@ -79,7 +83,6 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             console.log(`Adding split diff: ${absDiff} (golden: ${golden})`);
             numSpan.textContent = formatTime(absDiff, true);
             diffSpan.appendChild(numSpan);
-            const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
     }
@@ -121,7 +124,6 @@ window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfB
 });
 
 function formatTime(seconds: number, noZeroFill: boolean = false): string {
-    const sign = seconds < 0 ? '-' : '';
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);
     const secs = Math.floor(absSeconds % 60);
@@ -131,16 +133,16 @@ function formatTime(seconds: number, noZeroFill: boolean = false): string {
 
     if (noZeroFill) {
         if (mins > 0) {
-            return `${sign}${mins}:${secs}.${msStr}`;
+            return `${mins}:${secs.toString().padStart(2, '0')}.${msStr}`;
         } else if (secs > 0) {
-            return `${sign}${secs}.${msStr}`;
+            return `${secs}.${msStr}`;
         } else {
-            return `${sign}0.${msStr}`;
+            return `0.${msStr}`;
         }
     }
 
     const minsStr = mins.toString().padStart(2, '0');
     const secsStr = secs.toString().padStart(2, '0');
 
-    return `${sign}${minsStr}:${secsStr}.${msStr}`;
+    return `${minsStr}:${secsStr}.${msStr}`;
 }

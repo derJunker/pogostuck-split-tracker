@@ -41,7 +41,8 @@ app.on("ready", () => {
             preload: __dirname + '/preload.js',
             contextIsolation: true,
             nodeIntegration: false
-        }
+        },
+        icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)

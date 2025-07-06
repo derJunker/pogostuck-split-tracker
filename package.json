@@ -33,7 +33,7 @@
     "files": [
       "build/**/*"
     ],
-    "icon": "build/icon.ico",
+    "icon": "build/assets/clipboard.ico",
     "directories": {
       "buildResources": "build"
     },
@@ -48,7 +48,8 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "build/installer.nsh"
+      "createDesktopShortcut": true,
+      "shortcutName": "Pogostuck Split Tracker"
     }
   }
 }

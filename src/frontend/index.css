@@ -185,7 +185,7 @@ input[type="checkbox"] {
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
     font-size: var(--font-size);
-    font-family: var(--font-family);
+    font-family: var(--font-family) serif;
     font-weight: var(--font-weight);
     letter-spacing: 0.02em;
     cursor: pointer;
@@ -200,7 +200,7 @@ input[type="checkbox"] {
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
     font-size: var(--font-size);
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     font-weight: var(--font-weight);
     letter-spacing: 0.02em;
     outline: none;
@@ -216,6 +216,16 @@ input[type="checkbox"] {
 #map-n-mode-split-selection > *,
 .menu-content > * {
     padding-top: .3rem;
+}
+
+#map-n-mode-split-selection {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    gap: 0.5em 1em;
+}
+
+#map-n-mode-split-selection > div {
+    display: contents;
 }
 
 button:active {

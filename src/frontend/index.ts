@@ -28,6 +28,9 @@ let mappings: {
     }[];
 }[] = [];
 
+let mapSelect: HTMLSelectElement | null;
+let modeSelect: HTMLSelectElement | null;
+
 menuButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         if (hideTimeout) {
@@ -67,6 +70,17 @@ menuButtons.forEach(btn => {
 window.addEventListener('DOMContentLoaded', async () => {
     settings = await window.electronAPI.loadSettings();
     mappings = await window.electronAPI.getMappings();
+    mapSelect = document.getElementById('map-select') as HTMLSelectElement;
+    modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
+    loadLevelsFromMapping()
+    updateModesForLevel()
+    updateCheckpoints()
+    mapSelect.addEventListener('change', () => {
+        updateModesForLevel()
+        updateCheckpoints()
+    });
+    modeSelect.addEventListener('change', updateCheckpoints);
+
 
     menuButtons.forEach(btn => {
         const div = document.getElementById(btn.id.replace('-btn', '-content')) as HTMLElement | null;
@@ -75,7 +89,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             div.style.display = 'none';
         }
     });
-
     document.querySelectorAll('input[type="checkbox"][id]').forEach(inputEl => {
         const checkbox = inputEl as HTMLInputElement;
         const customCheckbox = document.getElementById(checkbox.id + '-custom') as HTMLElement | null;
@@ -94,14 +107,17 @@ window.addEventListener('DOMContentLoaded', async () => {
             });
             checkbox.addEventListener('change', syncCustomCheckbox);
             syncCustomCheckbox();
-
-            if (checkbox.id.startsWith('checkpoint-')) {
-                console.log("added change listener for checkpoint checkbox: ", checkbox.id);
-                checkbox.addEventListener('change', updateSkippedSplits);
-            }
         }
     });
 });
+
+function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
+    if (checkbox.checked) {
+        customCheckbox.classList.add('checked');
+    } else {
+        customCheckbox.classList.remove('checked');
+    }
+}
 
 // Hide skipped splits
 document.getElementById('ignore-skipped-splits')?.addEventListener('change', async (e) => {
@@ -131,19 +147,25 @@ pogoPathInput.addEventListener('input', async () => {
     }
 });
 
-const updateSkippedSplits = async () => {
-    const mapSelect = document.getElementById('map-select') as HTMLSelectElement | null;
-    const modeSelect = document.getElementById('mode-select') as HTMLSelectElement | null;
-    if (!mapSelect || !modeSelect) return;
-
+function getSelectedMapAndMode() {
+    if (!mapSelect || !modeSelect) return null;
+    console.log(`selected indexes: map=${mapSelect.selectedIndex}, mode=${modeSelect.selectedIndex}`);
     const selectedMapName = mapSelect.options[mapSelect.selectedIndex].text;
     const selectedModeName = modeSelect.options[modeSelect.selectedIndex].text;
 
     const mapObj = mappings.find(m => m.levelName === selectedMapName);
-    if (!mapObj) return;
+    if (!mapObj) return null;
 
     const modeObj = mapObj.modes.find(m => m.name === selectedModeName);
-    if (!modeObj) return;
+    if (!modeObj) return null;
+
+    return { mapObj, modeObj };
+}
+
+const updateSkippedSplits = async () => {
+    const selection = getSelectedMapAndMode();
+    if (!selection) return;
+    const { mapObj, modeObj } = selection;
 
     const splitSelectionDiv = document.getElementById('map-n-mode-split-selection');
     if (!splitSelectionDiv) return;
@@ -163,3 +185,80 @@ const updateSkippedSplits = async () => {
     }];
     await window.electronAPI.onSkipSplitsChanged(skippedSplits);
 };
+
+function updateCheckpoints() {
+    const selection = getSelectedMapAndMode();
+    if (!selection) return;
+    const { mapObj, modeObj } = selection;
+
+    const splitSelectionDiv = document.getElementById('map-n-mode-split-selection');
+    if (!splitSelectionDiv) return;
+
+    splitSelectionDiv.innerHTML = ''; // Clear previous content
+
+    mapObj.splits.forEach((split, idx) => {
+        const div = document.createElement('div');
+        div.className = 'toggle-switch';
+        const label = document.createElement('label');
+        label.setAttribute('for', `checkpoint-${idx}`);
+        label.className = 'toggle-label';
+        label.textContent = split;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `checkpoint-${idx}`;
+        checkbox.className = 'toggle-checkbox';
+        const customCheckbox = document.createElement('span');
+        customCheckbox.id = `checkpoint-${idx}-custom`;
+        customCheckbox.className = 'custom-checkbox';
+
+        customCheckbox.addEventListener('click', () => {
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
+            syncCustomCheckbox(checkbox, customCheckbox);
+        });
+        checkbox.addEventListener('change',() => syncCustomCheckbox(checkbox, customCheckbox));
+        syncCustomCheckbox(checkbox, customCheckbox);
+
+        checkbox.addEventListener('change', updateSkippedSplits);
+
+        div.appendChild(label);
+        div.appendChild(checkbox);
+        div.appendChild(customCheckbox);
+        splitSelectionDiv.appendChild(div);
+    });
+}
+
+function loadLevelsFromMapping() {
+    if (!mapSelect || !modeSelect) return;
+    mapSelect.innerHTML = '';
+    modeSelect.innerHTML = '';
+
+    mappings.forEach(map => {
+        const mapOption = document.createElement('option');
+        mapOption.value = map.mapIndex.toString();
+        mapOption.textContent = map.levelName;
+        mapSelect!.appendChild(mapOption);
+    });
+
+    mapSelect.selectedIndex = 0;
+}
+
+function updateModesForLevel() {
+    if (!mapSelect || !modeSelect) return;
+    const selectedMapIndex = parseInt(mapSelect.value, 10);
+    console.log("Selected map index: ", selectedMapIndex);
+    const selectedMap = mappings.find(m => m.mapIndex === selectedMapIndex);
+    if (!selectedMap) return;
+
+    modeSelect.innerHTML = '';
+    selectedMap.modes.forEach(mode => {
+        const modeOption = document.createElement('option');
+        modeOption.value = mode.key.toString();
+        modeOption.textContent = mode.name;
+        modeSelect!.appendChild(modeOption);
+    });
+
+    modeSelect.selectedIndex = 0; // Reset to first mode
+    updateCheckpoints(); // Update checkpoints for the new map and mode
+}
+

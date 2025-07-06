@@ -33,7 +33,7 @@ app.on("ready", () => {
     mainWindow = new BrowserWindow({
         width: 650,
         height: 450,
-        resizable: true,
+        resizable: false,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,

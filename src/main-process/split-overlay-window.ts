@@ -6,8 +6,8 @@ let pogostuckIsActiveWindow = false;
 
 export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
-    const overlayWidth = 700;
-    const overlayHeight = 350;
+    const overlayWidth = 530;
+    const overlayHeight = 270;
 
     const overlayWindow = new BrowserWindow({
         width: overlayWidth,
@@ -18,6 +18,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         transparent: true,
         frame: false,
         show: false,
+        resizable: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -55,8 +56,10 @@ function addPogostuckOpenedListener(overlayWindow: BrowserWindow) {
 function pogostuckIsActive(winInfo: WindowInfo | null) : boolean {
     if (!winInfo) return false;
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
+    // title "Pogo Splits", (Electron) TODO dont hardcode it
+    const isThisWindow = (winInfo.title?.toLowerCase() === "pogo splits" || winInfo.title?.toLowerCase() === "pogostuck-split-tracker") && winInfo.application?.toLowerCase().includes("electron");
     // TODO use "path" attribute to read steam dir of pogostuck for acklog.txt
     pogostuckIsActiveWindow = isPogostuck;
-    return isPogostuck;
+    return isPogostuck || isThisWindow;
 
 }

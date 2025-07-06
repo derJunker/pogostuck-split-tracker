@@ -8,10 +8,10 @@ function loadMapMode(mapAndModeChanged: {
     const { map, mode, splits, pb, sumOfBest } = mapAndModeChanged;
     console.log(`Loading map: ${map}, mode: ${mode}, splits: ${JSON.stringify(splits)}, pb: ${pb}, sumOfBest: ${sumOfBest}`);
     // Set map and mode
-    const mapName = document.getElementById('map-name');
-    const modeName = document.getElementById('mode-name');
-    if (mapName) mapName.textContent = map;
-    if (modeName) modeName.textContent = mode;
+    // const mapName = document.getElementById('map-name');
+    // const modeName = document.getElementById('mode-name');
+    // if (mapName) mapName.textContent = map;
+    // if (modeName) modeName.textContent = mode;
 
     // Clear splits
     const splitsDiv = document.getElementById('splits');
@@ -27,10 +27,10 @@ function loadMapMode(mapAndModeChanged: {
             nameSpan.textContent = split.name;
             splitDiv.appendChild(nameSpan);
 
-            const resetsSpan = document.createElement('span');
-            resetsSpan.className = 'split-resets';
-            resetsSpan.textContent = `0`; // TODO adjust with actual values
-            splitDiv.appendChild(resetsSpan);
+            // const resetsSpan = document.createElement('span');
+            // resetsSpan.className = 'split-resets';
+            // resetsSpan.textContent = `0`; // TODO adjust with actual values
+            // splitDiv.appendChild(resetsSpan);
 
             const diffSpan = document.createElement('span');
             diffSpan.className = 'split-diff';

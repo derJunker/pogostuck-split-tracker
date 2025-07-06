@@ -308,6 +308,10 @@ input[type="text"]:focus {
     outline: #398bdb;
 }
 
+.invalid {
+    box-shadow: 0 0 8px 2px red!important;
+}
+
 
 .menu-btn {
     border: none;

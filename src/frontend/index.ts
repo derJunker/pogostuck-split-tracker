@@ -306,10 +306,13 @@ function addPbModeChangeListeners() {
     document.querySelectorAll('input[type="text"][id^="pb-mode-"]').forEach(input => {
             input.addEventListener('input', async (e) => {
                 const time = parsePbTime((input as HTMLInputElement).value)
-                console.log(`PB time entered: ${(input as HTMLInputElement).value}`);
                 if (time < 0) {
-                    console.error(`Invalid PB time format: ${(input as HTMLInputElement).value}`);
+                    input.classList.add('invalid');
                     return;
+                } else if (time === 0) {
+                    return;
+                } else {
+                    input.classList.remove('invalid');
                 }
                 const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
                 console.log(`PB entered for mode ${modeIndex}: ${time}`);

@@ -26,13 +26,14 @@ const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesM
 const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker);
 const pbSplitTracker = new PbSplitTracker();
 
-const settingsManager = new SettingsManager()
+const settingsManager = new SettingsManager(logWatcher)
 
 app.on("ready", () => {
 
     mainWindow = new BrowserWindow({
         width: 650,
         height: 450,
+        resizable: false,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,
@@ -52,8 +53,6 @@ app.on("ready", () => {
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
-
-    logWatcher.startWatching(settingsManager.getPogoStuckConfigPath(), "acklog.txt");
 });
 
 

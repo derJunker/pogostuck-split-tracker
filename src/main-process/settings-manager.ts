@@ -2,14 +2,20 @@ import {app, ipcMain} from "electron";
 import {Settings} from "../types/settings";
 import fs, {existsSync} from "fs";
 import path from "path";
+import {FileWatcher} from "./logs-watcher";
 
 export class SettingsManager {
     private settingsPath: string;
+    private logWatcher: FileWatcher;
+
     public currentSettings: Settings;
 
-    constructor() {
+
+    constructor(logWatcher:FileWatcher) {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
         this.currentSettings = this.loadSettings();
+        this.logWatcher = logWatcher;
+        this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
     }
 
     public init() {
@@ -34,6 +40,7 @@ export class SettingsManager {
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
+            this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
             this.saveSettings()
             return this.currentSettings
         });

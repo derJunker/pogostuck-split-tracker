@@ -177,7 +177,7 @@ input[type="checkbox"] {
     background: var(--color-bg);
     color: var(--color-fg);
     border-radius: 0;
-    font-family: var(--font-family);
+    font-family: var(--font-family) serif;
     font-weight: var(--font-weight);
     letter-spacing: 0.02em;
 }
@@ -287,6 +287,7 @@ input[type="text"]:focus {
 .menu-btn:focus-visible {
     box-shadow: 0 0 10px 2px #398bdb;
     z-index: 10;
+    outline: #398bdb;
 }
 
 

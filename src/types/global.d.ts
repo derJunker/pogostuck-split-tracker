@@ -5,7 +5,7 @@ import {PogoLevel} from "./pogo-index-mapping";
 export interface mapAndModeChanged {
     map: string;
     mode: string;
-    splits: { name: string; split: number; time: number }[],
+    splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
     pb: number,
     sumOfBest: number
 }

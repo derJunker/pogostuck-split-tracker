@@ -31,16 +31,19 @@ export class SettingsManager {
 
         ipcMain.handle("option-hide-skipped-splits-changed", (event, hideSplits: boolean) => {
             this.currentSettings.hideSkippedSplits = hideSplits;
+            const mapNum = stateTracker.getCurrentMap()
+            const modeNum = stateTracker.getCurrentMode();
+            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
             this.currentSettings.showNewSplitNames = showNewSplits;
-            this.saveSettings()
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
             indexToNamesMappings.switchMap1SplitNames(showNewSplits)
-            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow)
+            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
@@ -62,6 +65,9 @@ export class SettingsManager {
             } else {
                 oldSkippedSplits.push(skippedSplits);
             }
+            const mapNum = stateTracker.getCurrentMap()
+            const modeNum = stateTracker.getCurrentMode();
+            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
             this.saveSettings()
             return this.currentSettings;
         });
@@ -84,6 +90,22 @@ export class SettingsManager {
                 skippedSplits: []
             };
         }
+    }
+
+    public splitShouldBeSkipped(mode: number, splitIndex: number): boolean {
+        const skippedSplits = this.currentSettings.skippedSplits.find(s => s.mode === mode);
+        if (skippedSplits) {
+            return skippedSplits.skippedSplitIndices.includes(splitIndex);
+        }
+        return false;
+    }
+
+    public getSplitsToSkipForMode(mode: number): number[] {
+        const skippedSplits = this.currentSettings.skippedSplits.find(s => s.mode === mode);
+        if (skippedSplits) {
+            return skippedSplits.skippedSplitIndices;
+        }
+        return [];
     }
 
     private saveSettings() {

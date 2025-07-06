@@ -352,7 +352,7 @@ function setPbsToInputs() {
     document.querySelectorAll('input[type="text"][id^="pb-mode-"]').forEach(input => {
         const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
         const pb = pbs.find(p => p.mode === modeIndex);
-        if (pb) {
+        if (pb && pb.time < Infinity) {
             (input as HTMLInputElement).value = formatPbTime(pb.time);
         }
     });

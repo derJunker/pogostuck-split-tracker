@@ -3,7 +3,7 @@ import IpcRendererEvent = Electron.IpcRendererEvent;
 function loadMapMode(mapAndModeChanged: {
     map: string;
     mode: string;
-    splits: { name: string; split: number; time: number }[],
+    splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
     pb: number,
     sumOfBest: number
 }) {
@@ -19,12 +19,15 @@ function loadMapMode(mapAndModeChanged: {
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
         splits.forEach(split => {
+            if (split.hide) return
+
+            const skippedClass = split.skipped ? ' skipped' : '';
             const splitDiv = document.createElement('div');
-            splitDiv.className = 'split';
+            splitDiv.className = 'split ' + skippedClass;
             splitDiv.id = split.split.toString();
 
             const nameSpan = document.createElement('span');
-            nameSpan.className = 'split-name';
+            nameSpan.className = 'split-name ' + skippedClass;
             nameSpan.textContent = split.name;
             splitDiv.appendChild(nameSpan);
 
@@ -34,12 +37,12 @@ function loadMapMode(mapAndModeChanged: {
             // splitDiv.appendChild(resetsSpan);
 
             const diffSpan = document.createElement('span');
-            diffSpan.className = 'split-diff';
+            diffSpan.className = 'split-diff ' + skippedClass;
             // Empty diff
             splitDiv.appendChild(diffSpan);
 
             const timeSpan = document.createElement('span');
-            timeSpan.className = 'split-time';
+            timeSpan.className = 'split-time ' + skippedClass;
             timeSpan.textContent = formatTime(split.time)
             splitDiv.appendChild(timeSpan);
 
@@ -113,7 +116,7 @@ window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
                                        mapAndMode: {
                                            map: string;
                                            mode: string;
-                                           splits: { name: string; split: number; time: number }[],
+                                           splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
                                            pb: number,
                                            sumOfBest: number
                                        }) => {

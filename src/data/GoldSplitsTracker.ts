@@ -5,8 +5,9 @@ import {writeGoldenSplits} from "../main-process/read-golden-splits";
 import {onMapOrModeChanged} from "../main-process/log-event-handler";
 import {CurrentStateTracker} from "./current-state-tracker";
 import {PogoNameMappings} from "./pogo-name-mappings";
+import { SettingsManager } from "../main-process/settings-manager";
 
-export function calculateSplitTimes(times: {split: number, time: number}[], pbTime: number|null): (number)[] {
+export function calculateSplitTimes(times: { split: number, time: number }[], pbTime: number | null): (number)[] {
     const n = times.length;
     const splitTimes: (number)[] = new Array(n + 1).fill(Infinity);
     let lastValidTime: number | null = null;
@@ -36,9 +37,11 @@ export function calculateSplitTimes(times: {split: number, time: number}[], pbTi
 export class GoldSplitsTracker {
     private changed: boolean = false;
     private goldenSplits: GoldenSplitsForMode[];
+    private settingsManager: SettingsManager;
 
-    constructor(goldenSplits: GoldenSplitsForMode[]) {
+    constructor(goldenSplits: GoldenSplitsForMode[], settingsManager: SettingsManager) {
         this.goldenSplits = goldenSplits;
+        this.settingsManager = settingsManager;
     }
 
     public getGoldSplitForModeAndSplit(modeIndex: number, splitIndex: number): number {
@@ -55,7 +58,7 @@ export class GoldSplitsTracker {
         return modeSplits ? modeSplits.pb : 0;
     }
 
-    public getPbs(): {mode: number, time: number}[] {
+    public getPbs(): { mode: number, time: number }[] {
         return this.goldenSplits.map(gs => ({
             mode: gs.modeIndex,
             time: gs.pb
@@ -69,7 +72,14 @@ export class GoldSplitsTracker {
             if (splits.length === 0 || splits[splits.length - 1] === Infinity) {
                 return -1;
             }
-            return splits.filter(time => time !== Infinity).reduce((sum, time) => sum + time, 0);
+            const skippedSplits = this.settingsManager.getSplitsToSkipForMode(modeNum)
+            console.log(`Skipped splits for mode ${modeNum}: ${skippedSplits}`);
+            console.log(`Splits for calc: ${splits.filter(time => time !== Infinity).filter((time, index) => {
+                return !skippedSplits.includes(index);
+            })}`);
+            return splits.filter(time => time !== Infinity).filter((time, index) => {
+                return !skippedSplits.includes(index);
+            }).reduce((sum, time) => sum + time, 0);
         }
         return -1;
     }
@@ -113,7 +123,7 @@ export class GoldSplitsTracker {
             const splitTimes = calculateSplitTimes(times, pbTime);
             const goldenSplits = this.goldenSplits.find(gs => gs.modeIndex === mode);
             splitTimes.forEach((time, index) => {
-                if (time && time < goldenSplits!.goldenSplits[index] && time > 0 ) {
+                if (time && time < goldenSplits!.goldenSplits[index] && time > 0) {
                     console.log(`Updating gold split for mode ${mode}, index ${index} to ${time}`);
                     this.updateGoldSplit(mode, index, time);
                 }
@@ -121,8 +131,7 @@ export class GoldSplitsTracker {
         })
     }
 
-    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker,
-                         pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
+    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings, settingsManager: SettingsManager) {
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
@@ -132,7 +141,7 @@ export class GoldSplitsTracker {
                 writeGoldenSplits(this.goldenSplits)
                 const mapNum = indexToNamesMappings.getAllLevels()
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
-                onMapOrModeChanged(mapNum, mode, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow)
+                onMapOrModeChanged(mapNum, mode, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager)
             }
         })
     }

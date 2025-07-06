@@ -66,6 +66,10 @@ button {
 .golden {
     color: #ffd700;
 }
+
+.skipped {
+    color: #888888;
+}
 .split > span.split-diff .sign {
     display: inline-block;
     width: 1.5ch;

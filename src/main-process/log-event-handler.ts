@@ -77,7 +77,6 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     fileWatcher.registerListener(
         /levelLoadMenu - START at frame/,
         (match) => {
-            console.log(`Menu opened, hiding splits`);
             overlayWindow.webContents.send("main-menu-opened")
         }
     );

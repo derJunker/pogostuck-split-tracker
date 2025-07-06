@@ -121,16 +121,13 @@ window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
 });
 
 window.electronAPI.mainMenuOpened(() => {
-    console.log(`Main menu opened, clearing splits`);
     const splitsDiv = document.getElementById('splits');
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
-        console.log(`Cleared splits`);
     }
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         sumOfBestSpan.textContent = '';
-        console.log(`Cleared sum of best`);
     }
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {

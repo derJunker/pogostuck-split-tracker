@@ -80,11 +80,18 @@ export class GoldSplitsTracker {
         modeSplits.goldenSplits[splitIndex] = newTime;
     }
 
-    public updatePbForMode(modeIndex: number, newPb: number): void {
+    public updatePbForMode(modeIndex: number, newPb: number, pbSplitTracker: PbSplitTracker): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
             if (modeSplits.pb !== newPb) {
                 modeSplits.pb = newPb;
+                const oldGoldenSplit = modeSplits.goldenSplits[modeSplits.goldenSplits.length - 1]
+                const pbSplits = pbSplitTracker.getPbSplitsForMode(modeIndex)
+                const lastSplit = pbSplits[pbSplits.length - 1];
+                const splitTime = newPb - lastSplit.time;
+                if (splitTime < oldGoldenSplit) {
+                    this.updateGoldSplit(modeIndex, modeSplits.goldenSplits.length - 1, splitTime);
+                }
                 this.changed = true;
             }
         }
@@ -117,12 +124,11 @@ export class GoldSplitsTracker {
     public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker,
                          pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
-            console.log(`PB entered for mode ${modeAndTime.mode}: ${modeAndTime.time}`);
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
             if (pbTime !== time) {
                 console.log(`New PB for mode ${mode}: ${time}`);
-                this.updatePbForMode(mode, time);
+                this.updatePbForMode(mode, time, pbSplitTracker);
                 writeGoldenSplits(this.goldenSplits)
                 const mapNum = indexToNamesMappings.getAllLevels()
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;

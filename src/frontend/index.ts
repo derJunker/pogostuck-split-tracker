@@ -121,6 +121,7 @@ function setHtmlContentFromSettings() {
     steamPathInput.value = settings.pogostuckSteamUserDataPath;
     pogoPathInput.value = settings.pogostuckConfigPath;
     hideSkippedSplitsCheckbox.checked = settings.hideSkippedSplits;
+    hideSkippedSplitsCheckbox.dispatchEvent(new Event('change'));
     splitNamingSelect.value = settings.showNewSplitNames ? 'new' : 'old';
 }
 
@@ -135,20 +136,20 @@ function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElem
 // Hide skipped splits
 document.getElementById('ignore-skipped-splits')?.addEventListener('change', async (e) => {
     const checked = (e.target as HTMLInputElement).checked;
-    await window.electronAPI.onOptionHideSkippedSplitsChanged(checked);
+    settings = await window.electronAPI.onOptionHideSkippedSplitsChanged(checked);
 });
 
 // Split Names
 document.getElementById('split-naming-select')?.addEventListener('change', async (e) => {
     const value = (e.target as HTMLSelectElement).value === 'new';
-    await window.electronAPI.onOptionShowNewSplitNamesChanged(value);
+    settings = await window.electronAPI.onOptionShowNewSplitNamesChanged(value);
 });
 
 // Steam Path
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
 steamPathInput.addEventListener('input', async () => {
     if (steamPathInput.value) {
-        await window.electronAPI.onSteamUserDataPathChanged(steamPathInput.value);
+        settings = await window.electronAPI.onSteamUserDataPathChanged(steamPathInput.value);
     }
 });
 
@@ -156,7 +157,7 @@ steamPathInput.addEventListener('input', async () => {
 const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
 pogoPathInput.addEventListener('input', async () => {
     if (pogoPathInput.value) {
-        await window.electronAPI.onPogostuckConfigPathChanged(pogoPathInput.value);
+        settings = await window.electronAPI.onPogostuckConfigPathChanged(pogoPathInput.value);
     }
 });
 
@@ -192,11 +193,11 @@ const updateSkippedSplits = async () => {
         }
     });
 
-    const skippedSplits = [{
+    const skippedSplits = {
         mode: modeObj.key,
         skippedSplitIndices
-    }];
-    await window.electronAPI.onSkipSplitsChanged(skippedSplits);
+    };
+    settings = await window.electronAPI.onSkipSplitsChanged(skippedSplits);
 };
 
 function updateCheckpoints() {
@@ -210,6 +211,7 @@ function updateCheckpoints() {
     splitSelectionDiv.innerHTML = '';
 
     let skippedIndices: number[] = [];
+    console.log("current settings: ", JSON.stringify(settings));
     const skipObj = settings.skippedSplits.find(s => s.mode === modeObj.key);
     if (skipObj) {
         skippedIndices = skipObj.skippedSplitIndices;

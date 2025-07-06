@@ -20,13 +20,13 @@ declare global { interface Window {
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
 
-        onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<void>;
-        onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<void>;
+        onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;
+        onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;
 
-        onSteamUserDataPathChanged: (steamUserDataPath: string) => Promise<void>;
-        onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<void>;
+        onSteamUserDataPathChanged: (steamUserDataPath: string) => Promise<Settings>;
+        onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<Settings>;
 
-        onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}[]) => Promise<void>;
+        onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;
     };
 } }
 

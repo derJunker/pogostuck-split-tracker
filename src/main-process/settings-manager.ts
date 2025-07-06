@@ -20,22 +20,33 @@ export class SettingsManager {
         ipcMain.handle("option-hide-skipped-splits-changed", (event, hideSplits: boolean) => {
             this.currentSettings.hideSkippedSplits = hideSplits;
             this.saveSettings()
+            return this.currentSettings
         });
         ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
             this.currentSettings.showNewSplitNames = showNewSplits;
             this.saveSettings()
+            return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
             this.saveSettings()
+            return this.currentSettings
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             this.saveSettings()
+            return this.currentSettings
         });
-        ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}[]) => {
-            this.currentSettings.skippedSplits = skippedSplits;
+        ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
+            const oldSkippedSplits = this.currentSettings.skippedSplits
+            const existingIndex = oldSkippedSplits.findIndex(s => s.mode === skippedSplits.mode);
+            if (existingIndex !== -1) {
+                oldSkippedSplits[existingIndex].skippedSplitIndices = skippedSplits.skippedSplitIndices;
+            } else {
+                oldSkippedSplits.push(skippedSplits);
+            }
             this.saveSettings()
+            return this.currentSettings;
         });
     }
 

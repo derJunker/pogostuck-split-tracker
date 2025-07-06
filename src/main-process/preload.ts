@@ -16,6 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onSteamUserDataPathChanged: (steamUserDataPath: string) => ipcRenderer.invoke('steam-user-data-path-changed', steamUserDataPath),
     onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => ipcRenderer.invoke('pogostuck-config-path-changed', pogostuckConfigPath),
 
-    onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}[]) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),
+    onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),
 
 });

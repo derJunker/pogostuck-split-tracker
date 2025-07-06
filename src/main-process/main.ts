@@ -9,7 +9,7 @@ import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {readGoldenSplits} from "./read-golden-splits";
 import ActiveWindow from "@paymoapp/active-window";
-import {currentSettings, initSettings} from "./settings-manager";
+import { SettingsManager } from "./settings-manager";
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -25,6 +25,8 @@ const indexToNamesMappings = initMappings();
 const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings))
 const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker);
 const pbSplitTracker = new PbSplitTracker();
+
+const settingsManager = new SettingsManager()
 
 app.on("ready", () => {
 
@@ -45,12 +47,13 @@ app.on("ready", () => {
     overlayWindow = openOverlayWindow(mainWindow);
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow);
 
-    initSettings()
-    pbSplitTracker.readPbSplitsFromFile(path.join(currentSettings.pogostuckSteamUserDataPath, "settings.txt"), indexToNamesMappings);
+    settingsManager.init()
+    pbSplitTracker.readPbSplitsFromFile(path.join(settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), indexToNamesMappings);
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
 
+    ipcMain.handle("get-mappings", () => indexToNamesMappings)
 
-    logWatcher.startWatching(currentSettings.pogostuckConfigPath, "acklog.txt");
+    logWatcher.startWatching(settingsManager.getPogoStuckConfigPath(), "acklog.txt");
 });
 
 

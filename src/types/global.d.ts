@@ -12,7 +12,6 @@ export interface mapAndModeChanged {
 
 declare global { interface Window {
     electronAPI: {
-        saveSettings: (settings: Settings) => Promise<void>;
         loadSettings: () => Promise<Settings>;
         getMappings: () => Promise<PogoLevel[]>;
         onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent,

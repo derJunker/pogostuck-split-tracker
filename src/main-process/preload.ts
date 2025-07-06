@@ -4,7 +4,6 @@ import {mapAndModeChanged} from "../types/global";
 import {PogoLevel} from "../types/pogo-index-mapping";
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    saveSettings: (settings: Settings) => ipcRenderer.invoke('save-settings', settings),
     loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
     getMappings: (): Promise<PogoLevel[]> => ipcRenderer.invoke('get-mappings'),
     onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: mapAndModeChanged) => void) => ipcRenderer.on('map-or-mode-changed', callback),

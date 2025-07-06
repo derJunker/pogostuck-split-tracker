@@ -69,6 +69,7 @@ menuButtons.forEach(btn => {
 
 window.addEventListener('DOMContentLoaded', async () => {
     settings = await window.electronAPI.loadSettings();
+    console.log("Settings loaded: ", settings);
     mappings = await window.electronAPI.getMappings();
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
@@ -98,6 +99,8 @@ function syncInitialCheckboxes() {
         const checkbox = inputEl as HTMLInputElement;
         const customCheckbox = document.getElementById(checkbox.id + '-custom') as HTMLElement | null;
         if (customCheckbox && !checkbox.id.startsWith('checkpoint-')) {
+            const label = document.querySelector(`label[for="${checkbox.id}"]`) as HTMLLabelElement | null;
+            label?.addEventListener('click', (e) => customCheckbox.focus());
             customCheckbox.addEventListener('click', () => {
                 checkbox.checked = !checkbox.checked;
                 checkbox.dispatchEvent(new Event('change'));
@@ -118,7 +121,7 @@ function setHtmlContentFromSettings() {
     steamPathInput.value = settings.pogostuckSteamUserDataPath;
     pogoPathInput.value = settings.pogostuckConfigPath;
     hideSkippedSplitsCheckbox.checked = settings.hideSkippedSplits;
-    splitNamingSelect.value = settings.showNewSplitNames ? 'New' : 'Old';
+    splitNamingSelect.value = settings.showNewSplitNames ? 'new' : 'old';
 }
 
 function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
@@ -172,6 +175,7 @@ function getSelectedMapAndMode() {
 }
 
 const updateSkippedSplits = async () => {
+    console.log("Updating skipped splits...");
     const selection = getSelectedMapAndMode();
     if (!selection) return;
     const { mapObj, modeObj } = selection;
@@ -229,15 +233,22 @@ function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, 
     checkbox.className = 'toggle-checkbox';
     // Setze checked auf false, wenn Index in skippedIndices, sonst true
     checkbox.checked = !skippedIndices.includes(idx);
-    const customCheckbox = document.createElement('span');
+    const customCheckbox = document.createElement('button');
     customCheckbox.id = `checkpoint-${idx}-custom`;
     customCheckbox.className = 'custom-checkbox';
 
-    customCheckbox.addEventListener('click', () => checkbox.click);
-    checkbox.addEventListener('change',() => syncCustomCheckbox(checkbox, customCheckbox));
-    syncCustomCheckbox(checkbox, customCheckbox);
+    label.addEventListener('click', (e) => customCheckbox.focus());
+    customCheckbox.addEventListener('click', () => {
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change'));
+        customCheckbox.focus()
+    });
+    checkbox.addEventListener('change',async () => {
+        syncCustomCheckbox(checkbox, customCheckbox)
+        await updateSkippedSplits();
+    });
 
-    checkbox.addEventListener('change', updateSkippedSplits);
+    syncCustomCheckbox(checkbox, customCheckbox);
 
     div.appendChild(label);
     div.appendChild(checkbox);

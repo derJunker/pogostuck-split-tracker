@@ -92,6 +92,7 @@ input[type="checkbox"] {
     vertical-align: middle;
     cursor: pointer;
     transition: background var(--transition-fast), border var(--transition-fast);
+    padding: 0;
 }
 .custom-checkbox::after {
     content: '';
@@ -212,6 +213,11 @@ input[type="checkbox"] {
     opacity: 1;
     font-style: italic;
 }
+input[type="text"] {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
 
 #map-n-mode-split-selection > *,
 .menu-content > * {
@@ -256,7 +262,7 @@ label {
 
 #paths-content {
     display: grid;
-    grid-template-columns: max-content max-content max-content;
+    grid-template-columns: 1fr;
     gap: 0.5em 1em;
 }
 
@@ -268,9 +274,8 @@ label {
     margin-inline: .5rem;
 }
 
-@media (max-width: 580px) {
-    #paths-content {
-        grid-template-columns: max-content;
-    }
-
+button:focus,
+select:focus,
+input[type="text"]:focus {
+    box-shadow: 0 0 8px 2px #398bdb;
 }

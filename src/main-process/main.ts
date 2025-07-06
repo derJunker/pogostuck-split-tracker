@@ -31,8 +31,8 @@ const settingsManager = new SettingsManager()
 app.on("ready", () => {
 
     mainWindow = new BrowserWindow({
-        width: 600,
-        height: 400,
+        width: 650,
+        height: 450,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,

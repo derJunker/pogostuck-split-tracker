@@ -1,6 +1,6 @@
 import {app, ipcMain} from "electron";
 import {Settings} from "../types/settings";
-import {existsSync} from "fs";
+import fs, {existsSync} from "fs";
 import path from "path";
 
 export class SettingsManager {
@@ -18,19 +18,24 @@ export class SettingsManager {
         });
 
         ipcMain.handle("option-hide-skipped-splits-changed", (event, hideSplits: boolean) => {
-            console.log("option-hide-skipped-splits-changed: ", hideSplits)
+            this.currentSettings.hideSkippedSplits = hideSplits;
+            this.saveSettings()
         });
         ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
-            console.log("option-show-new-split-names-changed: ", showNewSplits)
+            this.currentSettings.showNewSplitNames = showNewSplits;
+            this.saveSettings()
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
-            console.log("steam-user-data-path-changed: ", steamUserDataPath)
+            this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
+            this.saveSettings()
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
-            console.log("pogostuck-config-path-changed: ", pogostuckConfPath)
+            this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
+            this.saveSettings()
         });
         ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}[]) => {
-            console.log("skip-splits-changed: ", skippedSplits)
+            this.currentSettings.skippedSplits = skippedSplits;
+            this.saveSettings()
         });
     }
 
@@ -51,6 +56,10 @@ export class SettingsManager {
                 skippedSplits: []
             };
         }
+    }
+
+    private saveSettings() {
+        fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
     }
 
     public getPogoStuckConfigPath(): string {

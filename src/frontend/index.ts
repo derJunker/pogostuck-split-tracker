@@ -72,6 +72,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     mappings = await window.electronAPI.getMappings();
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
+    syncInitialCheckboxes()
+    setHtmlContentFromSettings()
     loadLevelsFromMapping()
     updateModesForLevel()
     updateCheckpoints()
@@ -89,27 +91,35 @@ window.addEventListener('DOMContentLoaded', async () => {
             div.style.display = 'none';
         }
     });
+});
+
+function syncInitialCheckboxes() {
     document.querySelectorAll('input[type="checkbox"][id]').forEach(inputEl => {
         const checkbox = inputEl as HTMLInputElement;
         const customCheckbox = document.getElementById(checkbox.id + '-custom') as HTMLElement | null;
-        if (customCheckbox) {
-            const syncCustomCheckbox = () => {
-                if (checkbox.checked) {
-                    customCheckbox.classList.add('checked');
-                } else {
-                    customCheckbox.classList.remove('checked');
-                }
-            };
+        if (customCheckbox && !checkbox.id.startsWith('checkpoint-')) {
             customCheckbox.addEventListener('click', () => {
                 checkbox.checked = !checkbox.checked;
                 checkbox.dispatchEvent(new Event('change'));
-                syncCustomCheckbox();
+                syncCustomCheckbox(checkbox, customCheckbox);
             });
-            checkbox.addEventListener('change', syncCustomCheckbox);
-            syncCustomCheckbox();
+            checkbox.addEventListener('change', () => syncCustomCheckbox(checkbox, customCheckbox));
+            syncCustomCheckbox(checkbox, customCheckbox);
         }
     });
-});
+}
+
+function setHtmlContentFromSettings() {
+    const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
+    const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
+    const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
+    const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
+
+    steamPathInput.value = settings.pogostuckSteamUserDataPath;
+    pogoPathInput.value = settings.pogostuckConfigPath;
+    hideSkippedSplitsCheckbox.checked = settings.hideSkippedSplits;
+    splitNamingSelect.value = settings.showNewSplitNames ? 'New' : 'Old';
+}
 
 function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
     if (checkbox.checked) {
@@ -149,7 +159,6 @@ pogoPathInput.addEventListener('input', async () => {
 
 function getSelectedMapAndMode() {
     if (!mapSelect || !modeSelect) return null;
-    console.log(`selected indexes: map=${mapSelect.selectedIndex}, mode=${modeSelect.selectedIndex}`);
     const selectedMapName = mapSelect.options[mapSelect.selectedIndex].text;
     const selectedModeName = modeSelect.options[modeSelect.selectedIndex].text;
 
@@ -194,38 +203,46 @@ function updateCheckpoints() {
     const splitSelectionDiv = document.getElementById('map-n-mode-split-selection');
     if (!splitSelectionDiv) return;
 
-    splitSelectionDiv.innerHTML = ''; // Clear previous content
+    splitSelectionDiv.innerHTML = '';
+
+    let skippedIndices: number[] = [];
+    const skipObj = settings.skippedSplits.find(s => s.mode === modeObj.key);
+    if (skipObj) {
+        skippedIndices = skipObj.skippedSplitIndices;
+    }
 
     mapObj.splits.forEach((split, idx) => {
-        const div = document.createElement('div');
-        div.className = 'toggle-switch';
-        const label = document.createElement('label');
-        label.setAttribute('for', `checkpoint-${idx}`);
-        label.className = 'toggle-label';
-        label.textContent = split;
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `checkpoint-${idx}`;
-        checkbox.className = 'toggle-checkbox';
-        const customCheckbox = document.createElement('span');
-        customCheckbox.id = `checkpoint-${idx}-custom`;
-        customCheckbox.className = 'custom-checkbox';
-
-        customCheckbox.addEventListener('click', () => {
-            checkbox.checked = !checkbox.checked;
-            checkbox.dispatchEvent(new Event('change'));
-            syncCustomCheckbox(checkbox, customCheckbox);
-        });
-        checkbox.addEventListener('change',() => syncCustomCheckbox(checkbox, customCheckbox));
-        syncCustomCheckbox(checkbox, customCheckbox);
-
-        checkbox.addEventListener('change', updateSkippedSplits);
-
-        div.appendChild(label);
-        div.appendChild(checkbox);
-        div.appendChild(customCheckbox);
-        splitSelectionDiv.appendChild(div);
+        addSplitToSkippedSplits(splitSelectionDiv, split, idx, skippedIndices);
     });
+}
+
+function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, idx: number, skippedIndices: number[]) {
+    const div = document.createElement('div');
+    div.className = 'toggle-switch';
+    const label = document.createElement('label');
+    label.setAttribute('for', `checkpoint-${idx}`);
+    label.className = 'toggle-label';
+    label.textContent = split;
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `checkpoint-${idx}`;
+    checkbox.className = 'toggle-checkbox';
+    // Setze checked auf false, wenn Index in skippedIndices, sonst true
+    checkbox.checked = !skippedIndices.includes(idx);
+    const customCheckbox = document.createElement('span');
+    customCheckbox.id = `checkpoint-${idx}-custom`;
+    customCheckbox.className = 'custom-checkbox';
+
+    customCheckbox.addEventListener('click', () => checkbox.click);
+    checkbox.addEventListener('change',() => syncCustomCheckbox(checkbox, customCheckbox));
+    syncCustomCheckbox(checkbox, customCheckbox);
+
+    checkbox.addEventListener('change', updateSkippedSplits);
+
+    div.appendChild(label);
+    div.appendChild(checkbox);
+    div.appendChild(customCheckbox);
+    splitSelectionDiv.appendChild(div);
 }
 
 function loadLevelsFromMapping() {
@@ -261,4 +278,3 @@ function updateModesForLevel() {
     modeSelect.selectedIndex = 0; // Reset to first mode
     updateCheckpoints(); // Update checkpoints for the new map and mode
 }
-

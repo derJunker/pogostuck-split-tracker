@@ -56,20 +56,23 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number, skipless: boolean, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow,
-                       pbSplitTracker: PbSplitTracker, settingsManager: SettingsManager): void {
+    public finishedRun(time: number, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow,
+                       pbSplitTracker: PbSplitTracker): void {
         this.finalTime = time;
-        console.log(`Run finished with time: ${time}, skipless: ${skipless}`);
+        console.log(`Run finished with time: ${time}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
-        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode, pbSplitTracker, settingsManager)
+        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode, pbSplitTracker, this.settingsManager)
+        console.log(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
+        console.log(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
         if (lastGoldSplit.to >= 0 && lastGoldSplit.time > lastDiff) {
             this.goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             console.log(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
-        if (this.finalTime > this.pb) {
+        if (this.finalTime < this.pb) {
             console.log(`New personal best: ${this.finalTime}`);
             this.pb = this.finalTime;
+            this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime, this.pbTracker)
             this.pbTracker.readPbSplitsFromFile(path.join(this.settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), nameMappings);
             onMapOrModeChanged(this.map, this.mode, nameMappings, this.pbTracker, this.goldSplitsTracker, overlayWindow, this.settingsManager);
         }

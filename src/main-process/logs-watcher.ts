@@ -39,28 +39,35 @@ export class FileWatcher {
 
     private watchFile(filePath: string) {
         this.stopFileWatcher();
-        this.fileWatcher = chokidar.watch(filePath, { persistent: true, usePolling: true, interval: 500 });
-        this.fileWatcher.on('change', (changedPath: string) => {
-            fs.stat(filePath, (err, stats) => {
-                if (err) return;
-                if (stats.size > this.lastSize) {
-                    const stream = fs.createReadStream(filePath, {
-                        start: this.lastSize,
-                        end: stats.size
-                    });
-                    stream.on('data', (data) => {
-                        const newLines = data.toString().split('\n').filter(Boolean);
-                        newLines.forEach(line => {
-                            this.listeners.forEach(listener => {
-                                const match = line.match(listener.regex);
-                                if (match) {
-                                    listener.callback(match);
-                                }
+        fs.stat(filePath, (err, stats) => {
+            if (!err) {
+                this.lastSize = stats.size;
+            } else {
+                this.lastSize = 0;
+            }
+            this.fileWatcher = chokidar.watch(filePath, { persistent: true, usePolling: true, interval: 500 });
+            this.fileWatcher.on('change', (changedPath: string) => {
+                fs.stat(filePath, (err, stats) => {
+                    if (err) return;
+                    if (stats.size > this.lastSize) {
+                        const stream = fs.createReadStream(filePath, {
+                            start: this.lastSize,
+                            end: stats.size
+                        });
+                        stream.on('data', (data) => {
+                            const newLines = data.toString().split('\n').filter(Boolean);
+                            newLines.forEach(line => {
+                                this.listeners.forEach(listener => {
+                                    const match = line.match(listener.regex);
+                                    if (match) {
+                                        listener.callback(match);
+                                    }
+                                });
                             });
                         });
-                    });
-                    this.lastSize = stats.size;
-                }
+                        this.lastSize = stats.size;
+                    }
+                });
             });
         });
     }

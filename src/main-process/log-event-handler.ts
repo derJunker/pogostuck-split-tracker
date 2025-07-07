@@ -60,10 +60,12 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
 
     // player run finish gets logged
     fileWatcher.registerListener(
-        /playerRunFinish at frame \d+: requestProgressUploadTime\((?<time>\d+)\) <\? bestTime\((?<bestTime>\d+)\) replayRecordActive\((?<replayRecordActive>\d+)\) numFinishes\((?<numFinishes>\d+)\) skipless\((?<skipless>\d+)\) isConnectedToSteamServers\((?<isConnectedToSteamServers>\d+)\)/,
+        /playerRunFinish at frame .* requestProgressUploadTime\((?<time>\d+)\)/,
         (match) => {
-            const { time, bestTime, replayRecordActive, numFinishes, skipless, isConnectedToSteamServers } = match.groups!;
-            stateTracker.finishedRun(parseFloat(time), skipless === "1", nameMappings, overlayWindow, pbSplitTracker, settingsManager)
+            const { time } = match.groups!;
+            const timeInMS = parseFloat(time)
+            stateTracker.finishedRun(timeInMS/1000, nameMappings, overlayWindow, pbSplitTracker)
+            // TODO do something here
             if (goldenSplitsTracker.hasChanged())
                 writeGoldenSplits(goldenSplitsTracker)
         }

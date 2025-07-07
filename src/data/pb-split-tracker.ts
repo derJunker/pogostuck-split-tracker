@@ -53,11 +53,7 @@ export class PbSplitTracker {
         this.modeTimes = Object.entries(tempModeSplits).map(([mode, times]) => ({
             mode: Number(mode),
             times: times.sort((a, b) => a.split - b.split)
-                .filter(splitInfo => {
-                    const keep = [4, 7, 30, 31].indexOf(Number(mode)) == -1 || splitInfo.split < 9
-                    console.log(`Keeping split ${splitInfo.split} for mode ${mode}: ${keep}`);
-                    return keep;
-                })
+                .filter(splitInfo => [4, 7, 30, 31].indexOf(Number(mode)) == -1 || splitInfo.split < 9)
         }));
         console.log(`Loaded PB splits from ${filePath}: ${JSON.stringify(this.modeTimes)}`);
     }

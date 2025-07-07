@@ -3,6 +3,7 @@ import {app} from "electron";
 import fs, {existsSync} from "fs";
 import {GoldenSplitsForMode} from "../types/golden-splits";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
+import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 
 const goldenSplitFilePath = path.join(app.getPath("userData"), "golden-splits.json");
 
@@ -24,7 +25,7 @@ export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): Golden
         }
     } else {
         const allLevels = indexToNamesMappings.getAllLevels()
-        const emptyGoldenSplitsWithDefaultValues: GoldenSplitsForMode[] = allLevels.flatMap(level =>
+        return allLevels.flatMap(level =>
             level.modes.map(mode => {
                 return {
                     modeIndex: mode.key,
@@ -33,12 +34,11 @@ export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): Golden
                 }
             })
         );
-        writeGoldenSplits(emptyGoldenSplitsWithDefaultValues)
-        return emptyGoldenSplitsWithDefaultValues;
     }
 }
 
-export function writeGoldenSplits(goldenSplits: GoldenSplitsForMode[]): void {
-    console.log("Writing Golden Splits to file:", goldenSplitFilePath);
+export function writeGoldenSplits(goldenSplitsTracker: GoldSplitsTracker): void {
+    const goldenSplits = goldenSplitsTracker.getGoldenSplits();
+    goldenSplitsTracker.changeSaved()
     fs.writeFileSync(goldenSplitFilePath, JSON.stringify(goldenSplits, null, 2));
 }

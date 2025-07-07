@@ -38,7 +38,7 @@ export class CurrentStateTracker {
     }
 
     public passedSplit(split: number, time: number, lastSplit: { split: number, time: number }): boolean {
-        const from = this.recordedSplits.length - 1;
+        const from = lastSplit.split;
         while (this.recordedSplits.length < lastSplit.split) {
             console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
             this.recordedSplits.push({split: this.recordedSplits.length, time: 0});
@@ -48,10 +48,10 @@ export class CurrentStateTracker {
         let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
         if (!goldSplit || goldSplit > splitTime) {
             this.goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
-            console.log(`New best split for ${split}: ${time}`)
+            console.log(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime}`);
             return true;
         } else {
-            console.log(`Split passed: ${split} at time ${time}`);
+            console.log(`Split passed: from ${from} to ${split} with time ${time}, but not a gold split. Gold split was: ${goldSplit}`);
             return false;
         }
     }

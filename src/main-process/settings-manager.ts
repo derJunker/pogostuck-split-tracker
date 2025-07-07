@@ -8,6 +8,7 @@ import { CurrentStateTracker } from "../data/current-state-tracker";
 import { GoldSplitsTracker } from "../data/GoldSplitsTracker";
 import { PbSplitTracker } from "../data/pb-split-tracker";
 import { PogoNameMappings } from "../data/pogo-name-mappings";
+import {writeGoldenSplits} from "./read-golden-splits";
 
 export class SettingsManager {
     private readonly settingsPath: string;
@@ -51,26 +52,38 @@ export class SettingsManager {
                 return this.currentSettings;
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
+            console.log(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
             pbSplitTracker.readPbSplitsFromFile(path.join(steamUserDataPath, "settings.txt"), indexToNamesMappings);
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
+            if (goldenSplitsTracker.hasChanged()) {
+                writeGoldenSplits(goldenSplitsTracker)
+            }
+            const mapNum = stateTracker.getCurrentMap()
+            const modeNum = stateTracker.getCurrentMode();
+            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
             if (!existsSync(pogostuckConfPath)) {
+                console.log(`PogoStuck config path does not exist: ${pogostuckConfPath}`);
                 return this.currentSettings;
             }
+            console.log(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
+            console.log("skippedSplits", skippedSplits);
             const oldSkippedSplits = this.currentSettings.skippedSplits
             const existingIndex = oldSkippedSplits.findIndex(s => s.mode === skippedSplits.mode);
             if (existingIndex !== -1) {
+                console.log("updating existing skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits[existingIndex].skippedSplitIndices = skippedSplits.skippedSplitIndices;
             } else {
+                console.log("putting new skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits.push(skippedSplits);
             }
             const mapNum = stateTracker.getCurrentMap()
@@ -83,7 +96,11 @@ export class SettingsManager {
     }
 
     public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {
-        if (mode === 4 && splitAmount === 10) splitAmount = 9 //idk why but NAS has 10 splits with 1 unused :)
+        // some of the newer map 1 modes have a unused split for some reason :(
+        if ([4, 7, 30, 31].indexOf(mode) >= 0 && splitAmount === 10) {
+            splitAmount = 9
+            console.log(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
+        }
         const splitIndexPath: {from: number, to: number}[] = [];
         let lastTo = -1;
         let index = -1
@@ -101,10 +118,8 @@ export class SettingsManager {
 
     private loadSettings(): Settings {
         if (existsSync(this.settingsPath)) {
-            console.log(`Loading settings from ${this.settingsPath}`);
             return JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
         } else {
-            console.log(`Settings file not found at ${this.settingsPath}. Creating default settings.`);
             return {
                 pogostuckConfigPath: "",
                 pogostuckSteamUserDataPath: "",

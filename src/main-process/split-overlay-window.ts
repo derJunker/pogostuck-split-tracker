@@ -44,10 +44,8 @@ function addPogostuckOpenedListener(overlayWindow: BrowserWindow) {
         const pogostuckWasActive = pogostuckIsActiveWindow;
         pogostuckIsActiveWindow = pogostuckIsActive(windowInfo);
         if (!pogostuckWasActive && pogostuckIsActiveWindow) {
-            console.log("Pogostuck is active, showing overlay window");
             overlayWindow.show();
         } else if (pogostuckWasActive && !pogostuckIsActiveWindow) {
-            console.log("Pogostuck is not active, hiding overlay window");
             overlayWindow.hide();
         }
     })

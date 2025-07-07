@@ -47,9 +47,18 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
             const splitPath = this.settingsManager.getSplitIndexPath(modeNum, splitAmount)
+            console.log(`calculating SoB: ${
+                JSON.stringify(
+                    splitPath.map(({from, to}) => {
+                        const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
+                        return {time: (goldSplit !== null ? goldSplit : Infinity), from, to};
+                    })
+                )
+            }`)
             const sumOfBest = splitPath.map(({from, to}) => {
                 const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
-                return goldSplit !== null ? goldSplit : Infinity;
+                console.log(`Gold split for mode ${modeNum} from ${from} to ${to}: ${goldSplit}`);
+                return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
             }).reduce((sum, time) => sum + time, 0);
             return sumOfBest === Infinity ? -1 : sumOfBest;
         }
@@ -89,18 +98,22 @@ export class GoldSplitsTracker {
         if (modeSplits) {
             if (modeSplits.pb !== newPb) {
                 modeSplits.pb = newPb;
+                this.changed = true;
                 const pbSplits = pbSplitTracker.getPbSplitsForMode(modeIndex)
                 const from = pbSplits.length -1 // this is kinda wrong, if there were a map where you skip the last
                 // split TODO: fix it when doing custom maps
                 const to = from+1;
                 const lastSplit = pbSplits[from];
+                if (!lastSplit) {
+                    console.warn(`No last split found for mode ${modeIndex}, skipping gold split update`);
+                    return;
+                }
                 const oldGoldSplitIndex = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to)
                 const oldGoldenSplit = oldGoldSplitIndex !== -1 ? modeSplits.goldenSplits[oldGoldSplitIndex].time : Infinity;
                 const splitTime = newPb - lastSplit.time;
                 if (splitTime < oldGoldenSplit) {
                     this.updateGoldSplit(modeIndex, from, to, splitTime);
                 }
-                this.changed = true;
             }
         }
     }
@@ -129,7 +142,7 @@ export class GoldSplitsTracker {
                 }
                 const splitTime = toTime - fromTime;
                 const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
-                if (!previousGoldSplit || (previousGoldSplit > splitTime && splitTime > 0)) {
+                if ((!previousGoldSplit || previousGoldSplit > splitTime) && splitTime > 0) {
                     this.updateGoldSplit(mode, from, to, splitTime);
                 }
 
@@ -145,11 +158,15 @@ export class GoldSplitsTracker {
             if (pbTime !== time) {
                 console.log(`New PB for mode ${mode}: ${time}`);
                 this.updatePbForMode(mode, time, pbSplitTracker);
-                writeGoldenSplits(this.goldenSplits)
+                writeGoldenSplits(this)
                 const mapNum = indexToNamesMappings.getAllLevels()
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
                 onMapOrModeChanged(mapNum, mode, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager)
             }
         })
+    }
+
+    public changeSaved() {
+        this.changed = false;
     }
 }

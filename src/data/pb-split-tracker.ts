@@ -20,7 +20,6 @@ export class PbSplitTracker {
         const modeMap: { [modeName: string]: number } = {};
         const settingsNames: string[] = [];
 
-        // Erzeuge eine Zuordnung von settingsName zu modeIndex für alle Maps
         for (const map of (pogoNameMappings as any).nameMappings) {
             for (const mode of map.modes) {
                 modeMap[mode.settingsName] = mode.key;
@@ -28,7 +27,6 @@ export class PbSplitTracker {
             }
         }
 
-        // Sortiere settingsNames nach Länge absteigend, damit längere Namen zuerst geprüft werden (verhindert Präfix-Probleme)
         settingsNames.sort((a, b) => b.length - a.length);
 
         const tempModeSplits: { [mode: number]: { split: number, time: number }[] } = {};
@@ -50,13 +48,18 @@ export class PbSplitTracker {
                     break;
                 }
             }
-            // Falls keine settingsName matched, ignoriere die Zeile
         }
 
         this.modeTimes = Object.entries(tempModeSplits).map(([mode, times]) => ({
             mode: Number(mode),
             times: times.sort((a, b) => a.split - b.split)
+                .filter(splitInfo => {
+                    const keep = [4, 7, 30, 31].indexOf(Number(mode)) == -1 || splitInfo.split < 9
+                    console.log(`Keeping split ${splitInfo.split} for mode ${mode}: ${keep}`);
+                    return keep;
+                })
         }));
+        console.log(`Loaded PB splits from ${filePath}: ${JSON.stringify(this.modeTimes)}`);
     }
 
     public getSplitAmountForMode(mode: number): number {
@@ -82,6 +85,8 @@ export class PbSplitTracker {
             console.warn(`No splits found for mode ${mode}`);
             return -1;
         }
+        if (mode === 7)
+            console.log(`times for mode ${mode}: ${JSON.stringify(modeSplits.times)}; looking for split ${split}`);
         const splitTime = modeSplits.times.find(s => s.split === split);
         if (!splitTime) {
             return -1;

@@ -51,11 +51,10 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             stateTracker.resetRun();
-            console.log(`Player reset: localDead=${match.groups!.localDead}, dontResetTime=${match.groups!.dontResetTime}, map3IsAGo=${match.groups!.map3IsAGo}`);
             if (stateTracker.getCurrentMode() >= 0 && stateTracker.getCurrentMap() >= 0)
                 onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
             if (goldenSplitsTracker.hasChanged())
-                writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
+                writeGoldenSplits(goldenSplitsTracker)
         }
     )
 
@@ -66,7 +65,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const { time, bestTime, replayRecordActive, numFinishes, skipless, isConnectedToSteamServers } = match.groups!;
             stateTracker.finishedRun(parseFloat(time), skipless === "1", nameMappings, overlayWindow, pbSplitTracker, settingsManager)
             if (goldenSplitsTracker.hasChanged())
-                writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
+                writeGoldenSplits(goldenSplitsTracker)
         }
     )
     // when going into the menu or closing the window save the golden splits, to reduce lag during play
@@ -74,7 +73,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
             if (goldenSplitsTracker.hasChanged())
-                writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
+                writeGoldenSplits(goldenSplitsTracker)
         }
     );
 

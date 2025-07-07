@@ -1,4 +1,10 @@
 import {GoldSplitsTracker} from "./GoldSplitsTracker";
+import path from "path";
+import {PbSplitTracker} from "./pb-split-tracker";
+import {SettingsManager} from "../main-process/settings-manager";
+import { PogoNameMappings } from "./pogo-name-mappings";
+import {onMapOrModeChanged} from "../main-process/log-event-handler";
+import {BrowserWindow} from "electron";
 
 export class CurrentStateTracker {
     private mode: number = -1;
@@ -9,9 +15,13 @@ export class CurrentStateTracker {
     private pb: number = 0;
 
     private goldSplitsTracker: GoldSplitsTracker;
+    private pbTracker: PbSplitTracker;
+    private settingsManager: SettingsManager;
 
-    constructor(goldenSplitsTracker: GoldSplitsTracker) {
+    constructor(goldenSplitsTracker: GoldSplitsTracker, pbTracker: PbSplitTracker, settingsManager: SettingsManager) {
         this.goldSplitsTracker = goldenSplitsTracker;
+        this.pbTracker = pbTracker;
+        this.settingsManager = settingsManager;
     }
 
     public updateMapAndMode(map: number, mode: number): boolean {
@@ -27,13 +37,13 @@ export class CurrentStateTracker {
         return false;
     }
 
-    public passedSplit(split: number, time: number, lastSplit: {split:number, time:number}): boolean {
+    public passedSplit(split: number, time: number, lastSplit: { split: number, time: number }): boolean {
         while (this.recordedSplits.length < lastSplit.split) {
             console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
-            this.recordedSplits.push({ split: this.recordedSplits.length, time: 0 });
+            this.recordedSplits.push({split: this.recordedSplits.length, time: 0});
         }
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
-        this.recordedSplits.push({ split, time: time });
+        this.recordedSplits.push({split, time: time});
         let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, split)
         if (!goldSplit || goldSplit > splitTime) {
             this.goldSplitsTracker.updateGoldSplit(this.mode, split, splitTime)
@@ -45,13 +55,21 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number, skipless: boolean): void {
+    public finishedRun(time: number, skipless: boolean, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow): void {
         this.finalTime = time;
         console.log(`Run finished with time: ${time}, skipless: ${skipless}`);
+        const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
+        const lastDiff = time - lastSplit.time
+        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode)
+        if (lastGoldSplit.index >= 0 && lastGoldSplit.time > lastDiff) {
+            this.goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.index, lastDiff);
+            console.log(`New best split for ${lastGoldSplit.index}: ${lastDiff}`);
+        }
         if (this.finalTime > this.pb) {
             console.log(`New personal best: ${this.finalTime}`);
             this.pb = this.finalTime;
-            // TODO write this to a file && update the UI
+            this.pbTracker.readPbSplitsFromFile(path.join(this.settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), nameMappings);
+            onMapOrModeChanged(this.map, this.mode, nameMappings, this.pbTracker, this.goldSplitsTracker, overlayWindow, this.settingsManager);
         }
     }
 

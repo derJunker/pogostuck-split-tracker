@@ -24,9 +24,9 @@ let logWatcher: FileWatcher = new FileWatcher();
 const indexToNamesMappings = initMappings();
 const settingsManager = new SettingsManager(logWatcher)
 const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager)
-const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker);
-
 const pbSplitTracker = new PbSplitTracker();
+
+const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker, pbSplitTracker, settingsManager);
 
 app.on("ready", () => {
 
@@ -51,7 +51,7 @@ app.on("ready", () => {
 
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
     pbSplitTracker.readPbSplitsFromFile(path.join(settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), indexToNamesMappings);
-    // goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker); // causes bugs
+    goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker);
     goldenSplitsTracker.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings, settingsManager);
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())

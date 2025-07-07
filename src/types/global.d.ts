@@ -1,5 +1,4 @@
 import {Settings} from "./settings";
-import {ipcRenderer} from "electron";
 import {PogoLevel} from "./pogo-index-mapping";
 
 export interface mapAndModeChanged {

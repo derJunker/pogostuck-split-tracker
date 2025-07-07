@@ -9,8 +9,8 @@ import {mapAndModeChanged} from "../types/global";
 import {SettingsManager} from "./settings-manager";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
-                                         pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker, overlayWindow: BrowserWindow,
-                                         settingsManager: SettingsManager) {
+                                         pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,
+                                         overlayWindow: BrowserWindow, settingsManager: SettingsManager) {
     // map or mode gets logged
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
@@ -40,7 +40,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
                 wasGolden = stateTracker.passedSplit(split, timeAsFloat, stateTracker.getLastSplitTime())
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden});
             if (wasGolden) {
-                overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.getSumOfBest(stateTracker.getCurrentMode()));
+                overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode()));
             }
         }
     )
@@ -63,7 +63,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         /playerRunFinish at frame \d+: requestProgressUploadTime\((?<time>\d+)\) <\? bestTime\((?<bestTime>\d+)\) replayRecordActive\((?<replayRecordActive>\d+)\) numFinishes\((?<numFinishes>\d+)\) skipless\((?<skipless>\d+)\) isConnectedToSteamServers\((?<isConnectedToSteamServers>\d+)\)/,
         (match) => {
             const { time, bestTime, replayRecordActive, numFinishes, skipless, isConnectedToSteamServers } = match.groups!;
-            stateTracker.finishedRun(parseFloat(time), skipless === "1")
+            stateTracker.finishedRun(parseFloat(time), skipless === "1", nameMappings, overlayWindow)
             if (goldenSplitsTracker.hasChanged())
                 writeGoldenSplits(goldenSplitsTracker.getGoldenSplits())
         }
@@ -94,7 +94,7 @@ export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings
     const pbSplitTimes: { split: number; time: number }[] = pbSplitTracker.getPbSplitsForMode(modeNum);
 
     const pbTime = goldenSplitTracker.getPbForMode(modeNum);
-    const sumOfBest = goldenSplitTracker.getSumOfBest(modeNum);
+    const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum);
     console.log(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
 
     const mapModeAndSplitsWithTimes: mapAndModeChanged = {

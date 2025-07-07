@@ -65,7 +65,7 @@ export class GoldSplitsTracker {
         }));
     }
 
-    public getSumOfBest(modeNum: number) {
+    public calcSumOfBest(modeNum: number) {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
             const splits = modeSplits.goldenSplits;
@@ -73,11 +73,7 @@ export class GoldSplitsTracker {
                 return -1;
             }
             const skippedSplits = this.settingsManager.getSplitsToSkipForMode(modeNum)
-            console.log(`Skipped splits for mode ${modeNum}: ${skippedSplits}`);
-            console.log(`Splits for calc: ${splits.filter(time => time !== Infinity).filter((time, index) => {
-                return !skippedSplits.includes(index);
-            })}`);
-            return splits.filter(time => time !== Infinity).filter((time, index) => {
+            return splits.filter((time, index) => {
                 return !skippedSplits.includes(index);
             }).reduce((sum, time) => sum + time, 0);
         }
@@ -88,6 +84,14 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
         this.changed = true;
         modeSplits.goldenSplits[splitIndex] = newTime;
+    }
+
+    public getLastGoldSplitForMode(modeIndex: number): {time: number, index: number} {
+        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
+        if (modeSplits && modeSplits.goldenSplits.length > 0) {
+            return {time: modeSplits.goldenSplits[modeSplits.goldenSplits.length - 1], index: modeSplits.goldenSplits.length - 1};
+        }
+        return {time: Infinity, index: -1};
     }
 
     public updatePbForMode(modeIndex: number, newPb: number, pbSplitTracker: PbSplitTracker): void {
@@ -124,7 +128,6 @@ export class GoldSplitsTracker {
             const goldenSplits = this.goldenSplits.find(gs => gs.modeIndex === mode);
             splitTimes.forEach((time, index) => {
                 if (time && time < goldenSplits!.goldenSplits[index] && time > 0) {
-                    console.log(`Updating gold split for mode ${mode}, index ${index} to ${time}`);
                     this.updateGoldSplit(mode, index, time);
                 }
             });

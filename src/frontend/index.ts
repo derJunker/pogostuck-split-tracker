@@ -78,6 +78,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     pbs = await window.electronAPI.getPbs();
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
+    await hideWin11ContentIfNeeded()
     syncInitialCheckboxes()
     setHtmlContentFromSettings()
     loadLevelsFromMapping()
@@ -102,6 +103,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     addPbModeChangeListeners();
 });
+
+async function hideWin11ContentIfNeeded() {
+    const isWin11 = await window.electronAPI.isWindows11();
+    console.log("Is Windows 11: ", isWin11);
+    if (!isWin11) {
+        const win11Content = document.querySelectorAll('.only-win11')
+        win11Content.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.display = 'none';
+        });
+    }
+}
 
 function syncInitialCheckboxes() {
     document.querySelectorAll('input[type="checkbox"][id]').forEach(inputEl => {
@@ -383,3 +396,7 @@ function parsePbTime(timeStr: string): number {
     const ms = parseInt(match[3], 10);
     return mins * 60 + secs + ms / 1000;
 }
+
+document.getElementById("open-settings-link")?.addEventListener("click", () => {
+    window.electronAPI.openWindowsSettings();
+});

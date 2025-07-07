@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain} from "electron";
+import {app, BrowserWindow, ipcMain, shell} from "electron";
 import * as path from "path";
 import {FileWatcher} from "./logs-watcher";
 import {registerLogEventHandlers} from "./log-event-handler";
@@ -10,6 +10,7 @@ import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {readGoldenSplits} from "./read-golden-splits";
 import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
+import { initListeners as initWindows11Listeners } from './windows11-listeners';
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -54,9 +55,8 @@ app.on("ready", () => {
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
     goldenSplitsTracker.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings, settingsManager);
 
+    initWindows11Listeners();
+
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())
 });
-
-
-

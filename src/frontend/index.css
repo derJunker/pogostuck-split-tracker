@@ -339,3 +339,9 @@ code {
 b {
     text-decoration: underline;
 }
+
+a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}

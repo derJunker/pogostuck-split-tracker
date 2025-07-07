@@ -22,4 +22,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
 
+    isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
+    openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
+
 });

@@ -47,17 +47,8 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
             const splitPath = this.settingsManager.getSplitIndexPath(modeNum, splitAmount)
-            console.log(`calculating SoB: ${
-                JSON.stringify(
-                    splitPath.map(({from, to}) => {
-                        const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
-                        return {time: (goldSplit !== null ? goldSplit : Infinity), from, to};
-                    })
-                )
-            }`)
             const sumOfBest = splitPath.map(({from, to}) => {
                 const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
-                console.log(`Gold split for mode ${modeNum} from ${from} to ${to}: ${goldSplit}`);
                 return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
             }).reduce((sum, time) => sum + time, 0);
             return sumOfBest === Infinity ? -1 : sumOfBest;
@@ -88,8 +79,7 @@ export class GoldSplitsTracker {
             }
             return {time: Infinity, from, to};
         }
-        console.warn(`
-            }No golden splits found for mode ${modeIndex}`);
+        console.warn(`No golden splits found for mode ${modeIndex}`);
         return {time: Infinity, from: -1, to: -1};
     }
 

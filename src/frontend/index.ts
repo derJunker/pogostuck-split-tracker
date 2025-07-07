@@ -233,7 +233,6 @@ function updateCheckpoints() {
     splitSelectionDiv.innerHTML = '';
 
     let skippedIndices: number[] = [];
-    console.log("current settings: ", JSON.stringify(settings));
     const skipObj = settings.skippedSplits.find(s => s.mode === modeObj.key);
     if (skipObj) {
         skippedIndices = skipObj.skippedSplitIndices;
@@ -298,7 +297,6 @@ function loadLevelsFromMapping() {
 function updateModesForLevel() {
     if (!mapSelect || !modeSelect) return;
     const selectedMapIndex = parseInt(mapSelect.value, 10);
-    console.log("Selected map index: ", selectedMapIndex);
     const selectedMap = mappings.find(m => m.mapIndex === selectedMapIndex);
     if (!selectedMap) return;
 

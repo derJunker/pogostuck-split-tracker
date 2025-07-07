@@ -73,6 +73,20 @@ export class SettingsManager {
         });
     }
 
+    public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {
+        const splitIndexPath: {from: number, to: number}[] = [];
+        let lastTo = 0;
+        for (let i = 0; i < splitAmount+1; i++) {
+            const from = lastTo;
+            if (this.splitShouldBeSkipped(mode, i))
+                continue;
+            const to = i + 1;
+            splitIndexPath.push({from, to});
+            lastTo = to;
+        }
+        return splitIndexPath;
+    }
+
     private loadSettings(): Settings {
         if (existsSync(this.settingsPath)) {
             console.log(`Loading settings from ${this.settingsPath}`);
@@ -98,14 +112,6 @@ export class SettingsManager {
             return skippedSplits.skippedSplitIndices.includes(splitIndex);
         }
         return false;
-    }
-
-    public getSplitsToSkipForMode(mode: number): number[] {
-        const skippedSplits = this.currentSettings.skippedSplits.find(s => s.mode === mode);
-        if (skippedSplits) {
-            return skippedSplits.skippedSplitIndices;
-        }
-        return [];
     }
 
     private saveSettings() {

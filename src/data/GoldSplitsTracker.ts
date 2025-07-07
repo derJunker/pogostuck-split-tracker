@@ -3,36 +3,8 @@ import {PbSplitTracker} from "./pb-split-tracker";
 import {BrowserWindow, ipcMain} from "electron";
 import {writeGoldenSplits} from "../main-process/read-golden-splits";
 import {onMapOrModeChanged} from "../main-process/log-event-handler";
-import {CurrentStateTracker} from "./current-state-tracker";
 import {PogoNameMappings} from "./pogo-name-mappings";
 import { SettingsManager } from "../main-process/settings-manager";
-
-export function calculateSplitTimes(times: { split: number, time: number }[], pbTime: number | null): (number)[] {
-    const n = times.length;
-    const splitTimes: (number)[] = new Array(n + 1).fill(Infinity);
-    let lastValidTime: number | null = null;
-    let lastValidIdx: number | null = null;
-    for (let i = 0; i < n; i++) {
-        const t = times[i].time;
-        if (!isFinite(t) || t === 0) {
-            splitTimes[i] = Infinity;
-        } else if (lastValidTime === null) {
-            splitTimes[i] = t;
-            lastValidTime = t;
-            lastValidIdx = i;
-        } else {
-            splitTimes[i] = t - lastValidTime;
-            lastValidTime = t;
-            lastValidIdx = i;
-        }
-    }
-    if (lastValidTime !== null && pbTime !== null && isFinite(pbTime)) {
-        splitTimes[n] = pbTime - lastValidTime;
-    } else {
-        splitTimes[n] = Infinity;
-    }
-    return splitTimes;
-}
 
 export class GoldSplitsTracker {
     private changed: boolean = false;
@@ -44,18 +16,24 @@ export class GoldSplitsTracker {
         this.settingsManager = settingsManager;
     }
 
-    public getGoldSplitForModeAndSplit(modeIndex: number, splitIndex: number): number {
+    public getGoldSplitForModeAndSplit(modeIndex: number, from: number, to: number): number|null {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
-            const splitTime = modeSplits.goldenSplits[splitIndex];
-            return splitTime !== undefined ? splitTime : Infinity;
+            const index = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to)
+            if (index !== -1) {
+                return modeSplits.goldenSplits[index].time;
+            }
         }
-        return Infinity;
+        return null;
+    }
+
+    private findIndexOfGoldSplitWithModeSplitsInfo(modeSplits: GoldenSplitsForMode, from: number, to: number): number {
+        return modeSplits.goldenSplits.findIndex(splitInfo => splitInfo.from === from && splitInfo.to === to);
     }
 
     public getPbForMode(modeIndex: number): number {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
-        return modeSplits ? modeSplits.pb : 0;
+        return modeSplits ? modeSplits.pb : Infinity;
     }
 
     public getPbs(): { mode: number, time: number }[] {
@@ -65,33 +43,44 @@ export class GoldSplitsTracker {
         }));
     }
 
-    public calcSumOfBest(modeNum: number) {
+    public calcSumOfBest(modeNum: number, splitAmount: number) {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
-            const splits = modeSplits.goldenSplits;
-            if (splits.length === 0 || splits[splits.length - 1] === Infinity) {
-                return -1;
-            }
-            const skippedSplits = this.settingsManager.getSplitsToSkipForMode(modeNum)
-            return splits.filter((time, index) => {
-                return !skippedSplits.includes(index);
+            const splitPath = this.settingsManager.getSplitIndexPath(modeNum, splitAmount)
+            const sumOfBest = splitPath.map(({from, to}) => {
+                const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
+                return goldSplit !== null ? goldSplit : Infinity;
             }).reduce((sum, time) => sum + time, 0);
+            return sumOfBest === Infinity ? -1 : sumOfBest;
         }
         return -1;
     }
 
-    public updateGoldSplit(modeIndex: number, splitIndex: number, newTime: number): void {
+    public updateGoldSplit(modeIndex: number, from:number, to: number, newTime: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
         this.changed = true;
-        modeSplits.goldenSplits[splitIndex] = newTime;
+        const index = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to);
+        if (index !== -1) {
+            modeSplits.goldenSplits[index].time = newTime;
+        } else {
+            modeSplits.goldenSplits.push({from, to, time: newTime});
+        }
     }
 
-    public getLastGoldSplitForMode(modeIndex: number): {time: number, index: number} {
+    public getLastGoldSplitForMode(modeIndex: number, pbSplitTracker: PbSplitTracker, settingsManager: SettingsManager): {time: number, from: number, to: number} {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits && modeSplits.goldenSplits.length > 0) {
-            return {time: modeSplits.goldenSplits[modeSplits.goldenSplits.length - 1], index: modeSplits.goldenSplits.length - 1};
+            const to = pbSplitTracker.getSplitAmountForMode(modeIndex);
+            const splitIndexPath = settingsManager.getSplitIndexPath(modeIndex, to);
+            const from = splitIndexPath.length > 0 ? splitIndexPath[splitIndexPath.length - 1].from : 0;
+            const lastGoldSplit = this.getGoldSplitForModeAndSplit(modeIndex, from, to)
+            if (lastGoldSplit !== null) {
+                return {time: lastGoldSplit, from, to};
+            }
+            return {time: Infinity, from, to};
         }
-        return {time: Infinity, index: -1};
+        console.warn(`No golden splits found for mode ${modeIndex}`);
+        return {time: Infinity, from: -1, to: -1};
     }
 
     public updatePbForMode(modeIndex: number, newPb: number, pbSplitTracker: PbSplitTracker): void {
@@ -99,12 +88,16 @@ export class GoldSplitsTracker {
         if (modeSplits) {
             if (modeSplits.pb !== newPb) {
                 modeSplits.pb = newPb;
-                const oldGoldenSplit = modeSplits.goldenSplits[modeSplits.goldenSplits.length - 1]
                 const pbSplits = pbSplitTracker.getPbSplitsForMode(modeIndex)
-                const lastSplit = pbSplits[pbSplits.length - 1];
+                const from = pbSplits.length -1 // this is kinda wrong, if there were a map where you skip the last
+                // split TODO: fix it when doing custom maps
+                const to = from+1;
+                const lastSplit = pbSplits[from];
+                const oldGoldSplitIndex = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to)
+                const oldGoldenSplit = oldGoldSplitIndex !== -1 ? modeSplits.goldenSplits[oldGoldSplitIndex].time : Infinity;
                 const splitTime = newPb - lastSplit.time;
                 if (splitTime < oldGoldenSplit) {
-                    this.updateGoldSplit(modeIndex, modeSplits.goldenSplits.length - 1, splitTime);
+                    this.updateGoldSplit(modeIndex, from, to, splitTime);
                 }
                 this.changed = true;
             }
@@ -119,22 +112,32 @@ export class GoldSplitsTracker {
         return this.goldenSplits;
     }
 
-    public updateGoldSplitsIfInPbSplits(pbSplitTracker: PbSplitTracker) {
+    public updateGoldSplitsIfInPbSplits(pbSplitTracker: PbSplitTracker, settingsManager: SettingsManager) {
         const modeSplits = pbSplitTracker.getAllPbSplits();
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
-            const pbTime = this.getPbForMode(mode);
-            const splitTimes = calculateSplitTimes(times, pbTime);
-            const goldenSplits = this.goldenSplits.find(gs => gs.modeIndex === mode);
-            splitTimes.forEach((time, index) => {
-                if (time && time < goldenSplits!.goldenSplits[index] && time > 0) {
-                    this.updateGoldSplit(mode, index, time);
+            const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
+            const splitIndexPath = settingsManager.getSplitIndexPath(mode, splitAmount)
+
+            splitIndexPath.forEach(({from, to}) => {
+                const fromTime = pbSplitTracker.getPbTimeForSplit(mode, from);
+                let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
+                if (toTime === -1) { // If the "to" is the pb split
+                    toTime = this.getPbForMode(mode);
                 }
-            });
+                const splitTime = toTime - fromTime;
+                const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
+                if (!previousGoldSplit || (previousGoldSplit > splitTime && splitTime > 0)) {
+                    this.updateGoldSplit(mode, from, to, splitTime);
+                    console.log(`Updated gold split for mode ${mode} from ${from} to ${to} with time ${splitTime} from pb splits`);
+                }
+
+            })
         })
     }
 
-    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings, settingsManager: SettingsManager) {
+    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, pbSplitTracker: PbSplitTracker,
+                         indexToNamesMappings: PogoNameMappings, settingsManager: SettingsManager) {
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);

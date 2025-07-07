@@ -12,10 +12,7 @@ export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): Golden
             const data = require(goldenSplitFilePath);
             if (Array.isArray(data)) {
                 return data.map((item: any) => ({
-                    ...item,
-                    goldenSplits: Array.isArray(item.goldenSplits)
-                        ? item.goldenSplits.map((v: any) => v === null ? Infinity : v)
-                        : item.goldenSplits
+                    ...item
                 }));
             } else {
                 console.error("Expected an array for Golden Splits but got:", typeof data);
@@ -31,7 +28,7 @@ export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): Golden
             level.modes.map(mode => {
                 return {
                     modeIndex: mode.key,
-                    goldenSplits: Array(level.splits.length+1).fill(Infinity),
+                    goldenSplits: [],
                     pb: Infinity
                 }
             })

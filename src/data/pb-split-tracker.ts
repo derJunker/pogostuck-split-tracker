@@ -59,6 +59,14 @@ export class PbSplitTracker {
         }));
     }
 
+    public getSplitAmountForMode(mode: number): number {
+        const modeSplits = this.modeTimes.find(m => m.mode === mode);
+        if (!modeSplits) {
+            return 0;
+        }
+        return modeSplits.times.length;
+    }
+
     public getPbSplitsForMode(mode: number): { split: number, time: number }[] {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);
         if (!modeSplits) {
@@ -76,7 +84,6 @@ export class PbSplitTracker {
         }
         const splitTime = modeSplits.times.find(s => s.split === split);
         if (!splitTime) {
-            console.warn(`No time found for split ${split} in mode ${mode}`);
             return -1;
         }
         return splitTime.time;

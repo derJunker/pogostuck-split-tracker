@@ -38,15 +38,16 @@ export class CurrentStateTracker {
     }
 
     public passedSplit(split: number, time: number, lastSplit: { split: number, time: number }): boolean {
+        const from = this.recordedSplits.length - 1;
         while (this.recordedSplits.length < lastSplit.split) {
             console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
             this.recordedSplits.push({split: this.recordedSplits.length, time: 0});
         }
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({split, time: time});
-        let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, split)
+        let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
         if (!goldSplit || goldSplit > splitTime) {
-            this.goldSplitsTracker.updateGoldSplit(this.mode, split, splitTime)
+            this.goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
             console.log(`New best split for ${split}: ${time}`)
             return true;
         } else {
@@ -55,15 +56,16 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number, skipless: boolean, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow): void {
+    public finishedRun(time: number, skipless: boolean, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow,
+                       pbSplitTracker: PbSplitTracker, settingsManager: SettingsManager): void {
         this.finalTime = time;
         console.log(`Run finished with time: ${time}, skipless: ${skipless}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
-        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode)
-        if (lastGoldSplit.index >= 0 && lastGoldSplit.time > lastDiff) {
-            this.goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.index, lastDiff);
-            console.log(`New best split for ${lastGoldSplit.index}: ${lastDiff}`);
+        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode, pbSplitTracker, settingsManager)
+        if (lastGoldSplit.to >= 0 && lastGoldSplit.time > lastDiff) {
+            this.goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
+            console.log(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
         if (this.finalTime > this.pb) {
             console.log(`New personal best: ${this.finalTime}`);

@@ -37,8 +37,20 @@ export class CurrentStateTracker {
         return false;
     }
 
+    // TODO: f5 doesnt break everything anymore but it does not count to gold splits, message i got when going from
+    //  boens to tree Tried to pass split 1 but last split was 1. Ignoring.
     public passedSplit(split: number, time: number, lastSplit: { split: number, time: number }): boolean {
         const from = lastSplit.split;
+        console.log(`from: ${from}, split: ${split}, time: ${time}, lastSplit: ${lastSplit.split}, lastTime: ${lastSplit.time}`);
+        const existingSplitIndex = this.recordedSplits.findIndex(s => s.split === split);
+        if (existingSplitIndex !== -1) {
+            const existingSplit = this.recordedSplits.splice(existingSplitIndex, 1)[0];
+            this.recordedSplits.push({split: existingSplit.split, time: time});
+        }
+        if (lastSplit.split >= split) {
+            console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
+            return false
+        }
         while (this.recordedSplits.length < lastSplit.split) {
             console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
             this.recordedSplits.push({split: this.recordedSplits.length, time: 0});

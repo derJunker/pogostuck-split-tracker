@@ -1,6 +1,6 @@
 {
   "name": "pogostuck-split-tracker",
-  "version": "0.0.1-dev",
+  "version": "0.0.2-alpha",
   "description": "split tracker for the game \"pogostuck by superku\"",
   "main": "build/main-process/main.js",
   "scripts": {

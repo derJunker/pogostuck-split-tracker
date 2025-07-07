@@ -26,7 +26,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         }
     });
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
-    addPogostuckOpenedListener(overlayWindow)
+    addPogostuckOpenedListener(overlayWindow, mainWindow)
 
     overlayWindow.on("ready-to-show", () => {
         if (pogostuckIsActiveWindow)
@@ -38,11 +38,11 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     return overlayWindow
 }
 
-function addPogostuckOpenedListener(overlayWindow: BrowserWindow) {
-    pogostuckIsActiveWindow = pogostuckIsActive(ActiveWindow.getActiveWindow())
+function addPogostuckOpenedListener(overlayWindow: BrowserWindow, mainWindow: BrowserWindow) {
+    pogostuckIsActiveWindow = pogostuckIsActive(ActiveWindow.getActiveWindow(), overlayWindow, mainWindow)
     ActiveWindow.subscribe(windowInfo => {
         const pogostuckWasActive = pogostuckIsActiveWindow;
-        pogostuckIsActiveWindow = pogostuckIsActive(windowInfo);
+        pogostuckIsActiveWindow = pogostuckIsActive(windowInfo, overlayWindow, mainWindow);
         if (!pogostuckWasActive && pogostuckIsActiveWindow) {
             overlayWindow.show();
         } else if (pogostuckWasActive && !pogostuckIsActiveWindow) {
@@ -51,11 +51,11 @@ function addPogostuckOpenedListener(overlayWindow: BrowserWindow) {
     })
 }
 
-function pogostuckIsActive(winInfo: WindowInfo | null) : boolean {
+function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWindow, mainWindow: BrowserWindow) : boolean {
     if (!winInfo) return false;
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
     // title "Pogo Splits", (Electron) TODO dont hardcode it
-    const isThisWindow = (winInfo.title?.toLowerCase() === "pogo splits" || winInfo.title?.toLowerCase() === "pogostuck-split-tracker") && winInfo.application?.toLowerCase().includes("electron");
+    const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
     // TODO use "path" attribute to read steam dir of pogostuck for acklog.txt
     pogostuckIsActiveWindow = isPogostuck;
     return isPogostuck || isThisWindow;

@@ -165,6 +165,8 @@ document.getElementById('ignore-skipped-splits')?.addEventListener('change', asy
 document.getElementById('split-naming-select')?.addEventListener('change', async (e) => {
     const value = (e.target as HTMLSelectElement).value === 'new';
     settings = await window.electronAPI.onOptionShowNewSplitNamesChanged(value);
+    mappings = await window.electronAPI.getMappings();
+    updateCheckpoints()
 });
 
 // Steam Path

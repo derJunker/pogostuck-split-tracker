@@ -55,7 +55,6 @@ export class PbSplitTracker {
             times: times.sort((a, b) => a.split - b.split)
                 .filter(splitInfo => [4, 7, 30, 31].indexOf(Number(mode)) == -1 || splitInfo.split < 9)
         }));
-        console.log(`Loaded PB splits from ${filePath}: ${JSON.stringify(this.modeTimes)}`);
     }
 
     public getSplitAmountForMode(mode: number): number {
@@ -81,8 +80,6 @@ export class PbSplitTracker {
             console.warn(`No splits found for mode ${mode}`);
             return -1;
         }
-        if (mode === 7)
-            console.log(`times for mode ${mode}: ${JSON.stringify(modeSplits.times)}; looking for split ${split}`);
         const splitTime = modeSplits.times.find(s => s.split === split);
         if (!splitTime) {
             return -1;

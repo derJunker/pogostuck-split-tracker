@@ -45,6 +45,7 @@ app.on("ready", () => {
         },
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
+
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);

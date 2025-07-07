@@ -48,7 +48,13 @@ export class FileWatcher {
             this.fileWatcher = chokidar.watch(filePath, { persistent: true, usePolling: true, interval: 500 });
             this.fileWatcher.on('change', (changedPath: string) => {
                 fs.stat(filePath, (err, stats) => {
-                    if (err) return;
+                    if (err) {
+                        console.error(`Error reading file stats for ${changedPath}:`, err);
+                        return
+                    }
+                    if (stats.size < this.lastSize) {
+                        this.lastSize = 0;
+                    }
                     if (stats.size > this.lastSize) {
                         const stream = fs.createReadStream(filePath, {
                             start: this.lastSize,

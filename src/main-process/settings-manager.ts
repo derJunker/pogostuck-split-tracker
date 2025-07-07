@@ -10,7 +10,7 @@ import { PbSplitTracker } from "../data/pb-split-tracker";
 import { PogoNameMappings } from "../data/pogo-name-mappings";
 
 export class SettingsManager {
-    private settingsPath: string;
+    private readonly settingsPath: string;
     private logWatcher: FileWatcher;
 
     public currentSettings: Settings;
@@ -47,11 +47,19 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
+            if (!existsSync(steamUserDataPath)) {
+                return this.currentSettings;
+            }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
+            pbSplitTracker.readPbSplitsFromFile(path.join(steamUserDataPath, "settings.txt"), indexToNamesMappings);
+            goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
+            if (!existsSync(pogostuckConfPath)) {
+                return this.currentSettings;
+            }
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
             this.saveSettings()

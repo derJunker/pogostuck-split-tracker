@@ -79,7 +79,8 @@ export class GoldSplitsTracker {
             }
             return {time: Infinity, from, to};
         }
-        console.warn(`No golden splits found for mode ${modeIndex}`);
+        console.warn(`
+            }No golden splits found for mode ${modeIndex}`);
         return {time: Infinity, from: -1, to: -1};
     }
 

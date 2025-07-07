@@ -116,20 +116,20 @@ export class GoldSplitsTracker {
         const modeSplits = pbSplitTracker.getAllPbSplits();
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
-            const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
-            const splitIndexPath = settingsManager.getSplitIndexPath(mode, splitAmount)
-
+            const splitIndexPath = settingsManager.getSplitIndexPath(mode, times.length)
             splitIndexPath.forEach(({from, to}) => {
-                const fromTime = pbSplitTracker.getPbTimeForSplit(mode, from);
+                const fromTime = from === -1 ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
                 let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
                 if (toTime === -1) { // If the "to" is the pb split
                     toTime = this.getPbForMode(mode);
+                    if (toTime < 0 || toTime === Infinity) {
+                        return;
+                    }
                 }
                 const splitTime = toTime - fromTime;
                 const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
                 if (!previousGoldSplit || (previousGoldSplit > splitTime && splitTime > 0)) {
                     this.updateGoldSplit(mode, from, to, splitTime);
-                    console.log(`Updated gold split for mode ${mode} from ${from} to ${to} with time ${splitTime} from pb splits`);
                 }
 
             })

@@ -67,6 +67,7 @@ export class SettingsManager {
             }
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
+            goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this)
             onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
             this.saveSettings()
             return this.currentSettings;
@@ -74,13 +75,16 @@ export class SettingsManager {
     }
 
     public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {
+        if (mode === 4 && splitAmount === 10) splitAmount = 9 //idk why but NAS has 10 splits with 1 unused :)
         const splitIndexPath: {from: number, to: number}[] = [];
-        let lastTo = 0;
-        for (let i = 0; i < splitAmount+1; i++) {
+        let lastTo = -1;
+        let index = -1
+        while (index < splitAmount) {
             const from = lastTo;
-            if (this.splitShouldBeSkipped(mode, i))
+            index++;
+            if (this.splitShouldBeSkipped(mode, index))
                 continue;
-            const to = i + 1;
+            const to = index;
             splitIndexPath.push({from, to});
             lastTo = to;
         }

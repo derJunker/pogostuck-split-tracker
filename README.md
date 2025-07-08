@@ -3,7 +3,7 @@ A pogostuck split tracker improving on the basic ingame tracker :).
 
 <img alt="img.png" src="img.png" width="500"/>
 
-<sup>(Screenshot made on Map3; On other maps the splits are properly named. Due to limitations on map 3 they are currently only named Checkpoint 1-8)</sup>
+<sup>(mb that i am terrible T_T these split are atrocious 🐸)</sup>
 
 
 ## What it does

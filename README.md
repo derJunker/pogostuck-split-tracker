@@ -41,6 +41,11 @@ When starting it for the first time, you need to set up some stuff. You will (ho
 If there are any questions just dm me on discord. I'd love to help out and receive feedback!
 
 ## Limitations
+It sadly does **not work with fullscreen**! You need to use borderless or windowed mode :(. Maybe this changes at some
+point but i am limited by the [technology of my time](https://github.com/electron/electron/issues/11219) o7.
+I will try to make it nicer to configure for a 2nd monitor or to run in the background, so you can see it after you 
+are done with your run.
+
 I only tested this on Windows, as most pogo players are on windows afaik. So it might not work on other Operating Systems.
 
 Windows 11 insists on having a 1px border around every window. If that's an issue you: [this might help](https://pureinfotech.com/remove-pixel-border-windows-11/) (i didnt test it myself tho).

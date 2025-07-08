@@ -60,12 +60,17 @@ export class CurrentStateTracker {
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({split, time: time});
         let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
-        if (!goldSplit || goldSplit > splitTime) {
+        // Check if the split you passed is on the path you specified (aka you're not coming from a split that is
+        // skipped)
+        const splitPath = this.settingsManager.getSplitIndexPath(this.mode, this.pbTracker.getSplitAmountForMode(this.mode))
+        const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
+        if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath) {
             this.goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
             console.log(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime}`);
             return true;
         } else {
-            console.log(`Split passed: from ${from} to ${split} with time ${time}, but not a gold split. Gold split was: ${goldSplit}`);
+            console.log(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);
+            console.log(`"goldSplit": ${goldSplit}, "splitTime": ${splitTime}, "goldSplitIsInSplitPath": ${fromAndToAreInPlannedPath}`);
             return false;
         }
     }
@@ -107,6 +112,12 @@ export class CurrentStateTracker {
 
     public getLastSplitTime() {
         if (this.recordedSplits.length === 0) {
+            if (isUpsideDownMode(this.mode)) {
+                return {
+                    split: this.pbTracker.getSplitAmountForMode(this.mode),
+                    time: 0
+                }
+            }
             return {
                 split: -1,
                 time: 0

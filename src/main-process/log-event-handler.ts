@@ -7,6 +7,7 @@ import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {writeGoldenSplits} from "./read-golden-splits";
 import {mapAndModeChanged} from "../types/global";
 import {SettingsManager} from "./settings-manager";
+import {isValidModeAndMap} from "../data/valid-modes";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
                                          pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,
@@ -29,6 +30,9 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     fileWatcher.registerListener(
         /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\), old\((?<old>-?\d+)\) runTimeCurrent\((?<time>\d+\.\d+)\), cpTime\((?<overwrittenTime>\d+\.\d+)\)/,
         (match) => {
+            if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
+                return
+            }
             const { checkpoint, old, time, overwrittenTime } = match.groups!;
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
@@ -51,7 +55,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         (match) => {
             stateTracker.resetRun();
-            if (stateTracker.getCurrentMode() >= 0 && stateTracker.getCurrentMap() >= 0)
+            if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
                 onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
             if (goldenSplitsTracker.hasChanged())
                 writeGoldenSplits(goldenSplitsTracker)
@@ -62,6 +66,9 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     fileWatcher.registerListener(
         /playerRunFinish at frame .* requestProgressUploadTime\((?<time>\d+)\)/,
         (match) => {
+            if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
+                return;
+            }
             const { time } = match.groups!;
             const timeInMS = parseFloat(time)
             stateTracker.finishedRun(timeInMS/1000, nameMappings, overlayWindow, pbSplitTracker)
@@ -89,7 +96,8 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
 
 export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
                             goldenSplitTracker: GoldSplitsTracker, overlayWindow: BrowserWindow, settingsManager: SettingsManager) {
-    if (mapNum < 0 || modeNum < 0) {
+    console.log(`Map or mode changed to map ${mapNum}, mode ${modeNum}`);
+    if (!isValidModeAndMap(mapNum, modeNum)) {
         return;
     }
     const mapModeAndSplits: { map: string; mode: string; splits: string[] } = nameMappings.getMapModeAndSplits(mapNum, modeNum);

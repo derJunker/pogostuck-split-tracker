@@ -52,6 +52,14 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
             const splitPath = this.settingsManager.getSplitIndexPath(modeNum, splitAmount)
+            // if (modeNum === 7) {
+            //     console.log(`sum of best values${
+            //         splitPath.map(({from, to}) => {
+            //             const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
+            //             return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
+            //         })
+            //     }`)
+            // }
             const sumOfBest = splitPath.map(({from, to}) => {
                 const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
                 return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
@@ -131,11 +139,17 @@ export class GoldSplitsTracker {
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
             const splitIndexPath = settingsManager.getSplitIndexPath(mode, times.length)
+            // if (mode === 7)
+            //     console.log(`Updating gold splits for mode ${mode} with split index path: ${JSON.stringify(splitIndexPath)}`);
             splitIndexPath.forEach(({from, to}) => {
                 const fromTime = from === -1 ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
                 let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
                 if (toTime === -1) { // If the "to" is the pb split
+                    // if (mode === 7)
+                    //     console.log("Updating gold split from " + from + " to " + to + " with pb time: " + fromTime);
                     toTime = this.getPbForMode(mode);
+                    // if (mode === 7)
+                    //     console.log("Using pb time: " + toTime);
                     if (toTime < 0 || toTime === Infinity) {
                         return;
                     }

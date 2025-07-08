@@ -176,10 +176,12 @@ steamPathInput.addEventListener('input', async () => {
         const value = steamPathInput.value;
         settings = await window.electronAPI.onSteamUserDataPathChanged(value);
         const wasValidPath = settings.pogostuckSteamUserDataPath === value;
-        if (wasValidPath)
+        if (wasValidPath) {
             steamPathInput.classList.remove('invalid');
-        else
+        }
+        else {
             steamPathInput.classList.add('invalid');
+        }
     }
 });
 
@@ -190,10 +192,12 @@ pogoPathInput.addEventListener('input', async () => {
         const value = pogoPathInput.value
         settings = await window.electronAPI.onPogostuckConfigPathChanged(value);
         const wasValidPath = settings.pogostuckConfigPath === value;
-        if (wasValidPath)
+        if (wasValidPath) {
             pogoPathInput.classList.remove('invalid');
-        else
+        }
+        else {
             pogoPathInput.classList.add('invalid');
+        }
     }
 });
 

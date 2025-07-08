@@ -10,6 +10,7 @@ import { PogoNameMappings } from "../data/pogo-name-mappings";
 import {writeGoldenSplits} from "./read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode} from "../data/valid-modes";
 import {onMapOrModeChanged} from "./split-overlay-window";
+import {pogoLogName, userDataPathEnd} from "../data/paths";
 
 export class SettingsManager {
     private readonly settingsPath: string;
@@ -22,10 +23,11 @@ export class SettingsManager {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
         this.currentSettings = this.loadSettings();
         this.logWatcher = logWatcher;
-        this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
+        this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
     }
 
-    public init(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker, pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
+    public init(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker,
+                pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
         indexToNamesMappings.switchMap1SplitNames(this.currentSettings.showNewSplitNames)
         ipcMain.handle("load-settings", () => {
             return this.currentSettings;
@@ -49,12 +51,12 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
-            if (!existsSync(steamUserDataPath)) {
+            if (!existsSync(path.join(steamUserDataPath, ...userDataPathEnd))) {
                 return this.currentSettings;
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
             console.log(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
-            pbSplitTracker.readPbSplitsFromFile(path.join(steamUserDataPath, "settings.txt"), indexToNamesMappings);
+            pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
             if (goldenSplitsTracker.hasChanged()) {
                 writeGoldenSplits(goldenSplitsTracker)
@@ -72,7 +74,7 @@ export class SettingsManager {
             }
             console.log(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
-            this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, "acklog.txt");
+            this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
             this.saveSettings()
             return this.currentSettings
         });
@@ -154,10 +156,6 @@ export class SettingsManager {
         fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
     }
 
-    public getPogoStuckConfigPath(): string {
-        return this.currentSettings.pogostuckConfigPath;
-    }
-
     public getPogoStuckSteamUserDataPath(): string {
         return this.currentSettings.pogostuckSteamUserDataPath;
     }
@@ -165,13 +163,4 @@ export class SettingsManager {
     public getHideSkippedSplits(): boolean {
         return this.currentSettings.hideSkippedSplits;
     }
-
-    public getShowNewSplitNames(): boolean {
-        return this.currentSettings.showNewSplitNames;
-    }
-
-    public getSkippedSplits(): {mode: number, skippedSplitIndices: number[]}[] {
-        return this.currentSettings.skippedSplits;
-    }
-
 }

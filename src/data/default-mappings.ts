@@ -120,7 +120,7 @@ export const defaultMappings: PogoLevel[] = [
         ]
     },
     {
-        levelName: "Dracula's Castle",
+        levelName: "Drakula's Castle",
         mapIndex: 100,
         splits: ["Mushrooms", "Cellar", "Moving Blocks", "Ice", "Pillars"],
         modes: [

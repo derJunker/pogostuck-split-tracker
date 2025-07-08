@@ -1,6 +1,8 @@
 import fs from 'fs'
 import {PogoNameMappings} from "./pogo-name-mappings";
-import {isUpsideDownMode} from "./valid-modes";
+import {SettingsManager} from "../main-process/settings-manager";
+import path from "path";
+import {userDataPathEnd} from "./paths";
 
 interface ModeSplits {
     mode: number,
@@ -9,8 +11,15 @@ interface ModeSplits {
 
 export class PbSplitTracker {
     private modeTimes: ModeSplits[] = [];
+    private settingsManager: SettingsManager;
 
-    public readPbSplitsFromFile(filePath: string, pogoNameMappings: PogoNameMappings) {
+
+    constructor(settingsManager: SettingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    public readPbSplitsFromFile(pogoNameMappings: PogoNameMappings) {
+        const filePath = path.join(this.settingsManager.getPogoStuckSteamUserDataPath(), ...userDataPathEnd)
         if (!fs.existsSync(filePath)) {
             console.error(`File not found: ${filePath}`);
             return;

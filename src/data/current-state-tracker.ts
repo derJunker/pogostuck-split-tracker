@@ -85,7 +85,7 @@ export class CurrentStateTracker {
             console.log(`New personal best: ${this.finalTime}`);
             this.pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
-            this.pbTracker.readPbSplitsFromFile(path.join(this.settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), nameMappings);
+            this.pbTracker.readPbSplitsFromFile(nameMappings);
             onMapOrModeChanged(this.map, this.mode, nameMappings, this.pbTracker, this.goldSplitsTracker, overlayWindow, this.settingsManager);
         }
     }

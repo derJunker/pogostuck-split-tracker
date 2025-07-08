@@ -173,7 +173,13 @@ document.getElementById('split-naming-select')?.addEventListener('change', async
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
 steamPathInput.addEventListener('input', async () => {
     if (steamPathInput.value) {
-        settings = await window.electronAPI.onSteamUserDataPathChanged(steamPathInput.value);
+        const value = steamPathInput.value;
+        settings = await window.electronAPI.onSteamUserDataPathChanged(value);
+        const wasValidPath = settings.pogostuckSteamUserDataPath === value;
+        if (wasValidPath)
+            steamPathInput.classList.remove('invalid');
+        else
+            steamPathInput.classList.add('invalid');
     }
 });
 
@@ -181,7 +187,13 @@ steamPathInput.addEventListener('input', async () => {
 const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
 pogoPathInput.addEventListener('input', async () => {
     if (pogoPathInput.value) {
-        settings = await window.electronAPI.onPogostuckConfigPathChanged(pogoPathInput.value);
+        const value = pogoPathInput.value
+        settings = await window.electronAPI.onPogostuckConfigPathChanged(value);
+        const wasValidPath = settings.pogostuckConfigPath === value;
+        if (wasValidPath)
+            pogoPathInput.classList.remove('invalid');
+        else
+            pogoPathInput.classList.add('invalid');
     }
 });
 

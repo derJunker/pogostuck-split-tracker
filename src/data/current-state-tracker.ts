@@ -2,10 +2,10 @@ import {GoldSplitsTracker} from "./GoldSplitsTracker";
 import path from "path";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {SettingsManager} from "../main-process/settings-manager";
-import { PogoNameMappings } from "./pogo-name-mappings";
-import {onMapOrModeChanged} from "../main-process/log-event-handler";
+import {PogoNameMappings} from "./pogo-name-mappings";
 import {BrowserWindow} from "electron";
 import {isUpsideDownMode} from "./valid-modes";
+import {onMapOrModeChanged} from "../main-process/split-overlay-window";
 
 export class CurrentStateTracker {
     private mode: number = -1;
@@ -15,9 +15,9 @@ export class CurrentStateTracker {
 
     private pb: number = 0;
 
-    private goldSplitsTracker: GoldSplitsTracker;
-    private pbTracker: PbSplitTracker;
-    private settingsManager: SettingsManager;
+    private readonly goldSplitsTracker: GoldSplitsTracker;
+    private readonly pbTracker: PbSplitTracker;
+    private readonly settingsManager: SettingsManager;
 
     constructor(goldenSplitsTracker: GoldSplitsTracker, pbTracker: PbSplitTracker, settingsManager: SettingsManager) {
         this.goldSplitsTracker = goldenSplitsTracker;
@@ -52,16 +52,10 @@ export class CurrentStateTracker {
             console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
             return false
         }
-        // TODO check if i need that ig
-        // while ((!isUD && this.recordedSplits.length < lastSplit.split) || (isUD && lastSplit.split >= this.recordedSplits.length)) {
-        //     console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
-        //     this.recordedSplits.push({split: this.recordedSplits.length, time: 0});
-        // }
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({split, time: time});
         let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
-        // Check if the split you passed is on the path you specified (aka you're not coming from a split that is
-        // skipped)
+        //  Check if the split you passed is on the path you specified (aka you're not coming from a split that is skipped)
         const splitPath = this.settingsManager.getSplitIndexPath(this.mode, this.pbTracker.getSplitAmountForMode(this.mode))
         const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
         if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath) {
@@ -75,13 +69,12 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow,
-                       pbSplitTracker: PbSplitTracker): void {
+    public finishedRun(time: number, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow): void {
         this.finalTime = time;
         console.log(`Run finished with time: ${time}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
-        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode, pbSplitTracker, this.settingsManager)
+        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode)
         console.log(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
         console.log(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
         if (lastGoldSplit.to >= 0 && lastGoldSplit.time > lastDiff) {
@@ -90,8 +83,8 @@ export class CurrentStateTracker {
         }
         if (this.finalTime < this.pb) {
             console.log(`New personal best: ${this.finalTime}`);
-            this.pb = this.finalTime;
-            this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime, this.pbTracker)
+            this.pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
+            this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
             this.pbTracker.readPbSplitsFromFile(path.join(this.settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), nameMappings);
             onMapOrModeChanged(this.map, this.mode, nameMappings, this.pbTracker, this.goldSplitsTracker, overlayWindow, this.settingsManager);
         }
@@ -106,6 +99,7 @@ export class CurrentStateTracker {
     public getCurrentMap(): number {
         return this.map;
     }
+
     public getCurrentMode(): number {
         return this.mode;
     }

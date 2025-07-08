@@ -24,9 +24,9 @@ let overlayWindow: BrowserWindow | null = null;
 let logWatcher: FileWatcher = new FileWatcher();
 const indexToNamesMappings = initMappings();
 const settingsManager = new SettingsManager(logWatcher)
-const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager)
-writeGoldenSplits(goldenSplitsTracker)
 const pbSplitTracker = new PbSplitTracker();
+const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager, pbSplitTracker)
+writeGoldenSplits(goldenSplitsTracker)
 
 const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker, pbSplitTracker, settingsManager);
 
@@ -54,7 +54,7 @@ app.on("ready", () => {
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
     pbSplitTracker.readPbSplitsFromFile(path.join(settingsManager.getPogoStuckSteamUserDataPath(), "settings.txt"), indexToNamesMappings);
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
-    goldenSplitsTracker.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings, settingsManager);
+    goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings, stateTracker);
 
     initWindows11Listeners();
 

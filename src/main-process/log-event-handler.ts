@@ -1,13 +1,13 @@
-import { FileWatcher } from './logs-watcher';
+import {FileWatcher} from './logs-watcher';
 import {CurrentStateTracker} from "../data/current-state-tracker";
 import {BrowserWindow} from "electron";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {writeGoldenSplits} from "./read-golden-splits";
-import {mapAndModeChanged} from "../types/global";
 import {SettingsManager} from "./settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
+import {onMapOrModeChanged} from "./split-overlay-window";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
                                          pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,
@@ -71,7 +71,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             }
             const { time } = match.groups!;
             const timeInMS = parseFloat(time)
-            stateTracker.finishedRun(timeInMS/1000, nameMappings, overlayWindow, pbSplitTracker)
+            stateTracker.finishedRun(timeInMS/1000, nameMappings, overlayWindow)
             // TODO do something here
             if (goldenSplitsTracker.hasChanged())
                 writeGoldenSplits(goldenSplitsTracker)
@@ -94,34 +94,3 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
     );
 }
 
-export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
-                            goldenSplitTracker: GoldSplitsTracker, overlayWindow: BrowserWindow, settingsManager: SettingsManager) {
-    console.log(`Map or mode changed to map ${mapNum}, mode ${modeNum}`);
-    if (!isValidModeAndMap(mapNum, modeNum)) {
-        return;
-    }
-    const mapModeAndSplits: { map: string; mode: string; splits: string[] } = nameMappings.getMapModeAndSplits(mapNum, modeNum);
-    const pbSplitTimes: { split: number; time: number }[] = pbSplitTracker.getPbSplitsForMode(modeNum);
-
-    const pbTime = goldenSplitTracker.getPbForMode(modeNum);
-    const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));
-    console.log(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
-
-    const mapModeAndSplitsWithTimes: mapAndModeChanged = {
-        map: mapModeAndSplits.map,
-        mode: mapModeAndSplits.mode,
-        splits: mapModeAndSplits.splits
-            .map((splitName, i) => {
-                return {
-                    name: splitName,
-                    split: pbSplitTimes[i]!.split,
-                    time: pbSplitTimes[i]!.time,
-                    hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.getHideSkippedSplits(),
-                    skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
-                }
-            }),
-        pb: pbTime === Infinity ? -1 : pbTime,
-        sumOfBest: sumOfBest,
-    };
-    overlayWindow.webContents.send('map-or-mode-changed', mapModeAndSplitsWithTimes);
-}

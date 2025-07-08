@@ -41,7 +41,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             let wasGolden = false;
             const shouldSkip = settingsManager.splitShouldBeSkipped(stateTracker.getCurrentMode(), split)
             if(!shouldSkip)
-                wasGolden = stateTracker.passedSplit(split, timeAsFloat, stateTracker.getLastSplitTime())
+                wasGolden = stateTracker.passedSplit(split, timeAsFloat)
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden});
             if (wasGolden) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),

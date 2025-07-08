@@ -5,6 +5,7 @@ import {SettingsManager} from "../main-process/settings-manager";
 import { PogoNameMappings } from "./pogo-name-mappings";
 import {onMapOrModeChanged} from "../main-process/log-event-handler";
 import {BrowserWindow} from "electron";
+import {isUpsideDownMode} from "./valid-modes";
 
 export class CurrentStateTracker {
     private mode: number = -1;
@@ -37,9 +38,8 @@ export class CurrentStateTracker {
         return false;
     }
 
-    // TODO: f5 doesnt break everything anymore but it does not count to gold splits, message i got when going from
-    //  boens to tree Tried to pass split 1 but last split was 1. Ignoring.
-    public passedSplit(split: number, time: number, lastSplit: { split: number, time: number }): boolean {
+    public passedSplit(split: number, time: number): boolean {
+        const lastSplit = this.getLastSplitTime();
         const from = lastSplit.split;
         console.log(`from: ${from}, split: ${split}, time: ${time}, lastSplit: ${lastSplit.split}, lastTime: ${lastSplit.time}`);
         const existingSplitIndex = this.recordedSplits.findIndex(s => s.split === split);
@@ -47,14 +47,16 @@ export class CurrentStateTracker {
             const existingSplit = this.recordedSplits.splice(existingSplitIndex, 1)[0];
             this.recordedSplits.push({split: existingSplit.split, time: time});
         }
-        if (lastSplit.split >= split) {
+        const isUD = isUpsideDownMode(this.mode);
+        if (lastSplit.split >= split && !isUD) {
             console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
             return false
         }
-        while (this.recordedSplits.length < lastSplit.split) {
-            console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
-            this.recordedSplits.push({split: this.recordedSplits.length, time: 0});
-        }
+        // TODO check if i need that ig
+        // while ((!isUD && this.recordedSplits.length < lastSplit.split) || (isUD && lastSplit.split >= this.recordedSplits.length)) {
+        //     console.log(`Adding missing split ${this.recordedSplits.length} with time 0`);
+        //     this.recordedSplits.push({split: this.recordedSplits.length, time: 0});
+        // }
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({split, time: time});
         let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)

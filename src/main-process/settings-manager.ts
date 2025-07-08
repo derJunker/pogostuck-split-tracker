@@ -9,6 +9,7 @@ import { GoldSplitsTracker } from "../data/GoldSplitsTracker";
 import { PbSplitTracker } from "../data/pb-split-tracker";
 import { PogoNameMappings } from "../data/pogo-name-mappings";
 import {writeGoldenSplits} from "./read-golden-splits";
+import {hasUnusedExtraSplit, isUpsideDownMode} from "../data/valid-modes";
 
 export class SettingsManager {
     private readonly settingsPath: string;
@@ -97,11 +98,11 @@ export class SettingsManager {
 
     public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {
         // some of the newer map 1 modes have a unused split for some reason :(
-        if ([4, 7, 30, 31].indexOf(mode) >= 0 && splitAmount === 10) {
+        if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
             splitAmount = 9
             console.log(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
         }
-        const splitIndexPath: {from: number, to: number}[] = [];
+        let splitIndexPath: {from: number, to: number}[] = [];
         let lastTo = -1;
         let index = -1
         while (index < splitAmount) {
@@ -112,6 +113,14 @@ export class SettingsManager {
             const to = index;
             splitIndexPath.push({from, to});
             lastTo = to;
+        }
+        if (isUpsideDownMode(mode)) {
+            splitIndexPath = splitIndexPath
+                .map(splitStep => {
+                    return {from: splitStep.to, to: splitStep.from}
+                }).reverse()
+            console.log(`Reversed split index path for upside down mode ${mode}`);
+            console.log(`Split index path: ${JSON.stringify(splitIndexPath)}`);
         }
         return splitIndexPath;
     }

@@ -1,5 +1,6 @@
 import fs from 'fs'
 import {PogoNameMappings} from "./pogo-name-mappings";
+import {isUpsideDownMode} from "./valid-modes";
 
 interface ModeSplits {
     mode: number,
@@ -29,10 +30,9 @@ export class PbSplitTracker {
 
         settingsNames.sort((a, b) => b.length - a.length);
 
-        const tempModeSplits: { [mode: number]: { split: number, time: number }[] } = {};
+        const tempModeSplits: { mode: number; splitInfo: { split: number, time: number }[] }[] = [];
 
         for (const line of lines) {
-            let matched = false;
             for (const settingsName of settingsNames) {
                 if (line.startsWith(settingsName)) {
                     const rest = line.slice(settingsName.length);
@@ -42,18 +42,21 @@ export class PbSplitTracker {
                     const time = parseFloat(match[2]);
                     const modeIndex = modeMap[settingsName];
                     if (modeIndex === undefined) break;
-                    if (!tempModeSplits[modeIndex]) tempModeSplits[modeIndex] = [];
-                    tempModeSplits[modeIndex].push({ split: splitIndex, time });
-                    matched = true;
+                    let modeEntry = tempModeSplits.find(entry => entry.mode === modeIndex);
+                    if (!modeEntry) {
+                        modeEntry = { mode: modeIndex, splitInfo: [] };
+                        tempModeSplits.push(modeEntry);
+                    }
+                    modeEntry.splitInfo.push({ split: splitIndex, time });
                     break;
                 }
             }
         }
 
-        this.modeTimes = Object.entries(tempModeSplits).map(([mode, times]) => ({
-            mode: Number(mode),
-            times: times.sort((a, b) => a.split - b.split)
-                .filter(splitInfo => [4, 7, 30, 31].indexOf(Number(mode)) == -1 || splitInfo.split < 9)
+        this.modeTimes = tempModeSplits.map(entry => ({
+            mode: entry.mode,
+            times: entry.splitInfo.sort((a, b) => a.split - b.split)
+                .filter(splitInfo => [4, 7, 30, 31].indexOf(entry.mode) == -1 || splitInfo.split < 9)
         }));
     }
 

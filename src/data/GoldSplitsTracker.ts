@@ -121,7 +121,7 @@ export class GoldSplitsTracker {
                 const oldGoldSplitIndex = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to)
                 const oldGoldenSplit = oldGoldSplitIndex !== -1 ? modeSplits.goldenSplits[oldGoldSplitIndex].time : Infinity;
                 const splitTime = newPb - lastSplitTimeInPbRun;
-                if (splitTime < oldGoldenSplit) {
+                if (splitTime < oldGoldenSplit && splitTime > 0) {
                     this.updateGoldSplit(modeIndex, from, to, splitTime);
                 }
             }

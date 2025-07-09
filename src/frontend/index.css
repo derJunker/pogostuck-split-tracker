@@ -39,6 +39,24 @@ body {
     padding: 0;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+button:has(> img) {
+    display: grid;
+    place-items:  center;
+    padding-inline: 0.2rem!important;
+}
+
+button > img {
+    width: 1.2em;
+    height: auto;
+    vertical-align: middle;
+}
+
 #menu-bar {
     background: var(--color-bg);
     color: var(--color-fg);
@@ -262,11 +280,16 @@ label {
     user-select: none;
     cursor:  pointer;
 }
-#pbs-content,
 #design-content {
     display: grid;
     grid-template-columns: max-content max-content;
     gap: 0.5em 1em;
+}
+
+#pbs-content {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    gap: .3rem;
 }
 
 #pbs-content > h3 {
@@ -276,6 +299,10 @@ label {
     text-align: center;
     width: 100%;
     padding: 0.5rem;
+}
+
+#pbs-content > input {
+    max-width: 10rem;
 }
 
 #design-content > div {

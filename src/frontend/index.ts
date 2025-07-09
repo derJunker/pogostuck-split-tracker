@@ -100,8 +100,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             div.style.display = 'none';
         }
     });
-
-    addPbModeChangeListeners();
 });
 
 async function hideWin11ContentIfNeeded() {
@@ -330,26 +328,6 @@ function updateModesForLevel() {
     updateCheckpoints();
 }
 
-
-function addPbModeChangeListeners() {
-    document.querySelectorAll('input[type="text"][id^="pb-mode-"]').forEach(input => {
-            input.addEventListener('input', async (e) => {
-                const time = parsePbTime((input as HTMLInputElement).value)
-                if (time < 0) {
-                    input.classList.add('invalid');
-                    return;
-                } else if (time === 0) {
-                    return;
-                } else {
-                    input.classList.remove('invalid');
-                }
-                const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
-                console.log(`PB entered for mode ${modeIndex}: ${time}`);
-                await window.electronAPI.onPbEntered({mode: modeIndex, time: time});
-            });
-    });
-}
-
 function addPbsAsInputs() {
     const pbContentDiv = document.getElementById('pbs-content');
     if (!pbContentDiv) return;
@@ -368,20 +346,50 @@ function addPbsAsInputs() {
             input.type = 'text';
             input.id = `pb-mode-${mode.key}`;
             input.className = 'input-field';
-            input.placeholder = '00:00:00.000';
+            input.placeholder = '00:00.000';
+            input.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    const valid = await onPbEntered(input, mode.key)
+                    if (valid) input.blur();
+                }
+            });
+
+            const button = document.createElement('button');
+            button.innerHTML = `<img src="../assets/diskette.png" alt="Save Icon" id="save-pb-mode-${mode.key}">`;
+            button.addEventListener('click', async () => {
+                await onPbEntered(input, mode.key);
+            });
+
 
             pbContentDiv.appendChild(label);
             pbContentDiv.appendChild(input);
+            pbContentDiv.appendChild(button);
         });
     });
 
+}
+
+async function onPbEntered(input: HTMLInputElement, modeKey: number): Promise<boolean> {
+    const time = parsePbTime((input as HTMLInputElement).value);
+    if (time < 0) {
+        input.classList.add('invalid');
+        return false;
+    } else if (time === 0) {
+        return false;
+    } else {
+        input.classList.remove('invalid');
+    }
+    console.log(`PB entered for mode ${modeKey}: ${time}`);
+    await window.electronAPI.onPbEntered({mode: modeKey, time: time});
+    return true;
 }
 
 function setPbsToInputs() {
     document.querySelectorAll('input[type="text"][id^="pb-mode-"]').forEach(input => {
         const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
         const pb = pbs.find(p => p.mode === modeIndex);
-        if (pb && pb.time < Infinity) {
+        if (pb && pb.time && pb.time < Infinity && pb.time !== 0) {
+            console.log(`Setting PB for mode ${modeIndex}: ${pb.time}`);
             (input as HTMLInputElement).value = formatPbTime(pb.time);
         }
     });

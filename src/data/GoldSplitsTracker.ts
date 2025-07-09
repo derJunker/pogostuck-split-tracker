@@ -149,7 +149,8 @@ export class GoldSplitsTracker {
                 console.log(`Split index path: ${JSON.stringify(splitIndexPath)} with split amount ${times.length}`)
             }
             splitIndexPath.forEach(({from, to}) => {
-                const fromTime = from === -1 ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
+                const isStartFrom = (!isUD && from === -1) || (isUD && from === pbSplitTracker.getSplitAmountForMode(mode))
+                const fromTime =  isStartFrom ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
                 let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
                 if (isUD) console.log(`from: ${from}, to: ${to}, fromTime: ${fromTime},initial toTime: ${toTime}`);
                 if (toTime === -1) { // If the "to" is the pb split

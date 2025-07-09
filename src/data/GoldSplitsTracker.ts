@@ -74,7 +74,6 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
         const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to);
         const isUD = isUpsideDownMode(modeIndex);
-        if (isUD) console.log(`index of gold split: ${index}`)
         this.changed = true;
         if (index !== -1) {
             modeSplits.goldenSplits[index].time = newTime;
@@ -144,33 +143,22 @@ export class GoldSplitsTracker {
             const splitIndexPath = settingsManager.getSplitIndexPath(mode, times.length)
 
             const isUD = isUpsideDownMode(mode)
-            if (isUD) {
-                console.log(`--------------------------Mode ${mode}--------------------------`);
-                console.log(`Split index path: ${JSON.stringify(splitIndexPath)} with split amount ${times.length}`)
-            }
             splitIndexPath.forEach(({from, to}) => {
                 const isStartFrom = (!isUD && from === -1) || (isUD && from === pbSplitTracker.getSplitAmountForMode(mode))
                 const fromTime =  isStartFrom ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
                 let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
-                if (isUD) console.log(`from: ${from}, to: ${to}, fromTime: ${fromTime},initial toTime: ${toTime}`);
                 if (toTime === -1) { // If the "to" is the pb split
                     toTime = this.getPbForMode(mode);
-                    if (isUD) console.log("to time is -1, using pb time: " + toTime);
                     // if (mode === 7)
                     //     console.log("Using pb time: " + toTime);
                     if (toTime < 0 || toTime === Infinity) {
-                        if (isUD) console.log(`time was negative or infinity`)
                         return;
                     }
                 }
                 const splitTime = toTime - fromTime;
                 const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
-                if (isUD) console.log(`previous gold split: ${previousGoldSplit}, calculated split time: ${splitTime}`);
                 if ((!previousGoldSplit || previousGoldSplit > splitTime) && splitTime > 0) {
-                    if (isUD) console.log(`Updating gold split`);
                     this.updateGoldSplit(mode, from, to, splitTime);
-                } else {
-                    if (isUD) console.log(`Not updating gold split`);
                 }
 
             })

@@ -1,11 +1,7 @@
 import {GoldSplitsTracker} from "./GoldSplitsTracker";
-import path from "path";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {SettingsManager} from "../settings-manager";
-import {PogoNameMappings} from "./pogo-name-mappings";
-import {BrowserWindow} from "electron";
 import {isUpsideDownMode} from "./valid-modes";
-import {onMapOrModeChanged} from "../split-overlay-window";
 import log from "electron-log/main";
 
 export class CurrentStateTracker {
@@ -70,7 +66,7 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow): void {
+    public finishedRun(time: number): void {
         this.finalTime = time;
         log.info(`Run finished with time: ${time}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
@@ -87,7 +83,6 @@ export class CurrentStateTracker {
             this.pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
             this.pbTracker.updatePbSplitsFromFile();
-            onMapOrModeChanged(this.map, this.mode, nameMappings, this.pbTracker, this.goldSplitsTracker, overlayWindow, this.settingsManager);
         }
     }
 

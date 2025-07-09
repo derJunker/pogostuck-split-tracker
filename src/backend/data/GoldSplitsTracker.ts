@@ -2,12 +2,12 @@ import {GoldenSplitsForMode} from "../../types/golden-splits";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {BrowserWindow, ipcMain} from "electron";
 import {writeGoldenSplits} from "../read-golden-splits";
-import {PogoNameMappings} from "./pogo-name-mappings";
 import { SettingsManager } from "../settings-manager";
-import {onMapOrModeChanged} from "../split-overlay-window";
+import {redrawSplitDisplay} from "../split-overlay-window";
 import { CurrentStateTracker } from "./current-state-tracker";
 import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
+import {PogoNameMappings} from "./pogo-name-mappings";
 
 export class GoldSplitsTracker {
     private changed: boolean = false;
@@ -159,7 +159,7 @@ export class GoldSplitsTracker {
     }
 
     public initListeners(overlayWindow: BrowserWindow,
-                         indexToNamesMappings: PogoNameMappings, stateTracker: CurrentStateTracker) {
+                         indexToNamesMappings: PogoNameMappings) {
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
@@ -169,8 +169,7 @@ export class GoldSplitsTracker {
                 writeGoldenSplits(this)
                 const mapNum = indexToNamesMappings.getAllLevels()
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
-                onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), indexToNamesMappings,
-                    this.pbSplitTracker, this, overlayWindow, this.settingsManager)
+                redrawSplitDisplay(mapNum, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow)
             }
         })
     }

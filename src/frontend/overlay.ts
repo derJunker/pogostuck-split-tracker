@@ -1,13 +1,11 @@
 import IpcRendererEvent = Electron.IpcRendererEvent;
 
 function loadMapMode(mapAndModeChanged: {
-    map: string;
-    mode: string;
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
     pb: number,
     sumOfBest: number
 }) {
-    const { map, mode, splits, pb, sumOfBest } = mapAndModeChanged;
+    const { splits, pb, sumOfBest } = mapAndModeChanged;
     // Set map and mode
     // const mapName = document.getElementById('map-name');
     // const modeName = document.getElementById('mode-name');
@@ -19,9 +17,7 @@ function loadMapMode(mapAndModeChanged: {
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
         splits.forEach(split => {
-            if (split.hide) return
-
-            const skippedClass = split.skipped ? ' skipped' : '';
+            const skippedClass = split.skipped ? 'skipped' : '';
             const splitDiv = document.createElement('div');
             splitDiv.className = 'split ' + skippedClass;
             splitDiv.id = split.split.toString();
@@ -45,6 +41,7 @@ function loadMapMode(mapAndModeChanged: {
             timeSpan.className = 'split-time ' + skippedClass;
             timeSpan.textContent = formatTime(split.time)
             splitDiv.appendChild(timeSpan);
+            if (split.hide) splitDiv.style.display = 'none';
 
             splitsDiv.appendChild(splitDiv);
         });
@@ -108,15 +105,55 @@ function updateSplitResets(splitKey: number, newResetCount: number) {
     }
 }
 
-window.electronAPI.onMapOrModeChanged((event: Electron.IpcRendererEvent,
+window.electronAPI.resetOverlay((event: Electron.IpcRendererEvent,
                                        mapAndMode: {
-                                           map: string;
-                                           mode: string;
                                            splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
                                            pb: number,
                                            sumOfBest: number
                                        }) => {
     loadMapMode(mapAndMode);
+});
+
+window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
+                                  pbRunInfoAndSoB: {
+                                           splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
+                                           pb: number,
+                                           sumOfBest: number
+                                       }) => {
+    const sumOfBestSpan = document.getElementById('sum-of-best');
+    if (sumOfBestSpan) {
+        sumOfBestSpan.textContent = formatTime(pbRunInfoAndSoB.sumOfBest);
+    }
+    const pbTimeSpan = document.getElementById('pb-time');
+    if (pbTimeSpan) {
+        pbTimeSpan.textContent = formatTime(pbRunInfoAndSoB.pb);
+    }
+
+    const splitsDiv = document.getElementById('splits')!;
+    const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
+    currentSplits.forEach(splitDiv => {
+        const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === parseInt(splitDiv.id))!;
+        if (splitInfoForEl.hide)
+            splitDiv.style.display = 'none';
+        else
+            splitDiv.style.display = 'grid';
+
+        const splitTime: HTMLElement = splitDiv.querySelector('.split-time')!;
+        const splitName: HTMLElement = splitDiv.querySelector('.split-name')!;
+        const splitDiff: HTMLElement = splitDiv.querySelector('.split-diff')!;
+
+        if (splitInfoForEl.skipped) {
+            splitDiv.classList.add("skipped");
+            splitTime.classList.add('skipped');
+            splitName.classList.add('skipped');
+            splitDiff.classList.add('skipped');
+        } else {
+            splitDiv.classList.remove("skipped");
+            splitTime.classList.remove('skipped');
+            splitName.classList.remove('skipped');
+            splitDiff.classList.remove('skipped');
+        }
+    })
 });
 
 window.electronAPI.mainMenuOpened(() => {

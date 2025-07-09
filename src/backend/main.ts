@@ -63,7 +63,7 @@ app.on("ready", () => {
     pbSplitTracker.updatePbSplitsFromFile();
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
     writeGoldSplitsIfChanged(goldenSplitsTracker)
-    goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings, stateTracker);
+    goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
 
     initWindows11Listeners();
 

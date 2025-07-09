@@ -9,7 +9,7 @@ import { PbSplitTracker } from "./data/pb-split-tracker";
 import { PogoNameMappings } from "./data/pogo-name-mappings";
 import {writeGoldSplitsIfChanged} from "./read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode} from "./data/valid-modes";
-import {onMapOrModeChanged} from "./split-overlay-window";
+import {redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 
@@ -40,9 +40,9 @@ export class SettingsManager {
 
         ipcMain.handle("option-hide-skipped-splits-changed", (event, hideSplits: boolean) => {
             this.currentSettings.hideSkippedSplits = hideSplits;
-            const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
-            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
             this.saveSettings()
             return this.currentSettings
         });
@@ -53,10 +53,10 @@ export class SettingsManager {
         });
         ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
             this.currentSettings.showNewSplitNames = showNewSplits;
-            const mapNum = stateTracker.getCurrentMap()
-            const modeNum = stateTracker.getCurrentMode();
             indexToNamesMappings.switchMap1SplitNames(showNewSplits)
-            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
             this.saveSettings()
             return this.currentSettings
         });
@@ -71,7 +71,7 @@ export class SettingsManager {
             writeGoldSplitsIfChanged(goldenSplitsTracker)
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
-            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            resetOverlay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
             this.saveSettings()
             this.updateFrontendStatus(overlayWindow)
             return this.currentSettings
@@ -99,10 +99,10 @@ export class SettingsManager {
                 log.info("putting new skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits.push(skippedSplits);
             }
-            const mapNum = stateTracker.getCurrentMap()
-            const modeNum = stateTracker.getCurrentMode();
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this)
-            onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
             this.saveSettings()
             return this.currentSettings;
         });

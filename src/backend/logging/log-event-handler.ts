@@ -7,7 +7,7 @@ import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
 import {writeGoldSplitsIfChanged} from "../read-golden-splits";
 import {SettingsManager} from "../settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
-import {onMapOrModeChanged} from "../split-overlay-window";
+import {resetOverlay} from "../split-overlay-window";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
                                          pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,
@@ -21,7 +21,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const modeNum = parseInt(mode);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
-                onMapOrModeChanged(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
+                resetOverlay(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
             }
         }
     );
@@ -56,7 +56,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
         (match) => {
             stateTracker.resetRun();
             if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
-                onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
+                resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
             writeGoldSplitsIfChanged(goldenSplitsTracker)
         }
     )
@@ -70,7 +70,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             }
             const { time } = match.groups!;
             const timeInMS = parseFloat(time)
-            stateTracker.finishedRun(timeInMS/1000, nameMappings, overlayWindow)
+            stateTracker.finishedRun(timeInMS/1000)
             writeGoldSplitsIfChanged(goldenSplitsTracker)
         }
     )

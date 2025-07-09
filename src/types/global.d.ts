@@ -1,10 +1,7 @@
 import {Settings} from "./settings";
 import {PogoLevel} from "./pogo-index-mapping";
-import {ipcRenderer} from "electron";
 
-export interface mapAndModeChanged {
-    map: string;
-    mode: string;
+export interface PbRunInfoAndSoB {
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
     pb: number,
     sumOfBest: number
@@ -15,8 +12,10 @@ declare global { interface Window {
         loadSettings: () => Promise<Settings>;
         getMappings: () => Promise<PogoLevel[]>;
         getPbs: () => Promise<{mode: number, time: number}[]>;
-        onMapOrModeChanged: (callback: (event: Electron.IpcRendererEvent,
-                                        mapAndMode: mapAndModeChanged) => void) => void;
+        resetOverlay: (callback: (event: Electron.IpcRendererEvent,
+                                        mapAndMode: PbRunInfoAndSoB) => void) => void;
+        redrawOverlay: (callback: (event: Electron.IpcRendererEvent,
+                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => void) => void;
         mainMenuOpened: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => void;

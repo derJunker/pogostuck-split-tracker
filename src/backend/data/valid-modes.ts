@@ -1,7 +1,11 @@
 export function isValidModeAndMap(map: number, mode: number): boolean {
-    const inValidModes = [29]
     const inValidMaps = [110]
-    return mode >= 0 && map >= 0 && !inValidModes.includes(mode) && !inValidMaps.includes(map);
+    return map >= 0 && isValidMode(mode) && !inValidMaps.includes(map);
+}
+
+export function isValidMode(mode: number): boolean {
+    const inValidModes = [29]
+    return mode >= 0 && !inValidModes.includes(mode);
 }
 
 export function isUpsideDownMode(mode: number): boolean {

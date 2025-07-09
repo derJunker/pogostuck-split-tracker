@@ -11,7 +11,7 @@ import {resetOverlay} from "../split-overlay-window";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
                                          pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,
-                                         overlayWindow: BrowserWindow, settingsManager: SettingsManager) {
+                                         overlayWindow: BrowserWindow, mainWindow: BrowserWindow, settingsManager: SettingsManager) {
     // map or mode gets logged
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
@@ -22,6 +22,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
                 resetOverlay(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
+                settingsManager.updateMapAndModeInConfig(mapNum, modeNum, mainWindow)
             }
         }
     );

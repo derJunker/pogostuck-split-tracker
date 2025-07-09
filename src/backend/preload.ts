@@ -28,10 +28,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => ipcRenderer.invoke('only-diff-colored-changed', onlyDiffColored),
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
 
-    // config event querying backend
+    // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
     hasPogostuckFullscreen: (): Promise<boolean> => ipcRenderer.invoke('has-fullscreen'),
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
+
+    // config window subscribing to backend events
+    mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),
 
 });

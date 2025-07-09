@@ -52,14 +52,14 @@ app.on("ready", () => {
         },
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
-    mainWindow.setMenu(null);
+    // mainWindow.setMenu(null);
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);
     settingsManager.initListeners(overlayWindow, goldenSplitsTracker, stateTracker, pbSplitTracker, indexToNamesMappings)
     initLaunchPogoListener(settingsManager);
 
-    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
+    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, mainWindow, settingsManager);
     pbSplitTracker.updatePbSplitsFromFile();
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
     writeGoldSplitsIfChanged(goldenSplitsTracker)

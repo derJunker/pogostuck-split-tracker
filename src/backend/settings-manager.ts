@@ -8,7 +8,7 @@ import { GoldSplitsTracker } from "./data/GoldSplitsTracker";
 import { PbSplitTracker } from "./data/pb-split-tracker";
 import { PogoNameMappings } from "./data/pogo-name-mappings";
 import {writeGoldSplitsIfChanged} from "./read-golden-splits";
-import {hasUnusedExtraSplit, isUpsideDownMode} from "./data/valid-modes";
+import {hasUnusedExtraSplit, isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
 import {redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
@@ -167,6 +167,13 @@ export class SettingsManager {
                 launchPogoOnStartup: false
             };
         }
+    }
+
+    public updateMapAndModeInConfig(mapNum: number, modeNum: number, mainWindow: BrowserWindow) {
+        if (!isValidModeAndMap(mapNum, modeNum)) {
+            return;
+        }
+        mainWindow.webContents.send("map-and-mode-changed", {map: mapNum, mode: modeNum});
     }
 
     public splitShouldBeSkipped(mode: number, splitIndex: number): boolean {

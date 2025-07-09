@@ -107,6 +107,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+window.electronAPI.mapAndModeChanged((event: Electron.IpcRendererEvent,
+                                 mapAndMode: {
+                                    map: number,
+                                    mode: number
+                                 }) => {
+    // select the map in mapSelect to the value
+    if (mapSelect && modeSelect) {
+        mapSelect.value = mapAndMode.map.toString();
+        updateModesForLevel();
+        modeSelect.value = mapAndMode.mode.toString();
+        updateCheckpoints();
+    }
+});
+
 function addTabLinkListeners() {
     document.querySelectorAll('a[data-tab-link]').forEach(link => {
         link.addEventListener('click', (e) => {
@@ -298,7 +312,6 @@ const updateSkippedSplits = async () => {
 
 function updateCheckpoints() {
     const selection = getSelectedMapAndMode();
-    __electronLog.debug("Updating checkpoints. Selected map and mode: ", JSON.stringify(selection));
     if (!selection) return;
     const { mapObj, modeObj } = selection;
 
@@ -314,7 +327,6 @@ function updateCheckpoints() {
     }
 
     mapObj.splits.forEach((split, idx) => {
-        __electronLog.info(`adding split ${split} with index ${idx} to selection`);
         addSplitToSkippedSplits(splitSelectionDiv, split, idx, skippedIndices);
     });
 }

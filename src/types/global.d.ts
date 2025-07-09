@@ -1,5 +1,6 @@
 import {Settings} from "./settings";
 import {PogoLevel} from "./pogo-index-mapping";
+import {ipcRenderer} from "electron";
 
 export interface PbRunInfoAndSoB {
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
@@ -38,6 +39,8 @@ declare global { interface Window {
         hasPogostuckFullscreen: () => Promise<boolean>;
         openWindowsSettings: () => Promise<void>;
         openPogostuck: () => Promise<boolean>;
+
+        mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;
     };
 } }
 

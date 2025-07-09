@@ -2,7 +2,7 @@
   "name": "pogostuck-split-tracker",
   "version": "0.0.2-alpha",
   "description": "split tracker for the game \"pogostuck by superku\"",
-  "main": "build/main-process/main.js",
+  "main": "build/backend/main.js",
   "scripts": {
     "compile": "tsc && copyfiles -f src/frontend/*.{html,css} build/frontend && copyfiles -f assets/**/* build/assets",
     "start": "npm run compile && electron .",
@@ -21,6 +21,7 @@
   "dependencies": {
     "@paymoapp/active-window": "^2.1.2",
     "chokidar": "^4.0.3",
+    "electron-log": "^5.4.1",
     "typescript": "^5.8.3"
   },
   "devDependencies": {

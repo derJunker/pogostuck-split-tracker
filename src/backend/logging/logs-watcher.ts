@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import chokidar, { FSWatcher } from 'chokidar';
+import log from "electron-log/main";
 
 export class FileWatcher {
     private dirWatcher: FSWatcher | null = null;
@@ -10,7 +11,7 @@ export class FileWatcher {
 
     startWatching(dirPath: string, fileName: string) {
         this.stopWatching();
-        console.log(`Starting to watch directory: ${dirPath} for file: ${fileName}`);
+        log.debug(`Starting to watch directory: ${dirPath} for file: ${fileName}`);
         const filePath = path.join(dirPath, fileName);
 
         this.dirWatcher = chokidar.watch(dirPath, { persistent: true, depth: 0 });

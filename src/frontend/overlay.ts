@@ -52,7 +52,7 @@ function loadMapMode(mapAndModeChanged: {
     // Sum of Best und PB setzen
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
-        console.log(`Setting sum of best to ${sumOfBest}`);
+        __electronLog.info(`Setting sum of best to ${sumOfBest}`);
         sumOfBestSpan.textContent = formatTime(sumOfBest);
     }
     const pbTimeSpan = document.getElementById('pb-time');
@@ -64,7 +64,7 @@ function loadMapMode(mapAndModeChanged: {
 }
 
 function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean) {
-    console.log(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden}`);
+    __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
         const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
@@ -87,7 +87,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             diffSpan.appendChild(signSpan);
             const numSpan = document.createElement('span');
             numSpan.className = 'num';
-            console.log(`Adding split diff: ${absDiff} (golden: ${golden})`);
+            __electronLog.info(`Adding split diff: ${absDiff} (golden: ${golden})`);
             numSpan.textContent = formatTime(absDiff, true);
             diffSpan.appendChild(numSpan);
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');

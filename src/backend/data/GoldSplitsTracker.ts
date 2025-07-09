@@ -7,6 +7,7 @@ import { SettingsManager } from "../settings-manager";
 import {onMapOrModeChanged} from "../split-overlay-window";
 import { CurrentStateTracker } from "./current-state-tracker";
 import {isUpsideDownMode} from "./valid-modes";
+import log from "electron-log/main";
 
 export class GoldSplitsTracker {
     private changed: boolean = false;
@@ -171,7 +172,7 @@ export class GoldSplitsTracker {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
             if (pbTime !== time) {
-                console.log(`New PB for mode ${mode}: ${time}`);
+                log.info(`New PB for mode ${mode}: ${time}`);
                 this.updatePbForMode(mode, time);
                 writeGoldenSplits(this)
                 const mapNum = indexToNamesMappings.getAllLevels()

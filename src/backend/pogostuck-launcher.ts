@@ -2,6 +2,7 @@ import {ipcMain, shell} from "electron";
 import {SettingsManager} from "./settings-manager";
 import path from "path";
 import {spawn, execSync} from "child_process";
+import log from "electron-log/main";
 
 export function initLaunchPogoListener(settingsManager: SettingsManager) {
     ipcMain.handle('open-pogostuck',async () => launchPogostuckIfNotOpenYet(settingsManager));
@@ -12,7 +13,7 @@ export async function launchPogostuckIfNotOpenYet(settingsManager: SettingsManag
     try {
         const tasklist = execSync('tasklist', { encoding: 'utf8' });
         if (tasklist.toLowerCase().includes('pogostuck.exe')) {
-            console.log('PogoStuck is already running. Not launching again.');
+            log.info('PogoStuck is already running. Not launching again.');
             return false;
         }
     } catch (err) {
@@ -20,10 +21,9 @@ export async function launchPogostuckIfNotOpenYet(settingsManager: SettingsManag
     }
     const pogostuckDir = settingsManager.pogostuckSteamPath();
     const pogostuckExecutablePath = path.join(pogostuckDir, "pogostuck.exe");
-    console.log(`Launching PogoStuck from: ${pogostuckExecutablePath}`);
+    log.info(`Launching PogoStuck from: ${pogostuckExecutablePath}`);
     const steamAppId = "688130"; // PogoStuck's Steam App ID
     const steamUri = `steam://run/${steamAppId}//-diag`;
     shell.openExternal(steamUri);
-    console.log(`PogoStuck launched via Steam with -diag from: ${steamUri}`);
     return true;
 }

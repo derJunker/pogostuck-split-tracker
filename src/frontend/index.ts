@@ -120,7 +120,7 @@ function addTabLinkListeners() {
 
 async function hideWin11ContentIfNeeded() {
     const isWin11 = await window.electronAPI.isWindows11();
-    console.log("Is Windows 11: ", isWin11);
+    __electronLog.info("Is Windows 11: ", isWin11);
     if (!isWin11) {
         const win11Content = document.querySelectorAll('.only-win11')
         win11Content.forEach(el => {
@@ -240,7 +240,7 @@ function getSelectedMapAndMode() {
 }
 
 const updateSkippedSplits = async () => {
-    console.log("Updating skipped splits...");
+    __electronLog.info("Updating skipped splits...");
     const selection = getSelectedMapAndMode();
     if (!selection) return;
     const { mapObj, modeObj } = selection;
@@ -405,7 +405,7 @@ async function onPbEntered(input: HTMLInputElement, modeKey: number): Promise<bo
     } else {
         input.classList.remove('invalid');
     }
-    console.log(`PB entered for mode ${modeKey}: ${time}`);
+    __electronLog.info(`PB entered for mode ${modeKey}: ${time}`);
     await window.electronAPI.onPbEntered({mode: modeKey, time: time});
     return true;
 }
@@ -415,7 +415,7 @@ function setPbsToInputs() {
         const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
         const pb = pbs.find(p => p.mode === modeIndex);
         if (pb && pb.time && pb.time < Infinity && pb.time !== 0) {
-            console.log(`Setting PB for mode ${modeIndex}: ${pb.time}`);
+            __electronLog.info(`Setting PB for mode ${modeIndex}: ${pb.time}`);
             (input as HTMLInputElement).value = formatPbTime(pb.time);
         }
     });

@@ -11,6 +11,7 @@ import {writeGoldSplitsIfChanged} from "./read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode} from "./data/valid-modes";
 import {onMapOrModeChanged} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
+import log from "electron-log/main";
 
 export class SettingsManager {
     private readonly settingsPath: string;
@@ -64,7 +65,7 @@ export class SettingsManager {
                 return this.currentSettings;
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
-            console.log(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
+            log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
             pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
             writeGoldSplitsIfChanged(goldenSplitsTracker)
@@ -77,10 +78,10 @@ export class SettingsManager {
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
             if (!existsSync(pogostuckConfPath)) {
-                console.log(`PogoStuck config path does not exist: ${pogostuckConfPath}`);
+                log.info(`PogoStuck config path does not exist: ${pogostuckConfPath}`);
                 return this.currentSettings;
             }
-            console.log(`PogoStuck config path changed to: ${pogostuckConfPath}`);
+            log.info(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
             this.saveSettings()
@@ -88,14 +89,14 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
-            console.log("skippedSplits", skippedSplits);
+            log.info("skippedSplits", skippedSplits);
             const oldSkippedSplits = this.currentSettings.skippedSplits
             const existingIndex = oldSkippedSplits.findIndex(s => s.mode === skippedSplits.mode);
             if (existingIndex !== -1) {
-                console.log("updating existing skipped splits", JSON.stringify(skippedSplits));
+                log.info("updating existing skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits[existingIndex].skippedSplitIndices = skippedSplits.skippedSplitIndices;
             } else {
-                console.log("putting new skipped splits", JSON.stringify(skippedSplits));
+                log.info("putting new skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits.push(skippedSplits);
             }
             const mapNum = stateTracker.getCurrentMap()
@@ -111,7 +112,7 @@ export class SettingsManager {
         // some of the newer map 1 modes have a unused split for some reason :(
         if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
             splitAmount = 9
-            console.log(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
+            log.info(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
         }
         let splitIndexPath: {from: number, to: number}[] = [];
         let lastTo = -1;
@@ -139,10 +140,10 @@ export class SettingsManager {
             // Migration vom alten settings path: Nur entfernen, wenn am Ende, und Trennzeichen-unabhängig
             const settings: Settings = JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
             if (settings.pogostuckSteamUserDataPath) {
-                console.log(`PogoStuck config path loaded: ${settings.pogostuckSteamUserDataPath}`);
+                log.info(`PogoStuck config path loaded: ${settings.pogostuckSteamUserDataPath}`);
                 // Regex: entfernt '688130/remote' oder '688130\\remote' am Ende des Strings
                 settings.pogostuckSteamUserDataPath = settings.pogostuckSteamUserDataPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/ , "");
-                console.log(`PogoStuck config path after migration: ${settings.pogostuckSteamUserDataPath}`);
+                log.info(`PogoStuck config path after migration: ${settings.pogostuckSteamUserDataPath}`);
             }
             return settings;
         } else {

@@ -4,13 +4,14 @@ import {PogoLevel} from "../types/pogo-index-mapping";
 import fs from "fs";
 import {defaultMappings} from "./data/default-mappings";
 import {PogoNameMappings} from "./data/pogo-name-mappings";
+import log from "electron-log/main";
 
 const mappingsPath = path.join(app.getPath("userData"), "mappings.json");
 
 export function initMappings(): PogoNameMappings {
     // currently always true to force default mappings
     // if (!fs.existsSync(mappingsPath) || true) {
-        console.log("No mappings path defined, using default mappings");
+        log.debug("No mappings path defined, using default mappings");
         return new PogoNameMappings(defaultMappings);
     // }
     // else {

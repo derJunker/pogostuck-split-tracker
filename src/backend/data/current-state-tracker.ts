@@ -6,6 +6,7 @@ import {PogoNameMappings} from "./pogo-name-mappings";
 import {BrowserWindow} from "electron";
 import {isUpsideDownMode} from "./valid-modes";
 import {onMapOrModeChanged} from "../split-overlay-window";
+import log from "electron-log/main";
 
 export class CurrentStateTracker {
     private mode: number = -1;
@@ -32,7 +33,7 @@ export class CurrentStateTracker {
             this.recordedSplits = [];
             this.finalTime = -1;
             this.pb = this.goldSplitsTracker.getPbForMode(this.mode);
-            console.log(`Map changed to ${map}, mode changed to ${mode}`);
+            log.info(`Map changed to ${map}, mode changed to ${mode}`);
             return true;
         }
         return false;
@@ -41,7 +42,7 @@ export class CurrentStateTracker {
     public passedSplit(split: number, time: number): boolean {
         const lastSplit = this.getLastSplitTime();
         const from = lastSplit.split;
-        console.log(`from: ${from}, split: ${split}, time: ${time}, lastSplit: ${lastSplit.split}, lastTime: ${lastSplit.time}`);
+        log.info(`from: ${from}, split: ${split}, time: ${time}, lastSplit: ${lastSplit.split}, lastTime: ${lastSplit.time}`);
         const existingSplitIndex = this.recordedSplits.findIndex(s => s.split === split);
         if (existingSplitIndex !== -1) {
             const existingSplit = this.recordedSplits.splice(existingSplitIndex, 1)[0];
@@ -60,29 +61,29 @@ export class CurrentStateTracker {
         const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
         if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath) {
             this.goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
-            console.log(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime}`);
+            log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime}`);
             return true;
         } else {
-            console.log(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);
-            console.log(`"goldSplit": ${goldSplit}, "splitTime": ${splitTime}, "goldSplitIsInSplitPath": ${fromAndToAreInPlannedPath}`);
+            log.info(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);
+            log.info(`"goldSplit": ${goldSplit}, "splitTime": ${splitTime}, "goldSplitIsInSplitPath": ${fromAndToAreInPlannedPath}`);
             return false;
         }
     }
 
     public finishedRun(time: number, nameMappings: PogoNameMappings, overlayWindow: BrowserWindow): void {
         this.finalTime = time;
-        console.log(`Run finished with time: ${time}`);
+        log.info(`Run finished with time: ${time}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
         const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode)
-        console.log(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
-        console.log(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
+        log.info(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
+        log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
         if (lastGoldSplit.to >= 0 && lastGoldSplit.time > lastDiff) {
             this.goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
-            console.log(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
+            log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
         if (this.finalTime < this.pb) {
-            console.log(`New personal best: ${this.finalTime}`);
+            log.info(`New personal best: ${this.finalTime}`);
             this.pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
             this.pbTracker.readPbSplitsFromFile(nameMappings);

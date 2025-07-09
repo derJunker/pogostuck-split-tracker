@@ -12,11 +12,11 @@ import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
-import {log} from "electron-builder";
+import log from 'electron-log/main';
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
-    console.log('Error: You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
+    log.error('You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
     process.exit(0);
 }
 
@@ -31,12 +31,12 @@ const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesM
 writeGoldenSplits(goldenSplitsTracker)
 
 if (settingsManager.launchPogoOnStartup())
-    launchPogostuckIfNotOpenYet(settingsManager).then(() => console.log("PogoStuck launched on startup."));
+    launchPogostuckIfNotOpenYet(settingsManager).then(() => log.debug("PogoStuck launched on startup."));
 
 const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker, pbSplitTracker, settingsManager);
 
 app.on("ready", () => {
-
+    log.initialize();
     mainWindow = new BrowserWindow({
         width: 680,
         height: 480,

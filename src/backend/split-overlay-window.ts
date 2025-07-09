@@ -7,6 +7,7 @@ import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
 import {SettingsManager} from "./settings-manager";
 import {isValidModeAndMap} from "./data/valid-modes";
 import {mapAndModeChanged} from "../types/global";
+import log from "electron-log/main";
 
 let pogostuckIsActiveWindow = false;
 
@@ -70,7 +71,7 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
 
 export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
                                    goldenSplitTracker: GoldSplitsTracker, overlayWindow: BrowserWindow, settingsManager: SettingsManager) {
-    console.log(`Map or mode changed to map ${mapNum}, mode ${modeNum}`);
+    log.info(`Map or mode changed to map ${mapNum}, mode ${modeNum}`);
     if (!isValidModeAndMap(mapNum, modeNum)) {
         return;
     }
@@ -83,7 +84,7 @@ export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings
 
     const pbTime = goldenSplitTracker.getPbForMode(modeNum);
     const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));
-    console.log(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
+    log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
 
     const mapModeAndSplitsWithTimes: mapAndModeChanged = {
         map: mapModeAndSplits.map,

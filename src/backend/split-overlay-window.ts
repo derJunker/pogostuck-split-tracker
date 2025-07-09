@@ -89,7 +89,7 @@ export function redrawSplitDisplay(
     settingsManager: SettingsManager,
     overlayWindow: BrowserWindow,
 ) {
-    if (!isValidMode(modeNum))
+    if (!isValidModeAndMap(mapNum, modeNum))
         return;
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitTracker, settingsManager);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
@@ -119,6 +119,7 @@ function getPbRunInfoAndSoB(
             skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
         })),
         pb: pbTime === Infinity ? -1 : pbTime,
-        sumOfBest: sumOfBest
+        sumOfBest: sumOfBest,
+        settings: settingsManager.currentSettings
     };
 }

@@ -3,14 +3,10 @@ import IpcRendererEvent = Electron.IpcRendererEvent;
 function loadMapMode(mapAndModeChanged: {
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
     pb: number,
-    sumOfBest: number
+    sumOfBest: number,
+    settings: any,
 }) {
     const { splits, pb, sumOfBest } = mapAndModeChanged;
-    // Set map and mode
-    // const mapName = document.getElementById('map-name');
-    // const modeName = document.getElementById('mode-name');
-    // if (mapName) mapName.textContent = map;
-    // if (modeName) modeName.textContent = mode;
 
     // Clear splits
     const splitsDiv = document.getElementById('splits');
@@ -19,7 +15,7 @@ function loadMapMode(mapAndModeChanged: {
         splits.forEach(split => {
             const skippedClass = split.skipped ? 'skipped' : '';
             const splitDiv = document.createElement('div');
-            splitDiv.className = 'split ' + skippedClass;
+            splitDiv.className = 'split';
             splitDiv.id = split.split.toString();
 
             const nameSpan = document.createElement('span');
@@ -33,7 +29,7 @@ function loadMapMode(mapAndModeChanged: {
             // splitDiv.appendChild(resetsSpan);
 
             const diffSpan = document.createElement('span');
-            diffSpan.className = 'split-diff ' + skippedClass;
+            diffSpan.className = 'split-diff';
             // Empty diff
             splitDiv.appendChild(diffSpan);
 
@@ -60,7 +56,7 @@ function loadMapMode(mapAndModeChanged: {
     document.getElementById('status-msg')!.style!.display = 'none';
 }
 
-function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean) {
+function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, onlyDiffColored: boolean) {
     __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
@@ -68,7 +64,10 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
         const timeSpan = splitDiv.querySelector('.split-time');
         if (timeSpan) {
             timeSpan.textContent = formatTime(splitTime);
-            timeSpan.className = "split-time" + " " + type
+            timeSpan.className = "split-time";
+            if (!onlyDiffColored) {
+                timeSpan.className += " " + type;
+            }
         }
 
         const diffSpan = splitDiv.querySelector('.split-diff');
@@ -110,15 +109,23 @@ window.electronAPI.resetOverlay((event: Electron.IpcRendererEvent,
                                            splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
                                            pb: number,
                                            sumOfBest: number
+                                           settings: any
                                        }) => {
     loadMapMode(mapAndMode);
 });
 
 window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: {
-                                           splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
-                                           pb: number,
-                                           sumOfBest: number
+                                      splits: {
+                                          name: string;
+                                          split: number;
+                                          time: number;
+                                          hide: boolean;
+                                          skipped: boolean
+                                      }[],
+                                      pb: number,
+                                      sumOfBest: number,
+                                      settings: any
                                        }) => {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
@@ -142,16 +149,28 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
         const splitName: HTMLElement = splitDiv.querySelector('.split-name')!;
         const splitDiff: HTMLElement = splitDiv.querySelector('.split-diff')!;
 
+        splitName.innerText = splitInfoForEl.name
+
+        const potentialClassesFromDiff = splitDiff.className.match(/(early|late|golden)/g);
+        __electronLog.debug(`splitTime classes before: ${splitTime.className}, potential classes: ${potentialClassesFromDiff}`);
+        splitTime.classList.remove("early", "late", "golden");
+        // if you want to not only color the diffs, then make sure the splitTime has the color class
+        if (potentialClassesFromDiff && potentialClassesFromDiff.length > 0 && !pbRunInfoAndSoB.settings.onlyDiffsColored) {
+            const classToAdd = potentialClassesFromDiff[0];
+            __electronLog.debug(`Adding class ${classToAdd} to splitTime`);
+            if (!splitTime.classList.contains(classToAdd)) {
+                splitTime.classList.add(classToAdd);
+            }
+        }
+
         if (splitInfoForEl.skipped) {
             splitDiv.classList.add("skipped");
             splitTime.classList.add('skipped');
             splitName.classList.add('skipped');
-            splitDiff.classList.add('skipped');
         } else {
             splitDiv.classList.remove("skipped");
             splitTime.classList.remove('skipped');
             splitName.classList.remove('skipped');
-            splitDiff.classList.remove('skipped');
         }
     })
 });
@@ -173,8 +192,8 @@ window.electronAPI.mainMenuOpened(() => {
     document.getElementById('status-msg')!.style!.display = 'inline';
 });
 
-window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => {
-    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden);
+window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, onlyDiffColored:boolean}) => {
+    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.onlyDiffColored);
 });
 
 window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfBest: number) => {

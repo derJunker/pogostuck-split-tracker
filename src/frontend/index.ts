@@ -12,6 +12,7 @@ let settings: {
     pogostuckSteamUserDataPath: string;
     // Design
     hideSkippedSplits: boolean,
+    onlyDiffsColored: boolean,
     showNewSplitNames: boolean
 
     // split skips
@@ -166,6 +167,7 @@ function setHtmlContentFromSettings() {
     const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
     const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
     const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
+    const onlyColorDiffCheckbox = document.getElementById('only-colored-diff') as HTMLInputElement;
     const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-startup') as HTMLInputElement;
     const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
 
@@ -175,6 +177,9 @@ function setHtmlContentFromSettings() {
 
     hideSkippedSplitsCheckbox.checked = settings.hideSkippedSplits;
     hideSkippedSplitsCheckbox.dispatchEvent(new Event('change'));
+
+    onlyColorDiffCheckbox.checked = settings.onlyDiffsColored;
+    onlyColorDiffCheckbox.dispatchEvent(new Event('change'));
 
     launchPogoOnStartupCheckbox.checked = settings.launchPogoOnStartup;
     launchPogoOnStartupCheckbox.dispatchEvent(new Event('change'));
@@ -192,6 +197,11 @@ function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElem
 document.getElementById('ignore-skipped-splits')?.addEventListener('change', async (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     settings = await window.electronAPI.onOptionHideSkippedSplitsChanged(checked);
+});
+
+document.getElementById('only-colored-diff')?.addEventListener('change', async (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    settings = await window.electronAPI.onOnlyDiffColoredChanged(checked);
 });
 
 document.getElementById('launch-pogo-on-startup')?.addEventListener('change', async (e) => {
@@ -288,6 +298,7 @@ const updateSkippedSplits = async () => {
 
 function updateCheckpoints() {
     const selection = getSelectedMapAndMode();
+    __electronLog.debug("Updating checkpoints. Selected map and mode: ", JSON.stringify(selection));
     if (!selection) return;
     const { mapObj, modeObj } = selection;
 
@@ -303,6 +314,7 @@ function updateCheckpoints() {
     }
 
     mapObj.splits.forEach((split, idx) => {
+        __electronLog.info(`adding split ${split} with index ${idx} to selection`);
         addSplitToSkippedSplits(splitSelectionDiv, split, idx, skippedIndices);
     });
 }

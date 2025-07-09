@@ -46,6 +46,12 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
+        ipcMain.handle('only-diff-colored-changed', (event, colorOnlyDiffs: boolean) => {
+            this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
+        });
         ipcMain.handle("option-launch-pogo-on-startup", (event, launchPogoOnStartup: boolean) => {
             this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
             this.saveSettings()
@@ -152,6 +158,7 @@ export class SettingsManager {
                 pogostuckSteamUserDataPath: "",
                 // design
                 hideSkippedSplits: false,
+                onlyDiffsColored: false,
                 showNewSplitNames: true,
 
                 // split skip
@@ -213,5 +220,9 @@ export class SettingsManager {
 
     public hideSkippedSplits(): boolean {
         return this.currentSettings.hideSkippedSplits;
+    }
+
+    public onlyDiffColored() {
+        return this.currentSettings.onlyDiffsColored;
     }
 }

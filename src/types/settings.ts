@@ -4,6 +4,7 @@ export interface Settings {
     pogostuckSteamUserDataPath: string;
     // Design
     hideSkippedSplits: boolean,
+    onlyDiffsColored: boolean,
     showNewSplitNames: boolean
 
     // split skips

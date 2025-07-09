@@ -401,22 +401,38 @@ function formatPbTime(seconds: number): string {
     return `${minsStr}:${secsStr}.${msStr}`;
 }
 
+/*
+ * Beautifully vibe coded :)
+ */
 function parsePbTime(timeStr: string): number {
     const trimmed = timeStr.trim();
-    const regex = /^(?:(\d+):)?(?:(\d{1,2}):)?(\d{1,2})(?:\.(\d{1,3}))?$/;
-    const match = regex.exec(trimmed);
-    // try to match only seconds and milliseconds
-    if (!match) {
-        const fallback = /^(\d+)(?:\.(\d{1,3}))?$/.exec(trimmed);
-        if (!fallback) return -1;
-        const s = parseInt(fallback[1], 10);
-        const ms = fallback[2] ? parseInt(fallback[2].padEnd(3, '0'), 10) : 0;
-        return s + ms / 1000;
+    if (!trimmed) return -1;
+    const parts = trimmed.split(":");
+    if (parts.length > 3) return -1;
+    let h = 0, m = 0, s = 0, ms = 0;
+    let secPart = parts[parts.length - 1];
+    const secMatch = /^(\d{1,2})(?:\.(\d{1,3}))?$/.exec(secPart);
+    if (!secMatch) return -1;
+    s = parseInt(secMatch[1], 10);
+    if (secMatch[2]) {
+        if (secMatch[2].length > 3) return -1;
+        ms = parseInt(secMatch[2].padEnd(3, '0'), 10);
     }
-    const h = match[1] ? parseInt(match[1], 10) : 0;
-    const m = match[2] ? parseInt(match[2], 10) : 0;
-    const s = match[3] ? parseInt(match[3], 10) : 0;
-    const ms = match[4] ? parseInt(match[4].padEnd(3, '0'), 10) : 0;
+    if (parts.length === 3) {
+        h = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10);
+    } else if (parts.length === 2) {
+        m = parseInt(parts[0], 10);
+    }
+    // Fix: map parts correctly (3: h, m, s; 2: m, s; 1: s)
+    if (parts.length === 3) {
+        h = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10);
+    } else if (parts.length === 2) {
+        m = parseInt(parts[0], 10);
+    } else if (parts.length === 1) {
+        // only seconds, already set
+    }
     return h * 3600 + m * 60 + s + ms / 1000;
 }
 

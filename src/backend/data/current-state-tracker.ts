@@ -86,7 +86,7 @@ export class CurrentStateTracker {
             log.info(`New personal best: ${this.finalTime}`);
             this.pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
-            this.pbTracker.readPbSplitsFromFile(nameMappings);
+            this.pbTracker.updatePbSplitsFromFile();
             onMapOrModeChanged(this.map, this.mode, nameMappings, this.pbTracker, this.goldSplitsTracker, overlayWindow, this.settingsManager);
         }
     }

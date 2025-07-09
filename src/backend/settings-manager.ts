@@ -66,7 +66,7 @@ export class SettingsManager {
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
-            pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
+            pbSplitTracker.updatePbSplitsFromFile();
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
             writeGoldSplitsIfChanged(goldenSplitsTracker)
             const mapNum = stateTracker.getCurrentMap()

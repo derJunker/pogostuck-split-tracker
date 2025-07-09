@@ -1,0 +1,87 @@
+import {PogoNameMappings} from "./pogo-name-mappings";
+import path from "path";
+import {userDataPathEnd} from "./paths";
+import fs from "fs";
+import log from "electron-log/main";
+import {SettingsManager} from "../settings-manager";
+
+
+
+export class UserDataReader {
+    private static instance: UserDataReader | null = null;
+    private readonly settingsManager: SettingsManager;
+    private readonly pogoNameMappings: PogoNameMappings
+
+    private constructor(settingsManager: SettingsManager, pogoNameMappings: PogoNameMappings) {
+        this.settingsManager = settingsManager;
+        this.pogoNameMappings = pogoNameMappings;
+    }
+
+    public static getInstance(settingsManager?: SettingsManager, pogoNameMappings?: PogoNameMappings): UserDataReader {
+        if (!UserDataReader.instance) {
+            if (!settingsManager || !pogoNameMappings) {
+                throw new Error("Instance not initialized. Please provide necessary Classes.");
+            }
+            UserDataReader.instance = new UserDataReader(settingsManager, pogoNameMappings);
+        }
+        return UserDataReader.instance;
+    }
+
+
+    public readPbSplitsFromFile(): ModeSplits[] {
+        const fileContent = this.readSteamUserData()
+        if (!fileContent) {
+            return [];
+        }
+        const lines = fileContent.split(/\r?\n/).filter(line => line.trim().length > 0);
+        const modeMap: { [modeName: string]: number } = {};
+        const settingsNames: string[] = [];
+
+        for (const map of (this.pogoNameMappings as any).nameMappings) {
+            for (const mode of map.modes) {
+                modeMap[mode.settingsName] = mode.key;
+                settingsNames.push(mode.settingsName);
+            }
+        }
+
+        settingsNames.sort((a, b) => b.length - a.length);
+
+        const tempModeSplits: { mode: number; splitInfo: { split: number, time: number }[] }[] = [];
+
+        for (const line of lines) {
+            for (const settingsName of settingsNames) {
+                if (line.startsWith(settingsName)) {
+                    const rest = line.slice(settingsName.length);
+                    const match = rest.match(/^(\d+)\s+([\d.]+)/);
+                    if (!match) break;
+                    const splitIndex = parseInt(match[1], 10);
+                    const time = parseFloat(match[2]);
+                    const modeIndex = modeMap[settingsName];
+                    if (modeIndex === undefined) break;
+                    let modeEntry = tempModeSplits.find(entry => entry.mode === modeIndex);
+                    if (!modeEntry) {
+                        modeEntry = { mode: modeIndex, splitInfo: [] };
+                        tempModeSplits.push(modeEntry);
+                    }
+                    modeEntry.splitInfo.push({ split: splitIndex, time });
+                    break;
+                }
+            }
+        }
+
+        return tempModeSplits.map(entry => ({
+            mode: entry.mode,
+            times: entry.splitInfo.sort((a, b) => a.split - b.split)
+                .filter(splitInfo => [4, 7, 30, 31].indexOf(entry.mode) == -1 || splitInfo.split < 9)
+        }));
+    }
+
+    private readSteamUserData(): string | null {
+        const filePath = path.join(this.settingsManager.steamUserDataPath(), ...userDataPathEnd);
+        if (fs.existsSync(filePath)) {
+            return fs.readFileSync(filePath, 'utf-8');
+        }
+        log.error(`Steam user data file not found at: ${filePath}`);
+        return null;
+    }
+}

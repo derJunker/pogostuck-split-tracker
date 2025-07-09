@@ -81,6 +81,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
     addTabLinkListeners()
     await hideWin11ContentIfNeeded()
+    await hideFullscreenMessageIfNeeded()
+
     syncInitialCheckboxes()
     setHtmlContentFromSettings()
     loadLevelsFromMapping()
@@ -124,6 +126,18 @@ async function hideWin11ContentIfNeeded() {
     if (!isWin11) {
         const win11Content = document.querySelectorAll('.only-win11')
         win11Content.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.display = 'none';
+        });
+    }
+}
+
+async function hideFullscreenMessageIfNeeded() {
+    const isFullscreen = await window.electronAPI.hasPogostuckFullscreen();
+    __electronLog.info("Has Pogostuck fullscreen: ", isFullscreen);
+    if (!isFullscreen) {
+        const fsContent = document.querySelectorAll('.only-fs')
+        fsContent.forEach(el => {
             const htmlEl = el as HTMLElement;
             htmlEl.style.display = 'none';
         });
@@ -224,6 +238,14 @@ pogoPathInput.addEventListener('input', async () => {
         }
     }
 });
+
+document.getElementById("open-settings-link")?.addEventListener("click", async () => {
+    await window.electronAPI.openWindowsSettings();
+});
+
+document.getElementById("launch-pogo-btn" )?.addEventListener("click", async () => {
+    await window.electronAPI.openPogostuck();
+})
 
 function getSelectedMapAndMode() {
     if (!mapSelect || !modeSelect) return null;
@@ -469,11 +491,3 @@ function parsePbTime(timeStr: string): number {
     }
     return h * 3600 + m * 60 + s + ms / 1000;
 }
-
-document.getElementById("open-settings-link")?.addEventListener("click", async () => {
-    await window.electronAPI.openWindowsSettings();
-});
-
-document.getElementById("launch-pogo-btn" )?.addEventListener("click", async () => {
-    await window.electronAPI.openPogostuck();
-})

@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
 
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
+    hasPogostuckFullscreen: (): Promise<boolean> => ipcRenderer.invoke('has-fullscreen'),
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
 
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),

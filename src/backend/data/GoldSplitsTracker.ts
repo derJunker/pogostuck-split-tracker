@@ -54,14 +54,6 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
             const splitPath = this.settingsManager.getSplitIndexPath(modeNum, splitAmount)
-            // if (modeNum === 7) {
-            //     console.log(`sum of best values${
-            //         splitPath.map(({from, to}) => {
-            //             const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
-            //             return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
-            //         })
-            //     }`)
-            // }
             const sumOfBest = splitPath.map(({from, to}) => {
                 const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
                 return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
@@ -99,7 +91,7 @@ export class GoldSplitsTracker {
             }
             return {time: Infinity, from, to};
         }
-        console.warn(`No golden splits found for mode ${modeIndex}`);
+        log.warn(`No golden splits found for mode ${modeIndex}`);
         return {time: Infinity, from: -1, to: -1};
     }
 
@@ -115,8 +107,8 @@ export class GoldSplitsTracker {
 
                 const lastSplitTimeInPbRun = this.pbSplitTracker.getPbTimeForSplit(modeIndex, from)
                 if (lastSplitTimeInPbRun === -1 || lastSplitTimeInPbRun === 0) {
-                    console.warn(`No last split found for mode ${modeIndex} in PB splits, skipping gold split update`);
-                    console.warn("value: ", lastSplitTimeInPbRun, "path: ", path);
+                    log.warn(`No last split found for mode ${modeIndex} in PB splits, skipping gold split update`);
+                    log.warn("value: ", lastSplitTimeInPbRun, "path: ", path);
                     return;
                 }
                 const oldGoldSplitIndex = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to)

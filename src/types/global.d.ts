@@ -33,6 +33,7 @@ declare global { interface Window {
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         isWindows11: () => Promise<boolean>;
+        hasPogostuckFullscreen: () => Promise<boolean>;
         openWindowsSettings: () => Promise<void>;
         openPogostuck: () => Promise<boolean>;
     };

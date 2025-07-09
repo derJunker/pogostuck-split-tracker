@@ -13,6 +13,7 @@ import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import log from 'electron-log/main';
+import {UserDataReader} from "./data/user-data-reader";
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -26,6 +27,7 @@ let overlayWindow: BrowserWindow | null = null;
 let logWatcher: FileWatcher = new FileWatcher();
 const indexToNamesMappings = initMappings();
 const settingsManager = new SettingsManager(logWatcher)
+const userDataReader = UserDataReader.getInstance(settingsManager, indexToNamesMappings);
 const pbSplitTracker = new PbSplitTracker(settingsManager);
 const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager, pbSplitTracker)
 writeGoldenSplits(goldenSplitsTracker)
@@ -58,7 +60,7 @@ app.on("ready", () => {
     initLaunchPogoListener(settingsManager);
 
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
-    pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
+    pbSplitTracker.updatePbSplitsFromFile();
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
     writeGoldSplitsIfChanged(goldenSplitsTracker)
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings, stateTracker);

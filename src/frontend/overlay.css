@@ -33,10 +33,25 @@ button {
 }
 
 #totals,
-#active-msg {
+#status-msg {
     padding-top: .2rem;
     padding-right:  .2rem;
 }
+
+#status-msg {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    padding-right: .8rem;
+
+}
+#status-msg > div {
+    padding-left: 1rem;
+}
+#status-msg >div:first-child {
+    padding-left: 0;
+}
+
 .split {
     display: grid;
     grid-template-columns: subgrid;

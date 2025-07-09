@@ -7,7 +7,7 @@ import { CurrentStateTracker } from "../data/current-state-tracker";
 import { GoldSplitsTracker } from "../data/GoldSplitsTracker";
 import { PbSplitTracker } from "../data/pb-split-tracker";
 import { PogoNameMappings } from "../data/pogo-name-mappings";
-import {writeGoldenSplits, writeGoldSplitsIfChanged} from "./read-golden-splits";
+import {writeGoldSplitsIfChanged} from "./read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode} from "../data/valid-modes";
 import {onMapOrModeChanged} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "../data/paths";
@@ -28,6 +28,10 @@ export class SettingsManager {
 
     public init(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker,
                 pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
+        overlayWindow.on("ready-to-show", () => {
+            this.updateFrontendStatus(overlayWindow)
+        })
+
         indexToNamesMappings.switchMap1SplitNames(this.currentSettings.showNewSplitNames)
         ipcMain.handle("load-settings", () => {
             return this.currentSettings;
@@ -63,6 +67,7 @@ export class SettingsManager {
             const modeNum = stateTracker.getCurrentMode();
             onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
             this.saveSettings()
+            this.updateFrontendStatus(overlayWindow)
             return this.currentSettings
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
@@ -74,6 +79,7 @@ export class SettingsManager {
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
             this.saveSettings()
+            this.updateFrontendStatus(overlayWindow)
             return this.currentSettings
         });
         ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
@@ -166,5 +172,30 @@ export class SettingsManager {
 
     public getHideSkippedSplits(): boolean {
         return this.currentSettings.hideSkippedSplits;
+    }
+
+    private updateFrontendStatus(overlayWindow: BrowserWindow) {
+        const statusMessage = this.createStatusMessage();
+        overlayWindow.webContents.send("status-changed", statusMessage);
+    }
+
+    private createStatusMessage(): string {
+        let msg = "Config Status\n"
+        const pogoConfigPathIsValid = existsSync(this.currentSettings.pogostuckConfigPath);
+        const steamUserDataPathIsValid = existsSync(path.join(this.currentSettings.pogostuckSteamUserDataPath, ...userDataPathEnd));
+        if (pogoConfigPathIsValid && steamUserDataPathIsValid) {
+            return "Pogostuck-Splits - Active"
+        }
+        if (!pogoConfigPathIsValid) {
+            msg += `Pogostuck Steam Path: ❌\n`;
+        } else {
+            msg += `Pogostuck Steam Path: ✅\n`;
+        }
+        if (!steamUserDataPathIsValid) {
+            msg += "Steam user-data path: ❌\n";
+        } else {
+            msg += "Steam user-data path: ✅\n";
+        }
+        return msg;
     }
 }

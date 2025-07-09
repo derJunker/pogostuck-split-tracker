@@ -60,7 +60,7 @@ function addPogostuckOpenedListener(overlayWindow: BrowserWindow, mainWindow: Br
 function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWindow, mainWindow: BrowserWindow) : boolean {
     if (!winInfo) return false;
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
-    // title "Pogo Splits", (Electron) TODO dont hardcode it
+    // TODO dont hardcode it
     const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
     // TODO use "path" attribute to read steam dir of pogostuck for acklog.txt
     pogostuckIsActiveWindow = isPogostuck;

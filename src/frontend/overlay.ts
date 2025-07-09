@@ -60,7 +60,7 @@ function loadMapMode(mapAndModeChanged: {
         pbTimeSpan.textContent = formatTime(pb);
     }
     document.getElementById('totals')!.style!.display = 'inline';
-    document.getElementById('active-msg')!.style!.display = 'none';
+    document.getElementById('status-msg')!.style!.display = 'none';
 }
 
 function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean) {
@@ -137,7 +137,7 @@ window.electronAPI.mainMenuOpened(() => {
         pbTimeSpan.textContent = '';
     }
     document.getElementById('totals')!.style!.display = 'None';
-    document.getElementById('active-msg')!.style!.display = 'inline';
+    document.getElementById('status-msg')!.style!.display = 'inline';
 });
 
 window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => {
@@ -150,6 +150,16 @@ window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfB
         sumOfBestSpan.textContent = formatTime(sumOfBest);
     }
 });
+
+window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, statusMsg: string) => {
+    const statusElement = document.getElementById('status-msg')!;
+    statusElement.innerHTML = '';
+    statusMsg.split('\n').forEach(line => {
+        const div = document.createElement('div');
+        div.textContent = line;
+        statusElement.appendChild(div);
+    });
+})
 
 function formatTime(seconds: number, noZeroFill: boolean = false): string {
     const absSeconds = Math.abs(seconds);

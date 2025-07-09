@@ -20,6 +20,7 @@ declare global { interface Window {
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
+        onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: string) => void) => void;
 
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;
         onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;

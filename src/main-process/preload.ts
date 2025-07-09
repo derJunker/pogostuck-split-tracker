@@ -11,7 +11,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onMapOrModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: mapAndModeChanged) => void) => ipcRenderer.on('map-or-mode-changed', callback),
     mainMenuOpened: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('main-menu-opened', callback),
     onSplitPassed: (callback: (event: Electron.IpcRendererEvent, splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean}) => void) => ipcRenderer.on('split-passed', callback),
-    onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => ipcRenderer.on('golden-split-passed', callback),
+    onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => {
+        ipcRenderer.on('golden-split-passed', callback)
+    },
+    onStatusChanged: (callback: (event: IpcRendererEvent, statusMsg: string) => void) => {
+        ipcRenderer.on('status-changed', callback);
+    },
 
     onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => ipcRenderer.invoke('option-hide-skipped-splits-changed', hideSkippedSplits),
     onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => ipcRenderer.invoke('option-show-new-split-names-changed', showNewSplitNames),

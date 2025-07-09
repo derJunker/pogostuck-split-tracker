@@ -129,7 +129,15 @@ export class SettingsManager {
 
     private loadSettings(): Settings {
         if (existsSync(this.settingsPath)) {
-            return JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
+            // Migration vom alten settings path: Nur entfernen, wenn am Ende, und Trennzeichen-unabhängig
+            const settings: Settings = JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
+            if (settings.pogostuckSteamUserDataPath) {
+                console.log(`PogoStuck config path loaded: ${settings.pogostuckSteamUserDataPath}`);
+                // Regex: entfernt '688130/remote' oder '688130\\remote' am Ende des Strings
+                settings.pogostuckSteamUserDataPath = settings.pogostuckSteamUserDataPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/ , "");
+                console.log(`PogoStuck config path after migration: ${settings.pogostuckSteamUserDataPath}`);
+            }
+            return settings;
         } else {
             return {
                 pogostuckConfigPath: "",
@@ -156,7 +164,7 @@ export class SettingsManager {
         fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
     }
 
-    public getPogoStuckSteamUserDataPath(): string {
+    public getSteamUserDataPath(): string {
         return this.currentSettings.pogostuckSteamUserDataPath;
     }
 

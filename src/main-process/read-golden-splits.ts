@@ -42,3 +42,9 @@ export function writeGoldenSplits(goldenSplitsTracker: GoldSplitsTracker): void 
     goldenSplitsTracker.changeSaved()
     fs.writeFileSync(goldenSplitFilePath, JSON.stringify(goldenSplits, null, 2));
 }
+
+export function writeGoldSplitsIfChanged(goldenSplitsTracker: GoldSplitsTracker): void {
+    if (goldenSplitsTracker.hasChanged()) {
+        writeGoldenSplits(goldenSplitsTracker);
+    }
+}

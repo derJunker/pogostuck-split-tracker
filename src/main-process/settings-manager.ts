@@ -7,7 +7,7 @@ import { CurrentStateTracker } from "../data/current-state-tracker";
 import { GoldSplitsTracker } from "../data/GoldSplitsTracker";
 import { PbSplitTracker } from "../data/pb-split-tracker";
 import { PogoNameMappings } from "../data/pogo-name-mappings";
-import {writeGoldenSplits} from "./read-golden-splits";
+import {writeGoldenSplits, writeGoldSplitsIfChanged} from "./read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode} from "../data/valid-modes";
 import {onMapOrModeChanged} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "../data/paths";
@@ -58,9 +58,7 @@ export class SettingsManager {
             console.log(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
             pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
-            if (goldenSplitsTracker.hasChanged()) {
-                writeGoldenSplits(goldenSplitsTracker)
-            }
+            writeGoldSplitsIfChanged(goldenSplitsTracker)
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
             onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
@@ -121,8 +119,6 @@ export class SettingsManager {
                 .map(splitStep => {
                     return {from: splitStep.to, to: splitStep.from}
                 }).reverse()
-            console.log(`Reversed split index path for upside down mode ${mode}`);
-            console.log(`Split index path: ${JSON.stringify(splitIndexPath)}`);
         }
         return splitIndexPath;
     }

@@ -7,7 +7,7 @@ import {CurrentStateTracker} from "../data/current-state-tracker";
 import {initMappings} from "./create-index-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
-import {readGoldenSplits, writeGoldenSplits} from "./read-golden-splits";
+import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./read-golden-splits";
 import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
@@ -54,6 +54,7 @@ app.on("ready", () => {
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
     pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
+    writeGoldSplitsIfChanged(goldenSplitsTracker)
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings, stateTracker);
 
     initWindows11Listeners();

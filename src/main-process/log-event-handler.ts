@@ -4,7 +4,7 @@ import {BrowserWindow} from "electron";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
-import {writeGoldenSplits} from "./read-golden-splits";
+import {writeGoldSplitsIfChanged} from "./read-golden-splits";
 import {SettingsManager} from "./settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
 import {onMapOrModeChanged} from "./split-overlay-window";
@@ -57,8 +57,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             stateTracker.resetRun();
             if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
                 onMapOrModeChanged(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
-            if (goldenSplitsTracker.hasChanged())
-                writeGoldenSplits(goldenSplitsTracker)
+            writeGoldSplitsIfChanged(goldenSplitsTracker)
         }
     )
 
@@ -72,17 +71,14 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker:
             const { time } = match.groups!;
             const timeInMS = parseFloat(time)
             stateTracker.finishedRun(timeInMS/1000, nameMappings, overlayWindow)
-            // TODO do something here
-            if (goldenSplitsTracker.hasChanged())
-                writeGoldenSplits(goldenSplitsTracker)
+            writeGoldSplitsIfChanged(goldenSplitsTracker)
         }
     )
     // when going into the menu or closing the window save the golden splits, to reduce lag during play
     fileWatcher.registerListener(
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
-            if (goldenSplitsTracker.hasChanged())
-                writeGoldenSplits(goldenSplitsTracker)
+            writeGoldSplitsIfChanged(goldenSplitsTracker)
         }
     );
 

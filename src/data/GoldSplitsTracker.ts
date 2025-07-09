@@ -6,6 +6,7 @@ import {PogoNameMappings} from "./pogo-name-mappings";
 import { SettingsManager } from "../main-process/settings-manager";
 import {onMapOrModeChanged} from "../main-process/split-overlay-window";
 import { CurrentStateTracker } from "./current-state-tracker";
+import {isUpsideDownMode} from "./valid-modes";
 
 export class GoldSplitsTracker {
     private changed: boolean = false;
@@ -24,7 +25,7 @@ export class GoldSplitsTracker {
     public getGoldSplitForModeAndSplit(modeIndex: number, from: number, to: number): number | null {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
-            const index = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to)
+            const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to)
             if (index !== -1) {
                 return modeSplits.goldenSplits[index].time;
             }
@@ -32,7 +33,7 @@ export class GoldSplitsTracker {
         return null;
     }
 
-    private findIndexOfGoldSplitWithModeSplitsInfo(modeSplits: GoldenSplitsForMode, from: number, to: number): number {
+    private findIndexOfGoldSplitWithModeSplits(modeSplits: GoldenSplitsForMode, from: number, to: number): number {
         return modeSplits.goldenSplits.findIndex(splitInfo => splitInfo.from === from && splitInfo.to === to);
     }
 
@@ -71,8 +72,10 @@ export class GoldSplitsTracker {
 
     public updateGoldSplit(modeIndex: number, from: number, to: number, newTime: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
+        const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to);
+        const isUD = isUpsideDownMode(modeIndex);
+        if (isUD) console.log(`index of gold split: ${index}`)
         this.changed = true;
-        const index = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to);
         if (index !== -1) {
             modeSplits.goldenSplits[index].time = newTime;
         } else {
@@ -116,7 +119,7 @@ export class GoldSplitsTracker {
                     console.warn("value: ", lastSplitTimeInPbRun, "path: ", path);
                     return;
                 }
-                const oldGoldSplitIndex = this.findIndexOfGoldSplitWithModeSplitsInfo(modeSplits, from, to)
+                const oldGoldSplitIndex = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to)
                 const oldGoldenSplit = oldGoldSplitIndex !== -1 ? modeSplits.goldenSplits[oldGoldSplitIndex].time : Infinity;
                 const splitTime = newPb - lastSplitTimeInPbRun;
                 if (splitTime < oldGoldenSplit) {
@@ -139,25 +142,34 @@ export class GoldSplitsTracker {
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
             const splitIndexPath = settingsManager.getSplitIndexPath(mode, times.length)
-            // if (mode === 7)
-            //     console.log(`Updating gold splits for mode ${mode} with split index path: ${JSON.stringify(splitIndexPath)}`);
+
+            const isUD = isUpsideDownMode(mode)
+            if (isUD) {
+                console.log(`--------------------------Mode ${mode}--------------------------`);
+                console.log(`Split index path: ${JSON.stringify(splitIndexPath)} with split amount ${times.length}`)
+            }
             splitIndexPath.forEach(({from, to}) => {
                 const fromTime = from === -1 ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
                 let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
+                if (isUD) console.log(`from: ${from}, to: ${to}, fromTime: ${fromTime},initial toTime: ${toTime}`);
                 if (toTime === -1) { // If the "to" is the pb split
-                    // if (mode === 7)
-                    //     console.log("Updating gold split from " + from + " to " + to + " with pb time: " + fromTime);
                     toTime = this.getPbForMode(mode);
+                    if (isUD) console.log("to time is -1, using pb time: " + toTime);
                     // if (mode === 7)
                     //     console.log("Using pb time: " + toTime);
                     if (toTime < 0 || toTime === Infinity) {
+                        if (isUD) console.log(`time was negative or infinity`)
                         return;
                     }
                 }
                 const splitTime = toTime - fromTime;
                 const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
+                if (isUD) console.log(`previous gold split: ${previousGoldSplit}, calculated split time: ${splitTime}`);
                 if ((!previousGoldSplit || previousGoldSplit > splitTime) && splitTime > 0) {
+                    if (isUD) console.log(`Updating gold split`);
                     this.updateGoldSplit(mode, from, to, splitTime);
+                } else {
+                    if (isUD) console.log(`Not updating gold split`);
                 }
 
             })

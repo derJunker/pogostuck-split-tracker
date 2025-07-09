@@ -71,20 +71,16 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
         const timeSpan = splitDiv.querySelector('.split-time');
         if (timeSpan) {
             timeSpan.textContent = formatTime(splitTime);
-            timeSpan.className = timeSpan.className + " " + type
+            timeSpan.className = "split-time" + " " + type
         }
 
         const diffSpan = splitDiv.querySelector('.split-diff');
         if (diffSpan) {
-            // Vorzeichen bestimmen
+            diffSpan.innerHTML = '';
             let sign = '';
             if (diff > 0) sign = '+';
             else if (diff < 0) sign = '-';
-            // Absoluten Wert für die Anzeige
             const absDiff = Math.abs(diff);
-            // Alte Inhalte entfernen
-            diffSpan.innerHTML = '';
-            // <span class="sign"> und <span class="num"> erzeugen
             const signSpan = document.createElement('span');
             signSpan.className = 'sign';
             signSpan.textContent = sign;

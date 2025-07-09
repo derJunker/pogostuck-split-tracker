@@ -69,4 +69,5 @@ app.on("ready", () => {
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())
+    ipcMain.handle("has-fullscreen", () => userDataReader.hasFullScreenSet())
 });

@@ -437,7 +437,6 @@ function setPbsToInputs() {
         const modeIndex = parseInt(input.id.replace('pb-mode-', ''), 10);
         const pb = pbs.find(p => p.mode === modeIndex);
         if (pb && pb.time && pb.time < Infinity && pb.time !== 0) {
-            __electronLog.info(`Setting PB for mode ${modeIndex}: ${pb.time}`);
             (input as HTMLInputElement).value = formatPbTime(pb.time);
         }
     });

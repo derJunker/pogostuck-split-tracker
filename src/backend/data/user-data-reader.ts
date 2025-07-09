@@ -76,6 +76,24 @@ export class UserDataReader {
         }));
     }
 
+    public hasFullScreenSet() {
+        const fileContent = this.readSteamUserData();
+        if (!fileContent) {
+            return false;
+        }
+        // line needed: DisplayMode 1 the number needs to be a group regex
+        const fullScreenRegex = /DisplayMode\s+(\d+)/;
+        const match = fileContent.match(fullScreenRegex);
+        if (match) {
+            const displayMode = parseInt(match[1], 10);
+            return displayMode === 2;
+        }
+        log.error("No DisplayMode found in the user data file.");
+        return false;
+
+    }
+
+
     private readSteamUserData(): string | null {
         const filePath = path.join(this.settingsManager.steamUserDataPath(), ...userDataPathEnd);
         if (fs.existsSync(filePath)) {
@@ -84,4 +102,5 @@ export class UserDataReader {
         log.error(`Steam user data file not found at: ${filePath}`);
         return null;
     }
+
 }

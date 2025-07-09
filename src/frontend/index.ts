@@ -1,5 +1,5 @@
 // tab changing :)
-const menuButtons = document.querySelectorAll('.menu-btn');
+const menuButtons: NodeListOf<HTMLElement> = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');
 
 let hideTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -78,6 +78,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     pbs = await window.electronAPI.getPbs();
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
+    addTabLinkListeners()
     await hideWin11ContentIfNeeded()
     syncInitialCheckboxes()
     setHtmlContentFromSettings()
@@ -101,6 +102,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+
+function addTabLinkListeners() {
+    document.querySelectorAll('a[data-tab-link]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = (link as HTMLAnchorElement).getAttribute('data-tab-link')!;
+            menuButtons.forEach((btn) => {
+                if (btn.id === targetId + '-btn') {
+                    btn.click();
+                }
+            });
+        });
+    })
+}
 
 async function hideWin11ContentIfNeeded() {
     const isWin11 = await window.electronAPI.isWindows11();

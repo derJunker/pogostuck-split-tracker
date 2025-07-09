@@ -198,4 +198,8 @@ export class SettingsManager {
         }
         return msg;
     }
+
+    public getPogostuckPath() {
+        return this.currentSettings.pogostuckConfigPath;
+    }
 }

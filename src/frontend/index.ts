@@ -459,6 +459,10 @@ function parsePbTime(timeStr: string): number {
     return h * 3600 + m * 60 + s + ms / 1000;
 }
 
-document.getElementById("open-settings-link")?.addEventListener("click", () => {
-    window.electronAPI.openWindowsSettings();
+document.getElementById("open-settings-link")?.addEventListener("click", async () => {
+    await window.electronAPI.openWindowsSettings();
 });
+
+document.getElementById("launch-pogo-btn" )?.addEventListener("click", async () => {
+    await window.electronAPI.openPogostuck();
+})

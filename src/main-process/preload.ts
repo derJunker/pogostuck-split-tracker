@@ -30,4 +30,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
 
+    openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
+
 });

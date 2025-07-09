@@ -1,5 +1,6 @@
 import {Settings} from "./settings";
 import {PogoLevel} from "./pogo-index-mapping";
+import {ipcRenderer} from "electron";
 
 export interface mapAndModeChanged {
     map: string;
@@ -32,6 +33,7 @@ declare global { interface Window {
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         isWindows11: () => Promise<boolean>;
         openWindowsSettings: () => Promise<void>;
+        openPogostuck: () => Promise<boolean>;
     };
 } }
 

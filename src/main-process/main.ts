@@ -11,6 +11,7 @@ import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./r
 import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
+import {initLaunchPogoListener} from "./pogostuck-launcher";
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -45,7 +46,7 @@ app.on("ready", () => {
         },
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
-
+    mainWindow.setMenu(null);
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);
@@ -58,6 +59,7 @@ app.on("ready", () => {
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings, stateTracker);
 
     initWindows11Listeners();
+    initLaunchPogoListener(settingsManager);
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())

@@ -380,3 +380,27 @@ a {
     text-decoration: underline;
     cursor: pointer;
 }
+
+
+body {
+    padding-bottom: 5rem;
+}
+
+#launch-pogo-btn {
+    background: var(--color-fg);
+    color: var(--color-bg);
+    width: 50%;
+    max-width: 300px;
+    padding-block:  .5rem;
+}
+
+footer {
+    position: fixed;
+    display: flex;
+    place-content: center;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding:  .5rem;
+    background: var(--color-bg);
+}

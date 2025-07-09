@@ -1,12 +1,12 @@
 import {app, BrowserWindow, ipcMain, shell} from "electron";
 import * as path from "path";
-import {FileWatcher} from "./logs-watcher";
-import {registerLogEventHandlers} from "./log-event-handler";
+import {FileWatcher} from "./logging/logs-watcher";
+import {registerLogEventHandlers} from "./logging/log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
-import {CurrentStateTracker} from "../data/current-state-tracker";
+import {CurrentStateTracker} from "./data/current-state-tracker";
 import {initMappings} from "./create-index-mappings";
-import {PbSplitTracker} from "../data/pb-split-tracker";
-import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
+import {PbSplitTracker} from "./data/pb-split-tracker";
+import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
 import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./read-golden-splits";
 import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";

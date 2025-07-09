@@ -2,8 +2,8 @@ import path from "path";
 import {app} from "electron";
 import fs, {existsSync} from "fs";
 import {GoldenSplitsForMode} from "../types/golden-splits";
-import {PogoNameMappings} from "../data/pogo-name-mappings";
-import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
+import {PogoNameMappings} from "./data/pogo-name-mappings";
+import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
 
 const goldenSplitFilePath = path.join(app.getPath("userData"), "golden-splits.json");
 

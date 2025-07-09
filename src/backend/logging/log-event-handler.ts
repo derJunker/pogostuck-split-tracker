@@ -4,10 +4,10 @@ import {BrowserWindow} from "electron";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
-import {writeGoldSplitsIfChanged} from "./read-golden-splits";
-import {SettingsManager} from "./settings-manager";
+import {writeGoldSplitsIfChanged} from "../read-golden-splits";
+import {SettingsManager} from "../settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
-import {onMapOrModeChanged} from "./split-overlay-window";
+import {onMapOrModeChanged} from "../split-overlay-window";
 
 export function registerLogEventHandlers(fileWatcher: FileWatcher, stateTracker: CurrentStateTracker, nameMappings: PogoNameMappings,
                                          pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,

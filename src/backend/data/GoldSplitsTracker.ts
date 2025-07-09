@@ -1,10 +1,10 @@
-import {GoldenSplitsForMode} from "../types/golden-splits";
+import {GoldenSplitsForMode} from "../../types/golden-splits";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {BrowserWindow, ipcMain} from "electron";
-import {writeGoldenSplits} from "../main-process/read-golden-splits";
+import {writeGoldenSplits} from "../read-golden-splits";
 import {PogoNameMappings} from "./pogo-name-mappings";
-import { SettingsManager } from "../main-process/settings-manager";
-import {onMapOrModeChanged} from "../main-process/split-overlay-window";
+import { SettingsManager } from "../settings-manager";
+import {onMapOrModeChanged} from "../split-overlay-window";
 import { CurrentStateTracker } from "./current-state-tracker";
 import {isUpsideDownMode} from "./valid-modes";
 

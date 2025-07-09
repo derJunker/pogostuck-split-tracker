@@ -2,15 +2,15 @@ import {app, BrowserWindow, ipcMain} from "electron";
 import {Settings} from "../types/settings";
 import fs, {existsSync} from "fs";
 import path from "path";
-import {FileWatcher} from "./logs-watcher";
-import { CurrentStateTracker } from "../data/current-state-tracker";
-import { GoldSplitsTracker } from "../data/GoldSplitsTracker";
-import { PbSplitTracker } from "../data/pb-split-tracker";
-import { PogoNameMappings } from "../data/pogo-name-mappings";
+import {FileWatcher} from "./logging/logs-watcher";
+import { CurrentStateTracker } from "./data/current-state-tracker";
+import { GoldSplitsTracker } from "./data/GoldSplitsTracker";
+import { PbSplitTracker } from "./data/pb-split-tracker";
+import { PogoNameMappings } from "./data/pogo-name-mappings";
 import {writeGoldSplitsIfChanged} from "./read-golden-splits";
-import {hasUnusedExtraSplit, isUpsideDownMode} from "../data/valid-modes";
+import {hasUnusedExtraSplit, isUpsideDownMode} from "./data/valid-modes";
 import {onMapOrModeChanged} from "./split-overlay-window";
-import {pogoLogName, userDataPathEnd} from "../data/paths";
+import {pogoLogName, userDataPathEnd} from "./data/paths";
 
 export class SettingsManager {
     private readonly settingsPath: string;

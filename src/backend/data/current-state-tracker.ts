@@ -1,11 +1,11 @@
 import {GoldSplitsTracker} from "./GoldSplitsTracker";
 import path from "path";
 import {PbSplitTracker} from "./pb-split-tracker";
-import {SettingsManager} from "../main-process/settings-manager";
+import {SettingsManager} from "../settings-manager";
 import {PogoNameMappings} from "./pogo-name-mappings";
 import {BrowserWindow} from "electron";
 import {isUpsideDownMode} from "./valid-modes";
-import {onMapOrModeChanged} from "../main-process/split-overlay-window";
+import {onMapOrModeChanged} from "../split-overlay-window";
 
 export class CurrentStateTracker {
     private mode: number = -1;

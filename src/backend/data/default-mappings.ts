@@ -1,4 +1,4 @@
-import {PogoLevel} from "../types/pogo-index-mapping";
+import {PogoLevel} from "../../types/pogo-index-mapping";
 
 export const defaultMappings: PogoLevel[] = [
     {

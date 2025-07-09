@@ -1,6 +1,6 @@
 import fs from 'fs'
 import {PogoNameMappings} from "./pogo-name-mappings";
-import {SettingsManager} from "../main-process/settings-manager";
+import {SettingsManager} from "../settings-manager";
 import path from "path";
 import {userDataPathEnd} from "./paths";
 

@@ -1,11 +1,11 @@
 import path from "path";
 import {BrowserWindow, screen} from "electron";
 import ActiveWindow, {WindowInfo} from "@paymoapp/active-window";
-import {PogoNameMappings} from "../data/pogo-name-mappings";
-import {PbSplitTracker} from "../data/pb-split-tracker";
-import {GoldSplitsTracker} from "../data/GoldSplitsTracker";
+import {PogoNameMappings} from "./data/pogo-name-mappings";
+import {PbSplitTracker} from "./data/pb-split-tracker";
+import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
 import {SettingsManager} from "./settings-manager";
-import {isValidModeAndMap} from "../data/valid-modes";
+import {isValidModeAndMap} from "./data/valid-modes";
 import {mapAndModeChanged} from "../types/global";
 
 let pogostuckIsActiveWindow = false;

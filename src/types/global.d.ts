@@ -24,6 +24,7 @@ declare global { interface Window {
         onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: string) => void) => void;
 
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;
+        onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => Promise<Settings>;
         onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;
 
         onSteamUserDataPathChanged: (steamUserDataPath: string) => Promise<Settings>;

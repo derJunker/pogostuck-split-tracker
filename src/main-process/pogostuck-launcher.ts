@@ -7,7 +7,7 @@ export function initLaunchPogoListener(settingsManager: SettingsManager) {
     ipcMain.handle('open-pogostuck',async () => launchPogostuckIfNotOpenYet(settingsManager));
 }
 
-async function launchPogostuckIfNotOpenYet(settingsManager: SettingsManager): Promise<boolean> {
+export async function launchPogostuckIfNotOpenYet(settingsManager: SettingsManager): Promise<boolean> {
     // Check if pogostuck.exe is already running
     try {
         const tasklist = execSync('tasklist', { encoding: 'utf8' });
@@ -18,7 +18,7 @@ async function launchPogostuckIfNotOpenYet(settingsManager: SettingsManager): Pr
     } catch (err) {
         console.error('Failed to check running processes:', err);
     }
-    const pogostuckDir = settingsManager.getPogostuckPath();
+    const pogostuckDir = settingsManager.pogostuckSteamPath();
     const pogostuckExecutablePath = path.join(pogostuckDir, "pogostuck.exe");
     console.log(`Launching PogoStuck from: ${pogostuckExecutablePath}`);
     const steamAppId = "688130"; // PogoStuck's Steam App ID

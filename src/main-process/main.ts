@@ -11,7 +11,8 @@ import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./r
 import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
-import {initLaunchPogoListener} from "./pogostuck-launcher";
+import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
+import {log} from "electron-builder";
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -29,13 +30,16 @@ const pbSplitTracker = new PbSplitTracker(settingsManager);
 const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager, pbSplitTracker)
 writeGoldenSplits(goldenSplitsTracker)
 
+if (settingsManager.launchPogoOnStartup())
+    launchPogostuckIfNotOpenYet(settingsManager).then(() => console.log("PogoStuck launched on startup."));
+
 const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker, pbSplitTracker, settingsManager);
 
 app.on("ready", () => {
 
     mainWindow = new BrowserWindow({
-        width: 650,
-        height: 450,
+        width: 680,
+        height: 480,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,
@@ -50,7 +54,8 @@ app.on("ready", () => {
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     mainWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(mainWindow);
-    settingsManager.init(overlayWindow, goldenSplitsTracker, stateTracker, pbSplitTracker, indexToNamesMappings)
+    settingsManager.initListeners(overlayWindow, goldenSplitsTracker, stateTracker, pbSplitTracker, indexToNamesMappings)
+    initLaunchPogoListener(settingsManager);
 
     registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
     pbSplitTracker.readPbSplitsFromFile(indexToNamesMappings);
@@ -59,7 +64,6 @@ app.on("ready", () => {
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings, stateTracker);
 
     initWindows11Listeners();
-    initLaunchPogoListener(settingsManager);
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())

@@ -19,7 +19,7 @@ export class PbSplitTracker {
     }
 
     public readPbSplitsFromFile(pogoNameMappings: PogoNameMappings) {
-        const filePath = path.join(this.settingsManager.getSteamUserDataPath(), ...userDataPathEnd)
+        const filePath = path.join(this.settingsManager.steamUserDataPath(), ...userDataPathEnd)
         if (!fs.existsSync(filePath)) {
             console.error(`File not found: ${filePath}`);
             return;

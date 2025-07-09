@@ -16,6 +16,7 @@ let settings: {
 
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
+    launchPogoOnStartup: boolean;
 }
 let mappings: {
     levelName: string;
@@ -151,13 +152,18 @@ function setHtmlContentFromSettings() {
     const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
     const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
     const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
+    const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-startup') as HTMLInputElement;
     const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
 
     steamPathInput.value = settings.pogostuckSteamUserDataPath;
     pogoPathInput.value = settings.pogostuckConfigPath;
+    splitNamingSelect.value = settings.showNewSplitNames ? 'new' : 'old';
+
     hideSkippedSplitsCheckbox.checked = settings.hideSkippedSplits;
     hideSkippedSplitsCheckbox.dispatchEvent(new Event('change'));
-    splitNamingSelect.value = settings.showNewSplitNames ? 'new' : 'old';
+
+    launchPogoOnStartupCheckbox.checked = settings.launchPogoOnStartup;
+    launchPogoOnStartupCheckbox.dispatchEvent(new Event('change'));
 }
 
 function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
@@ -172,6 +178,11 @@ function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElem
 document.getElementById('ignore-skipped-splits')?.addEventListener('change', async (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     settings = await window.electronAPI.onOptionHideSkippedSplitsChanged(checked);
+});
+
+document.getElementById('launch-pogo-on-startup')?.addEventListener('change', async (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    settings = await window.electronAPI.onLaunchPogoOnStartupChanged(checked);
 });
 
 // Split Names

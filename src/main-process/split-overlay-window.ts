@@ -94,7 +94,7 @@ export function onMapOrModeChanged(mapNum: number, modeNum: number, nameMappings
                     name: splitName,
                     split: pbSplitTimes[i]!.split,
                     time: pbSplitTimes[i]!.time,
-                    hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.getHideSkippedSplits(),
+                    hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
                     skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
                 }
             }),

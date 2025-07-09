@@ -8,5 +8,7 @@ export interface Settings {
 
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
+
+    launchPogoOnStartup: boolean;
 }
 

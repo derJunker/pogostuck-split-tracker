@@ -26,8 +26,8 @@ export class SettingsManager {
         this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
     }
 
-    public init(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker,
-                pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
+    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker,
+                         pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
         overlayWindow.on("ready-to-show", () => {
             this.updateFrontendStatus(overlayWindow)
         })
@@ -42,6 +42,11 @@ export class SettingsManager {
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
             onMapOrModeChanged(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            this.saveSettings()
+            return this.currentSettings
+        });
+        ipcMain.handle("option-launch-pogo-on-startup", (event, launchPogoOnStartup: boolean) => {
+            this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
             this.saveSettings()
             return this.currentSettings
         });
@@ -149,7 +154,9 @@ export class SettingsManager {
                 showNewSplitNames: true,
 
                 // split skip
-                skippedSplits: []
+                skippedSplits: [],
+
+                launchPogoOnStartup: false
             };
         }
     }
@@ -164,14 +171,6 @@ export class SettingsManager {
 
     private saveSettings() {
         fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
-    }
-
-    public getSteamUserDataPath(): string {
-        return this.currentSettings.pogostuckSteamUserDataPath;
-    }
-
-    public getHideSkippedSplits(): boolean {
-        return this.currentSettings.hideSkippedSplits;
     }
 
     private updateFrontendStatus(overlayWindow: BrowserWindow) {
@@ -199,7 +198,19 @@ export class SettingsManager {
         return msg;
     }
 
-    public getPogostuckPath() {
+    public pogostuckSteamPath() {
         return this.currentSettings.pogostuckConfigPath;
+    }
+
+    public launchPogoOnStartup() {
+        return this.currentSettings.launchPogoOnStartup;
+    }
+
+    public steamUserDataPath(): string {
+        return this.currentSettings.pogostuckSteamUserDataPath;
+    }
+
+    public hideSkippedSplits(): boolean {
+        return this.currentSettings.hideSkippedSplits;
     }
 }

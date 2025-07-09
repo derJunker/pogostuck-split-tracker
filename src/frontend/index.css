@@ -24,11 +24,13 @@
 
 body {
     background: #fff;
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     font-size: var(--font-size);
     font-weight: var(--font-weight);
     margin: 0;
     padding: 0;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
 }
 
 *,
@@ -280,7 +282,7 @@ label {
     user-select: none;
     cursor:  pointer;
 }
-#design-content {
+#preferences-content {
     display: grid;
     grid-template-columns: max-content max-content;
     gap: 0.5em 1em;
@@ -305,7 +307,7 @@ label {
     max-width: 10rem;
 }
 
-#design-content > div {
+#preferences-content > div {
     display: contents;
     margin-inline: 2rem;
 }
@@ -404,3 +406,4 @@ footer {
     padding:  .5rem;
     background: var(--color-bg);
 }
+

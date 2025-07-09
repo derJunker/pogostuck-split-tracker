@@ -9,7 +9,7 @@
     <body>
         <div id="menu-bar">
             <button id="setup-guide-btn" class="active menu-btn">Setup</button>
-            <button id="design-btn" class="menu-btn">Design</button>
+            <button id="preferences-btn" class="menu-btn">Preferences</button>
             <button id="paths-btn" class="menu-btn">Paths</button>
             <button id="split-skips-btn" class="menu-btn">Split-Skips</button>
             <button id="pbs-btn" class="menu-btn">PBs</button>
@@ -57,7 +57,7 @@
                         <b>Enter Split Skips:</b> If you do any skips that skip a whole split - notably palm- and
                                                   anvil-skip - you need to set this manually.
                                                   Otherwise the sum-of-best-splits calculation will be wrong.
-                        <br> You can do this under the Split-Skips tab.
+                        <br> You can do this under the <a data-tab-link="split-skips">Split-Skips</a> tab.
                     </li>
                     <li>
                         <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
@@ -74,11 +74,16 @@
                 discord 👍.
 
             </div>
-            <div id="design-content" class="menu-content">
+            <div id="preferences-content" class="menu-content">
                 <div class="toggle-switch">
                     <label for="ignore-skipped-splits" class="toggle-label">Hide skipped splits:</label>
                     <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
                     <button id="ignore-skipped-splits-custom" class="custom-checkbox"></button>
+                </div>
+                <div class="toggle-switch">
+                    <label for="launch-pogo-on-startup" class="toggle-label">Launch Pogostuck on Startup:</label>
+                    <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
+                    <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
                 </div>
                 <div>
                     <label for="split-naming-select">Split Names: </label>

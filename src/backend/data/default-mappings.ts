@@ -5,6 +5,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Map 1",
         mapIndex: 0,
         splits: [ "Bones", "Wind", "Grapes", "Trees", "Pineapples", "Palm Trees", "Mushrooms", "Flowers", "Ice"],
+        endSplitName: "Egg",
         modes: [
             {
                 key: 0,
@@ -47,6 +48,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Map 2",
         mapIndex: 8,
         splits: [ "Ants", "Coconuts", "Slopes", "Wind", "Bees", "Vines", "Pillars", "Duck", "Plums", "Snake" ],
+        endSplitName: "Final",
         modes: [
             {
                 key: 12,
@@ -79,6 +81,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Map 3",
         mapIndex: 9,
         splits: ["Checkpoint 1", "Checkpoint 2", "Checkpoint 3", "Checkpoint 4", "Checkpoint 5", "Checkpoint 6", "Checkpoint 7", "Checkpoint 8"],
+        endSplitName: "Finale",
         modes: [
             {
                 key: 20,
@@ -106,6 +109,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Micro Map 1",
         mapIndex: 99,
         splits: ["Bones", "Wind", "Grapes", "Trees", "Pineapples", "Palm Trees", "Mushrooms", "Flowers", "Ice"],
+        endSplitName: "Egg",
         modes: [
             {
                 key: 30,
@@ -123,6 +127,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Drakula's Castle",
         mapIndex: 100,
         splits: ["Mushrooms", "Cellar", "Moving Blocks", "Ice", "Pillars"],
+        endSplitName: "Egg",
         modes: [
             {
                 key: 27,

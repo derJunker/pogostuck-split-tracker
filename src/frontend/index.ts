@@ -23,6 +23,7 @@ let mappings: {
     levelName: string;
     mapIndex: number;
     splits: string[];
+    endSplitName: string,
     modes: {
         key: number;
         name: string;
@@ -409,32 +410,39 @@ function reloadGoldSplits() {
     const goldSplitSelection = document.getElementById('gold-split-selection')!
     goldSplitSelection.innerHTML = '';
 
-    const mapSplits = mappings.find(map => map.mapIndex === parseInt(mapSelect!.value, 10))!.splits
+    const levelMappings = mappings.find(map => map.mapIndex === parseInt(mapSelect!.value, 10))!
+    const mapSplits = levelMappings.splits
     mapSplits.forEach((name, index) => {
-        const div = document.createElement('div');
-        const arrow = document.createElement('img');
-        arrow.src = '../assets/left-down-arrow-curve-svgrepo-com.svg';
-        arrow.alt = 'curved arrow pointing down';
-        const label = document.createElement('label');
-        label.setAttribute('for', `gold-${index}-${index+1}-input`);
-        label.textContent = name;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = `gold-${index}-${index+1}-input`;
-        input.className = 'input-field';
-        input.placeholder = '00:00.000';
-
-        div.appendChild(arrow);
-        div.appendChild(label);
-        div.appendChild(input);
-        goldSplitSelection.appendChild(div);
+        appendSplit(name, index, goldSplitSelection);
     })
-    // TODO add last split not currently named
+    const finalSplitIndex = mapSplits.length;
+    const finalName = levelMappings.endSplitName
+    appendSplit(finalName, finalSplitIndex, goldSplitSelection);
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
     finishDiv.textContent = 'Finish';
 
     goldSplitSelection.appendChild(finishDiv);
+}
+
+function appendSplit(name: string, index: number, goldSplitSelection: HTMLElement): void {
+    const div = document.createElement('div');
+    const arrow = document.createElement('img');
+    arrow.src = '../assets/left-down-arrow-curve-svgrepo-com.svg';
+    arrow.alt = 'curved arrow pointing down';
+    const label = document.createElement('label');
+    label.setAttribute('for', `gold-${index}-${index+1}-input`);
+    label.textContent = name;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `gold-${index}-${index+1}-input`;
+    input.className = 'input-field';
+    input.placeholder = '00:00.000';
+
+    div.appendChild(arrow);
+    div.appendChild(label);
+    div.appendChild(input);
+    goldSplitSelection.appendChild(div);
 }
 
 function addPbsAsInputs() {

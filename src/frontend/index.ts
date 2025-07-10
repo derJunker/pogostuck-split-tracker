@@ -235,6 +235,7 @@ document.getElementById('split-naming-select')?.addEventListener('change', async
     settings = await window.electronAPI.onOptionShowNewSplitNamesChanged(value);
     mappings = await window.electronAPI.getMappings();
     updateCheckpoints()
+    await reloadGoldSplits();
 });
 
 // Steam Path
@@ -417,21 +418,27 @@ async function reloadGoldSplits() {
     const mapSplits = levelMappings.splits
     const udStart = splitPath.find(splitPathEl => splitPathEl.from === mapSplits.length)
     const isUD: boolean = udStart !== undefined
+
     if (isUD) {
         appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection);
     }
-    splitPath.forEach((splitPathEl, index) => {
-        let name = mapSplits.find((name, index) => splitPathEl.to === index)
+    splitPath.forEach((splitPathEl) => {
+        let name = mapSplits.find((name, index) => {
+            if (!settings.showNewSplitNames)
+                return splitPathEl.from === index
+            return splitPathEl.to === index
+        })
         if (!name) {
-            if (isUD) return
-            else name = levelMappings.endSplitName
+            if (!settings.showNewSplitNames) {
+                name = "Start"
+            } else {
+                if (isUD) return
+                else name = levelMappings.endSplitName
+            }
         }
 
         appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection);
     })
-    // const finalSplitIndex = mapSplits.length;
-    // const finalName = levelMappings.endSplitName
-    // appendSplit(finalName, finalSplitIndex, goldSplitSelection);
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
     finishDiv.textContent = 'Finish';

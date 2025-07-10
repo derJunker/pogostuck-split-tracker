@@ -119,6 +119,20 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings;
         });
+        ipcMain.handle('enable-background-color-changed', (event, enableBackgroundColor: boolean) => {
+            this.currentSettings.enableBackgroundColor = enableBackgroundColor;
+            overlayWindow.webContents.send('change-background', enableBackgroundColor ? this.currentSettings.backgroundColor : null);
+            this.saveSettings();
+            return this.currentSettings;
+        });
+
+        ipcMain.handle('background-color-changed', (event, bgCol: string) => {
+            this.currentSettings.backgroundColor = bgCol;
+            if (this.currentSettings.enableBackgroundColor)
+                overlayWindow.webContents.send('change-background', bgCol);
+            this.saveSettings();
+            return this.currentSettings;
+        });
 
         ipcMain.handle('get-split-path', (event, mode: number) => {
             const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
@@ -173,6 +187,9 @@ export class SettingsManager {
                 onlyDiffsColored: false,
                 showNewSplitNames: true,
                 clickThroughOverlay: false,
+
+                enableBackgroundColor: false,
+                backgroundColor: "#000000",
 
                 // split skip
                 skippedSplits: [],

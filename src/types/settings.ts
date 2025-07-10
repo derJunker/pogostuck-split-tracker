@@ -8,6 +8,9 @@ export interface Settings {
     showNewSplitNames: boolean,
     clickThroughOverlay: boolean,
 
+    enableBackgroundColor: boolean,
+    backgroundColor: string,
+
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
 

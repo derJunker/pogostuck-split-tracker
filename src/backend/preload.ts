@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
     onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-split-entered', goldSplitInfo),
+    onEnableBackgroundColorChanged: (enable: boolean) => ipcRenderer.invoke('enable-background-color-changed', enable),
+    onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
 
     // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
@@ -40,6 +42,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),
-    onGoldenSplitsImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-splits-changed', callback)
+    onGoldenSplitsImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-splits-changed', callback),
+    changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => ipcRenderer.on('change-background', callback)
 
 });

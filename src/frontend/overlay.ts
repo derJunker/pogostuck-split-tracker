@@ -212,6 +212,15 @@ window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, statusMsg:
     });
 })
 
+window.electronAPI.changeBackground((event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => {
+    const body = document.body;
+    if (enableBackgroundColor) {
+        body.style.backgroundColor = enableBackgroundColor;
+    } else {
+        body.style.backgroundColor = '';
+    }
+})
+
 function formatTime(seconds: number, noZeroFill: boolean = false): string {
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);

@@ -39,6 +39,8 @@ declare global { interface Window {
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         openPogostuck: () => Promise<boolean>;
         onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => Promise<boolean>;
+        onEnableBackgroundColorChanged: (enable: boolean) => Promise<Settings>;
+        onBackgroundColorChanged: (color: string) => Promise<Settings>;
 
         // config querying backend
         isWindows11: () => Promise<boolean>;
@@ -50,6 +52,9 @@ declare global { interface Window {
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;
         onGoldenSplitsImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
+
+        // Hintergrundfarbe ändern (Overlay)
+        changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;
     };
 } }
 

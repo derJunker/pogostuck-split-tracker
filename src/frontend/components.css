@@ -91,6 +91,13 @@
 input[type="checkbox"] {
     display: none;
 }
+
+input[type="color"] {
+    border:  var(--border-width) solid var(--color-border);
+    border-radius:  var(--border-radius);
+    background:  var(--color-fg);
+}
+
 .custom-checkbox {
     display: inline-block;
     width: 20px;

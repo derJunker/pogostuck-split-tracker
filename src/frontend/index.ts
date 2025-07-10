@@ -15,6 +15,9 @@ let settings: {
     showNewSplitNames: boolean
     clickThroughOverlay: boolean,
 
+    enableBackgroundColor: boolean,
+    backgroundColor: string,
+
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
     launchPogoOnStartup: boolean;
@@ -197,6 +200,10 @@ function setHtmlContentFromSettings() {
     const clickThroughOverlayCheckbox = document.getElementById('click-through-overlay') as HTMLInputElement;
     const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
 
+    // color picker stuff
+    const enableBackgroundColorCheckbox = document.getElementById('enable-background-color') as HTMLInputElement;
+    const backgroundColorInput = document.getElementById('set-background-color') as HTMLInputElement;
+
     steamPathInput.value = settings.pogostuckSteamUserDataPath;
     pogoPathInput.value = settings.pogostuckConfigPath;
     splitNamingSelect.value = settings.showNewSplitNames ? 'new' : 'old';
@@ -212,6 +219,12 @@ function setHtmlContentFromSettings() {
 
     clickThroughOverlayCheckbox.checked = settings.clickThroughOverlay;
     clickThroughOverlayCheckbox.dispatchEvent(new Event('change'));
+
+    enableBackgroundColorCheckbox.checked = settings.enableBackgroundColor;
+    enableBackgroundColorCheckbox.dispatchEvent(new Event('change'));
+
+    backgroundColorInput.value = settings.backgroundColor;
+    backgroundColorInput.dispatchEvent(new Event('input'));
 }
 
 function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
@@ -251,6 +264,15 @@ document.getElementById('split-naming-select')?.addEventListener('change', async
     updateCheckpoints()
     await reloadGoldSplits();
 });
+
+document.getElementById('enable-background-color')?.addEventListener('change', async (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    settings = await window.electronAPI.onEnableBackgroundColorChanged(checked);
+})
+document.getElementById('set-background-color')?.addEventListener('input', async (e) => {
+    const value = (e.target as HTMLInputElement).value;
+    settings = await window.electronAPI.onBackgroundColorChanged(value);
+})
 
 // Steam Path
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;

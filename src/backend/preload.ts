@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => ipcRenderer.invoke('only-diff-colored-changed', onlyDiffColored),
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
+    onGoldSplitChanged: (goldSplitInfo:    { map: number, mode: number, from: number, to: number, time: number })=> ipcRenderer.invoke('gold-split-entered', goldSplitInfo),
 
     // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),

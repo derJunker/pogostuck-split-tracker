@@ -463,6 +463,25 @@ function appendSplit(name: string, from: number, to: number
     input.className = 'input-field';
     input.placeholder = '00:00.000';
 
+    input.addEventListener('input', (event) => {
+        const map = parseInt(mapSelect.value)
+        const mode = parseInt(modeSelect.value)
+        const time = parsePbTime((event.target as HTMLInputElement).value)
+        if (time <= 0) {
+            input.classList.add('invalid');
+            return;
+        } else {
+            input.classList.remove('invalid');
+        }
+        window.electronAPI.onGoldSplitChanged({
+            map: map,
+            mode: mode,
+            from: from,
+            to: to,
+            time: time
+        })
+    })
+
     div.appendChild(arrow);
     div.appendChild(label);
     div.appendChild(input);

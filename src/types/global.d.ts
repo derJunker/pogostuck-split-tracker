@@ -37,6 +37,7 @@ declare global { interface Window {
         onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => Promise<Settings>;
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         openPogostuck: () => Promise<boolean>;
+        onGoldSplitChanged: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => Promise<void>;
 
         // config querying backend
         isWindows11: () => Promise<boolean>;

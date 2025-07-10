@@ -4,7 +4,6 @@ import {BrowserWindow, ipcMain} from "electron";
 import {writeGoldenSplits} from "../read-golden-splits";
 import { SettingsManager } from "../settings-manager";
 import {redrawSplitDisplay} from "../split-overlay-window";
-import { CurrentStateTracker } from "./current-state-tracker";
 import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
 import {PogoNameMappings} from "./pogo-name-mappings";
@@ -66,7 +65,6 @@ export class GoldSplitsTracker {
     public updateGoldSplit(modeIndex: number, from: number, to: number, newTime: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
         const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to);
-        const isUD = isUpsideDownMode(modeIndex);
         this.changed = true;
         if (index !== -1) {
             modeSplits.goldenSplits[index].time = newTime;
@@ -171,6 +169,15 @@ export class GoldSplitsTracker {
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
                 redrawSplitDisplay(mapNum, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow)
             }
+        })
+
+        ipcMain.handle('gold-split-entered', (event, goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => {
+            const {map, mode, from, to, time} = goldSplitInfo;
+            log.info(`New gold split for map ${map}, mode ${mode}: ${from} -> ${to} = ${time}`);
+            this.updateGoldSplit(mode, from, to, time);
+            this.changed = true;
+            writeGoldenSplits(this);
+            redrawSplitDisplay(map, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow);
         })
     }
 

@@ -152,7 +152,6 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
         splitName.innerText = splitInfoForEl.name
 
         const potentialClassesFromDiff = splitDiff.className.match(/(early|late|golden)/g);
-        __electronLog.debug(`splitTime classes before: ${splitTime.className}, potential classes: ${potentialClassesFromDiff}`);
         splitTime.classList.remove("early", "late", "golden");
         // if you want to not only color the diffs, then make sure the splitTime has the color class
         if (potentialClassesFromDiff && potentialClassesFromDiff.length > 0 && !pbRunInfoAndSoB.settings.onlyDiffsColored) {

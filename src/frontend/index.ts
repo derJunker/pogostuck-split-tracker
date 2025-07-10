@@ -477,7 +477,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
 }[]): void {
     const div = document.createElement('div');
     const arrow = document.createElement('img');
-    arrow.src = '../assets/left-down-arrow-curve-svgrepo-com.svg';
+    arrow.src = '../assets/curved-arrow.svg';
     arrow.alt = 'curved arrow pointing down';
     const label = document.createElement('label');
     label.setAttribute('for', `gold-${from}-${to}-input`);

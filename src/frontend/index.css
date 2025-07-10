@@ -325,9 +325,9 @@ label {
 #gold-split-selection > div > img {
     position: absolute;
     left: -30px;
-    bottom: 1px;
+    bottom: -2px;
     max-height: 2rem;
-    transform: rotate(45deg) scaleX(-1);
+    transform: rotate(260deg) scaleX(-1) scale(1.25);
 }
 
 #pbs-content > h3 {

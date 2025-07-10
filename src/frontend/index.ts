@@ -432,8 +432,12 @@ async function reloadGoldSplits() {
     __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
     const levelMappings = mappings.find(mapInfo => mapInfo.mapIndex === map)!
     const mapSplits = levelMappings.splits
-    const udStart = splitPath.find(splitPathEl => splitPathEl.from === mapSplits.length)
-    const isUD: boolean = udStart !== undefined
+    const udStartIndex = splitPath.findIndex(splitPathEl => splitPathEl.from === mapSplits.length);
+    const udStart = splitPath[udStartIndex]
+    const isUD: boolean = udStartIndex !== -1
+    if (isUD) {
+        splitPath.splice(udStartIndex, 1);
+    }
 
     const useOldNames = mapSelect.value === "0" && !settings.showNewSplitNames;
 
@@ -444,7 +448,7 @@ async function reloadGoldSplits() {
     }
     splitPath.forEach((splitPathEl) => {
         let name = mapSplits.find((name, index) => {
-            if (useOldNames)
+            if (useOldNames || isUD)
                 return splitPathEl.from === index
             return splitPathEl.to === index
         })
@@ -483,7 +487,9 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     input.id = `gold-${from}-${to}-input`;
     input.className = 'input-field';
     input.placeholder = '00:00.000';
+    __electronLog.debug(`appending split: ${name} from ${from} to ${to}`);
     const goldSplit = goldSplitTimes.find(gs => gs.from === from && gs.to === to);
+    __electronLog.debug(`goldSplit: ${JSON.stringify(goldSplit)}`);
     if (goldSplit && goldSplit.time > 0 && goldSplit.time < Infinity) {
         input.value = formatPbTime(goldSplit.time, true);
     } else {

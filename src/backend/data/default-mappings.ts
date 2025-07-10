@@ -48,7 +48,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Map 2",
         mapIndex: 8,
         splits: [ "Ants", "Coconuts", "Slopes", "Wind", "Bees", "Vines", "Pillars", "Duck", "Plums", "Snake" ],
-        endSplitName: "Final",
+        endSplitName: "Finale",
         modes: [
             {
                 key: 12,
@@ -127,7 +127,7 @@ export const defaultMappings: PogoLevel[] = [
         levelName: "Drakula's Castle",
         mapIndex: 100,
         splits: ["Mushrooms", "Cellar", "Moving Blocks", "Ice", "Pillars"],
-        endSplitName: "Egg",
+        endSplitName: "Tower",
         modes: [
             {
                 key: 27,

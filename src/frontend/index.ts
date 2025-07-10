@@ -419,17 +419,19 @@ async function reloadGoldSplits() {
     const udStart = splitPath.find(splitPathEl => splitPathEl.from === mapSplits.length)
     const isUD: boolean = udStart !== undefined
 
+    const useOldNames = mapSelect.value === "0" && !settings.showNewSplitNames;
+
     if (isUD) {
         appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection);
     }
     splitPath.forEach((splitPathEl) => {
         let name = mapSplits.find((name, index) => {
-            if (!settings.showNewSplitNames)
+            if (useOldNames)
                 return splitPathEl.from === index
             return splitPathEl.to === index
         })
         if (!name) {
-            if (!settings.showNewSplitNames) {
+            if (useOldNames) {
                 name = "Start"
             } else {
                 if (isUD) return

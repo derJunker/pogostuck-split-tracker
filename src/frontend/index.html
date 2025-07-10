@@ -11,7 +11,7 @@
             <button id="setup-guide-btn" class="active menu-btn">Setup</button>
             <button id="preferences-btn" class="menu-btn">Preferences</button>
             <button id="paths-btn" class="menu-btn">Paths</button>
-            <button id="split-skips-btn" class="menu-btn">Split-Skips</button>
+            <button id="splits-btn" class="menu-btn">Splits</button>
             <button id="pbs-btn" class="menu-btn">PBs</button>
         </div>
         <div id="menu-content">
@@ -58,7 +58,7 @@
                         <b>Enter Split Skips:</b> If you do any skips that skip a whole split - notably palm- and
                                                   anvil-skip - you need to set this manually.
                                                   Otherwise the sum-of-best-splits calculation will be wrong.
-                        <br> You can do this under the <a data-tab-link="split-skips">Split-Skips</a> tab.
+                        <br> You can do this under the <a data-tab-link="splits">Splits</a> tab.
                     </li>
                     <li>
                         <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
@@ -119,7 +119,7 @@
                 </div>
 
             </div>
-            <div id="split-skips-content" class="menu-content">
+            <div id="splits-content" class="menu-content">
                 <div id="map-n-mode-selection">
                     <div class="dropdown-container">
                         <label for="map-select">Map: </label>
@@ -140,7 +140,52 @@
                     </span>
                     </div>
                 </div>
-                <div id="map-n-mode-split-selection">
+                <div id="skip-selection">
+                    <div id="map-n-mode-split-selection">
+                    </div>
+                    <div id="gold-split-selection">
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-0-1-input">Bones</label>
+                            <input type="text" id="gold-0-1-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-1-2-input">Wind</label>
+                            <input type="text" id="gold-1-2-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-2-3-input">Grapes</label>
+                            <input type="text" id="gold-2-3-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-3-5-input">Trees</label>
+                            <input type="text" id="gold-3-5-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-5-7-input">Palms</label>
+                            <input type="text" id="gold-5-7-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-7-8-input">Flowers</label>
+                            <input type="text" id="gold-7-8-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-8-9-input">Ice</label>
+                            <input type="text" id="gold-8-9-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div>
+                            <img src="../../assets/left-down-arrow-curve-svgrepo-com.svg" alt="curved arrow pointing down"/>
+                            <label for="gold-9-10-input">Egg</label>
+                            <input type="text" id="gold-9-10-input" class="input-field" placeholder="00:00.000">
+                        </div>
+                        <div id="g-split-10">Finish</div>
+                    </div>
                 </div>
             </div>
             <div id="pbs-content" class="menu-content">

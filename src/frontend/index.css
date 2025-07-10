@@ -67,6 +67,7 @@ button > img {
     padding-top: 5px;
     padding-inline: 5px;
     position: sticky;
+    z-index: 2;
     top: 0;
     left: 0;
     right: 0;
@@ -261,7 +262,9 @@ input[type="text"] {
 #map-n-mode-split-selection {
     display: grid;
     grid-template-columns: max-content max-content;
-    gap: 0.5em 1em;
+    /*just pixel pushing to align T_T mb i dont want to do this correctly*/
+    gap: .925rem 1rem;
+    margin-top: .35rem;
 }
 
 #map-n-mode-split-selection > div {
@@ -292,6 +295,39 @@ label {
     display: grid;
     grid-template-columns: max-content 1fr max-content;
     gap: .3rem;
+}
+
+#skip-selection {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4rem;
+    margin-top: .5rem;
+}
+
+#gold-split-selection > div {
+    position: relative;
+}
+
+#gold-split-selection label {
+    display: block;
+}
+
+
+#gold-split-selection input {
+    text-align: end;
+    max-width: 8rem;
+    max-height: fit-content;
+}
+
+#gold-split-selection > div > img {
+    position: absolute;
+    left: -30px;
+    bottom: 1px;
+    max-height: 2rem;
+    transform: rotate(45deg) scaleX(-1);
 }
 
 #pbs-content > h3 {

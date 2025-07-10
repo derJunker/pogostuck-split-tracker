@@ -112,6 +112,11 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings;
         });
+
+        ipcMain.handle('get-split-path', (event, mode: number) => {
+            const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
+            return this.getSplitIndexPath(mode, splitAmount);
+        });
     }
 
     public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {

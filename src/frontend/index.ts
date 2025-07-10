@@ -36,8 +36,8 @@ let pbs : {
     time: number;
 }[]
 
-let mapSelect: HTMLSelectElement | null;
-let modeSelect: HTMLSelectElement | null;
+let mapSelect: HTMLSelectElement;
+let modeSelect: HTMLSelectElement;
 
 menuButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -90,15 +90,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     loadLevelsFromMapping()
     updateModesForLevel()
     updateCheckpoints()
-    reloadGoldSplits()
-    mapSelect.addEventListener('change', () => {
+    await reloadGoldSplits()
+    mapSelect.addEventListener('change', async () => {
         updateModesForLevel()
         updateCheckpoints()
-        reloadGoldSplits()
+        await reloadGoldSplits()
     });
-    modeSelect.addEventListener('change', () => {
+    modeSelect.addEventListener('change', async () => {
         updateCheckpoints()
-        reloadGoldSplits()
+        await reloadGoldSplits()
     });
     addPbsAsInputs()
     setPbsToInputs()
@@ -314,6 +314,7 @@ const updateSkippedSplits = async () => {
         skippedSplitIndices
     };
     settings = await window.electronAPI.onSkipSplitsChanged(skippedSplits);
+    await reloadGoldSplits()
 };
 
 function updateCheckpoints() {
@@ -406,18 +407,31 @@ function updateModesForLevel() {
     updateCheckpoints();
 }
 
-function reloadGoldSplits() {
+async function reloadGoldSplits() {
     const goldSplitSelection = document.getElementById('gold-split-selection')!
     goldSplitSelection.innerHTML = '';
 
-    const levelMappings = mappings.find(map => map.mapIndex === parseInt(mapSelect!.value, 10))!
+    const splitPath = await window.electronAPI.getSplitPath(parseInt(modeSelect.value))
+    __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
+    const levelMappings = mappings.find(map => map.mapIndex === parseInt(mapSelect.value, 10))!
     const mapSplits = levelMappings.splits
-    mapSplits.forEach((name, index) => {
-        appendSplit(name, index, goldSplitSelection);
+    const udStart = splitPath.find(splitPathEl => splitPathEl.from === mapSplits.length)
+    const isUD: boolean = udStart !== undefined
+    if (isUD) {
+        appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection);
+    }
+    splitPath.forEach((splitPathEl, index) => {
+        let name = mapSplits.find((name, index) => splitPathEl.to === index)
+        if (!name) {
+            if (isUD) return
+            else name = levelMappings.endSplitName
+        }
+
+        appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection);
     })
-    const finalSplitIndex = mapSplits.length;
-    const finalName = levelMappings.endSplitName
-    appendSplit(finalName, finalSplitIndex, goldSplitSelection);
+    // const finalSplitIndex = mapSplits.length;
+    // const finalName = levelMappings.endSplitName
+    // appendSplit(finalName, finalSplitIndex, goldSplitSelection);
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
     finishDiv.textContent = 'Finish';
@@ -425,17 +439,18 @@ function reloadGoldSplits() {
     goldSplitSelection.appendChild(finishDiv);
 }
 
-function appendSplit(name: string, index: number, goldSplitSelection: HTMLElement): void {
+function appendSplit(name: string, from: number, to: number
+    , goldSplitSelection: HTMLElement): void {
     const div = document.createElement('div');
     const arrow = document.createElement('img');
     arrow.src = '../assets/left-down-arrow-curve-svgrepo-com.svg';
     arrow.alt = 'curved arrow pointing down';
     const label = document.createElement('label');
-    label.setAttribute('for', `gold-${index}-${index+1}-input`);
+    label.setAttribute('for', `gold-${from}-${to}-input`);
     label.textContent = name;
     const input = document.createElement('input');
     input.type = 'text';
-    input.id = `gold-${index}-${index+1}-input`;
+    input.id = `gold-${from}-${to}-input`;
     input.className = 'input-field';
     input.placeholder = '00:00.000';
 

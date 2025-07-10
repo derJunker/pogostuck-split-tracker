@@ -28,7 +28,7 @@ let logWatcher: FileWatcher = new FileWatcher();
 const indexToNamesMappings = initMappings();
 const settingsManager = new SettingsManager(logWatcher)
 const userDataReader = UserDataReader.getInstance(settingsManager, indexToNamesMappings);
-const pbSplitTracker = new PbSplitTracker(settingsManager);
+const pbSplitTracker = new PbSplitTracker();
 const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager, pbSplitTracker)
 writeGoldenSplits(goldenSplitsTracker)
 

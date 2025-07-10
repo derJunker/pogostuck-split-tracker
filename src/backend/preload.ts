@@ -9,9 +9,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
     getMappings: (): Promise<PogoLevel[]> => ipcRenderer.invoke('get-mappings'),
     getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
-    mainMenuOpened: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('main-menu-opened', callback),
 
     // overlay subscribing to backend events
+    mainMenuOpened: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('main-menu-opened', callback),
     resetOverlay: (callback: (event: IpcRendererEvent, mapAndMode: PbRunInfoAndSoB) => void) => ipcRenderer.on('reset-overlay', callback),
     redrawOverlay: (callback: (event: IpcRendererEvent, pbRunInfoAndSoB: PbRunInfoAndSoB) => void) => ipcRenderer.on('redraw-split-display', callback),
     onSplitPassed: (callback: (event: Electron.IpcRendererEvent, splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, onlyDiffColored: boolean}) => void) => ipcRenderer.on('split-passed', callback),
@@ -27,12 +27,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),
     onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => ipcRenderer.invoke('only-diff-colored-changed', onlyDiffColored),
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
+    openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
 
     // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
     hasPogostuckFullscreen: (): Promise<boolean> => ipcRenderer.invoke('has-fullscreen'),
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
-    openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
+    getSplitPath: (mode: number) : Promise<{from: number, to: number}[]> => ipcRenderer.invoke('get-split-path', mode),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),

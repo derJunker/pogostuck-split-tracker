@@ -1,19 +1,8 @@
-import fs from 'fs'
-import {PogoNameMappings} from "./pogo-name-mappings";
-import {SettingsManager} from "../settings-manager";
-import path from "path";
-import {userDataPathEnd} from "./paths";
-import log from "electron-log/main";
 import {UserDataReader} from "./user-data-reader";
 
 export class PbSplitTracker {
     private modeTimes: ModeSplits[] = [];
-    private settingsManager: SettingsManager;
 
-
-    constructor(settingsManager: SettingsManager) {
-        this.settingsManager = settingsManager;
-    }
 
     public getSplitAmountForMode(mode: number): number {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);
@@ -68,6 +57,5 @@ export class PbSplitTracker {
     updatePbSplitsFromFile() {
         const userDataReader = UserDataReader.getInstance()
         this.modeTimes = userDataReader.readPbSplitsFromFile();
-
     }
 }

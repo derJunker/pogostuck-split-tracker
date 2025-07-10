@@ -13,6 +13,7 @@ let settings: {
     hideSkippedSplits: boolean,
     onlyDiffsColored: boolean,
     showNewSplitNames: boolean
+    clickThroughOverlay: boolean,
 
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
@@ -193,6 +194,7 @@ function setHtmlContentFromSettings() {
     const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
     const onlyColorDiffCheckbox = document.getElementById('only-colored-diff') as HTMLInputElement;
     const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-startup') as HTMLInputElement;
+    const clickThroughOverlayCheckbox = document.getElementById('click-through-overlay') as HTMLInputElement;
     const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
 
     steamPathInput.value = settings.pogostuckSteamUserDataPath;
@@ -207,6 +209,9 @@ function setHtmlContentFromSettings() {
 
     launchPogoOnStartupCheckbox.checked = settings.launchPogoOnStartup;
     launchPogoOnStartupCheckbox.dispatchEvent(new Event('change'));
+
+    clickThroughOverlayCheckbox.checked = settings.clickThroughOverlay;
+    clickThroughOverlayCheckbox.dispatchEvent(new Event('change'));
 }
 
 function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
@@ -234,6 +239,11 @@ document.getElementById('launch-pogo-on-startup')?.addEventListener('change', as
 });
 
 // Split Names
+document.getElementById('click-through-overlay')?.addEventListener('change', async (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    settings = await window.electronAPI.onOptionClickThroughOverlayChanged(checked);
+})
+
 document.getElementById('split-naming-select')?.addEventListener('change', async (e) => {
     const value = (e.target as HTMLSelectElement).value === 'new';
     settings = await window.electronAPI.onOptionShowNewSplitNamesChanged(value);

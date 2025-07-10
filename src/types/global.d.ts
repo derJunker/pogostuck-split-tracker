@@ -31,6 +31,7 @@ declare global { interface Window {
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;
         onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => Promise<Settings>;
         onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;
+        onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => Promise<Settings>;
         onSteamUserDataPathChanged: (steamUserDataPath: string) => Promise<Settings>;
         onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<Settings>;
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;

@@ -67,6 +67,12 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
+        ipcMain.handle("option-click-through-overlay-changed", (event, clickThroughOverlay: boolean) => {
+            this.currentSettings.clickThroughOverlay = clickThroughOverlay;
+            overlayWindow.setIgnoreMouseEvents(clickThroughOverlay);
+            this.saveSettings()
+            return this.currentSettings
+        });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
             if (!existsSync(path.join(steamUserDataPath, ...userDataPathEnd))) {
                 return this.currentSettings;
@@ -166,6 +172,7 @@ export class SettingsManager {
                 hideSkippedSplits: false,
                 onlyDiffsColored: false,
                 showNewSplitNames: true,
+                clickThroughOverlay: false,
 
                 // split skip
                 skippedSplits: [],
@@ -237,5 +244,9 @@ export class SettingsManager {
 
     public onlyDiffColored() {
         return this.currentSettings.onlyDiffsColored;
+    }
+
+    public clickThroughOverlay() {
+        return this.currentSettings.clickThroughOverlay;
     }
 }

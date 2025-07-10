@@ -5,7 +5,8 @@ export interface Settings {
     // Design
     hideSkippedSplits: boolean,
     onlyDiffsColored: boolean,
-    showNewSplitNames: boolean
+    showNewSplitNames: boolean,
+    clickThroughOverlay: boolean,
 
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]

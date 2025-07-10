@@ -11,7 +11,7 @@ import log from "electron-log/main";
 
 let pogostuckIsActiveWindow = false;
 
-export function openOverlayWindow(mainWindow: BrowserWindow) {
+export function openOverlayWindow(mainWindow: BrowserWindow, settingsManager: SettingsManager) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
     const overlayWidth = 530;
     const overlayHeight = 290;
@@ -32,7 +32,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
             preload: path.join(__dirname, "preload.js"),
         }
     });
-    overlayWindow.setIgnoreMouseEvents(true);
+    overlayWindow.setIgnoreMouseEvents(settingsManager.clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
     addPogostuckOpenedListener(overlayWindow, mainWindow)
 

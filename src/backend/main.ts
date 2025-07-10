@@ -54,7 +54,7 @@ app.on("ready", () => {
     // configWindow.setMenu(null);
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     configWindow.loadFile(indexHTML)
-    overlayWindow = openOverlayWindow(configWindow);
+    overlayWindow = openOverlayWindow(configWindow, settingsManager);
     settingsManager.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings, configWindow)
     initLaunchPogoListener(settingsManager);
 

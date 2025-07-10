@@ -1,4 +1,3 @@
-// tab changing :)
 const menuButtons: NodeListOf<HTMLElement> = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');
 
@@ -113,7 +112,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-window.electronAPI.mapAndModeChanged((event: Electron.IpcRendererEvent,
+window.electronAPI.mapAndModeChanged(async (event: Electron.IpcRendererEvent,
                                  mapAndMode: {
                                     map: number,
                                     mode: number
@@ -124,7 +123,12 @@ window.electronAPI.mapAndModeChanged((event: Electron.IpcRendererEvent,
         updateModesForLevel();
         modeSelect.value = mapAndMode.mode.toString();
         updateCheckpoints();
+        await reloadGoldSplits();
     }
+});
+
+window.electronAPI.onGoldenSplitsImproved(async (event: IpcRendererEvent) => {
+    await reloadGoldSplits();
 });
 
 function addTabLinkListeners() {
@@ -409,20 +413,24 @@ function updateModesForLevel() {
 }
 
 async function reloadGoldSplits() {
+    const mode = parseInt(modeSelect.value, 10);
+    const map = parseInt(mapSelect.value, 10);
     const goldSplitSelection = document.getElementById('gold-split-selection')!
     goldSplitSelection.innerHTML = '';
 
-    const splitPath = await window.electronAPI.getSplitPath(parseInt(modeSelect.value))
+    const splitPath = await window.electronAPI.getSplitPath(mode)
     __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
-    const levelMappings = mappings.find(map => map.mapIndex === parseInt(mapSelect.value, 10))!
+    const levelMappings = mappings.find(mapInfo => mapInfo.mapIndex === map)!
     const mapSplits = levelMappings.splits
     const udStart = splitPath.find(splitPathEl => splitPathEl.from === mapSplits.length)
     const isUD: boolean = udStart !== undefined
 
     const useOldNames = mapSelect.value === "0" && !settings.showNewSplitNames;
 
+    const goldSplitTimes = await window.electronAPI.getGoldSplits(mode)
+
     if (isUD) {
-        appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection);
+        appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes);
     }
     splitPath.forEach((splitPathEl) => {
         let name = mapSplits.find((name, index) => {
@@ -439,7 +447,7 @@ async function reloadGoldSplits() {
             }
         }
 
-        appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection);
+        appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection, goldSplitTimes);
     })
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
@@ -448,8 +456,11 @@ async function reloadGoldSplits() {
     goldSplitSelection.appendChild(finishDiv);
 }
 
-function appendSplit(name: string, from: number, to: number
-    , goldSplitSelection: HTMLElement): void {
+function appendSplit(name: string, from: number, to: number, goldSplitSelection: HTMLElement, goldSplitTimes: {
+    from: number;
+    to: number;
+    time: number;
+}[]): void {
     const div = document.createElement('div');
     const arrow = document.createElement('img');
     arrow.src = '../assets/left-down-arrow-curve-svgrepo-com.svg';
@@ -462,24 +473,36 @@ function appendSplit(name: string, from: number, to: number
     input.id = `gold-${from}-${to}-input`;
     input.className = 'input-field';
     input.placeholder = '00:00.000';
+    const goldSplit = goldSplitTimes.find(gs => gs.from === from && gs.to === to);
+    if (goldSplit && goldSplit.time > 0 && goldSplit.time < Infinity) {
+        input.value = formatPbTime(goldSplit.time, true);
+    } else {
+        input.value = '';
+    }
 
-    input.addEventListener('input', (event) => {
+    input.addEventListener('input', async (event) => {
         const map = parseInt(mapSelect.value)
         const mode = parseInt(modeSelect.value)
         const time = parsePbTime((event.target as HTMLInputElement).value)
-        if (time <= 0) {
+        let valid = time > 0;
+        if (valid) {
+            valid = await window.electronAPI.onGoldenSplitsEntered({
+                map: map,
+                mode: mode,
+                from: from,
+                to: to,
+                time: time
+            })
+        }
+
+        if (!valid) {
             input.classList.add('invalid');
             return;
         } else {
             input.classList.remove('invalid');
         }
-        window.electronAPI.onGoldSplitChanged({
-            map: map,
-            mode: mode,
-            from: from,
-            to: to,
-            time: time
-        })
+
+
     })
 
     div.appendChild(arrow);
@@ -541,6 +564,8 @@ async function onPbEntered(input: HTMLInputElement, modeKey: number): Promise<bo
     }
     __electronLog.info(`PB entered for mode ${modeKey}: ${time}`);
     await window.electronAPI.onPbEntered({mode: modeKey, time: time});
+    if (modeKey === parseInt(modeSelect.value, 10))
+        await reloadGoldSplits();
     return true;
 }
 
@@ -554,13 +579,24 @@ function setPbsToInputs() {
     });
 }
 
-function formatPbTime(seconds: number): string {
+//duplicate code hell yeah
+function formatPbTime(seconds: number, noZeroFill: boolean = false): string {
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);
     const secs = Math.floor(absSeconds % 60);
     const ms = Math.round((absSeconds - Math.floor(absSeconds)) * 1000);
 
     const msStr = ms.toString().padStart(3, '0').slice(0, 3);
+
+    if (noZeroFill) {
+        if (mins > 0) {
+            return `${mins}:${secs.toString().padStart(2, '0')}.${msStr}`;
+        } else if (secs > 0) {
+            return `${secs}.${msStr}`;
+        } else {
+            return `0.${msStr}`;
+        }
+    }
 
     const minsStr = mins.toString().padStart(2, '0');
     const secsStr = secs.toString().padStart(2, '0');

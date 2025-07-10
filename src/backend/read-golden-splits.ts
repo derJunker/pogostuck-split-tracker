@@ -1,9 +1,9 @@
 import path from "path";
-import {app} from "electron";
+import {app, BrowserWindow} from "electron";
 import fs, {existsSync} from "fs";
 import {GoldenSplitsForMode} from "../types/golden-splits";
 import {PogoNameMappings} from "./data/pogo-name-mappings";
-import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
+import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 
 const goldenSplitFilePath = path.join(app.getPath("userData"), "golden-splits.json");
 
@@ -43,8 +43,9 @@ export function writeGoldenSplits(goldenSplitsTracker: GoldSplitsTracker): void 
     fs.writeFileSync(goldenSplitFilePath, JSON.stringify(goldenSplits, null, 2));
 }
 
-export function writeGoldSplitsIfChanged(goldenSplitsTracker: GoldSplitsTracker): void {
+export function writeGoldSplitsIfChanged(goldenSplitsTracker: GoldSplitsTracker, configWindow: BrowserWindow): void {
     if (goldenSplitsTracker.hasChanged()) {
         writeGoldenSplits(goldenSplitsTracker);
+        configWindow.webContents.send('golden-splits-changed');
     }
 }

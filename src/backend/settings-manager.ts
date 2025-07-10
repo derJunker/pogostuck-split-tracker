@@ -4,7 +4,7 @@ import fs, {existsSync} from "fs";
 import path from "path";
 import {FileWatcher} from "./logging/logs-watcher";
 import { CurrentStateTracker } from "./data/current-state-tracker";
-import { GoldSplitsTracker } from "./data/GoldSplitsTracker";
+import { GoldSplitsTracker } from "./data/gold-splits-tracker";
 import { PbSplitTracker } from "./data/pb-split-tracker";
 import { PogoNameMappings } from "./data/pogo-name-mappings";
 import {writeGoldSplitsIfChanged} from "./read-golden-splits";
@@ -27,8 +27,9 @@ export class SettingsManager {
         this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
     }
 
-    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker, stateTracker: CurrentStateTracker,
-                         pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings) {
+    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker,
+                         pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings, configWindow: BrowserWindow) {
+        const stateTracker = CurrentStateTracker.getInstance();
         overlayWindow.on("ready-to-show", () => {
             this.updateFrontendStatus(overlayWindow)
         })
@@ -74,7 +75,7 @@ export class SettingsManager {
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
             pbSplitTracker.updatePbSplitsFromFile();
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
-            writeGoldSplitsIfChanged(goldenSplitsTracker)
+            writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
             resetOverlay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);

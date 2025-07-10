@@ -7,6 +7,8 @@ import {redrawSplitDisplay} from "../split-overlay-window";
 import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
 import {PogoNameMappings} from "./pogo-name-mappings";
+import {UserDataReader} from "./user-data-reader";
+import {CurrentStateTracker} from "./current-state-tracker";
 
 export class GoldSplitsTracker {
     private changed: boolean = false;
@@ -167,18 +169,74 @@ export class GoldSplitsTracker {
                 writeGoldenSplits(this)
                 const mapNum = indexToNamesMappings.getAllLevels()
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
-                redrawSplitDisplay(mapNum, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow)
+                const currentMode = CurrentStateTracker.getInstance().getCurrentMode();
+                if (currentMode === mode)
+                    redrawSplitDisplay(mapNum, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow)
             }
         })
 
         ipcMain.handle('gold-split-entered', (event, goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => {
             const {map, mode, from, to, time} = goldSplitInfo;
+            const isFasterThanCurrentPbSplits = this.isFasterThanCurrentPbSplits(mode, from, to, time);
+            if (!isFasterThanCurrentPbSplits) {
+                log.warn(`Tried to enter gold split that is not faster than current PB split`);
+                return false
+            }
+
             log.info(`New gold split for map ${map}, mode ${mode}: ${from} -> ${to} = ${time}`);
             this.updateGoldSplit(mode, from, to, time);
             this.changed = true;
             writeGoldenSplits(this);
             redrawSplitDisplay(map, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow);
+            return true;
         })
+
+        ipcMain.handle('get-gold-splits', (event, mode: number) => {
+            const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === mode);
+            if (modeSplits) {
+                return modeSplits.goldenSplits;
+            }
+            return [];
+        });
+    }
+
+    private isFasterThanCurrentPbSplits(mode: number, from: number, to: number, time: number): boolean {
+        const modeSplitsFromFile = UserDataReader.getInstance().readPbSplitsFromFile()
+        const modeSplits = modeSplitsFromFile.find(ms => ms.mode === mode);
+        if (!modeSplits) {
+            log.error(`No mode splits found for mode ${mode} in pb split entry`);
+            return false;
+        }
+        let fileFrom: number | undefined;
+        const isUD = isUpsideDownMode(mode);
+        if (!isUD && from === -1) {
+            fileFrom = 0;
+        } else if (isUD && from === modeSplits.times.length) {
+            fileFrom = 0;
+        } else {
+            fileFrom = modeSplits.times.find(split => split.split === from)?.time;
+        }
+        let fileTo: number | undefined;
+        if (!isUD && to === -1) {
+            fileTo = this.getPbForMode(mode);
+            fileTo = 0;
+        } else if (isUD && to === modeSplits.times.length) {
+            fileTo = this.getPbForMode(mode);
+        } else {
+            fileTo = modeSplits.times.find(split => split.split === to)?.time;
+        }
+        const fileDiff = fileTo !== undefined && fileFrom !== undefined ? fileTo - fileFrom : -1;
+
+        if (fileDiff === -1) {
+            log.error(`No split times found for from ${from} or to ${to} in mode ${mode} in pb split entry; isUD: ${isUD}, fileFrom: ${fileFrom}, fileTo: ${fileTo}; fileDiff: ${fileDiff}; time: ${time}`);
+            return false;
+        }
+
+        if (fileDiff > 0 && time > fileDiff) {
+            log.warn(`Gold split time ${time} is greater than or equal to the file diff ${fileDiff} for from ${from} and to ${to} in mode ${mode}`);
+            return false;
+        }
+        return true;
     }
 
     public changeSaved() {

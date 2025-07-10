@@ -6,7 +6,7 @@ import {openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "./data/current-state-tracker";
 import {initMappings} from "./create-index-mappings";
 import {PbSplitTracker} from "./data/pb-split-tracker";
-import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
+import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./read-golden-splits";
 import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
@@ -21,7 +21,7 @@ if (!ActiveWindow.requestPermissions()) {
     process.exit(0);
 }
 
-let mainWindow: BrowserWindow | null = null;
+let configWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 
 let logWatcher: FileWatcher = new FileWatcher();
@@ -31,17 +31,16 @@ const userDataReader = UserDataReader.getInstance(settingsManager, indexToNamesM
 const pbSplitTracker = new PbSplitTracker();
 const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager, pbSplitTracker)
 writeGoldenSplits(goldenSplitsTracker)
+CurrentStateTracker.getInstance(goldenSplitsTracker, pbSplitTracker, settingsManager)
 
 if (settingsManager.launchPogoOnStartup())
     launchPogostuckIfNotOpenYet(settingsManager).then(() => log.debug("PogoStuck launched on startup."));
 
-const stateTracker: CurrentStateTracker = new CurrentStateTracker(goldenSplitsTracker, pbSplitTracker, settingsManager);
-
 app.on("ready", () => {
     log.initialize();
-    mainWindow = new BrowserWindow({
+    configWindow = new BrowserWindow({
         width: 680,
-        height: 480,
+        height: 800,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,
@@ -52,17 +51,17 @@ app.on("ready", () => {
         },
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
-    // mainWindow.setMenu(null);
+    // configWindow.setMenu(null);
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
-    mainWindow.loadFile(indexHTML)
-    overlayWindow = openOverlayWindow(mainWindow);
-    settingsManager.initListeners(overlayWindow, goldenSplitsTracker, stateTracker, pbSplitTracker, indexToNamesMappings)
+    configWindow.loadFile(indexHTML)
+    overlayWindow = openOverlayWindow(configWindow);
+    settingsManager.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings, configWindow)
     initLaunchPogoListener(settingsManager);
 
-    registerLogEventHandlers(logWatcher, stateTracker, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, mainWindow, settingsManager);
+    registerLogEventHandlers(logWatcher, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, configWindow, settingsManager);
     pbSplitTracker.updatePbSplitsFromFile();
     goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
-    writeGoldSplitsIfChanged(goldenSplitsTracker)
+    writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
 
     initWindows11Listeners();

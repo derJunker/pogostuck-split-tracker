@@ -3,7 +3,7 @@ import {BrowserWindow, screen} from "electron";
 import ActiveWindow, {WindowInfo} from "@paymoapp/active-window";
 import {PogoNameMappings} from "./data/pogo-name-mappings";
 import {PbSplitTracker} from "./data/pb-split-tracker";
-import {GoldSplitsTracker} from "./data/GoldSplitsTracker";
+import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {SettingsManager} from "./settings-manager";
 import {isValidMode, isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
@@ -32,6 +32,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
             preload: path.join(__dirname, "preload.js"),
         }
     });
+    overlayWindow.setIgnoreMouseEvents(true);
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
     addPogostuckOpenedListener(overlayWindow, mainWindow)
 

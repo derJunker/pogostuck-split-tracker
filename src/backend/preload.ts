@@ -28,15 +28,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => ipcRenderer.invoke('only-diff-colored-changed', onlyDiffColored),
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
-    onGoldSplitChanged: (goldSplitInfo:    { map: number, mode: number, from: number, to: number, time: number })=> ipcRenderer.invoke('gold-split-entered', goldSplitInfo),
+    onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-split-entered', goldSplitInfo),
 
     // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
     hasPogostuckFullscreen: (): Promise<boolean> => ipcRenderer.invoke('has-fullscreen'),
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
     getSplitPath: (mode: number) : Promise<{from: number, to: number}[]> => ipcRenderer.invoke('get-split-path', mode),
+    getGoldSplits: (mode: number) : Promise<{from: number, to: number, time: number}[]> => ipcRenderer.invoke('get-gold-splits', mode),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),
+    onGoldenSplitsImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-splits-changed', callback)
 
 });

@@ -1,25 +1,34 @@
-import {GoldSplitsTracker} from "./GoldSplitsTracker";
+import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {SettingsManager} from "../settings-manager";
 import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
 
 export class CurrentStateTracker {
+    private static instance: CurrentStateTracker | null = null;
     private mode: number = -1;
     private map: number = -1;
     private recordedSplits: { split: number, time: number }[] = [];
     private finalTime: number = -1;
-
     private pb: number = 0;
-
     private readonly goldSplitsTracker: GoldSplitsTracker;
     private readonly pbTracker: PbSplitTracker;
     private readonly settingsManager: SettingsManager;
 
-    constructor(goldenSplitsTracker: GoldSplitsTracker, pbTracker: PbSplitTracker, settingsManager: SettingsManager) {
+    private constructor(goldenSplitsTracker: GoldSplitsTracker, pbTracker: PbSplitTracker, settingsManager: SettingsManager) {
         this.goldSplitsTracker = goldenSplitsTracker;
         this.pbTracker = pbTracker;
         this.settingsManager = settingsManager;
+    }
+
+    public static getInstance(goldenSplitsTracker?: GoldSplitsTracker, pbTracker?: PbSplitTracker, settingsManager?: SettingsManager): CurrentStateTracker {
+        if (!CurrentStateTracker.instance) {
+            if (!goldenSplitsTracker || !pbTracker || !settingsManager) {
+                throw new Error("Instance not initialized. Please provide necessary Classes.");
+            }
+            CurrentStateTracker.instance = new CurrentStateTracker(goldenSplitsTracker, pbTracker, settingsManager);
+        }
+        return CurrentStateTracker.instance;
     }
 
     public updateMapAndMode(map: number, mode: number): boolean {

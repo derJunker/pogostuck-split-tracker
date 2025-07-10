@@ -37,16 +37,18 @@ declare global { interface Window {
         onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => Promise<Settings>;
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         openPogostuck: () => Promise<boolean>;
-        onGoldSplitChanged: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => Promise<void>;
+        onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => Promise<boolean>;
 
         // config querying backend
         isWindows11: () => Promise<boolean>;
         hasPogostuckFullscreen: () => Promise<boolean>;
         openWindowsSettings: () => Promise<void>;
         getSplitPath: (mode: number) => Promise<{from: number, to: number}[]>;
+        getGoldSplits: (mode: number) => Promise<{from: number, to: number, time: number}[]>;
 
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;
+        onGoldenSplitsImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
     };
 } }
 

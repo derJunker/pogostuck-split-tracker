@@ -1,7 +1,7 @@
 {
   "name": "pogostuck-split-tracker",
-  "version": "0.0.2-alpha",
-  "description": "split tracker for the game \"pogostuck by superku\"",
+  "version": "0.1.0",
+  "description": "split tracker for the game \"Pogostuck - Rage with your Friends\"",
   "main": "build/backend/main.js",
   "scripts": {
     "compile": "tsc && copyfiles -f src/frontend/*.{html,css} build/frontend && copyfiles -f assets/**/* build/assets",

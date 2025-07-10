@@ -67,7 +67,7 @@ button > img {
     padding-top: 5px;
     padding-inline: 5px;
     position: sticky;
-    z-index: 2;
+    z-index: 100;
     top: 0;
     left: 0;
     right: 0;

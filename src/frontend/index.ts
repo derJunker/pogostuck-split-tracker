@@ -89,11 +89,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     loadLevelsFromMapping()
     updateModesForLevel()
     updateCheckpoints()
+    reloadGoldSplits()
     mapSelect.addEventListener('change', () => {
         updateModesForLevel()
         updateCheckpoints()
+        reloadGoldSplits()
     });
-    modeSelect.addEventListener('change', updateCheckpoints);
+    modeSelect.addEventListener('change', () => {
+        updateCheckpoints()
+        reloadGoldSplits()
+    });
     addPbsAsInputs()
     setPbsToInputs()
 
@@ -398,6 +403,38 @@ function updateModesForLevel() {
 
     modeSelect.selectedIndex = 0;
     updateCheckpoints();
+}
+
+function reloadGoldSplits() {
+    const goldSplitSelection = document.getElementById('gold-split-selection')!
+    goldSplitSelection.innerHTML = '';
+
+    const mapSplits = mappings.find(map => map.mapIndex === parseInt(mapSelect!.value, 10))!.splits
+    mapSplits.forEach((name, index) => {
+        const div = document.createElement('div');
+        const arrow = document.createElement('img');
+        arrow.src = '../assets/left-down-arrow-curve-svgrepo-com.svg';
+        arrow.alt = 'curved arrow pointing down';
+        const label = document.createElement('label');
+        label.setAttribute('for', `gold-${index}-${index+1}-input`);
+        label.textContent = name;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = `gold-${index}-${index+1}-input`;
+        input.className = 'input-field';
+        input.placeholder = '00:00.000';
+
+        div.appendChild(arrow);
+        div.appendChild(label);
+        div.appendChild(input);
+        goldSplitSelection.appendChild(div);
+    })
+    // TODO add last split not currently named
+    const finishDiv = document.createElement('div');
+    finishDiv.id = 'final';
+    finishDiv.textContent = 'Finish';
+
+    goldSplitSelection.appendChild(finishDiv);
 }
 
 function addPbsAsInputs() {

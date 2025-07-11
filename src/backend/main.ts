@@ -56,11 +56,12 @@ app.on("ready", async () => {
     configWindow.loadFile(indexHTML).then(async () => {})
 
     configWindow.webContents.on('did-finish-load', () => {
-        getNewReleaseInfoIfOutdated().then(releaseInfo => {
-            if (releaseInfo) {
-                configWindow!.webContents.send('new-release-available', releaseInfo);
-            }
-        })
+        // TODO uncomment before next release
+        // getNewReleaseInfoIfOutdated().then(releaseInfo => {
+        //     if (releaseInfo) {
+        //         configWindow!.webContents.send('new-release-available', releaseInfo);
+        //     }
+        // })
     });
 
     overlayWindow = openOverlayWindow(configWindow);

@@ -1,6 +1,10 @@
 import { IpcRendererEvent } from 'electron';
 import './index.css';
 import './components.css';
+import {Settings} from "../types/settings";
+import {PogoLevel} from "../types/pogo-index-mapping";
+import {createCustomLabledCheckbox, syncCustomCheckbox, syncInitialCheckboxes} from "./config-window/custom-checkboxes";
+import {formatPbTime, parsePbTime} from "./util/time-formating";
 
 const menuButtons: NodeListOf<HTMLElement> = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');
@@ -9,34 +13,8 @@ let hideTimeout: ReturnType<typeof setTimeout> | null = null;
 let showTimeout: ReturnType<typeof setTimeout> | null = null;
 
 // prolly not nice, but i didnt find a way to have the same type interfaces for both frontend and backend
-let settings: {
-    // Paths
-    pogostuckConfigPath: string;
-    pogostuckSteamUserDataPath: string;
-    // Design
-    hideSkippedSplits: boolean,
-    onlyDiffsColored: boolean,
-    showNewSplitNames: boolean
-    clickThroughOverlay: boolean,
-
-    enableBackgroundColor: boolean,
-    backgroundColor: string,
-
-    // split skips
-    skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
-    launchPogoOnStartup: boolean;
-}
-let mappings: {
-    levelName: string;
-    mapIndex: number;
-    splits: string[];
-    endSplitName: string,
-    modes: {
-        key: number;
-        name: string;
-        settingsName: string;
-    }[];
-}[] = [];
+let settings: Settings
+let mappings: PogoLevel[] = [];
 
 let pbs : {
     mode: number;
@@ -89,8 +67,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
     addTabLinkListeners()
-    await hideWin11ContentIfNeeded()
-    await hideFullscreenMessageIfNeeded()
+    await showWin11MessagesIfOnWin11()
+    await showFullscreenMessageIfPlayingWithFullscreen()
 
     syncInitialCheckboxes()
     setHtmlContentFromSettings()
@@ -149,46 +127,28 @@ function addTabLinkListeners() {
     })
 }
 
-async function hideWin11ContentIfNeeded() {
+async function showWin11MessagesIfOnWin11() {
     const isWin11 = await window.electronAPI.isWindows11();
     __electronLog.info("Is Windows 11: ", isWin11);
-    if (!isWin11) {
+    if (isWin11) {
         const win11Content = document.querySelectorAll('.only-win11')
         win11Content.forEach(el => {
             const htmlEl = el as HTMLElement;
-            htmlEl.style.display = 'none';
+            htmlEl.style.removeProperty('display');
         });
     }
 }
 
-async function hideFullscreenMessageIfNeeded() {
+async function showFullscreenMessageIfPlayingWithFullscreen() {
     const isFullscreen = await window.electronAPI.hasPogostuckFullscreen();
     __electronLog.info("Has Pogostuck fullscreen: ", isFullscreen);
-    if (!isFullscreen) {
+    if (isFullscreen) {
         const fsContent = document.querySelectorAll('.only-fs')
         fsContent.forEach(el => {
             const htmlEl = el as HTMLElement;
-            htmlEl.style.display = 'none';
+            htmlEl.style.removeProperty('display');
         });
     }
-}
-
-function syncInitialCheckboxes() {
-    document.querySelectorAll('input[type="checkbox"][id]').forEach(inputEl => {
-        const checkbox = inputEl as HTMLInputElement;
-        const customCheckbox = document.getElementById(checkbox.id + '-custom') as HTMLElement | null;
-        if (customCheckbox && !checkbox.id.startsWith('checkpoint-')) {
-            const label = document.querySelector(`label[for="${checkbox.id}"]`) as HTMLLabelElement | null;
-            label?.addEventListener('click', (e) => customCheckbox.focus());
-            customCheckbox.addEventListener('click', () => {
-                checkbox.checked = !checkbox.checked;
-                checkbox.dispatchEvent(new Event('change'));
-                syncCustomCheckbox(checkbox, customCheckbox);
-            });
-            checkbox.addEventListener('change', () => syncCustomCheckbox(checkbox, customCheckbox));
-            syncCustomCheckbox(checkbox, customCheckbox);
-        }
-    });
 }
 
 function setHtmlContentFromSettings() {
@@ -225,14 +185,6 @@ function setHtmlContentFromSettings() {
 
     backgroundColorInput.value = settings.backgroundColor;
     backgroundColorInput.dispatchEvent(new Event('input'));
-}
-
-function syncCustomCheckbox(checkbox: HTMLInputElement, customCheckbox: HTMLElement) {
-    if (checkbox.checked) {
-        customCheckbox.classList.add('checked');
-    } else {
-        customCheckbox.classList.remove('checked');
-    }
 }
 
 // Hide skipped splits
@@ -388,32 +340,8 @@ function updateCheckpoints() {
 function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, idx: number, skippedIndices: number[]) {
     const div = document.createElement('div');
     div.className = 'toggle-switch';
-    const label = document.createElement('label');
-    label.setAttribute('for', `checkpoint-${idx}`);
-    label.className = 'toggle-label';
-    label.textContent = split;
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = `checkpoint-${idx}`;
-    checkbox.className = 'toggle-checkbox';
-    // Setze checked auf false, wenn Index in skippedIndices, sonst true
-    checkbox.checked = !skippedIndices.includes(idx);
-    const customCheckbox = document.createElement('button');
-    customCheckbox.id = `checkpoint-${idx}-custom`;
-    customCheckbox.className = 'custom-checkbox';
-
-    label.addEventListener('click', (e) => customCheckbox.focus());
-    customCheckbox.addEventListener('click', () => {
-        checkbox.checked = !checkbox.checked;
-        checkbox.dispatchEvent(new Event('change'));
-        customCheckbox.focus()
-    });
-    checkbox.addEventListener('change',async () => {
-        syncCustomCheckbox(checkbox, customCheckbox)
-        await updateSkippedSplits();
-    });
-
-    syncCustomCheckbox(checkbox, customCheckbox);
+    const {label, checkbox, customCheckbox} = createCustomLabledCheckbox(`checkpoint-${idx}`, split,
+        !skippedIndices.includes(idx), async (checked: boolean) => await updateSkippedSplits());
 
     div.appendChild(label);
     div.appendChild(checkbox);
@@ -652,66 +580,6 @@ function setPbsToInputs() {
             (input as HTMLInputElement).value = formatPbTime(pb.time);
         }
     });
-}
-
-//duplicate code hell yeah
-function formatPbTime(seconds: number, noZeroFill: boolean = false): string {
-    const absSeconds = Math.abs(seconds);
-    const mins = Math.floor(absSeconds / 60);
-    const secs = Math.floor(absSeconds % 60);
-    const ms = Math.round((absSeconds - Math.floor(absSeconds)) * 1000);
-
-    const msStr = ms.toString().padStart(3, '0').slice(0, 3);
-
-    if (noZeroFill) {
-        if (mins > 0) {
-            return `${mins}:${secs.toString().padStart(2, '0')}.${msStr}`;
-        } else if (secs > 0) {
-            return `${secs}.${msStr}`;
-        } else {
-            return `0.${msStr}`;
-        }
-    }
-
-    const minsStr = mins.toString().padStart(2, '0');
-    const secsStr = secs.toString().padStart(2, '0');
-
-    return `${minsStr}:${secsStr}.${msStr}`;
-}
-
-/*
- * Beautifully vibe coded :)
- */
-function parsePbTime(timeStr: string): number {
-    const trimmed = timeStr.trim();
-    if (!trimmed) return -1;
-    const parts = trimmed.split(":");
-    if (parts.length > 3) return -1;
-    let h = 0, m = 0, s = 0, ms = 0;
-    let secPart = parts[parts.length - 1];
-    const secMatch = /^(\d{1,2})(?:\.(\d{1,3}))?$/.exec(secPart);
-    if (!secMatch) return -1;
-    s = parseInt(secMatch[1], 10);
-    if (secMatch[2]) {
-        if (secMatch[2].length > 3) return -1;
-        ms = parseInt(secMatch[2].padEnd(3, '0'), 10);
-    }
-    if (parts.length === 3) {
-        h = parseInt(parts[0], 10);
-        m = parseInt(parts[1], 10);
-    } else if (parts.length === 2) {
-        m = parseInt(parts[0], 10);
-    }
-    // Fix: map parts correctly (3: h, m, s; 2: m, s; 1: s)
-    if (parts.length === 3) {
-        h = parseInt(parts[0], 10);
-        m = parseInt(parts[1], 10);
-    } else if (parts.length === 2) {
-        m = parseInt(parts[0], 10);
-    } else if (parts.length === 1) {
-        // only seconds, already set
-    }
-    return h * 3600 + m * 60 + s + ms / 1000;
 }
 
 window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => {

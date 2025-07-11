@@ -1,6 +1,7 @@
 import IpcRendererEvent = Electron.IpcRendererEvent;
 import './overlay.css';
 import './components.css';
+import { formatPbTime } from './util/time-formating';
 
 function loadMapMode(mapAndModeChanged: {
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
@@ -37,7 +38,7 @@ function loadMapMode(mapAndModeChanged: {
 
             const timeSpan = document.createElement('span');
             timeSpan.className = 'split-time ' + skippedClass;
-            timeSpan.textContent = formatTime(split.time)
+            timeSpan.textContent = formatPbTime(split.time)
             splitDiv.appendChild(timeSpan);
             if (split.hide) splitDiv.style.display = 'none';
 
@@ -48,11 +49,11 @@ function loadMapMode(mapAndModeChanged: {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         __electronLog.info(`Setting sum of best to ${sumOfBest}`);
-        sumOfBestSpan.textContent = formatTime(sumOfBest);
+        sumOfBestSpan.textContent = formatPbTime(sumOfBest);
     }
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {
-        pbTimeSpan.textContent = formatTime(pb);
+        pbTimeSpan.textContent = formatPbTime(pb);
     }
     document.getElementById('totals')!.style!.display = 'inline';
     document.getElementById('status-msg')!.style!.display = 'none';
@@ -65,7 +66,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
         const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
         const timeSpan = splitDiv.querySelector('.split-time');
         if (timeSpan) {
-            timeSpan.textContent = formatTime(splitTime);
+            timeSpan.textContent = formatPbTime(splitTime);
             timeSpan.className = "split-time";
             if (!onlyDiffColored) {
                 timeSpan.className += " " + type;
@@ -86,7 +87,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             const numSpan = document.createElement('span');
             numSpan.className = 'num';
             __electronLog.info(`Adding split diff: ${absDiff} (golden: ${golden})`);
-            numSpan.textContent = formatTime(absDiff, true);
+            numSpan.textContent = formatPbTime(absDiff, true);
             diffSpan.appendChild(numSpan);
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
@@ -131,11 +132,11 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
                                        }) => {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
-        sumOfBestSpan.textContent = formatTime(pbRunInfoAndSoB.sumOfBest);
+        sumOfBestSpan.textContent = formatPbTime(pbRunInfoAndSoB.sumOfBest);
     }
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {
-        pbTimeSpan.textContent = formatTime(pbRunInfoAndSoB.pb);
+        pbTimeSpan.textContent = formatPbTime(pbRunInfoAndSoB.pb);
     }
 
     const splitsDiv = document.getElementById('splits')!;
@@ -200,7 +201,7 @@ window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {
 window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfBest: number) => {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
-        sumOfBestSpan.textContent = formatTime(sumOfBest);
+        sumOfBestSpan.textContent = formatPbTime(sumOfBest);
     }
 });
 
@@ -222,27 +223,3 @@ window.electronAPI.changeBackground((event: Electron.IpcRendererEvent, enableBac
         body.style.backgroundColor = '';
     }
 })
-
-function formatTime(seconds: number, noZeroFill: boolean = false): string {
-    const absSeconds = Math.abs(seconds);
-    const mins = Math.floor(absSeconds / 60);
-    const secs = Math.floor(absSeconds % 60);
-    const ms = Math.round((absSeconds - Math.floor(absSeconds)) * 1000);
-
-    const msStr = ms.toString().padStart(3, '0').slice(0, 3);
-
-    if (noZeroFill) {
-        if (mins > 0) {
-            return `${mins}:${secs.toString().padStart(2, '0')}.${msStr}`;
-        } else if (secs > 0) {
-            return `${secs}.${msStr}`;
-        } else {
-            return `0.${msStr}`;
-        }
-    }
-
-    const minsStr = mins.toString().padStart(2, '0');
-    const secsStr = secs.toString().padStart(2, '0');
-
-    return `${minsStr}:${secsStr}.${msStr}`;
-}

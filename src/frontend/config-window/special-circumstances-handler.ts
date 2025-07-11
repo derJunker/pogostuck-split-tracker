@@ -10,6 +10,10 @@ export async function showWin11MessagesIfOnWin11() {
     }
 }
 
+document.getElementById("open-settings-link")?.addEventListener("click", async () => {
+    await window.electronAPI.openWindowsSettings();
+});
+
 export async function showFullscreenMessageIfPlayingWithFullscreen() {
     const isFullscreen = await window.electronAPI.hasPogostuckFullscreen();
     __electronLog.info("Has Pogostuck fullscreen: ", isFullscreen);

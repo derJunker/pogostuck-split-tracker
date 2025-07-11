@@ -12,7 +12,7 @@ export function initMappings(): PogoNameMappings {
     // currently always true to force default mappings
     // if (!fs.existsSync(mappingsPath) || true) {
         log.debug("No mappings path defined, using default mappings");
-        return new PogoNameMappings(defaultMappings);
+        return PogoNameMappings.getInstance(defaultMappings);
     // }
     // else {
     //     try {

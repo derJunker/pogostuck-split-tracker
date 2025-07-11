@@ -9,10 +9,13 @@ import {SettingsManager} from "../settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
 import {resetOverlay} from "../split-overlay-window";
 
-export function registerLogEventHandlers(fileWatcher: FileWatcher, nameMappings: PogoNameMappings,
-                                         pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker,
-                                         overlayWindow: BrowserWindow, configWindow: BrowserWindow, settingsManager: SettingsManager) {
+export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     const stateTracker = CurrentStateTracker.getInstance();
+    const fileWatcher = FileWatcher.getInstance();
+    const settingsManager = SettingsManager.getInstance();
+    const pbSplitTracker = PbSplitTracker.getInstance();
+    const goldenSplitsTracker = GoldSplitsTracker.getInstance();
+
     // map or mode gets logged
     fileWatcher.registerListener(
         /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
@@ -22,7 +25,7 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, nameMappings:
             const modeNum = parseInt(mode);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
-                resetOverlay(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
+                resetOverlay(mapNum, modeNum, overlayWindow);
                 settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
             }
         }
@@ -58,8 +61,8 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, nameMappings:
         (match) => {
             stateTracker.resetRun();
             if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
-                resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), nameMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, settingsManager);
-            writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
+                resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
+            writeGoldSplitsIfChanged(configWindow)
         }
     )
 
@@ -73,14 +76,14 @@ export function registerLogEventHandlers(fileWatcher: FileWatcher, nameMappings:
             const { time } = match.groups!;
             const timeInMS = parseFloat(time)
             stateTracker.finishedRun(timeInMS/1000)
-            writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
+            writeGoldSplitsIfChanged(configWindow)
         }
     )
     // when going into the menu or closing the window save the golden splits, to reduce lag during play
     fileWatcher.registerListener(
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
-            writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
+            writeGoldSplitsIfChanged(configWindow)
         }
     );
 

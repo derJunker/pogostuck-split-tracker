@@ -24,17 +24,15 @@ if (!ActiveWindow.requestPermissions()) {
 let configWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 
-let logWatcher: FileWatcher = new FileWatcher();
 const indexToNamesMappings = initMappings();
-const settingsManager = new SettingsManager(logWatcher)
-const userDataReader = UserDataReader.getInstance(settingsManager, indexToNamesMappings);
-const pbSplitTracker = new PbSplitTracker();
-const goldenSplitsTracker = new GoldSplitsTracker(readGoldenSplits(indexToNamesMappings), settingsManager, pbSplitTracker)
-writeGoldenSplits(goldenSplitsTracker)
-CurrentStateTracker.getInstance(goldenSplitsTracker, pbSplitTracker, settingsManager)
+const userDataReader = UserDataReader.getInstance();
+const goldenSplitsTracker = GoldSplitsTracker.getInstance(readGoldenSplits())
+writeGoldenSplits()
+CurrentStateTracker.getInstance()
 
+const settingsManager = SettingsManager.getInstance()
 if (settingsManager.launchPogoOnStartup())
-    launchPogostuckIfNotOpenYet(settingsManager).then(() => log.debug("PogoStuck launched on startup."));
+    launchPogostuckIfNotOpenYet().then(() => log.debug("PogoStuck launched on startup."));
 
 app.on("ready", () => {
     log.initialize();
@@ -51,22 +49,21 @@ app.on("ready", () => {
         },
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
-    // configWindow.setMenu(null);
+    configWindow.setMenu(null);
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     configWindow.loadFile(indexHTML)
-    overlayWindow = openOverlayWindow(configWindow, settingsManager);
-    settingsManager.initListeners(overlayWindow, goldenSplitsTracker, pbSplitTracker, indexToNamesMappings, configWindow)
-    initLaunchPogoListener(settingsManager);
+    overlayWindow = openOverlayWindow(configWindow);
+    settingsManager.initListeners(overlayWindow, configWindow)
+    initLaunchPogoListener();
 
-    registerLogEventHandlers(logWatcher, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, configWindow, settingsManager);
-    pbSplitTracker.updatePbSplitsFromFile();
-    goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, settingsManager);
-    writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
+    registerLogEventHandlers(overlayWindow, configWindow);
+    PbSplitTracker.getInstance().updatePbSplitsFromFile();
+    goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
+    writeGoldSplitsIfChanged(configWindow)
+
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
-
+    userDataReader.initListeners();
     initWindows11Listeners();
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
-    ipcMain.handle("get-pbs", () => goldenSplitsTracker.getPbs())
-    ipcMain.handle("has-fullscreen", () => userDataReader.hasFullScreenSet())
 });

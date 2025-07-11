@@ -7,7 +7,8 @@ import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 
 const goldenSplitFilePath = path.join(app.getPath("userData"), "golden-splits.json");
 
-export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): GoldenSplitsForMode[] {
+export function readGoldenSplits(): GoldenSplitsForMode[] {
+    const indexToNamesMappings = PogoNameMappings.getInstance();
     if (existsSync(goldenSplitFilePath)) {
         try {
             const data = require(goldenSplitFilePath);
@@ -37,15 +38,17 @@ export function readGoldenSplits(indexToNamesMappings: PogoNameMappings): Golden
     }
 }
 
-export function writeGoldenSplits(goldenSplitsTracker: GoldSplitsTracker): void {
+export function writeGoldenSplits(): void {
+    const goldenSplitsTracker = GoldSplitsTracker.getInstance();
     const goldenSplits = goldenSplitsTracker.getGoldenSplits();
     goldenSplitsTracker.changeSaved()
     fs.writeFileSync(goldenSplitFilePath, JSON.stringify(goldenSplits, null, 2));
 }
 
-export function writeGoldSplitsIfChanged(goldenSplitsTracker: GoldSplitsTracker, configWindow: BrowserWindow): void {
+export function writeGoldSplitsIfChanged(configWindow: BrowserWindow): void {
+    const goldenSplitsTracker = GoldSplitsTracker.getInstance();
     if (goldenSplitsTracker.hasChanged()) {
-        writeGoldenSplits(goldenSplitsTracker);
+        writeGoldenSplits();
         configWindow.webContents.send('golden-splits-changed');
     }
 }

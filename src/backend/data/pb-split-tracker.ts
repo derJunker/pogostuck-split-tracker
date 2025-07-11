@@ -1,8 +1,17 @@
 import {UserDataReader} from "./user-data-reader";
 
 export class PbSplitTracker {
+    private static instance: PbSplitTracker | null = null;
     private modeTimes: ModeSplits[] = [];
 
+    private constructor() {}
+
+    public static getInstance(): PbSplitTracker {
+        if (!PbSplitTracker.instance) {
+            PbSplitTracker.instance = new PbSplitTracker();
+        }
+        return PbSplitTracker.instance;
+    }
 
     public getSplitAmountForMode(mode: number): number {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);

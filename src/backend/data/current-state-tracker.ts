@@ -11,22 +11,10 @@ export class CurrentStateTracker {
     private recordedSplits: { split: number, time: number }[] = [];
     private finalTime: number = -1;
     private pb: number = 0;
-    private readonly goldSplitsTracker: GoldSplitsTracker;
-    private readonly pbTracker: PbSplitTracker;
-    private readonly settingsManager: SettingsManager;
 
-    private constructor(goldenSplitsTracker: GoldSplitsTracker, pbTracker: PbSplitTracker, settingsManager: SettingsManager) {
-        this.goldSplitsTracker = goldenSplitsTracker;
-        this.pbTracker = pbTracker;
-        this.settingsManager = settingsManager;
-    }
-
-    public static getInstance(goldenSplitsTracker?: GoldSplitsTracker, pbTracker?: PbSplitTracker, settingsManager?: SettingsManager): CurrentStateTracker {
+    public static getInstance(): CurrentStateTracker {
         if (!CurrentStateTracker.instance) {
-            if (!goldenSplitsTracker || !pbTracker || !settingsManager) {
-                throw new Error("Instance not initialized. Please provide necessary Classes.");
-            }
-            CurrentStateTracker.instance = new CurrentStateTracker(goldenSplitsTracker, pbTracker, settingsManager);
+            CurrentStateTracker.instance = new CurrentStateTracker();
         }
         return CurrentStateTracker.instance;
     }
@@ -37,7 +25,7 @@ export class CurrentStateTracker {
             this.mode = mode;
             this.recordedSplits = [];
             this.finalTime = -1;
-            this.pb = this.goldSplitsTracker.getPbForMode(this.mode);
+            this.pb = GoldSplitsTracker.getInstance().getPbForMode(this.mode);
             log.info(`Map changed to ${map}, mode changed to ${mode}`);
             return true;
         }
@@ -45,6 +33,10 @@ export class CurrentStateTracker {
     }
 
     public passedSplit(split: number, time: number): boolean {
+        const settingsManager = SettingsManager.getInstance();
+        const goldSplitsTracker = GoldSplitsTracker.getInstance();
+        const pbTracker = PbSplitTracker.getInstance();
+
         const lastSplit = this.getLastSplitTime();
         const from = lastSplit.split;
         log.info(`from: ${from}, split: ${split}, time: ${time}, lastSplit: ${lastSplit.split}, lastTime: ${lastSplit.time}`);
@@ -60,12 +52,12 @@ export class CurrentStateTracker {
         }
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({split, time: time});
-        let goldSplit = this.goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
+        let goldSplit = goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
         //  Check if the split you passed is on the path you specified (aka you're not coming from a split that is skipped)
-        const splitPath = this.settingsManager.getSplitIndexPath(this.mode, this.pbTracker.getSplitAmountForMode(this.mode))
+        const splitPath = settingsManager.getSplitIndexPath(this.mode, pbTracker.getSplitAmountForMode(this.mode))
         const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
         if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath) {
-            this.goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
+            goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
             log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime}`);
             return true;
         } else {
@@ -76,22 +68,24 @@ export class CurrentStateTracker {
     }
 
     public finishedRun(time: number): void {
+        const goldSplitsTracker = GoldSplitsTracker.getInstance();
+        const pbTracker = PbSplitTracker.getInstance();
         this.finalTime = time;
         log.info(`Run finished with time: ${time}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
-        const lastGoldSplit = this.goldSplitsTracker.getLastGoldSplitForMode(this.mode)
+        const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode)
         log.info(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
         log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
         if (lastGoldSplit.to >= 0 && lastGoldSplit.time > lastDiff) {
-            this.goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
+            goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
         if (this.finalTime < this.pb) {
             log.info(`New personal best: ${this.finalTime}`);
-            this.pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
-            this.goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
-            this.pbTracker.updatePbSplitsFromFile();
+            pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
+            goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
+            pbTracker.updatePbSplitsFromFile();
         }
     }
 
@@ -113,7 +107,7 @@ export class CurrentStateTracker {
         if (this.recordedSplits.length === 0) {
             if (isUpsideDownMode(this.mode)) {
                 return {
-                    split: this.pbTracker.getSplitAmountForMode(this.mode),
+                    split: PbSplitTracker.getInstance().getSplitAmountForMode(this.mode),
                     time: 0
                 }
             }

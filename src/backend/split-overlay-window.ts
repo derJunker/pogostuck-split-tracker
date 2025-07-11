@@ -5,13 +5,13 @@ import {PogoNameMappings} from "./data/pogo-name-mappings";
 import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {SettingsManager} from "./settings-manager";
-import {isValidMode, isValidModeAndMap} from "./data/valid-modes";
+import {isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
 
 let pogostuckIsActiveWindow = false;
 
-export function openOverlayWindow(mainWindow: BrowserWindow, settingsManager: SettingsManager) {
+export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
     const overlayWidth = 530;
     const overlayHeight = 290;
@@ -32,7 +32,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow, settingsManager: Se
             preload: path.join(__dirname, "preload.js"),
         }
     });
-    overlayWindow.setIgnoreMouseEvents(settingsManager.clickThroughOverlay());
+    overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
     addPogostuckOpenedListener(overlayWindow, mainWindow)
 
@@ -70,40 +70,36 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
 
 }
 
-export function resetOverlay(mapNum: number, modeNum: number, nameMappings: PogoNameMappings, pbSplitTracker: PbSplitTracker,
-                             goldenSplitTracker: GoldSplitsTracker, overlayWindow: BrowserWindow, settingsManager: SettingsManager) {
+export function resetOverlay(mapNum: number, modeNum: number, overlayWindow: BrowserWindow) {
     log.info(`Map or mode changed to map ${mapNum}, mode ${modeNum}`);
     if (!isValidModeAndMap(mapNum, modeNum)) {
         return;
     }
 
-    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitTracker, settingsManager)
+    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum)
     overlayWindow.webContents.send('reset-overlay', pbRunInfoAndSoB);
 }
 
 export function redrawSplitDisplay(
     mapNum: number,
     modeNum: number,
-    nameMappings: PogoNameMappings,
-    pbSplitTracker: PbSplitTracker,
-    goldenSplitTracker: GoldSplitsTracker,
-    settingsManager: SettingsManager,
     overlayWindow: BrowserWindow,
 ) {
     if (!isValidModeAndMap(mapNum, modeNum))
         return;
-    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, nameMappings, pbSplitTracker, goldenSplitTracker, settingsManager);
+    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
 }
 
 function getPbRunInfoAndSoB(
     mapNum: number,
     modeNum: number,
-    nameMappings: PogoNameMappings,
-    pbSplitTracker: PbSplitTracker,
-    goldenSplitTracker: GoldSplitsTracker,
-    settingsManager: SettingsManager
 ): PbRunInfoAndSoB {
+    const pbSplitTracker = PbSplitTracker.getInstance();
+    const settingsManager = SettingsManager.getInstance();
+    const goldenSplitTracker = GoldSplitsTracker.getInstance();
+    const nameMappings = PogoNameMappings.getInstance();
+
     const mapModeAndSplits = nameMappings.getMapModeAndSplits(mapNum, modeNum);
     const pbSplitTimes = pbSplitTracker.getPbSplitsForMode(modeNum);
 

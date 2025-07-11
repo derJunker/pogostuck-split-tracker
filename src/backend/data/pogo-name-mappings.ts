@@ -2,10 +2,21 @@ import {PogoLevel} from "../../types/pogo-index-mapping";
 import log from "electron-log/main";
 
 export class PogoNameMappings {
-    private nameMappings: PogoLevel[];
+    private static instance: PogoNameMappings | null = null;
+    private readonly nameMappings: PogoLevel[];
 
-    constructor(nameMappings: PogoLevel[]) {
+    private constructor(nameMappings: PogoLevel[]) {
         this.nameMappings = nameMappings;
+    }
+
+    public static getInstance(nameMappings?: PogoLevel[]): PogoNameMappings {
+        if (!PogoNameMappings.instance) {
+            if (!nameMappings) {
+                throw new Error("Instance not initialized. Please provide nameMappings array.");
+            }
+            PogoNameMappings.instance = new PogoNameMappings(nameMappings);
+        }
+        return PogoNameMappings.instance;
     }
 
     public getAllLevels(): PogoLevel[] {

@@ -11,17 +11,22 @@ import {UserDataReader} from "./user-data-reader";
 import {CurrentStateTracker} from "./current-state-tracker";
 
 export class GoldSplitsTracker {
+    private static instance: GoldSplitsTracker | null = null;
     private changed: boolean = false;
     private readonly goldenSplits: GoldenSplitsForMode[];
 
-    private readonly settingsManager: SettingsManager;
-    private readonly pbSplitTracker: PbSplitTracker;
-
-    constructor(goldenSplits: GoldenSplitsForMode[], settingsManager: SettingsManager, pbSplitTracker: PbSplitTracker) {
+    private constructor(goldenSplits: GoldenSplitsForMode[]) {
         this.goldenSplits = goldenSplits;
+    }
 
-        this.settingsManager = settingsManager;
-        this.pbSplitTracker = pbSplitTracker;
+    public static getInstance(goldenSplits?: GoldenSplitsForMode[]): GoldSplitsTracker {
+        if (!GoldSplitsTracker.instance) {
+            if (!goldenSplits) {
+                throw new Error("Instance not initialized. Please provide goldenSplits array.");
+            }
+            GoldSplitsTracker.instance = new GoldSplitsTracker(goldenSplits);
+        }
+        return GoldSplitsTracker.instance;
     }
 
     public getGoldSplitForModeAndSplit(modeIndex: number, from: number, to: number): number | null {
@@ -54,7 +59,7 @@ export class GoldSplitsTracker {
     public calcSumOfBest(modeNum: number, splitAmount: number) {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
         if (modeSplits) {
-            const splitPath = this.settingsManager.getSplitIndexPath(modeNum, splitAmount)
+            const splitPath = SettingsManager.getInstance().getSplitIndexPath(modeNum, splitAmount)
             const sumOfBest = splitPath.map(({from, to}) => {
                 const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
                 return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
@@ -82,8 +87,8 @@ export class GoldSplitsTracker {
     } {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits && modeSplits.goldenSplits.length > 0) {
-            const to = this.pbSplitTracker.getSplitAmountForMode(modeIndex);
-            const splitIndexPath = this.settingsManager.getSplitIndexPath(modeIndex, to);
+            const to = PbSplitTracker.getInstance().getSplitAmountForMode(modeIndex);
+            const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(modeIndex, to);
             const from = splitIndexPath.length > 0 ? splitIndexPath[splitIndexPath.length - 1].from : 0;
             const lastGoldSplit = this.getGoldSplitForModeAndSplit(modeIndex, from, to)
             if (lastGoldSplit !== null) {
@@ -99,13 +104,14 @@ export class GoldSplitsTracker {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
             if (modeSplits.pb !== newPb) {
+                const pbSplitTracker = PbSplitTracker.getInstance();
                 modeSplits.pb = newPb;
                 this.changed = true;
 
-                const path = this.settingsManager.getSplitIndexPath(modeIndex, this.pbSplitTracker.getSplitAmountForMode(modeIndex))
+                const path = SettingsManager.getInstance().getSplitIndexPath(modeIndex, pbSplitTracker.getSplitAmountForMode(modeIndex))
                 const {from, to} = path[path.length - 1];
 
-                const lastSplitTimeInPbRun = this.pbSplitTracker.getPbTimeForSplit(modeIndex, from)
+                const lastSplitTimeInPbRun = pbSplitTracker.getPbTimeForSplit(modeIndex, from)
                 if (lastSplitTimeInPbRun === -1 || lastSplitTimeInPbRun === 0) {
                     log.warn(`No last split found for mode ${modeIndex} in PB splits, skipping gold split update`);
                     log.warn("value: ", lastSplitTimeInPbRun, "path: ", path);
@@ -129,11 +135,12 @@ export class GoldSplitsTracker {
         return this.goldenSplits;
     }
 
-    public updateGoldSplitsIfInPbSplits(pbSplitTracker: PbSplitTracker, settingsManager: SettingsManager) {
+    public updateGoldSplitsIfInPbSplits() {
+        const pbSplitTracker = PbSplitTracker.getInstance();
         const modeSplits = pbSplitTracker.getAllPbSplits();
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
-            const splitIndexPath = settingsManager.getSplitIndexPath(mode, times.length)
+            const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(mode, times.length)
 
             const isUD = isUpsideDownMode(mode)
             splitIndexPath.forEach(({from, to}) => {
@@ -160,18 +167,20 @@ export class GoldSplitsTracker {
 
     public initListeners(overlayWindow: BrowserWindow,
                          indexToNamesMappings: PogoNameMappings) {
+        const settingsManager = SettingsManager.getInstance();
+        const pbSplitTracker = PbSplitTracker.getInstance();
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
             if (pbTime !== time) {
                 log.info(`New PB for mode ${mode}: ${time}`);
                 this.updatePbForMode(mode, time);
-                writeGoldenSplits(this)
+                writeGoldenSplits()
                 const mapNum = indexToNamesMappings.getAllLevels()
                     .find(map => map.modes.some(m => m.key === mode))?.mapIndex ?? -1;
                 const currentMode = CurrentStateTracker.getInstance().getCurrentMode();
                 if (currentMode === mode)
-                    redrawSplitDisplay(mapNum, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow)
+                    redrawSplitDisplay(mapNum, mode, overlayWindow)
             }
         })
 
@@ -186,8 +195,8 @@ export class GoldSplitsTracker {
             log.info(`New gold split for map ${map}, mode ${mode}: ${from} -> ${to} = ${time}`);
             this.updateGoldSplit(mode, from, to, time);
             this.changed = true;
-            writeGoldenSplits(this);
-            redrawSplitDisplay(map, mode, indexToNamesMappings, this.pbSplitTracker, this, this.settingsManager, overlayWindow);
+            writeGoldenSplits();
+            redrawSplitDisplay(map, mode, overlayWindow);
             return true;
         })
 
@@ -198,6 +207,7 @@ export class GoldSplitsTracker {
             }
             return [];
         });
+        ipcMain.handle("get-pbs", () => this.getPbs())
     }
 
     private isFasterThanCurrentPbSplits(mode: number, from: number, to: number, time: number): boolean {

@@ -509,9 +509,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     input.id = `gold-${from}-${to}-input`;
     input.className = 'input-field';
     input.placeholder = '00:00.000';
-    __electronLog.debug(`appending split: ${name} from ${from} to ${to}`);
     const goldSplit = goldSplitTimes.find(gs => gs.from === from && gs.to === to);
-    __electronLog.debug(`goldSplit: ${JSON.stringify(goldSplit)}`);
     if (goldSplit && goldSplit.time > 0 && goldSplit.time < Infinity) {
         input.value = formatPbTime(goldSplit.time, true);
     } else {

@@ -14,22 +14,30 @@ import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 
 export class SettingsManager {
+    private static instance: SettingsManager | null = null;
     private readonly settingsPath: string;
-    private logWatcher: FileWatcher;
-
     public currentSettings: Settings;
 
-
-    constructor(logWatcher: FileWatcher) {
+    private constructor() {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
         this.currentSettings = this.loadSettings();
-        this.logWatcher = logWatcher;
-        this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
+
+        FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
     }
 
-    public initListeners(overlayWindow: BrowserWindow, goldenSplitsTracker: GoldSplitsTracker,
-                         pbSplitTracker: PbSplitTracker, indexToNamesMappings: PogoNameMappings, configWindow: BrowserWindow) {
+    public static getInstance(): SettingsManager {
+        if (!SettingsManager.instance) {
+            SettingsManager.instance = new SettingsManager();
+        }
+        return SettingsManager.instance;
+    }
+
+    public initListeners(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
         const stateTracker = CurrentStateTracker.getInstance();
+        const pbSplitTracker = PbSplitTracker.getInstance();
+        const goldenSplitsTracker = GoldSplitsTracker.getInstance();
+        const indexToNamesMappings = PogoNameMappings.getInstance();
+
         overlayWindow.on("ready-to-show", () => {
             this.updateFrontendStatus(overlayWindow)
         })
@@ -43,7 +51,7 @@ export class SettingsManager {
             this.currentSettings.hideSkippedSplits = hideSplits;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
-            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
             this.saveSettings()
             return this.currentSettings
         });
@@ -51,7 +59,7 @@ export class SettingsManager {
             this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
-            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
         });
         ipcMain.handle("option-launch-pogo-on-startup", (event, launchPogoOnStartup: boolean) => {
             this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
@@ -63,7 +71,7 @@ export class SettingsManager {
             indexToNamesMappings.switchMap1SplitNames(showNewSplits)
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
-            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
             this.saveSettings()
             return this.currentSettings
         });
@@ -80,11 +88,11 @@ export class SettingsManager {
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
             pbSplitTracker.updatePbSplitsFromFile();
-            goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this);
-            writeGoldSplitsIfChanged(goldenSplitsTracker, configWindow)
+            goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
+            writeGoldSplitsIfChanged(configWindow)
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
-            resetOverlay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, overlayWindow, this);
+            resetOverlay(mapNum, modeNum, overlayWindow);
             this.saveSettings()
             this.updateFrontendStatus(overlayWindow)
             return this.currentSettings
@@ -96,7 +104,7 @@ export class SettingsManager {
             }
             log.info(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
-            this.logWatcher.startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
+            FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
             this.saveSettings()
             this.updateFrontendStatus(overlayWindow)
             return this.currentSettings
@@ -112,10 +120,10 @@ export class SettingsManager {
                 log.info("putting new skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits.push(skippedSplits);
             }
-            goldenSplitsTracker.updateGoldSplitsIfInPbSplits(pbSplitTracker, this)
+            goldenSplitsTracker.updateGoldSplitsIfInPbSplits()
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
-            redrawSplitDisplay(mapNum, modeNum, indexToNamesMappings, pbSplitTracker, goldenSplitsTracker, this, overlayWindow)
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
             this.saveSettings()
             return this.currentSettings;
         });

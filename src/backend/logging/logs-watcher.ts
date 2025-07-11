@@ -4,10 +4,20 @@ import chokidar, { FSWatcher } from 'chokidar';
 import log from "electron-log/main";
 
 export class FileWatcher {
+    private static instance: FileWatcher | null = null;
     private dirWatcher: FSWatcher | null = null;
     private fileWatcher: FSWatcher | null = null;
     private lastSize = 0;
     private listeners: { regex: RegExp, callback: (match: RegExpMatchArray) => void }[] = [];
+
+    private constructor() {}
+
+    public static getInstance(): FileWatcher {
+        if (!FileWatcher.instance) {
+            FileWatcher.instance = new FileWatcher();
+        }
+        return FileWatcher.instance;
+    }
 
     startWatching(dirPath: string, fileName: string) {
         this.stopWatching();

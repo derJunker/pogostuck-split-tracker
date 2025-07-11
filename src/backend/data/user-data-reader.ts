@@ -4,32 +4,28 @@ import {userDataPathEnd} from "./paths";
 import fs from "fs";
 import log from "electron-log/main";
 import {SettingsManager} from "../settings-manager";
+import {ipcMain} from "electron";
 
 
 
 export class UserDataReader {
     private static instance: UserDataReader | null = null;
-    private readonly settingsManager: SettingsManager;
-    private readonly pogoNameMappings: PogoNameMappings
 
-    private constructor(settingsManager: SettingsManager, pogoNameMappings: PogoNameMappings) {
-        this.settingsManager = settingsManager;
-        this.pogoNameMappings = pogoNameMappings;
-    }
-
-    public static getInstance(settingsManager?: SettingsManager, pogoNameMappings?: PogoNameMappings): UserDataReader {
+    public static getInstance(): UserDataReader {
         if (!UserDataReader.instance) {
-            if (!settingsManager || !pogoNameMappings) {
-                throw new Error("Instance not initialized. Please provide necessary Classes.");
-            }
-            UserDataReader.instance = new UserDataReader(settingsManager, pogoNameMappings);
+            UserDataReader.instance = new UserDataReader();
         }
         return UserDataReader.instance;
+    }
+
+    public initListeners() {
+        ipcMain.handle("has-fullscreen", () => this.hasFullScreenSet())
     }
 
 
     public readPbSplitsFromFile(): ModeSplits[] {
         const fileContent = this.readSteamUserData()
+        const pogoNameMappings = PogoNameMappings.getInstance();
         if (!fileContent) {
             return [];
         }
@@ -37,7 +33,7 @@ export class UserDataReader {
         const modeMap: { [modeName: string]: number } = {};
         const settingsNames: string[] = [];
 
-        for (const map of (this.pogoNameMappings as any).nameMappings) {
+        for (const map of (pogoNameMappings as any).nameMappings) {
             for (const mode of map.modes) {
                 modeMap[mode.settingsName] = mode.key;
                 settingsNames.push(mode.settingsName);
@@ -95,7 +91,7 @@ export class UserDataReader {
 
 
     private readSteamUserData(): string | null {
-        const filePath = path.join(this.settingsManager.steamUserDataPath(), ...userDataPathEnd);
+        const filePath = path.join(SettingsManager.getInstance().steamUserDataPath(), ...userDataPathEnd);
         if (fs.existsSync(filePath)) {
             return fs.readFileSync(filePath, 'utf-8');
         }

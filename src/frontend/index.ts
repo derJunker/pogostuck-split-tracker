@@ -1,10 +1,13 @@
 import { IpcRendererEvent } from 'electron';
-import './index.css';
-import './components.css';
 import {Settings} from "../types/settings";
 import {PogoLevel} from "../types/pogo-index-mapping";
-import {createCustomLabledCheckbox, syncCustomCheckbox, syncInitialCheckboxes} from "./config-window/custom-checkboxes";
+import {createCustomLabledCheckbox, syncInitialCheckboxes} from "./config-window/custom-checkboxes";
 import {formatPbTime, parsePbTime} from "./util/time-formating";
+
+import './index.css';
+import './components.css';
+
+import './config-window/update-handler.ts'
 
 const menuButtons: NodeListOf<HTMLElement> = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');
@@ -581,34 +584,3 @@ function setPbsToInputs() {
         }
     });
 }
-
-window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => {
-    const modal = document.getElementById('new-release-modal') as HTMLElement;
-    const content = document.getElementById('release-info-content') as HTMLElement;
-    __electronLog.info(`release version: ${releaseInfo.tag_name}, `);
-    if (modal && content) {
-        content.innerHTML = `
-            <p>Version: <strong>${releaseInfo.tag_name}</strong></p>
-            <p>${releaseInfo.body}</p>
-        `
-        modal.style.display = 'block';
-        const downloadLink = document.getElementById('release-download-link') as HTMLAnchorElement;
-        downloadLink.href = releaseInfo.browser_download_url;
-
-        const updateButton = document.getElementById('update-btn')! as HTMLElement
-        updateButton.style.display = 'block';
-        updateButton.addEventListener('click', () => {
-            modal.style.display = 'block'
-        });
-    }
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('new-release-modal');
-    const closeBtn = document.getElementById('close-release-modal');
-    const okBtn = document.getElementById('release-modal-ok');
-    if (modal && closeBtn && okBtn) {
-        closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-        okBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    }
-});

@@ -53,9 +53,15 @@ app.on("ready", async () => {
     // configWindow.setMenu(null);
 
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
-    configWindow.loadFile(indexHTML).then(() => {
-        configWindow.webContents.send('new-release-available', { tag_name: "v0.1.0", body: "Content" });
-    })
+    configWindow.loadFile(indexHTML).then(async () => {})
+
+    configWindow.webContents.on('did-finish-load', () => {
+        getNewReleaseInfoIfOutdated().then(releaseInfo => {
+            if (releaseInfo) {
+                configWindow!.webContents.send('new-release-available', releaseInfo);
+            }
+        })
+    });
 
     overlayWindow = openOverlayWindow(configWindow);
     settingsManager.initListeners(overlayWindow, configWindow)
@@ -69,12 +75,6 @@ app.on("ready", async () => {
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
     userDataReader.initListeners();
     initWindows11Listeners();
-
-    // getNewReleaseInfoIfOutdated().then(releaseInfo => {
-    //     if (releaseInfo) {
-    //         configWindow!.webContents.send('new-release-available', releaseInfo);
-    //     }
-    // })
 
 
 

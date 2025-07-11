@@ -710,7 +710,7 @@ function parsePbTime(timeStr: string): number {
     return h * 3600 + m * 60 + s + ms / 1000;
 }
 
-window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string }) => {
+window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => {
     const modal = document.getElementById('new-release-modal') as HTMLElement;
     const content = document.getElementById('release-info-content') as HTMLElement;
     __electronLog.info(`release version: ${releaseInfo.tag_name}, `);
@@ -718,9 +718,16 @@ window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, bo
         content.innerHTML = `
             <p>Version: <strong>${releaseInfo.tag_name}</strong></p>
             <p>${releaseInfo.body}</p>
-            <p>Please update to the latest version for the best experience.</p>
         `
         modal.style.display = 'block';
+        const downloadLink = document.getElementById('release-download-link') as HTMLAnchorElement;
+        downloadLink.href = releaseInfo.browser_download_url;
+
+        const updateButton = document.getElementById('update-btn')! as HTMLElement
+        updateButton.style.display = 'block';
+        updateButton.addEventListener('click', () => {
+            modal.style.display = 'block'
+        });
     }
 });
 

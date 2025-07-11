@@ -221,6 +221,7 @@ input[type="checkbox"] {
     outline: none;
     box-shadow: none;
     padding: var(--padding-btn);
+    text-decoration: none;
 }
 
 .input-field, input[type="text"], input[type="password"], input[type="email"] {
@@ -394,6 +395,8 @@ label {
 .menu-content {
     margin-inline: .5rem;
 }
+
+a:focus,
 button:focus,
 select:focus,
 input[type="text"]:focus {
@@ -423,7 +426,7 @@ ul {
     padding-left: 1.5rem;
 }
 
-li {
+#setup-guide-content li {
     padding: 0.4rem 0;
 }
 
@@ -454,8 +457,6 @@ body {
 }
 
 #launch-pogo-btn {
-    background: var(--color-fg);
-    color: var(--color-bg);
     width: 50%;
     max-width: 300px;
     padding-block:  .5rem;
@@ -472,3 +473,36 @@ footer {
     background: var(--color-bg);
 }
 
+
+#release-info-content {
+    padding: .7rem 1rem 1rem 1rem;
+    margin: .25rem;
+    background: lightgray;
+    border: darkgray;
+    text-align: start;
+
+    max-height: 50vh;
+    overflow-y: auto;
+    scrollbar-gutter: unset;
+}
+
+#release-btns {
+    margin-top: 1rem;
+    gap: 2rem;
+    display: flex;
+    flex-direction: row;
+    height: fit-content;
+    justify-content: center;
+}
+
+#release-btns a,
+#release-btns button {
+    flex-basis: 40%;
+}
+
+#update-btn {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+}

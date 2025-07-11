@@ -55,7 +55,7 @@ declare global { interface Window {
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;
-        onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string }) => void) => void;
+        onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => void;
     };
 } }
 

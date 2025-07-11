@@ -1,11 +1,13 @@
 import fetch from "node-fetch";
+import log from "electron-log/main";
 
-export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string, body: string } | null> {
+export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string, body: string, browser_download_url: string } | null> {
     const currentVersion = process.env.npm_package_version || "0.0.0";
     try {
         const response = await fetch("https://api.github.com/repos/derJunker/pogostuck-split-tracker/releases/latest");
         if (!response.ok) return null;
         const data = await response.json();
+        const releaseData = data as { tag_name: string, body: string, assets: Array<{ browser_download_url: string }> };
         if (!data || typeof data !== "object") {
             return null;
         }
@@ -16,10 +18,16 @@ export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string,
         }
         const latestVersion = parseVersionFromTag(tagName);
         const localVersion = parseVersionFromTag(currentVersion);
-        if (compareVersions(localVersion, latestVersion) < 0) {
-            return { tag_name: tagName, body };
+        if (compareVersions(localVersion, latestVersion) >= 0) {
+            return null;
         }
-        return null;
+
+        const asset = releaseData.assets.find(a => a.browser_download_url.endsWith(".exe"));
+        if(!asset) {
+            log.warn(`No executable asset found in release ${tagName}.`);
+            return null
+        }
+        return { tag_name: tagName, body, browser_download_url: asset.browser_download_url };
     } catch (e) {
         return null;
     }

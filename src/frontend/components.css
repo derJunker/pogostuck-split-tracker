@@ -87,6 +87,12 @@
     letter-spacing: 0.02em;
 }
 
+button.inverted {
+    background: var(--color-fg);
+    color: var(--color-bg);
+    border: var(--border-width) solid var(--color-border);
+}
+
 /* Checkbox Styles */
 input[type="checkbox"] {
     display: none;
@@ -145,26 +151,34 @@ input[type="color"] {
     background-color: rgba(0,0,0,0.5);
 }
 .modal-content {
+    position: relative;
     background-color: var(--color-fg);
     border:  var(--border-width) solid var(--color-border);
     margin: 10% auto;
     padding: 20px;
     width: 80%;
-    max-width: 400px;
+    max-width: min(75%, 650px);
     border-radius: 8px;
     color: var(--color-bg);
     text-align: center;
 }
 .close {
-    color: var(--color-bg);
+    position: absolute;
+    top: 10px;
+    right: 10px;
     float: right;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    color: darkred;
+    line-height: 1.4rem;
 }
 .close:hover,
 .close:focus {
-    color: darkgray;
     text-decoration: none;
     cursor: pointer;
+    transform: scale(1.25);
+    transition: transform var(--transition-fast);
 }
+
+

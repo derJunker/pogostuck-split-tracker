@@ -1,4 +1,5 @@
 import {UserDataReader} from "./user-data-reader";
+import {ModeSplits} from "../../types/mode-splits";
 
 export class PbSplitTracker {
     private static instance: PbSplitTracker | null = null;

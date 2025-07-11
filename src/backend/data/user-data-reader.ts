@@ -5,6 +5,7 @@ import fs from "fs";
 import log from "electron-log/main";
 import {SettingsManager} from "../settings-manager";
 import {ipcMain} from "electron";
+import {ModeSplits} from "../../types/mode-splits";
 
 
 

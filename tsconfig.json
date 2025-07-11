@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "commonjs",
+    "module": "NodeNext",
     "outDir": "./build",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": ["node", "electron"],
+    "moduleResolution": "nodenext"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "build"]

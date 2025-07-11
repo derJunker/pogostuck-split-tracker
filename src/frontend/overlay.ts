@@ -1,4 +1,6 @@
 import IpcRendererEvent = Electron.IpcRendererEvent;
+import './overlay.css';
+import './components.css';
 
 function loadMapMode(mapAndModeChanged: {
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],

@@ -1,3 +1,7 @@
+import { IpcRendererEvent } from 'electron';
+import './index.css';
+import './components.css';
+
 const menuButtons: NodeListOf<HTMLElement> = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');
 
@@ -534,7 +538,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
 }[]): void {
     const div = document.createElement('div');
     const arrow = document.createElement('img');
-    arrow.src = '../assets/curved-arrow.svg';
+    arrow.src = './assets/curved-arrow.svg';
     arrow.alt = 'curved arrow pointing down';
     const label = document.createElement('label');
     label.setAttribute('for', `gold-${from}-${to}-input`);
@@ -609,7 +613,7 @@ function addPbsAsInputs() {
             });
 
             const button = document.createElement('button');
-            button.innerHTML = `<img src="../assets/diskette.png" alt="Save Icon" id="save-pb-mode-${mode.key}">`;
+            button.innerHTML = `<img src="./assets/diskette.png" alt="Save Icon" id="save-pb-mode-${mode.key}">`;
             button.addEventListener('click', async () => {
                 await onPbEntered(input, mode.key);
             });

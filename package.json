@@ -4,8 +4,11 @@
   "description": "split tracker for the game \"Pogostuck - Rage with your Friends\"",
   "main": "build/backend/main.js",
   "scripts": {
-    "compile": "tsc && copyfiles -f src/frontend/*.{html,css} build/frontend && copyfiles -f assets/**/* build/assets",
+    "frontend:dev": "vite",
+    "frontend:build": "vite build",
+    "compile": "tsc && npm run frontend:build && copyfiles -f assets/**/* build/frontend/assets",
     "start": "npm run compile && electron .",
+    "onlyRun": "electron .",
     "dist": "npm run compile && electron-builder"
   },
   "repository": {
@@ -29,7 +32,9 @@
   "devDependencies": {
     "copyfiles": "^2.4.1",
     "electron": "35.2.1",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "undici-types": "^7.11.0",
+    "vite": "^7.0.4"
   },
   "build": {
     "files": [

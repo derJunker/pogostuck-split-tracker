@@ -364,6 +364,10 @@ function updateCheckpoints() {
 
     splitSelectionDiv.innerHTML = '';
 
+    const title = document.createElement('h3');
+    title.textContent = `Split Skips`;
+    splitSelectionDiv.appendChild(title);
+
     let skippedIndices: number[] = [];
     const skipObj = settings.skippedSplits.find(s => s.mode === modeObj.key);
     if (skipObj) {
@@ -450,6 +454,10 @@ async function reloadGoldSplits() {
     const goldSplitSelection = document.getElementById('gold-split-selection')!
     goldSplitSelection.innerHTML = '';
 
+    const title = document.createElement('h3')
+    title.textContent = 'Gold Splits'
+    goldSplitSelection.appendChild(title)
+
     const splitPath = await window.electronAPI.getSplitPath(mode)
     __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
     const levelMappings = mappings.find(mapInfo => mapInfo.mapIndex === map)!
@@ -464,7 +472,19 @@ async function reloadGoldSplits() {
     const useOldNames = mapSelect.value === "0" && !settings.showNewSplitNames;
 
     const goldSplitTimes = await window.electronAPI.getGoldSplits(mode)
+    appendAllGoldSplits(goldSplitSelection, goldSplitTimes, splitPath, mapSplits, levelMappings, udStart, isUD, useOldNames);
+}
 
+function appendAllGoldSplits(
+    goldSplitSelection: HTMLElement,
+    goldSplitTimes: { from: number; to: number; time: number; }[],
+    splitPath: { from: number; to: number; }[],
+    mapSplits: string[],
+    levelMappings: { endSplitName: string },
+    udStart?: { from: number; to: number; },
+    isUD?: boolean,
+    useOldNames?: boolean
+) {
     if (isUD) {
         appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes);
     }

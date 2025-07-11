@@ -264,12 +264,16 @@ input[type="text"] {
     grid-template-columns: max-content max-content;
     /*just pixel pushing to align T_T mb i dont want to do this correctly*/
     gap: .925rem 1rem;
-    margin-top: .35rem;
 }
 
 #map-n-mode-split-selection > div {
     display: contents;
 }
+
+#map-n-mode-split-selection > h3 {
+    grid-column: 1 / -1;
+}
+
 
 button:active {
     transform: scale(1.04);
@@ -307,8 +311,26 @@ label {
     margin-top: .5rem;
 }
 
+#map-n-mode-split-selection,
+#gold-split-selection {
+    border: 3px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: .5rem;
+}
+
+#map-n-mode-split-selection > h3,
+#gold-split-selection > h3 {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+#map-n-mode-split-selection {
+    padding-inline: 30px;
+}
+
 #gold-split-selection > div {
     position: relative;
+    margin-inline: 30px;
 }
 
 #gold-split-selection label {

@@ -49,7 +49,7 @@ app.on("ready", () => {
         },
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
-    configWindow.setMenu(null);
+    // configWindow.setMenu(null);
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     configWindow.loadFile(indexHTML)
     overlayWindow = openOverlayWindow(configWindow);

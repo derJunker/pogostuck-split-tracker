@@ -1,6 +1,6 @@
 {
   "name": "pogostuck-split-tracker",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "split tracker for the game \"Pogostuck - Rage with your Friends\"",
   "main": "build/backend/main.js",
   "scripts": {
@@ -40,7 +40,7 @@
     "files": [
       "build/**/*"
     ],
-    "icon": "build/assets/clipboard.ico",
+    "icon": "build/frontend/assets/clipboard.ico",
     "directories": {
       "buildResources": "build"
     },

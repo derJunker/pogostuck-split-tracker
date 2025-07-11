@@ -8,6 +8,10 @@ import './index.css';
 import './components.css';
 
 import './config-window/update-handler.ts'
+import {
+    showFullscreenMessageIfPlayingWithFullscreen,
+    showWin11MessagesIfOnWin11
+} from "./config-window/special-circumstances-handler";
 
 const menuButtons: NodeListOf<HTMLElement> = document.querySelectorAll('.menu-btn');
 const contentDivs = document.querySelectorAll('.menu-content');
@@ -130,29 +134,6 @@ function addTabLinkListeners() {
     })
 }
 
-async function showWin11MessagesIfOnWin11() {
-    const isWin11 = await window.electronAPI.isWindows11();
-    __electronLog.info("Is Windows 11: ", isWin11);
-    if (isWin11) {
-        const win11Content = document.querySelectorAll('.only-win11')
-        win11Content.forEach(el => {
-            const htmlEl = el as HTMLElement;
-            htmlEl.style.removeProperty('display');
-        });
-    }
-}
-
-async function showFullscreenMessageIfPlayingWithFullscreen() {
-    const isFullscreen = await window.electronAPI.hasPogostuckFullscreen();
-    __electronLog.info("Has Pogostuck fullscreen: ", isFullscreen);
-    if (isFullscreen) {
-        const fsContent = document.querySelectorAll('.only-fs')
-        fsContent.forEach(el => {
-            const htmlEl = el as HTMLElement;
-            htmlEl.style.removeProperty('display');
-        });
-    }
-}
 
 function setHtmlContentFromSettings() {
     const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;

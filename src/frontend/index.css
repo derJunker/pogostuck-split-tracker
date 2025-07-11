@@ -289,6 +289,7 @@ label {
     user-select: none;
     cursor:  pointer;
 }
+
 #preferences-content {
     display: grid;
     grid-template-columns: max-content max-content;
@@ -309,6 +310,12 @@ label {
     flex-wrap: wrap;
     gap: 9rem;
     margin-top: .5rem;
+}
+
+#map-n-mode-selection {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
 }
 
 #map-n-mode-split-selection,

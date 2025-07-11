@@ -92,16 +92,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     setHtmlContentFromSettings()
     loadLevelsFromMapping()
     updateModesForLevel()
-    updateCheckpoints()
-    await reloadGoldSplits()
+    await updateCheckpointsAndGoldSplits()
     mapSelect.addEventListener('change', async () => {
         updateModesForLevel()
-        updateCheckpoints()
-        await reloadGoldSplits()
+        await updateCheckpointsAndGoldSplits()
     });
     modeSelect.addEventListener('change', async () => {
-        updateCheckpoints()
-        await reloadGoldSplits()
+        await updateCheckpointsAndGoldSplits()
     });
     addPbsAsInputs()
     setPbsToInputs()
@@ -126,8 +123,7 @@ window.electronAPI.mapAndModeChanged(async (event: Electron.IpcRendererEvent,
         mapSelect.value = mapAndMode.map.toString();
         updateModesForLevel();
         modeSelect.value = mapAndMode.mode.toString();
-        updateCheckpoints();
-        await reloadGoldSplits();
+        await updateCheckpointsAndGoldSplits()
     }
 });
 
@@ -261,8 +257,7 @@ document.getElementById('split-naming-select')?.addEventListener('change', async
     const value = (e.target as HTMLSelectElement).value === 'new';
     settings = await window.electronAPI.onOptionShowNewSplitNamesChanged(value);
     mappings = await window.electronAPI.getMappings();
-    updateCheckpoints()
-    await reloadGoldSplits();
+    await updateCheckpointsAndGoldSplits()
 });
 
 document.getElementById('enable-background-color')?.addEventListener('change', async (e) => {
@@ -362,6 +357,9 @@ function updateCheckpoints() {
     const splitSelectionDiv = document.getElementById('map-n-mode-split-selection');
     if (!splitSelectionDiv) return;
 
+    const currentWidth = splitSelectionDiv.offsetWidth;
+    splitSelectionDiv.style.width = currentWidth + 'px';
+
     splitSelectionDiv.innerHTML = '';
 
     const title = document.createElement('h3');
@@ -377,6 +375,10 @@ function updateCheckpoints() {
     mapObj.splits.forEach((split, idx) => {
         addSplitToSkippedSplits(splitSelectionDiv, split, idx, skippedIndices);
     });
+
+    setTimeout(() => {
+        splitSelectionDiv.style.width = '';
+    }, 0);
 }
 
 function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, idx: number, skippedIndices: number[]) {
@@ -452,6 +454,10 @@ async function reloadGoldSplits() {
     const mode = parseInt(modeSelect.value, 10);
     const map = parseInt(mapSelect.value, 10);
     const goldSplitSelection = document.getElementById('gold-split-selection')!
+
+    const currentWidth = goldSplitSelection.offsetWidth;
+    goldSplitSelection.style.width = currentWidth + 'px';
+
     goldSplitSelection.innerHTML = '';
 
     const title = document.createElement('h3')
@@ -473,6 +479,10 @@ async function reloadGoldSplits() {
 
     const goldSplitTimes = await window.electronAPI.getGoldSplits(mode)
     appendAllGoldSplits(goldSplitSelection, goldSplitTimes, splitPath, mapSplits, levelMappings, udStart, isUD, useOldNames);
+
+    setTimeout(() => {
+        goldSplitSelection.style.width = '';
+    }, 0);
 }
 
 function appendAllGoldSplits(
@@ -510,6 +520,11 @@ function appendAllGoldSplits(
     finishDiv.textContent = 'Finish';
 
     goldSplitSelection.appendChild(finishDiv);
+}
+
+async function updateCheckpointsAndGoldSplits() {
+    updateCheckpoints()
+    await reloadGoldSplits()
 }
 
 function appendSplit(name: string, from: number, to: number, goldSplitSelection: HTMLElement, goldSplitTimes: {

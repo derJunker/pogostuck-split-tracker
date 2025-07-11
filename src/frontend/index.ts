@@ -709,3 +709,27 @@ function parsePbTime(timeStr: string): number {
     }
     return h * 3600 + m * 60 + s + ms / 1000;
 }
+
+window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string }) => {
+    const modal = document.getElementById('new-release-modal') as HTMLElement;
+    const content = document.getElementById('release-info-content') as HTMLElement;
+    __electronLog.info(`release version: ${releaseInfo.tag_name}, `);
+    if (modal && content) {
+        content.innerHTML = `
+            <p>Version: <strong>${releaseInfo.tag_name}</strong></p>
+            <p>${releaseInfo.body}</p>
+            <p>Please update to the latest version for the best experience.</p>
+        `
+        modal.style.display = 'block';
+    }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('new-release-modal');
+    const closeBtn = document.getElementById('close-release-modal');
+    const okBtn = document.getElementById('release-modal-ok');
+    if (modal && closeBtn && okBtn) {
+        closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+        okBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    }
+});

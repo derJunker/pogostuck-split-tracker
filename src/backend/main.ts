@@ -1,6 +1,5 @@
 import {app, BrowserWindow, ipcMain, shell} from "electron";
 import * as path from "path";
-import {FileWatcher} from "./logging/logs-watcher";
 import {registerLogEventHandlers} from "./logging/log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "./data/current-state-tracker";
@@ -14,6 +13,7 @@ import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import log from 'electron-log/main';
 import {UserDataReader} from "./data/user-data-reader";
+import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -21,8 +21,8 @@ if (!ActiveWindow.requestPermissions()) {
     process.exit(0);
 }
 
-let configWindow: BrowserWindow | null = null;
-let overlayWindow: BrowserWindow | null = null;
+let configWindow: BrowserWindow;
+let overlayWindow: BrowserWindow;
 
 const indexToNamesMappings = initMappings();
 const userDataReader = UserDataReader.getInstance();
@@ -34,7 +34,7 @@ const settingsManager = SettingsManager.getInstance()
 if (settingsManager.launchPogoOnStartup())
     launchPogostuckIfNotOpenYet().then(() => log.debug("PogoStuck launched on startup."));
 
-app.on("ready", () => {
+app.on("ready", async () => {
     log.initialize();
     configWindow = new BrowserWindow({
         width: 680,
@@ -47,11 +47,16 @@ app.on("ready", () => {
             contextIsolation: true,
             nodeIntegration: false
         },
+        title: "Junker's Split Tracker - v" + process.env.npm_package_version,
         icon: path.join(__dirname, '..', 'assets', 'clipboard.ico'),
     });
     // configWindow.setMenu(null);
+
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
-    configWindow.loadFile(indexHTML)
+    configWindow.loadFile(indexHTML).then(() => {
+        configWindow.webContents.send('new-release-available', { tag_name: "v0.1.0", body: "Content" });
+    })
+
     overlayWindow = openOverlayWindow(configWindow);
     settingsManager.initListeners(overlayWindow, configWindow)
     initLaunchPogoListener();
@@ -64,6 +69,14 @@ app.on("ready", () => {
     goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
     userDataReader.initListeners();
     initWindows11Listeners();
+
+    // getNewReleaseInfoIfOutdated().then(releaseInfo => {
+    //     if (releaseInfo) {
+    //         configWindow!.webContents.send('new-release-available', releaseInfo);
+    //     }
+    // })
+
+
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
 });

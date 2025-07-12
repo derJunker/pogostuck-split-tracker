@@ -49,11 +49,11 @@ function loadMapMode(mapAndModeChanged: {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         __electronLog.info(`Setting sum of best to ${sumOfBest}`);
-        sumOfBestSpan.textContent = formatPbTime(sumOfBest);
+        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
     }
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {
-        pbTimeSpan.textContent = formatPbTime(pb);
+        pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
     }
     document.getElementById('totals')!.style!.display = 'inline';
     document.getElementById('status-msg')!.style!.display = 'none';

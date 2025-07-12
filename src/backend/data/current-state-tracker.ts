@@ -67,7 +67,7 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number): void {
+    public finishedRun(time: number, igPbTime: number, configWindow: Electron.BrowserWindow): void {
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
         const pbTracker = PbSplitTracker.getInstance();
         this.finalTime = time;
@@ -81,11 +81,16 @@ export class CurrentStateTracker {
             goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
+        const pbTimeMismatch = this.pb !== igPbTime;
+        if (pbTimeMismatch) { // kinda redundant, but reads better
+            this.pb = igPbTime;
+            log.info(`PB time mismatch: entered: ${this.pb} vs actual: ${igPbTime}. This might have caused a faulty last Goldsplit. Not my fault tho:)`);
+        }
         if (this.finalTime < this.pb) {
             log.info(`New personal best: ${this.finalTime}`);
             pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
-            pbTracker.updatePbSplitsFromFile();
+            configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: this.finalTime});
         }
     }
 

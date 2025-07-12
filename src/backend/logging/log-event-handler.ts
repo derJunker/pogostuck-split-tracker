@@ -68,14 +68,15 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
     // player run finish gets logged
     fileWatcher.registerListener(
-        /playerRunFinish at frame .* requestProgressUploadTime\((?<time>\d+)\)/,
+        /playerRunFinish at frame .* requestProgressUploadTime\((?<time>\d+)\) <\? bestTime\((?<pbTime>\d+)\)/,
         (match) => {
             if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
                 return;
             }
-            const { time } = match.groups!;
+            const { time, pbTime } = match.groups!;
             const timeInMS = parseFloat(time)
-            stateTracker.finishedRun(timeInMS/1000)
+            const pbTimeInMS = parseFloat(pbTime);
+            stateTracker.finishedRun(timeInMS/1000, pbTimeInMS/1000, configWindow)
             writeGoldSplitsIfChanged(configWindow)
         }
     )

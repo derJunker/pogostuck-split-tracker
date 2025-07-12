@@ -3,6 +3,7 @@ import {Settings} from "../../types/settings";
 
 let settings: Settings;
 let mappings: PogoLevel[]
+let pbs: {mode: number, time: number}[] = [];
 
 export async function loadSettingsAndMappingsFromBackend() {
     await Promise.all([loadBackendSettings(), loadBackendMappings()]);
@@ -14,6 +15,10 @@ export async function loadBackendSettings() {
 
 export async function loadBackendMappings() {
     mappings = await window.electronAPI.getMappings();
+}
+
+export async function loadBackendPbs() {
+    pbs = await window.electronAPI.getPbs();
 }
 
 export function getFrontendSettings(): Settings {
@@ -30,10 +35,21 @@ export function getFrontendMappings(): PogoLevel[] {
     return mappings;
 }
 
+export function getFrontendPbs(): {mode: number, time: number}[] {
+    if (!pbs) {
+        throw new Error("PBs not loaded yet. Call loadPbs() first.");
+    }
+    return pbs;
+}
+
 export function updateFrontendSettings(newSettings: Settings) {
     return settings = newSettings;
 }
 
 export function updateFrontendMappings(newMappings: PogoLevel[]) {
     mappings = newMappings;
+}
+
+export function updateFrontendPbs(newPbs: {mode: number, time: number}[]) {
+    pbs = newPbs;
 }

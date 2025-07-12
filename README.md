@@ -1,9 +1,9 @@
 # pogostuck-split-tracker
 A pogostuck split tracker improving on the basic ingame tracker :).
 
-<img alt="img.png" src="img.png" width="500"/>
+<img alt="split timer with colored splits.png" src="img_1.png" width="500"/>
 
-<sup>(mb that i am terrible T_T these split are atrocious 🐸)</sup>
+<sup>(Average Ice Splits 🐸)</sup>
 
 
 ## What it does
@@ -17,9 +17,9 @@ Additionally to the basic features it also has:
 (Coming at some point)
 - best pace pbs
 - reset counters
+- custom mode support (e.g. boostless, legend exam, etc)
 - stats about performance (average pace etc)
 - custom map support
-- custom mode support (e.g. boostless, legend exam, etc)
 
 This is a very early version of the app, so there are some bugs and layout issues. Ty for understanding 🐸.
 

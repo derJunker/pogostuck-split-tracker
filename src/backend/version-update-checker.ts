@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import log from "electron-log/main";
+import {VERSION} from "../version";
 
 export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string, body: string, browser_download_url: string } | null> {
-    const currentVersion = process.env.npm_package_version || "0.0.0";
     try {
         const response = await fetch("https://api.github.com/repos/derJunker/pogostuck-split-tracker/releases/latest");
         if (!response.ok) return null;
@@ -17,7 +17,7 @@ export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string,
             return null;
         }
         const latestVersion = parseVersionFromTag(tagName);
-        const localVersion = parseVersionFromTag(currentVersion);
+        const localVersion = parseVersionFromTag(VERSION);
         if (compareVersions(localVersion, latestVersion) >= 0) {
             return null;
         }

@@ -58,7 +58,7 @@ export class CurrentStateTracker {
         const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
         if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath) {
             goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
-            log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime}`);
+            log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime} gold split was ${goldSplit}`);
             return true;
         } else {
             log.info(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);

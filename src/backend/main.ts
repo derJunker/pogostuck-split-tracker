@@ -15,6 +15,8 @@ import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import {UserDataReader} from "./data/user-data-reader";
 import windowStateKeeper from "electron-window-state";
+import { VERSION } from "../version";
+import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
 
 log.initialize();
 
@@ -57,7 +59,7 @@ app.on("ready", async () => {
             contextIsolation: true,
             nodeIntegration: false
         },
-        title: "Junker's Split Tracker - v" + process.env.npm_package_version,
+        title: "Junker's Split Tracker - v" + VERSION,
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
     configWindowState.manage(configWindow);
@@ -68,11 +70,11 @@ app.on("ready", async () => {
 
     configWindow.webContents.on('did-finish-load', () => {
         // TODO uncomment before next release
-        // getNewReleaseInfoIfOutdated().then(releaseInfo => {
-        //     if (releaseInfo) {
-        //         configWindow!.webContents.send('new-release-available', releaseInfo);
-        //     }
-        // })
+        getNewReleaseInfoIfOutdated().then(releaseInfo => {
+            if (releaseInfo) {
+                configWindow!.webContents.send('new-release-available', releaseInfo);
+            }
+        })
     });
 
     overlayWindow = openOverlayWindow(configWindow);

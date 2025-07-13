@@ -43,7 +43,9 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, "preload.js"),
-        }
+        },
+        title: "split-overlay",
+        icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
     overlayState.manage(overlayWindow)
     overlayWindow.setAspectRatio(overlayWidth / overlayHeight);
@@ -77,7 +79,6 @@ function addPogostuckOpenedListener(overlayWindow: BrowserWindow, mainWindow: Br
 function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWindow, mainWindow: BrowserWindow) : boolean {
     if (!winInfo) return false;
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
-    // TODO dont hardcode it
     const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
     // TODO use "path" attribute to read steam dir of pogostuck for acklog.txt
     pogostuckIsActiveWindow = isPogostuck;

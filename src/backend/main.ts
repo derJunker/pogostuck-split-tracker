@@ -1,5 +1,8 @@
-import {app, BrowserWindow, ipcMain, shell} from "electron";
 import * as path from "path";
+import ActiveWindow from "@paymoapp/active-window";
+import log from 'electron-log/main';
+import {app, BrowserWindow, ipcMain} from "electron";
+
 import {registerLogEventHandlers} from "./logging/log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "./data/current-state-tracker";
@@ -7,12 +10,11 @@ import {initMappings} from "./create-index-mappings";
 import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./read-golden-splits";
-import ActiveWindow from "@paymoapp/active-window";
 import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
-import log from 'electron-log/main';
 import {UserDataReader} from "./data/user-data-reader";
+import windowStateKeeper from "electron-window-state";
 
 log.initialize();
 
@@ -36,9 +38,17 @@ if (settingsManager.launchPogoOnStartup())
     launchPogostuckIfNotOpenYet().then(() => log.debug("PogoStuck launched on startup."));
 
 app.on("ready", async () => {
+    let configWindowState = windowStateKeeper({
+        defaultWidth: 680,
+        defaultHeight: 800,
+        file: 'config-window-state.json',
+    });
+
     configWindow = new BrowserWindow({
-        width: 680,
-        height: 800,
+        x: configWindowState.x,
+        y: configWindowState.y,
+        width: configWindowState.width,
+        height: configWindowState.height,
         show: true,
         autoHideMenuBar: true,
         thickFrame: true,
@@ -50,6 +60,7 @@ app.on("ready", async () => {
         title: "Junker's Split Tracker - v" + process.env.npm_package_version,
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
+    configWindowState.manage(configWindow);
     configWindow.setMenu(null);
 
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");

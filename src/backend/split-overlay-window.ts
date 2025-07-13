@@ -8,6 +8,7 @@ import {SettingsManager} from "./settings-manager";
 import {isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
+import windowStateKeeper from "electron-window-state";
 
 let pogostuckIsActiveWindow = false;
 
@@ -16,11 +17,24 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayWidth = 530;
     const overlayHeight = 300;
 
+    const overlayState = windowStateKeeper({
+        defaultWidth: overlayWidth,
+        defaultHeight: overlayHeight,
+        file: 'overlay-window-state.json',
+    })
+
+    const x = overlayState.x !== undefined ? overlayState.x : screen.getPrimaryDisplay().workArea.width - overlayWidth;
+    const y = overlayState.y !== undefined ? overlayState.y : 0;
+
+    log.debug(`overlayState: ${JSON.stringify(overlayState)}`);
+    log.debug(`x: ${x}, y: ${y}, width: ${overlayState.width}, height: ${overlayState.height}`);
+    log.debug(`primary display work area: ${JSON.stringify(screen.getPrimaryDisplay().workAreaSize)}`);
+
     const overlayWindow = new BrowserWindow({
-        width: overlayWidth,
-        height: overlayHeight,
-        x: screen.getPrimaryDisplay().workArea.width - overlayWidth,
-        y: 0,
+        width: overlayState.width,
+        height: overlayState.height,
+        x: x,
+        y: y,
         transparent: true,
         frame: false,
         show: false,
@@ -31,6 +45,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
             preload: path.join(__dirname, "preload.js"),
         }
     });
+    overlayState.manage(overlayWindow)
     overlayWindow.setAspectRatio(overlayWidth / overlayHeight);
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")

@@ -25,6 +25,7 @@
     "@paymoapp/active-window": "^2.1.2",
     "chokidar": "^4.0.3",
     "electron-log": "^5.4.1",
+    "electron-window-state": "^5.0.3",
     "marked": "^16.0.0",
     "node-fetch": "^3.3.2",
     "typescript": "^5.8.3"

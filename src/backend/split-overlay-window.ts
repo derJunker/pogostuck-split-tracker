@@ -14,7 +14,7 @@ let pogostuckIsActiveWindow = false;
 export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
     const overlayWidth = 530;
-    const overlayHeight = 290;
+    const overlayHeight = 300;
 
     const overlayWindow = new BrowserWindow({
         width: overlayWidth,
@@ -31,6 +31,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
             preload: path.join(__dirname, "preload.js"),
         }
     });
+    overlayWindow.setAspectRatio(overlayWidth / overlayHeight);
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
     addPogostuckOpenedListener(overlayWindow, mainWindow)

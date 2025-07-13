@@ -15,6 +15,14 @@ body {
     height: 100vh;
     margin: 0;
     line-height: 0.8;
+    overflow: hidden;
+}
+
+@media (max-width: 340px) {
+    body {
+        -webkit-text-stroke-width: 0;
+        font-weight: normal;
+    }
 }
 
 button {

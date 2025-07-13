@@ -7,7 +7,7 @@ import { CurrentStateTracker } from "./data/current-state-tracker";
 import { GoldSplitsTracker } from "./data/gold-splits-tracker";
 import { PbSplitTracker } from "./data/pb-split-tracker";
 import { PogoNameMappings } from "./data/pogo-name-mappings";
-import {writeGoldSplitsIfChanged} from "./read-golden-splits";
+import {writeGoldSplitsIfChanged} from "./file-reading/read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
 import {redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";

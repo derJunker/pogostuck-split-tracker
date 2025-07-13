@@ -1,14 +1,14 @@
 import path from "path";
 import {app, BrowserWindow} from "electron";
 import fs, {existsSync} from "fs";
-import {GoldenSplitsForMode} from "../types/golden-splits";
-import {PogoNameMappings} from "./data/pogo-name-mappings";
-import {GoldSplitsTracker} from "./data/gold-splits-tracker";
+import {GoldenSplitsForMode} from "../../types/golden-splits";
+import {PogoNameMappings} from "../data/pogo-name-mappings";
+import {GoldSplitsTracker} from "../data/gold-splits-tracker";
+import log from "electron-log/main";
 
 const goldenSplitFilePath = path.join(app.getPath("userData"), "golden-splits.json");
 
 export function readGoldenSplits(): GoldenSplitsForMode[] {
-    const indexToNamesMappings = PogoNameMappings.getInstance();
     if (existsSync(goldenSplitFilePath)) {
         try {
             const data = require(goldenSplitFilePath);
@@ -17,14 +17,15 @@ export function readGoldenSplits(): GoldenSplitsForMode[] {
                     ...item
                 }));
             } else {
-                console.error("Expected an array for Golden Splits but got:", typeof data);
+                log.error("Expected an array for Golden Splits but got:", typeof data);
                 return []
             }
         } catch (error) {
-            console.error("Error reading golden splits:", error);
+            log.error("Error reading golden splits:", error);
             return []
         }
     } else {
+        const indexToNamesMappings = PogoNameMappings.getInstance();
         const allLevels = indexToNamesMappings.getAllLevels()
         return allLevels.flatMap(level =>
             level.modes.map(mode => {

@@ -1,7 +1,7 @@
 import {GoldenSplitsForMode} from "../../types/golden-splits";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {BrowserWindow, ipcMain} from "electron";
-import {writeGoldenSplits} from "../read-golden-splits";
+import {writeGoldenSplits} from "../file-reading/read-golden-splits";
 import { SettingsManager } from "../settings-manager";
 import {redrawSplitDisplay} from "../split-overlay-window";
 import {isUpsideDownMode} from "./valid-modes";

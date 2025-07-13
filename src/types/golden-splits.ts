@@ -7,3 +7,11 @@ export interface GoldenSplitsForMode {
     })[],
     pb: number
 }
+
+export interface GoldenPaceForMode {
+    modeIndex: number;
+    goldenPaces: {
+        splitIndex: number,
+        time: number
+    }[]
+}

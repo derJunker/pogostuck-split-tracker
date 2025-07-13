@@ -4,7 +4,7 @@ import {BrowserWindow} from "electron";
 import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/gold-splits-tracker";
-import {writeGoldSplitsIfChanged} from "../read-golden-splits";
+import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
 import {resetOverlay} from "../split-overlay-window";

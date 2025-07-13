@@ -1,9 +1,9 @@
 import path from "path";
 import {app} from "electron";
-import {PogoLevel} from "../types/pogo-index-mapping";
+import {PogoLevel} from "../../types/pogo-index-mapping";
 import fs from "fs";
-import {defaultMappings} from "./data/default-mappings";
-import {PogoNameMappings} from "./data/pogo-name-mappings";
+import {defaultMappings} from "../data/default-mappings";
+import {PogoNameMappings} from "../data/pogo-name-mappings";
 import log from "electron-log/main";
 
 const mappingsPath = path.join(app.getPath("userData"), "mappings.json");

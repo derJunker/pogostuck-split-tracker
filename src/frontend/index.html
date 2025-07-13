@@ -75,14 +75,26 @@
             </div>
             <div id="preferences-content" class="menu-content">
                 <div class="toggle-switch">
-                    <label for="launch-pogo-on-startup" class="toggle-label">Launch Pogostuck on startup:</label>
-                    <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
-                    <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
+                    <label for="only-colored-diff" class="toggle-label">Only color the time difference:</label>
+                    <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
+                    <button id="only-colored-diff-custom" class="custom-checkbox"></button>
                 </div>
                 <div class="toggle-switch">
                     <label for="ignore-skipped-splits" class="toggle-label">Hide skipped splits:</label>
                     <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
                     <button id="ignore-skipped-splits-custom" class="custom-checkbox"></button>
+                </div>
+                <div>
+                    <label for="split-naming-select">Split Names: </label>
+                    <div class="dropdown-container">
+                        <select id="split-naming-select" class="dropdown">
+                            <option value="new">New</option>
+                            <option value="old">Old</option>
+                        </select>
+                        <span class="dropdown-arrow">
+                        <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                    </span>
+                    </div>
                 </div>
                 <div class="toggle-switch">
                     <label for="click-through-overlay" class="toggle-label">Overlay is not clickable:</label>
@@ -95,11 +107,7 @@
                     <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
                     <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
                 </div>
-                <div class="toggle-switch">
-                    <label for="only-colored-diff" class="toggle-label">Only color the time difference:</label>
-                    <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
-                    <button id="only-colored-diff-custom" class="custom-checkbox"></button>
-                </div>
+
                 <div class="toggle-switch">
                     <label for="enable-background-color" class="toggle-label">Enable background color:</label>
                     <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
@@ -109,18 +117,10 @@
                     <label for="set-background-color" class="input-label">Set Background Color:</label>
                     <input type="color" id="set-background-color" value="#000000">
                 </div>
-
-                <div>
-                    <label for="split-naming-select">Split Names: </label>
-                    <div class="dropdown-container">
-                        <select id="split-naming-select" class="dropdown">
-                            <option value="new">New</option>
-                            <option value="old">Old</option>
-                        </select>
-                        <span class="dropdown-arrow">
-                        <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
-                    </span>
-                    </div>
+                <div class="toggle-switch">
+                    <label for="launch-pogo-on-startup" class="toggle-label">Launch Pogostuck on startup:</label>
+                    <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
+                    <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
                 </div>
             </div>
             <div id="paths-content" class="menu-content">

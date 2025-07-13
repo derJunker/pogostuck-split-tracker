@@ -50,7 +50,7 @@ app.on("ready", async () => {
         title: "Junker's Split Tracker - v" + process.env.npm_package_version,
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
-    // configWindow.setMenu(null);
+    configWindow.setMenu(null);
 
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     configWindow.loadFile(indexHTML).then(async () => {})
@@ -80,4 +80,6 @@ app.on("ready", async () => {
 
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
+    configWindow.on('closed', () => { overlayWindow.close() }); // i chose against this being parent window to
+    // overlayWindow so you can capture it for streaming or sth
 });

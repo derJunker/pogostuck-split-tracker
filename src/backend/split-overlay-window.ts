@@ -41,7 +41,6 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     })
 
     overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
-    overlayWindow.on('closed', () => { /* Handle window close if needed */ });
     return overlayWindow
 }
 

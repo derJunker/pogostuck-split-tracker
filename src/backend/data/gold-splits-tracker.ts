@@ -103,6 +103,7 @@ export class GoldSplitsTracker {
     public updatePbForMode(modeIndex: number, newPb: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
+            log.info(`Updating PB for mode ${modeIndex} from ${modeSplits.pb} to ${newPb}`);
             if (modeSplits.pb !== newPb) {
                 const pbSplitTracker = PbSplitTracker.getInstance();
                 modeSplits.pb = newPb;
@@ -167,8 +168,6 @@ export class GoldSplitsTracker {
 
     public initListeners(overlayWindow: BrowserWindow,
                          indexToNamesMappings: PogoNameMappings) {
-        const settingsManager = SettingsManager.getInstance();
-        const pbSplitTracker = PbSplitTracker.getInstance();
         ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
@@ -188,7 +187,7 @@ export class GoldSplitsTracker {
             const {map, mode, from, to, time} = goldSplitInfo;
             const isFasterThanCurrentPbSplits = this.isFasterThanCurrentPbSplits(mode, from, to, time);
             if (!isFasterThanCurrentPbSplits) {
-                log.warn(`Tried to enter gold split that is not faster than current PB split`);
+                log.warn(`Tried to enter gold split that is not faster than current PB split for mode ${mode}: from ${from} to ${to} with time ${time}`);
                 return false
             }
 
@@ -227,10 +226,9 @@ export class GoldSplitsTracker {
             fileFrom = modeSplits.times.find(split => split.split === from)?.time;
         }
         let fileTo: number | undefined;
-        if (!isUD && to === -1) {
+        if (!isUD && to === modeSplits.times.length) {
             fileTo = this.getPbForMode(mode);
-            fileTo = 0;
-        } else if (isUD && to === modeSplits.times.length) {
+        } else if (isUD && to === -1) {
             fileTo = this.getPbForMode(mode);
         } else {
             fileTo = modeSplits.times.find(split => split.split === to)?.time;
@@ -246,6 +244,7 @@ export class GoldSplitsTracker {
             log.warn(`Gold split time ${time} is greater than or equal to the file diff ${fileDiff} for from ${from} and to ${to} in mode ${mode}`);
             return false;
         }
+        log.info(`Gold split time ${time} is faster than the file diff ${fileDiff} for from ${from} and to ${to} in mode ${mode} isUD: ${isUD} fileFrom: ${fileFrom}, fileTo: ${fileTo}`);
         return true;
     }
 

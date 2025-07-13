@@ -1,4 +1,3 @@
-import IpcRendererEvent = Electron.IpcRendererEvent;
 import './overlay.css';
 import './components.css';
 import { formatPbTime } from './util/time-formating';
@@ -46,15 +45,7 @@ function loadMapMode(mapAndModeChanged: {
         });
     }
     // Sum of Best und PB setzen
-    const sumOfBestSpan = document.getElementById('sum-of-best');
-    if (sumOfBestSpan) {
-        __electronLog.info(`Setting sum of best to ${sumOfBest}`);
-        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
-    }
-    const pbTimeSpan = document.getElementById('pb-time');
-    if (pbTimeSpan) {
-        pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
-    }
+    resetPbAndSumOfBest(pb, sumOfBest)
     document.getElementById('totals')!.style!.display = 'inline';
     document.getElementById('status-msg')!.style!.display = 'none';
 }
@@ -130,14 +121,8 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
                                       sumOfBest: number,
                                       settings: any
                                        }) => {
-    const sumOfBestSpan = document.getElementById('sum-of-best');
-    if (sumOfBestSpan) {
-        sumOfBestSpan.textContent = formatPbTime(pbRunInfoAndSoB.sumOfBest);
-    }
-    const pbTimeSpan = document.getElementById('pb-time');
-    if (pbTimeSpan) {
-        pbTimeSpan.textContent = formatPbTime(pbRunInfoAndSoB.pb);
-    }
+    __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
+    resetPbAndSumOfBest(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest);
 
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
@@ -177,6 +162,18 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
     })
 });
 
+
+function resetPbAndSumOfBest(pb: number, sumOfBest: number) {
+    const sumOfBestSpan = document.getElementById('sum-of-best');
+    if (sumOfBestSpan) {
+        __electronLog.info(`Setting sum of best to ${sumOfBest}`);
+        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
+    }
+    const pbTimeSpan = document.getElementById('pb-time');
+    if (pbTimeSpan) {
+        pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
+    }
+}
 window.electronAPI.mainMenuOpened(() => {
     const splitsDiv = document.getElementById('splits');
     if (splitsDiv) {

@@ -47,6 +47,7 @@ export function addEmptyPbInputFields() {
 
 window.electronAPI.onPbImproved((event, data) => {
     const {mode, pbTime} = data;
+    __electronLog.info(`Frontend: PB improved for mode ${mode}: ${pbTime}`);
     const input = document.getElementById(`pb-mode-${mode}`) as HTMLInputElement;
     input.value = formatPbTime(pbTime);
 

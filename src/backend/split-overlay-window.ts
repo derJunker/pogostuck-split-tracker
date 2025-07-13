@@ -88,6 +88,7 @@ export function redrawSplitDisplay(
     if (!isValidModeAndMap(mapNum, modeNum))
         return;
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum);
+    log.info(`Backend: Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
 }
 

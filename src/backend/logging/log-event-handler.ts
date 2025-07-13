@@ -76,7 +76,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const { time, pbTime } = match.groups!;
             const timeInMS = parseFloat(time)
             const pbTimeInMS = parseFloat(pbTime);
-            stateTracker.finishedRun(timeInMS/1000, pbTimeInMS/1000, configWindow)
+            stateTracker.finishedRun(timeInMS/1000, pbTimeInMS/1000, configWindow, overlayWindow)
             writeGoldSplitsIfChanged(configWindow)
         }
     )

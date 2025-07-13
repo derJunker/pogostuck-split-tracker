@@ -3,6 +3,8 @@ import {PbSplitTracker} from "./pb-split-tracker";
 import {SettingsManager} from "../settings-manager";
 import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
+import {redrawSplitDisplay} from "../split-overlay-window";
+import {BrowserWindow} from "electron";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -10,7 +12,6 @@ export class CurrentStateTracker {
     private map: number = -1;
     private recordedSplits: { split: number, time: number }[] = [];
     private finalTime: number = -1;
-    private pb: number = 0;
 
     public static getInstance(): CurrentStateTracker {
         if (!CurrentStateTracker.instance) {
@@ -25,7 +26,6 @@ export class CurrentStateTracker {
             this.mode = mode;
             this.recordedSplits = [];
             this.finalTime = -1;
-            this.pb = GoldSplitsTracker.getInstance().getPbForMode(this.mode);
             log.info(`Map changed to ${map}, mode changed to ${mode}`);
             return true;
         }
@@ -67,11 +67,12 @@ export class CurrentStateTracker {
         }
     }
 
-    public finishedRun(time: number, igPbTime: number, configWindow: Electron.BrowserWindow): void {
+    public finishedRun(time: number, igPbTime: number, configWindow: BrowserWindow, overlay: BrowserWindow): void {
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
         const pbTracker = PbSplitTracker.getInstance();
         this.finalTime = time;
-        log.info(`Run finished with time: ${time}`);
+        let pb = goldSplitsTracker.getPbForMode(this.mode)
+        log.info(`Run finished with time: ${time} registered ingame pb time: ${igPbTime} programmed pb time: ${pb}`);
         const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
         const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode)
@@ -81,16 +82,23 @@ export class CurrentStateTracker {
             goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
-        const pbTimeMismatch = this.pb !== igPbTime;
+        const pbTimeMismatch = pb !== igPbTime;
+        const stateTracker = CurrentStateTracker.getInstance();
+
         if (pbTimeMismatch) { // kinda redundant, but reads better
-            this.pb = igPbTime;
-            log.info(`PB time mismatch: entered: ${this.pb} vs actual: ${igPbTime}. This might have caused a faulty last Goldsplit. Not my fault tho:)`);
+            log.info(`PB time mismatch: entered:vs actual: ${igPbTime}. This might have caused a faulty last Goldsplit. Not my fault tho:)`);
+            pb = igPbTime;
         }
-        if (this.finalTime < this.pb) {
+        if (this.finalTime < pb) {
             log.info(`New personal best: ${this.finalTime}`);
             pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
+            redrawSplitDisplay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlay);
             configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: this.finalTime});
+        } else if(pbTimeMismatch) { // if there was a mismatch and this run was not an actual pb still redraw the overlay
+            goldSplitsTracker.updatePbForMode(this.mode, pb)
+            redrawSplitDisplay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlay);
+            configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: pb})
         }
     }
 

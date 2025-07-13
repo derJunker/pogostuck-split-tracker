@@ -89,7 +89,12 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
-            if (!existsSync(path.join(steamUserDataPath, ...userDataPathEnd))) {
+            const settingsTxtPath = path.join(steamUserDataPath, ...userDataPathEnd)
+            if (!existsSync(settingsTxtPath)) {
+                log.info(`Steam user data path does not exist: settingsPath calculated: ${settingsTxtPath} for steamUserDataPath: ${steamUserDataPath}`);
+                const steamUserDataPathExists = existsSync(steamUserDataPath);
+                const settingsPathExists = existsSync(settingsTxtPath);
+                log.info(`Steam user data path exists: ${steamUserDataPathExists}, settings.txt exists: ${settingsPathExists}`);
                 return this.currentSettings;
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;

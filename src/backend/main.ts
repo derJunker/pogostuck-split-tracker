@@ -14,6 +14,8 @@ import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-l
 import log from 'electron-log/main';
 import {UserDataReader} from "./data/user-data-reader";
 
+log.initialize();
+
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
     log.error('You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
@@ -34,7 +36,6 @@ if (settingsManager.launchPogoOnStartup())
     launchPogostuckIfNotOpenYet().then(() => log.debug("PogoStuck launched on startup."));
 
 app.on("ready", async () => {
-    log.initialize();
     configWindow = new BrowserWindow({
         width: 680,
         height: 800,

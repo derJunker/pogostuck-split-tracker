@@ -29,6 +29,7 @@ declare global { interface Window {
 
         // config window sending events to backend
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;
+        onOptionHideWindowWhenPogoNotActive: (hideWindow: boolean) => Promise<Settings>;
         onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => Promise<Settings>;
         onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;
         onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => Promise<Settings>;

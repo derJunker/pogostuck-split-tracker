@@ -55,6 +55,13 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
+
+        ipcMain.handle("option-hide-overlay-when-not-active-changed", (event, hideWindow: boolean) => {
+            this.currentSettings.hideWindowWhenPogoNotActive = hideWindow;
+            if (!hideWindow) overlayWindow.show();
+            this.saveSettings()
+            return this.currentSettings
+        });
         ipcMain.handle('only-diff-colored-changed', (event, colorOnlyDiffs: boolean) => {
             this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
             const modeNum = stateTracker.getCurrentMode();
@@ -180,6 +187,9 @@ export class SettingsManager {
         if (existsSync(this.settingsPath)) {
             // Migration vom alten settings path: Nur entfernen, wenn am Ende, und Trennzeichen-unabhängig
             const settings: Settings = JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
+            if (typeof settings.hideWindowWhenPogoNotActive === "undefined") {
+                settings.hideWindowWhenPogoNotActive = true;
+            }
             if (settings.pogostuckSteamUserDataPath) {
                 // Regex: entfernt '688130/remote' oder '688130\\remote' am Ende des Strings
                 settings.pogostuckSteamUserDataPath = settings.pogostuckSteamUserDataPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/ , "");
@@ -197,6 +207,8 @@ export class SettingsManager {
 
                 enableBackgroundColor: false,
                 backgroundColor: "#000000",
+
+                hideWindowWhenPogoNotActive: true,
 
                 // split skip
                 skippedSplits: [],
@@ -272,5 +284,9 @@ export class SettingsManager {
 
     public clickThroughOverlay() {
         return this.currentSettings.clickThroughOverlay;
+    }
+
+    public hideWindowWhenPogoNotActive() {
+        return this.currentSettings.hideWindowWhenPogoNotActive;
     }
 }

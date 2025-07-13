@@ -11,6 +11,8 @@ export interface Settings {
     enableBackgroundColor: boolean,
     backgroundColor: string,
 
+    hideWindowWhenPogoNotActive: boolean,
+
     // split skips
     skippedSplits: {mode:number, skippedSplitIndices: number[]}[]
 

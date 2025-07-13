@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // config window sending events to backend
     onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => ipcRenderer.invoke('option-hide-skipped-splits-changed', hideSkippedSplits),
+    onOptionHideWindowWhenPogoNotActive: (hideWindow: boolean) => ipcRenderer.invoke('option-hide-overlay-when-not-active-changed', hideWindow),
     onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => ipcRenderer.invoke('option-launch-pogo-on-startup', launchPogoOnStartup),
     onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => ipcRenderer.invoke('option-show-new-split-names-changed', showNewSplitNames),
     onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => ipcRenderer.invoke('option-click-through-overlay-changed', clickThroughOverlay),

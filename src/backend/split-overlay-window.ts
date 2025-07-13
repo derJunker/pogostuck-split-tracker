@@ -21,7 +21,6 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         height: overlayHeight,
         x: screen.getPrimaryDisplay().workArea.width - overlayWidth,
         y: 0,
-        parent: mainWindow,
         transparent: true,
         frame: false,
         show: false,
@@ -37,7 +36,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     addPogostuckOpenedListener(overlayWindow, mainWindow)
 
     overlayWindow.on("ready-to-show", () => {
-        if (pogostuckIsActiveWindow)
+        if (pogostuckIsActiveWindow || !SettingsManager.getInstance().hideWindowWhenPogoNotActive())
             overlayWindow.show();
     })
 
@@ -49,11 +48,12 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
 function addPogostuckOpenedListener(overlayWindow: BrowserWindow, mainWindow: BrowserWindow) {
     pogostuckIsActiveWindow = pogostuckIsActive(ActiveWindow.getActiveWindow(), overlayWindow, mainWindow)
     ActiveWindow.subscribe(windowInfo => {
+        const showWindowEvenWhenNotActive = !SettingsManager.getInstance().hideWindowWhenPogoNotActive()
         const pogostuckWasActive = pogostuckIsActiveWindow;
         pogostuckIsActiveWindow = pogostuckIsActive(windowInfo, overlayWindow, mainWindow);
-        if (!pogostuckWasActive && pogostuckIsActiveWindow) {
+        if ((!pogostuckWasActive && pogostuckIsActiveWindow) || (!overlayWindow.isVisible() && showWindowEvenWhenNotActive)) {
             overlayWindow.show();
-        } else if (pogostuckWasActive && !pogostuckIsActiveWindow) {
+        } else if (pogostuckWasActive && !pogostuckIsActiveWindow && !showWindowEvenWhenNotActive) {
             overlayWindow.hide();
         }
     })

@@ -4,6 +4,7 @@ import {updateCheckpointsAndGoldSplits} from "./splits-tab-handler";
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
 const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
 const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
+const hideWindowWhenPogoNotActiveCheckbox = document.getElementById('hide-when-pogo-not-active') as HTMLInputElement;
 const onlyColorDiffCheckbox = document.getElementById('only-colored-diff') as HTMLInputElement;
 const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-startup') as HTMLInputElement;
 const clickThroughOverlayCheckbox = document.getElementById('click-through-overlay') as HTMLInputElement;
@@ -22,6 +23,9 @@ export function setPreferenceTabValuesFromSettings() {
 
     hideSkippedSplitsCheckbox.checked = settings.hideSkippedSplits;
     hideSkippedSplitsCheckbox.dispatchEvent(new Event('change'));
+
+    hideWindowWhenPogoNotActiveCheckbox.checked = settings.hideWindowWhenPogoNotActive;
+    hideWindowWhenPogoNotActiveCheckbox.dispatchEvent(new Event('change'));
 
     onlyColorDiffCheckbox.checked = settings.onlyDiffsColored;
     onlyColorDiffCheckbox.dispatchEvent(new Event('change'));
@@ -42,6 +46,11 @@ export function setPreferenceTabValuesFromSettings() {
 hideSkippedSplitsCheckbox.addEventListener('change', async (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     updateFrontendSettings(await window.electronAPI.onOptionHideSkippedSplitsChanged(checked))
+});
+
+hideWindowWhenPogoNotActiveCheckbox.addEventListener('change', async (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    updateFrontendSettings(await window.electronAPI.onOptionHideWindowWhenPogoNotActive(checked))
 });
 
 onlyColorDiffCheckbox.addEventListener('change', async (e) => {

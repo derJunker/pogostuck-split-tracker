@@ -54,9 +54,10 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
     __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
-        const goldPaceClass = goldPace ? ' gold-pace' : '';
-        const nameSpan = splitDiv.querySelector('.split-name')!;
-        nameSpan.classList.add(goldPaceClass);
+        if (goldPace) {
+            const nameSpan = splitDiv.querySelector('.split-name')!;
+            nameSpan.classList.add("gold-pace");
+        }
         const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
         const timeSpan = splitDiv.querySelector('.split-time');
         if (timeSpan) {

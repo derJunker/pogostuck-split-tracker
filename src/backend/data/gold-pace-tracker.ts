@@ -121,7 +121,7 @@ export class GoldPaceTracker {
             if (!goldPacesForMode) return // TODO adjust prolly
             times.forEach((splitInfo) => {
                 const goldPace = this.getGoldPaceForSplitWithPaces(goldPacesForMode, splitInfo.split)
-                if (!goldPace || goldPace.time > splitInfo.time) {
+                if (!goldPace || (goldPace.time > splitInfo.time && splitInfo.time != 0)) {
                     this.changed = true;
                     const indexOfSplit = goldPacesForMode.goldenPaces.findIndex(p => p.splitIndex === splitInfo.split);
                     if (indexOfSplit === -1) {

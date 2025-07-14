@@ -44,7 +44,7 @@ if (settingsManager.launchPogoOnStartup())
 
 app.on("ready", async () => {
     let configWindowState = windowStateKeeper({
-        defaultWidth: 680,
+        defaultWidth: 800,
         defaultHeight: 800,
         file: 'config-window-state.json',
     });
@@ -73,11 +73,11 @@ app.on("ready", async () => {
 
     configWindow.webContents.on('did-finish-load', () => {
         // TODO uncomment before next release
-        getNewReleaseInfoIfOutdated().then(releaseInfo => {
-            if (releaseInfo) {
-                configWindow!.webContents.send('new-release-available', releaseInfo);
-            }
-        })
+        // getNewReleaseInfoIfOutdated().then(releaseInfo => {
+        //     if (releaseInfo) {
+        //         configWindow!.webContents.send('new-release-available', releaseInfo);
+        //     }
+        // })
     });
 
     overlayWindow = openOverlayWindow(configWindow);
@@ -92,6 +92,7 @@ app.on("ready", async () => {
     writeGoldPacesIfChanged(configWindow)
 
     goldSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
+    goldPaceTracker.initListeners(overlayWindow);
     userDataReader.initListeners();
     initWindows11Listeners();
 

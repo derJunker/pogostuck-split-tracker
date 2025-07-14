@@ -12,19 +12,20 @@ export async function initSplitsTab() {
 
     loadLevelsFromMapping()
     updateModesForLevel()
-    await updateCheckpointsAndGoldSplits()
+    await updateSplitsAndGolds()
     mapSelect.addEventListener('change', async () => {
         updateModesForLevel()
-        await updateCheckpointsAndGoldSplits()
+        await updateSplitsAndGolds()
     });
     modeSelect.addEventListener('change', async () => {
-        await updateCheckpointsAndGoldSplits()
+        await updateSplitsAndGolds()
     });
 }
 
-export async function updateCheckpointsAndGoldSplits() {
+export async function updateSplitsAndGolds() {
     updateCheckpoints()
     await reloadGoldSplits()
+    await reloadGoldPaces()
 }
 
 export async function reloadGoldSplitsIfModeActive(mode: number) {
@@ -115,6 +116,77 @@ async function reloadGoldSplits() {
     setTimeout(() => {
         goldSplitSelection.style.width = '';
     }, 0);
+}
+
+async function reloadGoldPaces() {
+    const mode = parseInt(modeSelect.value, 10);
+    const map = parseInt(mapSelect.value, 10);
+
+    const goldPaceSelection = document.getElementById('gold-pace-selection')!
+
+    const currentWidth = goldPaceSelection.offsetWidth;
+    goldPaceSelection.style.width = currentWidth + 'px';
+
+    goldPaceSelection.innerHTML = '';
+
+    const title = document.createElement('h3')
+    title.textContent = 'Gold Paces'
+    goldPaceSelection.appendChild(title)
+
+    const levels = getFrontendMappings();
+    const levelMappings = levels.find(level => level.mapIndex === map)!;
+
+    const goldPaceTimes = await window.electronAPI.getGoldPaces(mode)
+    appendAllGoldPaces(goldPaceSelection, goldPaceTimes, levelMappings);
+
+    setTimeout(() => {
+        goldPaceSelection.style.width = '';
+    }, 0);
+}
+
+function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { splitIndex: number, time: number; }[], levelMappings: { splits: string[] }) {
+    //                         <label for="pace-0-input">Bones</label>
+    //                         <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">
+    //                         <label for="pace-1-input">Wind</label>
+    //                         <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">
+    levelMappings.splits.forEach((split, index) => {
+        const splitTime  = goldPaceTimes.find(gp => gp.splitIndex === index);
+        const label = document.createElement('label');
+        label.setAttribute('for', `pace-${index}-input`);
+        label.textContent = split;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = `pace-${index}-input`;
+        input.value = splitTime ? formatPbTime(splitTime.time, true) : '';
+        input.className = 'pace-input';
+        input.placeholder = '00:00.000';
+
+        input.addEventListener('input', async (event) => {
+            const map = parseInt(mapSelect.value)
+            const mode = parseInt(modeSelect.value)
+            const time = parsePbTime((event.target as HTMLInputElement).value)
+            let valid = time >= 0;
+            if (valid) {
+                valid = await window.electronAPI.onGoldenPaceEntered({
+                    map: map,
+                    mode: mode,
+                    splitIndex: index,
+                    time: time
+                })
+            }
+
+            if (!valid) {
+                input.classList.add('invalid');
+                return;
+            } else {
+                input.classList.remove('invalid');
+            }
+        })
+
+        goldPaceSelection.appendChild(label);
+        goldPaceSelection.appendChild(input);
+    })
+
 }
 
 function appendAllGoldSplits(
@@ -293,7 +365,7 @@ window.electronAPI.mapAndModeChanged(async (event: Electron.IpcRendererEvent,
         mapSelect.value = mapAndMode.map.toString();
         updateModesForLevel();
         modeSelect.value = mapAndMode.mode.toString();
-        await updateCheckpointsAndGoldSplits()
+        await updateSplitsAndGolds()
     }
 });
 

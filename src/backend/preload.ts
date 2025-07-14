@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),
     onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-split-entered', goldSplitInfo),
+    onGoldenPaceEntered: (goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-pace-entered', goldPaceInfo),
     onEnableBackgroundColorChanged: (enable: boolean) => ipcRenderer.invoke('enable-background-color-changed', enable),
     onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
 
@@ -41,11 +42,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
     getSplitPath: (mode: number) : Promise<{from: number, to: number}[]> => ipcRenderer.invoke('get-split-path', mode),
     getGoldSplits: (mode: number) : Promise<{from: number, to: number, time: number}[]> => ipcRenderer.invoke('get-gold-splits', mode),
+    getGoldPaces: (mode: number) : Promise<{ splitIndex: number, time: number}[]> => ipcRenderer.invoke('get-gold-paces', mode),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),
     onGoldenSplitsImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-splits-changed', callback),
-    onGoldPacesImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-paces-changed', callback),
+    onGoldPaceImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-paces-changed', callback),
     changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => ipcRenderer.on('change-background', callback),
     onPbImproved: (callback: (event: IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => ipcRenderer.on('pb-improved', callback)
 

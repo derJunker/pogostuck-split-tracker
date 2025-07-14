@@ -1,5 +1,5 @@
 import {getFrontendSettings, updateFrontendMappings, updateFrontendSettings} from "./backend-state-handler";
-import {updateCheckpointsAndGoldSplits} from "./splits-tab-handler";
+import {updateSplitsAndGolds} from "./splits-tab-handler";
 
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
 const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
@@ -73,7 +73,7 @@ splitNamingSelect.addEventListener('change', async (e) => {
     const value = (e.target as HTMLSelectElement).value === 'new';
     updateFrontendSettings(await window.electronAPI.onOptionShowNewSplitNamesChanged(value))
     updateFrontendMappings(await window.electronAPI.getMappings())
-    await updateCheckpointsAndGoldSplits()
+    await updateSplitsAndGolds()
 });
 
 enableBackgroundColorCheckbox.addEventListener('change', async (e) => {

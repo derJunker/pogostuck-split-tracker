@@ -40,6 +40,7 @@ declare global { interface Window {
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         openPogostuck: () => Promise<boolean>;
         onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => Promise<boolean>;
+        onGoldenPaceEntered: (goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }) => Promise<boolean>;
         onEnableBackgroundColorChanged: (enable: boolean) => Promise<Settings>;
         onBackgroundColorChanged: (color: string) => Promise<Settings>;
 
@@ -49,11 +50,12 @@ declare global { interface Window {
         openWindowsSettings: () => Promise<void>;
         getSplitPath: (mode: number) => Promise<{from: number, to: number}[]>;
         getGoldSplits: (mode: number) => Promise<{from: number, to: number, time: number}[]>;
+        getGoldPaces: (mode: number) => Promise<{splitIndex: number, time: number}[]>;
 
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;
         onGoldenSplitsImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
-        onGoldPacesImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
+        onGoldPaceImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onPbImproved: (callback: (event: Electron.IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)

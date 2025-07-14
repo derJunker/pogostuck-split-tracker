@@ -364,7 +364,7 @@ label {
     transform: rotate(260deg) scaleX(-1) scale(1.25);
 }
 
-#pbs-content > h3 {
+#pbs-content h3 {
     grid-column: 1 / -1;
     margin-bottom: 0.5rem;
     background: lightgray;
@@ -373,8 +373,12 @@ label {
     padding: 0.5rem;
 }
 
-#pbs-content > input {
+#pbs-content input {
     max-width: 10rem;
+}
+
+#pbs-content > div {
+    display: contents;
 }
 
 #preferences-content > div {

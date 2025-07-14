@@ -26,10 +26,6 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     const x = overlayState.x !== undefined ? overlayState.x : screen.getPrimaryDisplay().workArea.width - overlayWidth;
     const y = overlayState.y !== undefined ? overlayState.y : 0;
 
-    log.debug(`overlayState: ${JSON.stringify(overlayState)}`);
-    log.debug(`x: ${x}, y: ${y}, width: ${overlayState.width}, height: ${overlayState.height}`);
-    log.debug(`primary display work area: ${JSON.stringify(screen.getPrimaryDisplay().workAreaSize)}`);
-
     const overlayWindow = new BrowserWindow({
         width: overlayState.width,
         height: overlayState.height,

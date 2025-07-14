@@ -70,7 +70,7 @@ export class CurrentStateTracker {
 
         let isGoldPace = false;
         const goldPace = goldPaceTracker.getGoldPaceForSplit(this.mode, split);
-        if (!goldPace || goldPace.time > time) {
+        if (!goldPace || goldPace.time > time || goldPace.time === 0) {
             goldPaceTracker.updateGoldPace(this.mode, split, time);
             log.info(`New gold pace for mode ${this.mode} at split ${split} with time ${time}, old was ${goldPace?.time}`);
             isGoldPace = true;

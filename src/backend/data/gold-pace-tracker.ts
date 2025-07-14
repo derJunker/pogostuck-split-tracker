@@ -75,7 +75,7 @@ export class GoldPaceTracker {
         }
         const isUD = isUpsideDownMode(mode);
         log.info(`Checking if gold pace for mode ${mode}, split index ${splitIndex} with time ${time} is faster than PB time ${pbSplit.time}. Is UD: ${isUD}`);
-        return time <= pbSplit.time;
+        return time <= pbSplit.time || pbSplit.time == 0;
     }
 
     public updateGoldPace(mode: number, splitIndex: number, time: number): void {

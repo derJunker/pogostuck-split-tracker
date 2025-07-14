@@ -52,7 +52,7 @@ export class CurrentStateTracker {
             console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
             return { isGoldSplit: false, isGoldPace: false }
         }
-        const splitTime = time - (lastSplit ? lastSplit.time : 0);
+        const splitTime = Math.round((time - (lastSplit ? lastSplit.time : 0)) * 1000) / 1000;
         this.recordedSplits.push({split, time: time});
         //  Check if the split you passed is on the path you specified (aka you're not coming from a split that is skipped)
         const splitPath = settingsManager.getSplitIndexPath(this.mode, pbTracker.getSplitAmountForMode(this.mode))

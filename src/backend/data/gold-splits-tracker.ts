@@ -156,7 +156,7 @@ export class GoldSplitsTracker {
                         return;
                     }
                 }
-                const splitTime = toTime - fromTime;
+                const splitTime = Math.round((toTime - fromTime) * 1000) / 1000;
                 const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
                 if ((!previousGoldSplit || previousGoldSplit > splitTime) && splitTime > 0) {
                     this.updateGoldSplit(mode, from, to, splitTime);

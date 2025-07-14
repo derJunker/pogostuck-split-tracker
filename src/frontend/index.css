@@ -309,8 +309,8 @@ label {
     justify-content: center;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 9rem;
-    margin-top: .5rem;
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
 #map-n-mode-selection {
@@ -319,6 +319,7 @@ label {
     justify-content: center;
 }
 
+#gold-pace-selection,
 #map-n-mode-split-selection,
 #gold-split-selection {
     border: 3px solid var(--color-border);
@@ -326,12 +327,14 @@ label {
     padding: .5rem;
 }
 
+#gold-pace-selection > h3,
 #map-n-mode-split-selection > h3,
 #gold-split-selection > h3 {
     margin-bottom: 1rem;
     text-align: center;
 }
 
+#gold-pace-selection,
 #map-n-mode-split-selection {
     padding-inline: 30px;
 }
@@ -346,6 +349,7 @@ label {
 }
 
 
+#gold-pace-selection input,
 #gold-split-selection input {
     text-align: end;
     max-width: 8rem;
@@ -391,6 +395,20 @@ label {
 #setup-guide-content {
     padding-bottom: 2rem;
 }
+
+#gold-pace-selection {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1rem;
+    align-items: center;
+}
+
+#gold-pace-selection > h3 {
+    grid-column: 1 / -1;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
 
 .menu-content {
     margin-inline: .5rem;

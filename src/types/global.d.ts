@@ -53,6 +53,7 @@ declare global { interface Window {
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;
         onGoldenSplitsImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
+        onGoldPacesImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onPbImproved: (callback: (event: Electron.IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)

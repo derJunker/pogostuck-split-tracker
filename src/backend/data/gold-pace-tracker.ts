@@ -1,4 +1,4 @@
-import {GoldenPaceForMode} from "../../types/golden-splits";
+import {GoldPaceForMode} from "../../types/golden-splits";
 import {PbSplitTracker} from "./pb-split-tracker";
 import {SettingsManager} from "../settings-manager";
 import {isUpsideDownMode} from "./valid-modes";
@@ -7,20 +7,24 @@ import log from "electron-log/main";
 export class GoldPaceTracker {
     private static instance: GoldPaceTracker;
     private changed: boolean = false;
-    private readonly goldenPaces: GoldenPaceForMode[] = [];
+    private readonly goldPaces: GoldPaceForMode[] = [];
 
-    private constructor() {
+    private constructor(goldPaces: GoldPaceForMode[]) {
+        this.goldPaces = goldPaces;
     }
 
-    public static getInstance(): GoldPaceTracker {
+    public static getInstance(goldPaces?: GoldPaceForMode[]): GoldPaceTracker {
         if (!GoldPaceTracker.instance) {
-            GoldPaceTracker.instance = new GoldPaceTracker();
+            if (!goldPaces) {
+                throw new Error("GoldPaceTracker not initialized with necessary gold paces");
+            }
+            GoldPaceTracker.instance = new GoldPaceTracker(goldPaces);
         }
         return GoldPaceTracker.instance;
     }
 
-    public getGoldenPaces(): GoldenPaceForMode[] {
-        return this.goldenPaces;
+    public getGoldPaces(): GoldPaceForMode[] {
+        return this.goldPaces;
     }
 
     public updateGoldPacesIfInPbSplits() {
@@ -34,7 +38,6 @@ export class GoldPaceTracker {
             times.forEach((splitInfo) => {
                 const goldPace = this.getGoldPaceForSplit(goldPacesForMode, splitInfo.split)
                 if (!goldPace || (!isUD && goldPace.time > splitInfo.time || (isUD && goldPace.time < splitInfo.time))) {
-                    log.info(`Updating gold pace for mode ${mode} split ${splitInfo.split} to ${splitInfo.time}`);
                     this.changed = true;
                     const indexOfSplit = goldPacesForMode.goldenPaces.findIndex(p => p.splitIndex === splitInfo.split);
                     if (indexOfSplit === -1) {
@@ -50,11 +53,11 @@ export class GoldPaceTracker {
         })
     }
 
-    private getGoldPacesForMode(mode: number): GoldenPaceForMode | undefined {
-        return this.goldenPaces.find(pace => pace.modeIndex === mode);
+    private getGoldPacesForMode(mode: number): GoldPaceForMode | undefined {
+        return this.goldPaces.find(pace => pace.modeIndex === mode);
     }
 
-    private getGoldPaceForSplit(goldPacesForMode: GoldenPaceForMode, split: number) {
+    private getGoldPaceForSplit(goldPacesForMode: GoldPaceForMode, split: number) {
         return goldPacesForMode.goldenPaces.find(p => p.splitIndex === split);
     }
 

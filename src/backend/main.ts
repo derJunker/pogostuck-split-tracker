@@ -17,6 +17,8 @@ import {UserDataReader} from "./data/user-data-reader";
 import windowStateKeeper from "electron-window-state";
 import { VERSION } from "../version";
 import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
+import {GoldPaceTracker} from "./data/gold-pace-tracker";
+import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 
 log.initialize();
 
@@ -31,9 +33,10 @@ let overlayWindow: BrowserWindow;
 
 const indexToNamesMappings = initMappings();
 const userDataReader = UserDataReader.getInstance();
-const goldenSplitsTracker = GoldSplitsTracker.getInstance(readGoldenSplits())
+const goldSplitsTracker = GoldSplitsTracker.getInstance(readGoldenSplits())
 writeGoldenSplits()
-CurrentStateTracker.getInstance()
+const goldPaceTracker = GoldPaceTracker.getInstance(readGoldenPaces());
+writeGoldenPace()
 
 const settingsManager = SettingsManager.getInstance()
 if (settingsManager.launchPogoOnStartup())
@@ -83,10 +86,12 @@ app.on("ready", async () => {
 
     registerLogEventHandlers(overlayWindow, configWindow);
     PbSplitTracker.getInstance().updatePbSplitsFromFile();
-    goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
+    goldSplitsTracker.updateGoldSplitsIfInPbSplits();
+    goldPaceTracker.updateGoldPacesIfInPbSplits()
     writeGoldSplitsIfChanged(configWindow)
+    writeGoldPacesIfChanged(configWindow)
 
-    goldenSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
+    goldSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
     userDataReader.initListeners();
     initWindows11Listeners();
 

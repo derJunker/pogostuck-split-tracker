@@ -8,7 +8,7 @@ export interface GoldenSplitsForMode {
     pb: number
 }
 
-export interface GoldenPaceForMode {
+export interface GoldPaceForMode {
     modeIndex: number;
     goldenPaces: {
         splitIndex: number,

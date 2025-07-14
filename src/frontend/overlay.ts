@@ -56,7 +56,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
     if (splitDiv) {
         const goldPaceClass = goldPace ? ' gold-pace' : '';
         const nameSpan = splitDiv.querySelector('.split-name')!;
-        nameSpan.classList.add('gold-pace');
+        nameSpan.classList.add(goldPaceClass);
         const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
         const timeSpan = splitDiv.querySelector('.split-time');
         if (timeSpan) {

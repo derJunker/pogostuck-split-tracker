@@ -44,7 +44,7 @@ if (settingsManager.launchPogoOnStartup())
 
 app.on("ready", async () => {
     let configWindowState = windowStateKeeper({
-        defaultWidth: 800,
+        defaultWidth: 850,
         defaultHeight: 800,
         file: 'config-window-state.json',
     });

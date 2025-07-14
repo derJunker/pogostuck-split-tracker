@@ -157,6 +157,11 @@ export class SettingsManager {
         });
 
         ipcMain.handle('get-split-path', (event, mode: number) => {
+            const steamUserDataPathIsValid = existsSync(path.join(this.currentSettings.pogostuckSteamUserDataPath, ...userDataPathEnd));
+            if (!steamUserDataPathIsValid) {
+                log.info(`Querying split path, but steam user data path is not valid: ${this.currentSettings.pogostuckSteamUserDataPath}`);
+                return []
+            }
             const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
             return this.getSplitIndexPath(mode, splitAmount);
         });

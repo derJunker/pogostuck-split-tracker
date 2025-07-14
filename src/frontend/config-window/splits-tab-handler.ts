@@ -23,6 +23,7 @@ export async function initSplitsTab() {
 }
 
 export async function updateSplitsAndGolds() {
+    __electronLog.debug(`Updating splits and golds for map ${mapSelect.value} and mode ${modeSelect.value}`);
     updateCheckpoints()
     await reloadGoldSplits()
     await reloadGoldPaces()
@@ -97,6 +98,9 @@ async function reloadGoldSplits() {
     goldSplitSelection.appendChild(title)
 
     const splitPath = await window.electronAPI.getSplitPath(mode)
+    if (splitPath.length === 0) {
+        return
+    }
     __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
     const mappings = getFrontendMappings();
     const levelMappings = mappings.find(mapInfo => mapInfo.mapIndex === map)!
@@ -250,7 +254,7 @@ async function updateSkippedSplits() {
     };
     updateFrontendSettings(await window.electronAPI.onSkipSplitsChanged(skippedSplits));
     await reloadGoldSplits()
-};
+}
 
 function getSelectedMapAndMode() {
     if (!mapSelect || !modeSelect) return null;

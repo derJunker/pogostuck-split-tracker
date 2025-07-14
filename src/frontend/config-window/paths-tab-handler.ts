@@ -1,4 +1,5 @@
 import {updateFrontendSettings} from "./backend-state-handler";
+import {updateSplitsAndGolds} from "./splits-tab-handler";
 
 export function initPathsTabListeners() {
     // Steam Path
@@ -10,6 +11,7 @@ export function initPathsTabListeners() {
             const wasValidPath = settings.pogostuckSteamUserDataPath === value;
             if (wasValidPath) {
                 steamPathInput.classList.remove('invalid');
+                await updateSplitsAndGolds()
             }
             else {
                 steamPathInput.classList.add('invalid');

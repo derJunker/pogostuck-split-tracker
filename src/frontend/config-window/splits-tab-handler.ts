@@ -203,7 +203,7 @@ function appendAllGoldSplits(
     if (isUD) {
         appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes);
     }
-    splitPath.forEach((splitPathEl) => {
+    splitPath.forEach((splitPathEl, index) => {
         let name = mapSplits.find((name, index) => {
             if (useOldNames || isUD)
                 return splitPathEl.from === index
@@ -217,7 +217,6 @@ function appendAllGoldSplits(
                 else name = levelMappings.endSplitName
             }
         }
-
         appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection, goldSplitTimes);
     })
     const finishDiv = document.createElement('div');

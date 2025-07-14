@@ -50,8 +50,8 @@ export function writeGoldenPace(): void {
 }
 
 export function writeGoldPacesIfChanged(configWindow: BrowserWindow): void {
-    const goldenSplitsTracker = GoldSplitsTracker.getInstance();
-    if (goldenSplitsTracker.hasChanged()) {
+    const goldPaceTracker = GoldPaceTracker.getInstance();
+    if (goldPaceTracker.hasChanged()) {
         writeGoldenPace();
         configWindow.webContents.send('golden-paces-changed');
     }

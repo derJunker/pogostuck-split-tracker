@@ -50,10 +50,13 @@ function loadMapMode(mapAndModeChanged: {
     document.getElementById('status-msg')!.style!.display = 'none';
 }
 
-function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, onlyDiffColored: boolean) {
-    __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden}`);
+function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean) {
+    __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
+        const goldPaceClass = goldPace ? ' gold-pace' : '';
+        const nameSpan = splitDiv.querySelector('.split-name')!;
+        nameSpan.classList.add('gold-pace');
         const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
         const timeSpan = splitDiv.querySelector('.split-time');
         if (timeSpan) {
@@ -191,8 +194,8 @@ window.electronAPI.mainMenuOpened(() => {
     document.getElementById('status-msg')!.style!.display = 'inline';
 });
 
-window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo: {splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, onlyDiffColored:boolean}) => {
-    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.onlyDiffColored);
+window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo) => {
+    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored);
 });
 
 window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfBest: number) => {

@@ -12,6 +12,7 @@ import {hasUnusedExtraSplit, isUpsideDownMode, isValidModeAndMap} from "./data/v
 import {redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
+import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -102,6 +103,7 @@ export class SettingsManager {
             pbSplitTracker.updatePbSplitsFromFile();
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
             writeGoldSplitsIfChanged(configWindow)
+            writeGoldPacesIfChanged(configWindow)
             const mapNum = stateTracker.getCurrentMap()
             const modeNum = stateTracker.getCurrentMode();
             resetOverlay(mapNum, modeNum, overlayWindow);

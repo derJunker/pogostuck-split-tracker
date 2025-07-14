@@ -119,6 +119,7 @@ async function reloadGoldSplits() {
 }
 
 async function reloadGoldPaces() {
+    __electronLog.info(`reloading gold paces for mode ${modeSelect.value} and map ${mapSelect.value}`);
     const mode = parseInt(modeSelect.value, 10);
     const map = parseInt(mapSelect.value, 10);
 
@@ -371,5 +372,9 @@ window.electronAPI.mapAndModeChanged(async (event: Electron.IpcRendererEvent,
 
 window.electronAPI.onGoldenSplitsImproved(async (event: IpcRendererEvent) => {
     await reloadGoldSplits();
+});
+
+window.electronAPI.onGoldPaceImproved(async (event: IpcRendererEvent) => {
+    await reloadGoldPaces();
 });
 

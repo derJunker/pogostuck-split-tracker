@@ -23,8 +23,9 @@ declare global { interface Window {
         redrawOverlay: (callback: (event: Electron.IpcRendererEvent,
                                    pbRunInfoAndSoB: PbRunInfoAndSoB) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
-                                   splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, onlyDiffColored: boolean}) => void) => void;
+                                   splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
+        onGoldPacePassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
         onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: string) => void) => void;
 
         // config window sending events to backend

@@ -5,6 +5,7 @@ import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
 import {redrawSplitDisplay} from "../split-overlay-window";
 import {BrowserWindow} from "electron";
+import {GoldPaceTracker} from "./gold-pace-tracker";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -32,9 +33,10 @@ export class CurrentStateTracker {
         return false;
     }
 
-    public passedSplit(split: number, time: number): boolean {
+    public passedSplit(split: number, time: number, shouldSkip: boolean): { isGoldSplit: boolean, isGoldPace: boolean } {
         const settingsManager = SettingsManager.getInstance();
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
+        const goldPaceTracker = GoldPaceTracker.getInstance();
         const pbTracker = PbSplitTracker.getInstance();
 
         const lastSplit = this.getLastSplitTime();
@@ -48,23 +50,34 @@ export class CurrentStateTracker {
         const isUD = isUpsideDownMode(this.mode);
         if (lastSplit.split >= split && !isUD) {
             console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
-            return false
+            return { isGoldSplit: false, isGoldPace: false }
         }
         const splitTime = time - (lastSplit ? lastSplit.time : 0);
         this.recordedSplits.push({split, time: time});
-        let goldSplit = goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
         //  Check if the split you passed is on the path you specified (aka you're not coming from a split that is skipped)
         const splitPath = settingsManager.getSplitIndexPath(this.mode, pbTracker.getSplitAmountForMode(this.mode))
         const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
-        if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath) {
+        let isGoldSplit = false;
+        let goldSplit = goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
+        if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath && !shouldSkip) {
             goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
             log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime} gold split was ${goldSplit}`);
-            return true;
+            isGoldSplit = true;
         } else {
             log.info(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);
             log.info(`"goldSplit": ${goldSplit}, "splitTime": ${splitTime}, "goldSplitIsInSplitPath": ${fromAndToAreInPlannedPath}`);
-            return false;
         }
+
+        let isGoldPace = false;
+        const goldPace = goldPaceTracker.getGoldPaceForSplit(this.mode, split);
+        if (!goldPace || goldPace.time > time) {
+            goldPaceTracker.updateGoldPace(this.mode, split, time);
+            log.info(`New gold pace for mode ${this.mode} at split ${split} with time ${time}, old was ${goldPace?.time}`);
+            isGoldPace = true;
+        } else {
+            log.info(`No new gold pace for mode ${this.mode} at split ${split}, with time ${time}, current gold pace is ${goldPace?.time}`);
+        }
+        return { isGoldSplit, isGoldPace };
     }
 
     public finishedRun(time: number, igPbTime: number, configWindow: BrowserWindow, overlay: BrowserWindow): void {

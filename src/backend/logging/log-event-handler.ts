@@ -8,6 +8,7 @@ import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
 import {resetOverlay} from "../split-overlay-window";
+import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     const stateTracker = CurrentStateTracker.getInstance();
@@ -49,12 +50,10 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             } else {
                 diff = timeAsFloat - pbTime
             }
-            let wasGolden = false;
             const shouldSkip = settingsManager.splitShouldBeSkipped(stateTracker.getCurrentMode(), split)
-            if(!shouldSkip)
-                wasGolden = stateTracker.passedSplit(split, timeAsFloat)
-            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: wasGolden, onlyDiffColored: settingsManager.onlyDiffColored()});
-            if (wasGolden) {
+            const {isGoldSplit, isGoldPace} = stateTracker.passedSplit(split, timeAsFloat, shouldSkip)
+            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored()});
+            if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),
                     pbSplitTracker.getSplitAmountForMode(stateTracker.getCurrentMode())));
             }
@@ -69,6 +68,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
                 resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
             writeGoldSplitsIfChanged(configWindow)
+            writeGoldPacesIfChanged(configWindow)
         }
     )
 
@@ -84,6 +84,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const pbTimeInMS = parseFloat(pbTime);
             stateTracker.finishedRun(timeInMS/1000, pbTimeInMS/1000, configWindow, overlayWindow)
             writeGoldSplitsIfChanged(configWindow)
+            writeGoldPacesIfChanged(configWindow)
         }
     )
     // when going into the menu or closing the window save the golden splits, to reduce lag during play
@@ -91,6 +92,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
             writeGoldSplitsIfChanged(configWindow)
+            writeGoldPacesIfChanged(configWindow)
         }
     );
 

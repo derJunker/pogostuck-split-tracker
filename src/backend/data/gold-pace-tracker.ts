@@ -50,6 +50,15 @@ export class GoldPaceTracker {
         })
     }
 
+    public getGoldPaceForSplit(mode: number, splitIndex: number): { splitIndex: number, time: number } | undefined {
+        const goldPacesForMode = this.getGoldPacesForMode(mode);
+        if (!goldPacesForMode) {
+            log.warn(`No gold paces found for mode ${mode}`);
+            return undefined;
+        }
+        return this.getGoldPaceForSplitWithPaces(goldPacesForMode, splitIndex);
+    }
+
     private isFasterThanCurrentPbPace(mode: number, splitIndex: number, time: number): boolean {
         if (time === 0)
             return true; // you can set your time to 0
@@ -66,11 +75,7 @@ export class GoldPaceTracker {
         }
         const isUD = isUpsideDownMode(mode);
         log.info(`Checking if gold pace for mode ${mode}, split index ${splitIndex} with time ${time} is faster than PB time ${pbSplit.time}. Is UD: ${isUD}`);
-        if (isUD) {
-            return time >= pbSplit.time;
-        } else {
-            return time <= pbSplit.time;
-        }
+        return time <= pbSplit.time;
     }
 
     public updateGoldPace(mode: number, splitIndex: number, time: number): void {
@@ -86,7 +91,7 @@ export class GoldPaceTracker {
             });
             this.changed = true;
         } else {
-            const existingGoldPace = this.getGoldPaceForSplit(goldPacesForMode, splitIndex);
+            const existingGoldPace = this.getGoldPaceForSplitWithPaces(goldPacesForMode, splitIndex);
             if (existingGoldPace) {
                 if (existingGoldPace.time !== time) {
                     existingGoldPace.time = time;
@@ -112,12 +117,11 @@ export class GoldPaceTracker {
         const modeSplits = pbSplitTracker.getAllPbSplits();
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
-            const isUD = isUpsideDownMode(mode)
             const goldPacesForMode = this.getGoldPacesForMode(mode);
             if (!goldPacesForMode) return // TODO adjust prolly
             times.forEach((splitInfo) => {
-                const goldPace = this.getGoldPaceForSplit(goldPacesForMode, splitInfo.split)
-                if (!goldPace || (!isUD && goldPace.time > splitInfo.time || (isUD && goldPace.time < splitInfo.time))) {
+                const goldPace = this.getGoldPaceForSplitWithPaces(goldPacesForMode, splitInfo.split)
+                if (!goldPace || goldPace.time > splitInfo.time) {
                     this.changed = true;
                     const indexOfSplit = goldPacesForMode.goldenPaces.findIndex(p => p.splitIndex === splitInfo.split);
                     if (indexOfSplit === -1) {
@@ -137,7 +141,7 @@ export class GoldPaceTracker {
         return this.goldPaces.find(pace => pace.modeIndex === mode);
     }
 
-    private getGoldPaceForSplit(goldPacesForMode: GoldPaceForMode, split: number) {
+    private getGoldPaceForSplitWithPaces(goldPacesForMode: GoldPaceForMode, split: number) {
         return goldPacesForMode.goldenPaces.find(p => p.splitIndex === split);
     }
 

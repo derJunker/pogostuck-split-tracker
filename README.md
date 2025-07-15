@@ -13,9 +13,9 @@ Additionally to the basic features it also has:
 - sum of bests
 - hiding splits that are skipped
 - old split names (very important)
-  
-(Coming at some point)
 - best pace pbs
+
+(Coming at some point)
 - reset counters
 - custom mode support (e.g. boostless, legend exam, etc)
 - stats about performance (average pace etc)

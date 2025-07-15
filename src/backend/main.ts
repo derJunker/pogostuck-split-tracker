@@ -65,7 +65,7 @@ app.on("ready", async () => {
         title: "Junker's Split Tracker - v" + VERSION,
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
-    // configWindowState.manage(configWindow);
+    configWindowState.manage(configWindow);
     configWindow.setMenu(null);
 
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");

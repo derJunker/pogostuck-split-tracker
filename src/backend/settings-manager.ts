@@ -349,7 +349,7 @@ export class SettingsManager {
                 this.currentSettings.pogostuckSteamUserDataPath = path.join(userdataRoot, folder);
                 CurrentStateTracker.getInstance().updatePathsValidity();
                 this.saveSettings();
-                configWindow.webContents.send("steam-user-data-path-changed", path.join(userdataRoot, folder));
+                configWindow.webContents.send("steam-user-data-path-found", path.join(userdataRoot, folder));
                 this.updateFrontendStatus(overlayWindow);
                 return;
             }

@@ -9,6 +9,7 @@ import {SettingsManager} from "../settings-manager";
 import {isValidModeAndMap} from "../data/valid-modes";
 import {resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
+import log from "electron-log/main";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     const stateTracker = CurrentStateTracker.getInstance();
@@ -102,5 +103,15 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             overlayWindow.webContents.send("main-menu-opened")
         }
     );
+
+    fileWatcher.registerListener(
+        /Close window at/,
+        (match) => {
+            log.info("Closing config window, saving gold splits and paces");
+            writeGoldSplitsIfChanged(configWindow)
+            writeGoldPacesIfChanged(configWindow);
+            overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"
+        }
+    )
 }
 

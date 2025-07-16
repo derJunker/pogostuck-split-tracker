@@ -162,14 +162,18 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
         const input = document.createElement('input');
         input.type = 'text';
         input.id = `pace-${index}-input`;
-        input.value = splitTime ? formatPbTime(splitTime.time, true) : '';
+        input.value = splitTime  && splitTime.time !== 0? formatPbTime(splitTime.time, true) : '';
         input.className = 'pace-input';
         input.placeholder = '00:00.000';
 
         input.addEventListener('input', async (event) => {
+            const inputValue = (event.target as HTMLInputElement).value
             const map = parseInt(mapSelect.value)
             const mode = parseInt(modeSelect.value)
-            const time = parsePbTime((event.target as HTMLInputElement).value)
+            let time = parsePbTime(inputValue)
+            if (inputValue.trim() === '') {
+                time = 0;
+            }
             let valid = time >= 0;
             if (valid) {
                 valid = await window.electronAPI.onGoldenPaceEntered({

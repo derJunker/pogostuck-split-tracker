@@ -56,7 +56,7 @@ export class CurrentStateTracker {
         this.recordedSplits.push({split, time: time});
         //  Check if the split you passed is on the path you specified (aka you're not coming from a split that is skipped)
         const splitPath = settingsManager.getSplitIndexPath(this.mode, pbTracker.getSplitAmountForMode(this.mode))
-        const fromAndToAreInPlannedPath: boolean = splitPath.some(({from, to}) => from === from && to === split);
+        const fromAndToAreInPlannedPath: boolean = splitPath.some((splitP) => from === splitP.from && splitP.to === split);
         let isGoldSplit = false;
         let goldSplit = goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, from, split)
         if ((!goldSplit || goldSplit && goldSplit > splitTime) && fromAndToAreInPlannedPath && !shouldSkip) {

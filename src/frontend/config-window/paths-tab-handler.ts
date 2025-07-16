@@ -1,5 +1,6 @@
-import {updateFrontendSettings} from "./backend-state-handler";
+import {getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
 import {updateSplitsAndGolds} from "./splits-tab-handler";
+import path from "path";
 
 export function initPathsTabListeners() {
     // Steam Path
@@ -34,4 +35,12 @@ export function initPathsTabListeners() {
             }
         }
     });
+
+    window.electronAPI.onPogoPathChanged((event, path) => {
+        const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
+        pogoPathInput.value = path;
+        pogoPathInput.classList.remove('invalid');
+        const settings = getFrontendSettings();
+        settings.pogostuckConfigPath = path;
+    })
 }

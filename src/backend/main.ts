@@ -81,6 +81,7 @@ app.on("ready", async () => {
 
     overlayWindow = openOverlayWindow(configWindow);
     settingsManager.initListeners(overlayWindow, configWindow)
+    CurrentStateTracker.getInstance().updatePogoPathValidity()
     initLaunchPogoListener();
 
     registerLogEventHandlers(overlayWindow, configWindow);
@@ -96,8 +97,7 @@ app.on("ready", async () => {
     initWindows11Listeners();
 
 
-
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
-    configWindow.on('closed', () => { overlayWindow.close() }); // i chose against this being parent window to
-    // overlayWindow so you can capture it for streaming or sth
+    // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth
+    configWindow.on('closed', () => { overlayWindow.close() });
 });

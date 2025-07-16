@@ -58,6 +58,7 @@ declare global { interface Window {
         onGoldenSplitsImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onGoldPaceImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onPbImproved: (callback: (event: Electron.IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => void;
+        onPogoPathChanged: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;

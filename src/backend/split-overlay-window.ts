@@ -9,6 +9,7 @@ import {isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
 import windowStateKeeper from "electron-window-state";
+import {CurrentStateTracker} from "./data/current-state-tracker";
 
 let pogostuckIsActiveWindow = false;
 
@@ -80,7 +81,13 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
     if (!winInfo) return false;
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
     const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
-    // TODO use "path" attribute to read steam dir of pogostuck for acklog.txt
+    const pogoPathIsValid = CurrentStateTracker.getInstance().pogoPathValid()
+    if (isPogostuck && !pogoPathIsValid) {
+        const settingsManager = SettingsManager.getInstance();
+        // path is something lie ... \common\Pogostuck\pogostuck.exe, i want to remove the pogostuck.exe part
+        const path = winInfo.path.replace("pogostuck.exe", "");
+        settingsManager.updatePogoPath(path, mainWindow, overlayWindow)
+    }
     pogostuckIsActiveWindow = isPogostuck;
     return isPogostuck || isThisWindow;
 

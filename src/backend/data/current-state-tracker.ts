@@ -6,6 +6,7 @@ import log from "electron-log/main";
 import {redrawSplitDisplay} from "../split-overlay-window";
 import {BrowserWindow} from "electron";
 import {GoldPaceTracker} from "./gold-pace-tracker";
+import fs from "fs";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -13,6 +14,8 @@ export class CurrentStateTracker {
     private map: number = -1;
     private recordedSplits: { split: number, time: number }[] = [];
     private finalTime: number = -1;
+
+    private pogoPathIsValid: boolean = false;
 
     public static getInstance(): CurrentStateTracker {
         if (!CurrentStateTracker.instance) {
@@ -143,5 +146,14 @@ export class CurrentStateTracker {
             }
         }
         return this.recordedSplits[this.recordedSplits.length - 1];
+    }
+
+    public updatePogoPathValidity() {
+        const settingsManager = SettingsManager.getInstance();
+        this.pogoPathIsValid = fs.existsSync(settingsManager.pogostuckSteamPath());
+    }
+
+    public pogoPathValid():boolean {
+        return this.pogoPathIsValid;
     }
 }

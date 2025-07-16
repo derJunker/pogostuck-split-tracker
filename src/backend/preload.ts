@@ -49,6 +49,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onGoldenSplitsImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-splits-changed', callback),
     onGoldPaceImproved: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('golden-paces-changed', callback),
     changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => ipcRenderer.on('change-background', callback),
-    onPbImproved: (callback: (event: IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => ipcRenderer.on('pb-improved', callback)
+    onPbImproved: (callback: (event: IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => ipcRenderer.on('pb-improved', callback),
+    onPogoPathChanged: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('pogostuck-config-path-changed', callback),
 
 });

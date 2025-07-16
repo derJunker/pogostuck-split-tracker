@@ -33,10 +33,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     initMenuNavListeners()
     initPathsTabListeners();
-});
 
-document.getElementById("launch-pogo-btn")?.addEventListener("click", async () => {
-    await window.electronAPI.openPogostuck();
-})
+    document.getElementById("launch-pogo-btn")?.addEventListener("click", async () => {
+        await window.electronAPI.openPogostuck();
+    })
+});
 
 

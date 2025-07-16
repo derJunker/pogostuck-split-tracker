@@ -17,6 +17,7 @@ import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
     private readonly settingsPath: string;
+    private configWindow: BrowserWindow | null = null;
     public currentSettings: Settings;
 
     private constructor() {
@@ -116,6 +117,7 @@ export class SettingsManager {
                 log.info(`PogoStuck config path does not exist: ${pogostuckConfPath}`);
                 return this.currentSettings;
             }
+            stateTracker.updatePogoPathValidity();
             log.info(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
@@ -123,6 +125,9 @@ export class SettingsManager {
             this.updateFrontendStatus(overlayWindow)
             return this.currentSettings
         });
+        ipcMain.handle('pogo-path-is-valid', () => {
+            return existsSync(this.currentSettings.pogostuckConfigPath);
+        })
         ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
             log.info("skippedSplits", skippedSplits);
             const oldSkippedSplits = this.currentSettings.skippedSplits
@@ -300,5 +305,18 @@ export class SettingsManager {
 
     public hideWindowWhenPogoNotActive() {
         return this.currentSettings.hideWindowWhenPogoNotActive;
+    }
+
+    public updatePogoPath(pogoPath: string, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
+        if (!existsSync(pogoPath)) {
+            log.error(`PogoStuck config path does not exist: ${pogoPath}`);
+            return;
+        }
+        this.currentSettings.pogostuckConfigPath = pogoPath;
+        log.info(`PogoStuck config path changed to: ${pogoPath}`);
+        this.saveSettings();
+        CurrentStateTracker.getInstance().updatePogoPathValidity();
+        this.updateFrontendStatus(overlayWindow);
+        configWindow.webContents.send("pogostuck-config-path-changed", pogoPath);
     }
 }

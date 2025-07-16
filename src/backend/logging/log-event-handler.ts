@@ -107,7 +107,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     fileWatcher.registerListener(
         /Close window at/,
         (match) => {
-            log.info("Closing config window, saving gold splits and paces");
+            log.info("Closing pogostuck window, saving gold splits and paces");
             writeGoldSplitsIfChanged(configWindow)
             writeGoldPacesIfChanged(configWindow);
             overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"

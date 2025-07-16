@@ -101,7 +101,7 @@ export class SettingsManager {
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
-            pbSplitTracker.updatePbSplitsFromFile();
+            pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow);
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
             writeGoldSplitsIfChanged(configWindow)
             writeGoldPacesIfChanged(configWindow)
@@ -117,7 +117,7 @@ export class SettingsManager {
                 log.info(`PogoStuck config path does not exist: ${pogostuckConfPath}`);
                 return this.currentSettings;
             }
-            stateTracker.updatePogoPathValidity();
+            stateTracker.updatePathsValidity();
             log.info(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
@@ -260,9 +260,10 @@ export class SettingsManager {
     }
 
     private createStatusMessage(): string {
+        const stateTracker = CurrentStateTracker.getInstance();
         let msg = "Config Status\n"
-        const pogoConfigPathIsValid = existsSync(this.currentSettings.pogostuckConfigPath);
-        const steamUserDataPathIsValid = existsSync(path.join(this.currentSettings.pogostuckSteamUserDataPath, ...userDataPathEnd));
+        const pogoConfigPathIsValid = stateTracker.pogoPathIsValid();
+        const steamUserDataPathIsValid = stateTracker.userDataPathIsValid();
         if (pogoConfigPathIsValid && steamUserDataPathIsValid) {
             return "Pogostuck-Splits - Active"
         }
@@ -312,11 +313,48 @@ export class SettingsManager {
             log.error(`PogoStuck config path does not exist: ${pogoPath}`);
             return;
         }
-        this.currentSettings.pogostuckConfigPath = pogoPath;
-        log.info(`PogoStuck config path changed to: ${pogoPath}`);
-        this.saveSettings();
-        CurrentStateTracker.getInstance().updatePogoPathValidity();
-        this.updateFrontendStatus(overlayWindow);
-        configWindow.webContents.send("pogostuck-config-path-changed", pogoPath);
+        const currentStateTracker = CurrentStateTracker.getInstance();
+        if (!currentStateTracker.pogoPathIsValid()) {
+            this.currentSettings.pogostuckConfigPath = pogoPath;
+            log.info(`PogoStuck config path changed to: ${pogoPath}`);
+            this.saveSettings();
+            currentStateTracker.updatePathsValidity();
+            this.updateFrontendStatus(overlayWindow);
+            configWindow.webContents.send("pogostuck-config-path-found", pogoPath);
+        }
+
+        // check if you can find the userdataPath as well. could be at ../../../userdata/(5-9 digiit number)
+        this.attemptToFindUserDataPath(configWindow, overlayWindow)
+    }
+
+    public attemptToFindUserDataPath(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
+        log.info(`attempting to find userdata path for PogoStuck`);
+        let userDataPathWithNoFile = [...userDataPathEnd].slice(0, -1);
+        const pogostuckPath = this.pogostuckSteamPath();
+        const userdataRoot = path.join(pogostuckPath, "..", "..", "..", "userdata");
+
+        if (!existsSync(userdataRoot)) {
+            log.error(`Could not find userdata root at ${userdataRoot}`);
+            return;
+        }
+
+        const folders = fs.readdirSync(userdataRoot, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory() && /^\d{5,10}$/.test(dirent.name))
+            .map(dirent => dirent.name);
+
+        for (const folder of folders) {
+            const potentialPath = path.join(userdataRoot, folder, ...userDataPathWithNoFile);
+            if (existsSync(potentialPath)) {
+                log.info(`Found userdata path at ${potentialPath}, updating settings.`);
+                this.currentSettings.pogostuckSteamUserDataPath = path.join(userdataRoot, folder);
+                CurrentStateTracker.getInstance().updatePathsValidity();
+                this.saveSettings();
+                configWindow.webContents.send("steam-user-data-path-changed", path.join(userdataRoot, folder));
+                this.updateFrontendStatus(overlayWindow);
+                return;
+            }
+        }
+
+        log.error(`Could not find valid userdata path in ${userdataRoot}`);
     }
 }

@@ -4,7 +4,7 @@ import {userDataPathEnd} from "./paths";
 import fs from "fs";
 import log from "electron-log/main";
 import {SettingsManager} from "../settings-manager";
-import {ipcMain} from "electron";
+import {BrowserWindow, ipcMain} from "electron";
 import {ModeSplits} from "../../types/mode-splits";
 
 
@@ -24,8 +24,8 @@ export class UserDataReader {
     }
 
 
-    public readPbSplitsFromFile(): ModeSplits[] {
-        const fileContent = this.readSteamUserData()
+    public readPbSplitsFromFile(configWindow?: BrowserWindow, overlayWindow?: BrowserWindow): ModeSplits[] {
+        const fileContent = this.readSteamUserData(configWindow, overlayWindow)
         const pogoNameMappings = PogoNameMappings.getInstance();
         if (!fileContent) {
             return [];
@@ -91,12 +91,15 @@ export class UserDataReader {
     }
 
 
-    private readSteamUserData(): string | null {
-        const filePath = path.join(SettingsManager.getInstance().steamUserDataPath(), ...userDataPathEnd);
+    private readSteamUserData(configWindow?: BrowserWindow, overlayWindow?: BrowserWindow): string | null {
+        const settingsManager = SettingsManager.getInstance();
+        const filePath = path.join(settingsManager.steamUserDataPath(), ...userDataPathEnd);
         if (fs.existsSync(filePath)) {
             return fs.readFileSync(filePath, 'utf-8');
         }
         log.error(`Steam user data file not found at: ${filePath}`);
+        if (configWindow && overlayWindow)
+            settingsManager.attemptToFindUserDataPath(configWindow, overlayWindow)
         return null;
     }
 

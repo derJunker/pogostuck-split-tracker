@@ -36,11 +36,21 @@ export function initPathsTabListeners() {
         }
     });
 
-    window.electronAPI.onPogoPathChanged((event, path) => {
+    window.electronAPI.onPogoPathFound((event, path) => {
         const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
         pogoPathInput.value = path;
         pogoPathInput.classList.remove('invalid');
         const settings = getFrontendSettings();
         settings.pogostuckConfigPath = path;
     })
+
+    window.electronAPI.onUserDataPathFound((event, path) => {
+        const pogoPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
+        pogoPathInput.value = path;
+        pogoPathInput.classList.remove('invalid');
+        const settings = getFrontendSettings();
+        settings.pogostuckSteamUserDataPath = path;
+    })
+
+
 }

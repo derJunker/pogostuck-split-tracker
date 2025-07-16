@@ -81,11 +81,11 @@ app.on("ready", async () => {
 
     overlayWindow = openOverlayWindow(configWindow);
     settingsManager.initListeners(overlayWindow, configWindow)
-    CurrentStateTracker.getInstance().updatePogoPathValidity()
+    CurrentStateTracker.getInstance().updatePathsValidity()
     initLaunchPogoListener();
 
     registerLogEventHandlers(overlayWindow, configWindow);
-    PbSplitTracker.getInstance().updatePbSplitsFromFile();
+    PbSplitTracker.getInstance().updatePbSplitsFromFile(configWindow, overlayWindow);
     goldSplitsTracker.updateGoldSplitsIfInPbSplits();
     goldPaceTracker.updateGoldPacesIfInPbSplits()
     writeGoldSplitsIfChanged(configWindow)

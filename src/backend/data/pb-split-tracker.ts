@@ -1,5 +1,6 @@
 import {UserDataReader} from "./user-data-reader";
 import {ModeSplits} from "../../types/mode-splits";
+import {BrowserWindow} from "electron";
 
 export class PbSplitTracker {
     private static instance: PbSplitTracker | null = null;
@@ -64,8 +65,8 @@ export class PbSplitTracker {
         }
     }
 
-    updatePbSplitsFromFile() {
+    public updatePbSplitsFromFile(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
         const userDataReader = UserDataReader.getInstance()
-        this.modeTimes = userDataReader.readPbSplitsFromFile();
+        this.modeTimes = userDataReader.readPbSplitsFromFile(configWindow, overlayWindow);
     }
 }

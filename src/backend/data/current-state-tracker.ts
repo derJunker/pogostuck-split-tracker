@@ -7,6 +7,8 @@ import {redrawSplitDisplay} from "../split-overlay-window";
 import {BrowserWindow} from "electron";
 import {GoldPaceTracker} from "./gold-pace-tracker";
 import fs from "fs";
+import {userDataPathEnd} from "./paths";
+import path from "path";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -15,7 +17,8 @@ export class CurrentStateTracker {
     private recordedSplits: { split: number, time: number }[] = [];
     private finalTime: number = -1;
 
-    private pogoPathIsValid: boolean = false;
+    private pogoPathValid: boolean = false;
+    private userDataPathValid: boolean = false;
 
     public static getInstance(): CurrentStateTracker {
         if (!CurrentStateTracker.instance) {
@@ -36,7 +39,10 @@ export class CurrentStateTracker {
         return false;
     }
 
-    public passedSplit(split: number, time: number, shouldSkip: boolean): { isGoldSplit: boolean, isGoldPace: boolean } {
+    public passedSplit(split: number, time: number, shouldSkip: boolean): {
+        isGoldSplit: boolean,
+        isGoldPace: boolean
+    } {
         const settingsManager = SettingsManager.getInstance();
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
         const goldPaceTracker = GoldPaceTracker.getInstance();
@@ -53,7 +59,7 @@ export class CurrentStateTracker {
         const isUD = isUpsideDownMode(this.mode);
         if (lastSplit.split >= split && !isUD) {
             console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
-            return { isGoldSplit: false, isGoldPace: false }
+            return {isGoldSplit: false, isGoldPace: false}
         }
         const splitTime = Math.round((time - (lastSplit ? lastSplit.time : 0)) * 1000) / 1000;
         this.recordedSplits.push({split, time: time});
@@ -80,7 +86,7 @@ export class CurrentStateTracker {
         } else {
             log.info(`No new gold pace for mode ${this.mode} at split ${split}, with time ${time}, current gold pace is ${goldPace?.time}`);
         }
-        return { isGoldSplit, isGoldPace };
+        return {isGoldSplit, isGoldPace};
     }
 
     public finishedRun(time: number, igPbTime: number, configWindow: BrowserWindow, overlay: BrowserWindow): void {
@@ -111,7 +117,7 @@ export class CurrentStateTracker {
             goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
             redrawSplitDisplay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlay);
             configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: this.finalTime});
-        } else if(pbTimeMismatch) { // if there was a mismatch and this run was not an actual pb still redraw the overlay
+        } else if (pbTimeMismatch) { // if there was a mismatch and this run was not an actual pb still redraw the overlay
             goldSplitsTracker.updatePbForMode(this.mode, pb)
             redrawSplitDisplay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlay);
             configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: pb})
@@ -148,12 +154,22 @@ export class CurrentStateTracker {
         return this.recordedSplits[this.recordedSplits.length - 1];
     }
 
-    public updatePogoPathValidity() {
+    public updatePathsValidity() {
         const settingsManager = SettingsManager.getInstance();
-        this.pogoPathIsValid = fs.existsSync(settingsManager.pogostuckSteamPath());
+        this.pogoPathValid = settingsManager.pogostuckSteamPath() !== '' && fs.existsSync(settingsManager.pogostuckSteamPath());
+        this.userDataPathValid = settingsManager.steamUserDataPath() !== '' && fs.existsSync(path.join(settingsManager.steamUserDataPath(), ...userDataPathEnd));
+        log.debug(`Pogo path valid: ${this.pogoPathValid}, User data path valid: ${this.userDataPathValid} for paths: ${settingsManager.pogostuckSteamPath()} and ${settingsManager.steamUserDataPath()}`);
     }
 
-    public pogoPathValid():boolean {
-        return this.pogoPathIsValid;
+    public configPathsAreValid(): boolean {
+        return this.pogoPathValid && this.userDataPathValid;
+    }
+
+    public pogoPathIsValid(): boolean {
+        return this.pogoPathValid;
+    }
+
+    public userDataPathIsValid(): boolean {
+        return this.userDataPathValid;
     }
 }

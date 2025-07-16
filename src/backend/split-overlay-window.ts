@@ -81,8 +81,8 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
     if (!winInfo) return false;
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
     const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
-    const pogoPathIsValid = CurrentStateTracker.getInstance().pogoPathValid()
-    if (isPogostuck && !pogoPathIsValid) {
+    const configPathsValid = CurrentStateTracker.getInstance().configPathsAreValid()
+    if (isPogostuck && !configPathsValid) {
         const settingsManager = SettingsManager.getInstance();
         // path is something lie ... \common\Pogostuck\pogostuck.exe, i want to remove the pogostuck.exe part
         const path = winInfo.path.replace("pogostuck.exe", "");

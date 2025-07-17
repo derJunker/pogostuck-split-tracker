@@ -99,5 +99,8 @@ app.on("ready", async () => {
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth
-    configWindow.on('closed', () => { overlayWindow.close() });
+    configWindow.on('closed', () => {
+        configWindowState.saveState(configWindow)
+        overlayWindow.close()
+    });
 });

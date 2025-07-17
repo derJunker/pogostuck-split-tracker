@@ -22,19 +22,26 @@
                 <ul>
                     <li>
                         <b>Add Steam Start-Option:</b> You need to add "-diag" as a start-option to your Pogostuck
-                                                       steam execution
-                                                       config. This is needed so the game writes the logs that this
+                                                       steam execution config. This is needed so the game writes the logs that this
                                                        program reads for split detection etc.
                         <br>
                         <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
                             Launch Options and add "-diag" (without quotes) to the text field.</i>
+                        <br>
+                        <b>Alternatively:</b> Launch Pogostuck with the "Launch Pogostuck" button in this program, this will launch Pogostuck with the mentioned start-option
 
                     </li>
                     <li>
+                        <b>Launch Pogostuck:</b> Launch Pogostuck (either with the button in here, or via Steam). It will try to find the path to your Pogostuck installation and the path to your userdata path.
+                        However this does not always work. Especially if you have Pogostuck installed on a different drive than Steam.
+                        Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct or it should give you feedback in the overlay if anything is wrong.
+                        If one or both paths are not filled out, you need to follow the next two steps.
+                    </li>
+                    <li>
                         <b>Steam Userdata Path:</b> You need to input your steam userdata path (in the <a data-tab-link="paths">Paths</a>
-                                                    tab). It
-                                                    is used to
-                                                    read through your <code>Settings.txt</code>, so i can read out
+                        tab). It
+                        is used to
+                        read through your <code>Settings.txt</code>, so i can read out
                         your current split times.
                         <br>
                         Most likely it will be something similar to this:<br>
@@ -42,25 +49,23 @@
                     </li>
                     <li>
                         <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab as well). It is needed
-                                          for basically everything. In there the before mentioned logs are put.
+                        for basically everything. In there the before mentioned logs are put.
                         <br>
                         <i>It should be looking similar to this: <br>
                             <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i> <br>
                         You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
                     </li>
                     <li>
+                        <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
+                        set it to "Minimal", "Off" wont work
+                    </li>
+                    <li>
                         <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
                                           So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
                     </li>
                     <li>
-                        <b>Enter Split Skips:</b> If you do any skips that skip a whole split - notably palm- and
-                                                  anvil-skip - you need to set this manually.
-                                                  Otherwise the sum-of-best-splits calculation will be wrong.
-                        <br> You can do this under the <a data-tab-link="splits">Splits</a> tab.
-                    </li>
-                    <li>
-                        <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
-                           set it to "Minimal", "Off" wont work
+                        <b>Enter Split Skips:</b> If you skip any full splits (e.g. palms skip, mushroom skip or in extra modes like puzzle & double jump),
+                        you need to enter them in the <a data-tab-link="splits">Splits</a> tab. Otherwise the sum-of-best-splits cannot be calculated properly.
                     </li>
                     <li class="only-win11" style="display: none">
                         <b>Windows 11 Users:</b> If you are using Windows 11 and have window shadow enabled, you can choose to disable it in these <a id="open-settings-link">settings</a>
@@ -69,9 +74,22 @@
                 </ul>
                 <br>
                 <br>
+                <h3>Preference Configuration Suggestions</h3>
+                <ul>
+                    <li class="only-fs" style="display: none"><b>If you play fullscreen</b>, you cannot use the split overlay. however you can have it on a second monitor or running in the background. <br>
+                    If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
+                    <li>
+                        <b>If you play borderless</b>. after resizing and dragging the overlay to the desired position set "Overlay is not clickable" to true, this way you will able to click stuff behind the overlay.
+                    </li>
+                    <li>
+                        <b>If you stream</b> and want to use this overlay. Set "Hide overlay when Pogostuck not active" to false, so the overlay does not disappear when you tab out.
+                    </li>
+                    <li>
+                        To reduce the amount of programs you need to open, set the "Launch Pogostuck on startup" to true, so you can just open this program and it will launch Pogostuck for you.
+                    </li>
+                </ul>
                 Thats it :D. I hope you have fun. If you find any bugs or have any other feedback you can dm me on
                 discord (@derjunker)👍.
-
             </div>
             <div id="preferences-content" class="menu-content">
                 <div class="toggle-switch">

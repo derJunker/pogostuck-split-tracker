@@ -518,7 +518,13 @@ footer {
 #release-btns button {
     flex-basis: 40%;
 }
-
+#toggle-lang-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .7rem;
+}
 #update-btn {
     position: absolute;
     left: 1rem;

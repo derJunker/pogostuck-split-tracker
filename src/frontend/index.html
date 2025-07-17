@@ -12,9 +12,6 @@
         </div>
         <div id="menu-content">
             <div id="setup-guide-content" class="menu-content">
-                <div style="display: flex; justify-content: flex-end; align-items: center;">
-                    <button id="toggle-lang-btn" style="margin-bottom: 1em;">日本語 / English</button>
-                </div>
                 <div class="setup-text" lang="en">
                     Hi! Ty for using my Program :)<br>
                     <br>
@@ -156,17 +153,26 @@
             </div>
             <div id="preferences-content" class="menu-content">
                 <div class="toggle-switch">
-                    <label for="only-colored-diff" class="toggle-label">Only color the time difference:</label>
+                    <label for="only-colored-diff"
+                           class="toggle-label">
+                        <span lang="en">Only color the time difference</span>
+                        <span lang="ja">スプリットの差分だけ色表示</span>:</label>
                     <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
                     <button id="only-colored-diff-custom" class="custom-checkbox"></button>
                 </div>
                 <div class="toggle-switch">
-                    <label for="ignore-skipped-splits" class="toggle-label">Hide skipped splits:</label>
+                    <label for="ignore-skipped-splits" class="toggle-label">
+                        <span  lang="en">Hide skipped splits</span>
+                        <span lang="ja">スキップしたスプリットを非表示</span>:
+                    </label>
                     <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
                     <button id="ignore-skipped-splits-custom" class="custom-checkbox"></button>
                 </div>
                 <div>
-                    <label for="split-naming-select">Split Names: </label>
+                    <label for="split-naming-select">
+                        <span lang="en">Split Names</span>
+                        <span lang="ja">スプリット名</span>:
+                    </label>
                     <div class="dropdown-container">
                         <select id="split-naming-select" class="dropdown">
                             <option value="new">New</option>
@@ -178,28 +184,42 @@
                     </div>
                 </div>
                 <div class="toggle-switch">
-                    <label for="click-through-overlay" class="toggle-label">Overlay is not clickable:</label>
+                    <label for="click-through-overlay" class="toggle-label">
+                        <span lang="en">Overlay is not clickable</span>
+                        <span lang="ja">オーバーレイをクリック不可</span>:
+                    </label>
                     <input type="checkbox" id="click-through-overlay" class="toggle-checkbox">
                     <button id="click-through-overlay-custom" class="custom-checkbox"></button>
                 </div>
                 <div class="toggle-switch">
-                    <label for="hide-when-pogo-not-active" class="toggle-label">Hide overlay when Pogostuck not
-                                                                                active:</label>
+                    <label for="hide-when-pogo-not-active" class="toggle-label">
+                        <span lang="en">Hide overlay when Pogostuck not active</span>
+                        <span lang="ja">Pogostuckが非アクティブの時オーバーレイを非表示</span>:
+                    </label>
                     <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
                     <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
                 </div>
 
                 <div class="toggle-switch">
-                    <label for="enable-background-color" class="toggle-label">Enable background color:</label>
+                    <label for="enable-background-color" class="toggle-label">
+                        <span lang="en">Enable background color</span>
+                        <span lang="ja">背景色を有効化</span>:
+                    </label>
                     <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
                     <button id="enable-background-color-custom" class="custom-checkbox"></button>
                 </div>
                 <div>
-                    <label for="set-background-color" class="input-label">Set Background Color:</label>
+                    <label for="set-background-color" class="input-label">
+                        <span lang="en">Set background color</span>
+                        <span lang="ja">背景色を設定</span>:
+                    </label>
                     <input type="color" id="set-background-color" value="#000000">
                 </div>
                 <div class="toggle-switch">
-                    <label for="launch-pogo-on-startup" class="toggle-label">Launch Pogostuck on startup:</label>
+                    <label for="launch-pogo-on-startup" class="toggle-label">
+                        <span lang="en">Launch Pogostuck on startup</span>
+                        <span lang="ja">起動時にPogostuckを起動</span>:
+                    </label>
                     <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
                     <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
                 </div>
@@ -207,13 +227,15 @@
             <div id="paths-content" class="menu-content">
                 <div class="text-input-container">
                     <label for="steam-path-text" class="input-label">
-                        Steam userdata Path:
+                        <span lang="en">Steam Userdata Path</span>
+                        <span lang="ja">Steamのuserdataパス</span>:
                     </label>
                     <input type="text" id="steam-path-text" class="input-field" placeholder="Select Steam folder...">
                 </div>
                 <div class="text-input-container">
                     <label for="pogo-path-text" class="input-label">
-                        Pogo Path:
+                        <span lang="en">Pogo Path</span>
+                        <span lang="ja">Pogostuckのパス</span>:
                     </label>
                     <input type="text" id="pogo-path-text" class="input-field" placeholder="Select Steam folder...">
                 </div>
@@ -316,7 +338,11 @@
         </div>
         <footer>
             <button id="update-btn" class="inverted" style="display: none">Update!</button>
-            <button id="launch-pogo-btn" class="inverted">Launch Pogostuck</button>
+            <button id="launch-pogo-btn" class="inverted">
+                <span lang="en">Launch Pogostuck</span>
+                <span lang="ja">Pogostuckを起動</span>
+            </button>
+            <button id="toggle-lang-btn" class="inverted">日本語 / English</button>
         </footer>
         <div id="new-release-modal" class="modal" style="display:none;">
             <div class="modal-content">

@@ -44,6 +44,7 @@ declare global { interface Window {
         onGoldenPaceEntered: (goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }) => Promise<boolean>;
         onEnableBackgroundColorChanged: (enable: boolean) => Promise<Settings>;
         onBackgroundColorChanged: (color: string) => Promise<Settings>;
+        onLanguageChanged: (language: string) => Promise<Settings>;
 
         // config querying backend
         isWindows11: () => Promise<boolean>;

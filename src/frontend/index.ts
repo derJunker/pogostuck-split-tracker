@@ -8,6 +8,7 @@ import { syncInitialCheckboxes } from "./config-window/custom-checkboxes";
 import {showFullscreenMessageIfPlayingWithFullscreen, showWin11MessagesIfOnWin11} from "./config-window/special-circumstances-handler";
 import {initSplitsTab} from "./config-window/splits-tab-handler";
 import {
+    getFrontendSettings,
     loadBackendPbs,
     loadSettingsAndMappingsFromBackend,
 } from "./config-window/backend-state-handler";
@@ -15,6 +16,8 @@ import {setPreferenceTabValuesFromSettings} from "./config-window/preference-tab
 import {initMenuNavListeners} from "./config-window/menu-buttons";
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./config-window/pb-tab-handler";
 import {initPathsTabListeners} from "./config-window/paths-tab-handler";
+import log from "electron-log/main";
+import {initLanguageListeners} from "./config-window/language-handler";
 
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -37,16 +40,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById("launch-pogo-btn")?.addEventListener("click", async () => {
         await window.electronAPI.openPogostuck();
     })
-
-    // Language toggle logic
-    const toggleLangBtn = document.getElementById("toggle-lang-btn")!;
-    const setupTextEn = document.querySelector(".setup-text[lang='en']") as HTMLElement;
-    const setupTextJa = document.querySelector(".setup-text[lang='ja']") as HTMLElement;
-    if (toggleLangBtn && setupTextEn && setupTextJa) {
-        toggleLangBtn.addEventListener("click", () => {
-            const enVisible = setupTextEn.style.display !== "none";
-            setupTextEn.style.display = enVisible ? "none" : "";
-            setupTextJa.style.display = enVisible ? "" : "none";
-        });
-    }
+    initLanguageListeners()
 });

@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onGoldenPaceEntered: (goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-pace-entered', goldPaceInfo),
     onEnableBackgroundColorChanged: (enable: boolean) => ipcRenderer.invoke('enable-background-color-changed', enable),
     onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
+    onLanguageChanged: (language: string): Promise<Settings> => ipcRenderer.invoke('language-changed', language),
 
     // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),

@@ -170,6 +170,16 @@ export class SettingsManager {
             const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
             return this.getSplitIndexPath(mode, splitAmount);
         });
+
+        ipcMain.handle('language-changed', (event, language: string) => {
+            if (language !== 'en' && language !== 'ja') {
+                log.error(`Language "${language}" not found!`);
+                return;
+            }
+            this.currentSettings.language = language;
+            this.saveSettings()
+            return this.currentSettings;
+        });
     }
 
     public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {
@@ -230,7 +240,8 @@ export class SettingsManager {
                 // split skip
                 skippedSplits: [],
 
-                launchPogoOnStartup: false
+                launchPogoOnStartup: false,
+                language: "en"
             };
         }
     }

@@ -284,10 +284,6 @@ button:active {
 label {
     align-content: start;
     align-self: center;
-}
-
-.toggle-label {
-    user-select: none;
     cursor:  pointer;
 }
 

@@ -45,7 +45,6 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
     overlayState.manage(overlayWindow)
-    overlayWindow.setAspectRatio(overlayWidth / overlayHeight);
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
     addPogostuckOpenedListener(overlayWindow, mainWindow)

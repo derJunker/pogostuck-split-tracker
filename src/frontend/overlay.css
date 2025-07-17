@@ -1,7 +1,7 @@
 body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
-    font-size: min(max(5vw, 10px), 48px);;
+    font-size: min(max(min(5vw, 8.5vh), 10px), 48px);
     font-weight: bold;
     -webkit-app-region: drag;
     -webkit-text-stroke-width: 1px;
@@ -18,7 +18,7 @@ body {
     overflow: hidden;
 }
 
-@media (max-width: 340px) {
+@media (max-width: 340px) or (max-height: 190px) {
     body {
         -webkit-text-stroke-width: 0;
         font-weight: normal;

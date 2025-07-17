@@ -37,6 +37,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById("launch-pogo-btn")?.addEventListener("click", async () => {
         await window.electronAPI.openPogostuck();
     })
+
+    // Language toggle logic
+    const toggleLangBtn = document.getElementById("toggle-lang-btn")!;
+    const setupTextEn = document.querySelector(".setup-text[lang='en']") as HTMLElement;
+    const setupTextJa = document.querySelector(".setup-text[lang='ja']") as HTMLElement;
+    if (toggleLangBtn && setupTextEn && setupTextJa) {
+        toggleLangBtn.addEventListener("click", () => {
+            const enVisible = setupTextEn.style.display !== "none";
+            setupTextEn.style.display = enVisible ? "none" : "";
+            setupTextJa.style.display = enVisible ? "" : "none";
+        });
+    }
 });
-
-

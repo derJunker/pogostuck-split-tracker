@@ -66,7 +66,7 @@ app.on("ready", async () => {
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
     configWindowState.manage(configWindow);
-    configWindow.setMenu(null);
+    // configWindow.setMenu(null);
 
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     configWindow.loadFile(indexHTML).then(async () => {})

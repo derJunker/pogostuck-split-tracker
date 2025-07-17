@@ -12,84 +12,150 @@
         </div>
         <div id="menu-content">
             <div id="setup-guide-content" class="menu-content">
-                Hi! Ty for using my Program :)<br>
-                <br>
-                <p class="only-fs" style="display: none">
-                    Seems like you are using fullscreen. Sadly the overlay does not work with
-                    fullscreen - only windowed or borderless☹️. You can still use the program to track your gold splits etc, or move the overlay to a 2nd monitor. But sadly there is no way of putting it on top of the game.<br><br></p>
+                <div style="display: flex; justify-content: flex-end; align-items: center;">
+                    <button id="toggle-lang-btn" style="margin-bottom: 1em;">日本語 / English</button>
+                </div>
+                <div class="setup-text" lang="en">
+                    Hi! Ty for using my Program :)<br>
+                    <br>
+                    <p class="only-fs" style="display: none">
+                        Seems like you are using fullscreen. Sadly the overlay does not work with
+                        fullscreen - only windowed or borderless☹️. You can still use the program to track your gold splits etc, or move the overlay to a 2nd monitor. But sadly there is no way of putting it on top of the game.<br><br></p>
                     Before you can use the splits-program, you need to set up a few things.<br>
-                <br>
-                <ul>
-                    <li>
-                        <b>Add Steam Start-Option:</b> You need to add "-diag" as a start-option to your Pogostuck
-                                                       steam execution config. This is needed so the game writes the logs that this
-                                                       program reads for split detection etc.
-                        <br>
-                        <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
-                            Launch Options and add "-diag" (without quotes) to the text field.</i>
-                        <br>
-                        <b>Alternatively:</b> Launch Pogostuck with the "Launch Pogostuck" button in this program, this will launch Pogostuck with the mentioned start-option
+                    <br>
+                    <ul>
+                        <li>
+                            <b>Add Steam Launch Option:</b> You need to add "-diag" as a launch option to your Pogostuck
+                            Steam launch configuration. This is needed so the game writes the logs that this
+                            program reads for split detection, etc..
+                            <br>
+                            <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
+                                Launch Options and add "-diag" (without quotes) to the text field.</i>
+                            <br>
+                            <b>Alternatively:</b> Launch Pogostuck with the "Launch Pogostuck" button in this program. This will launch Pogostuck with the mentioned launch option
 
-                    </li>
-                    <li>
-                        <b>Launch Pogostuck:</b> Launch Pogostuck (either with the button in here, or via Steam). It will try to find the path to your Pogostuck installation and the path to your userdata path.
-                        However this does not always work. Especially if you have Pogostuck installed on a different drive than Steam.
-                        Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct or it should give you feedback in the overlay if anything is wrong.
-                        If one or both paths are not filled out, you need to follow the next two steps.
-                    </li>
-                    <li>
-                        <b>Steam Userdata Path:</b> You need to input your steam userdata path (in the <a data-tab-link="paths">Paths</a>
-                        tab). It
-                        is used to
-                        read through your <code>Settings.txt</code>, so i can read out
-                        your current split times.
-                        <br>
-                        Most likely it will be something similar to this:<br>
-                        <code>C:\Program Files (x86)\Steam\userdata\$steam-user-id</code>
-                    </li>
-                    <li>
-                        <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab as well). It is needed
-                        for basically everything. In there the before mentioned logs are put.
-                        <br>
-                        <i>It should be looking similar to this: <br>
-                            <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i> <br>
-                        You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
-                    </li>
-                    <li>
-                        <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
-                        set it to "Minimal", "Off" wont work
-                    </li>
-                    <li>
-                        <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
-                                          So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
-                    </li>
-                    <li>
-                        <b>Enter Split Skips:</b> If you skip any full splits (e.g. palms skip, mushroom skip or in extra modes like puzzle & double jump),
-                        you need to enter them in the <a data-tab-link="splits">Splits</a> tab. Otherwise the sum-of-best-splits cannot be calculated properly.
-                    </li>
-                    <li class="only-win11" style="display: none">
-                        <b>Windows 11 Users:</b> If you are using Windows 11 and have window shadow enabled, you can choose to disable it in these <a id="open-settings-link">settings</a>
-                        <br>
-                    </li>
-                </ul>
-                <br>
-                <br>
-                <h3>Preference Configuration Suggestions</h3>
-                <ul>
-                    <li class="only-fs" style="display: none"><b>If you play fullscreen</b>, you cannot use the split overlay. however you can have it on a second monitor or running in the background. <br>
-                    If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
-                    <li>
-                        <b>If you play borderless</b>. after resizing and dragging the overlay to the desired position set "Overlay is not clickable" to true, this way you will able to click stuff behind the overlay.
-                    </li>
-                    <li>
-                        <b>If you stream</b> and want to use this overlay. Set "Hide overlay when Pogostuck not active" to false, so the overlay does not disappear when you tab out.
-                    </li>
-                    <li>
-                        To reduce the amount of programs you need to open, set the "Launch Pogostuck on startup" to true, so you can just open this program and it will launch Pogostuck for you.
-                    </li>
-                </ul>
-                Thats it :D. I hope you have fun. If you find any bugs or have any other feedback you can dm me on
-                discord (@derjunker)👍.
+                        </li>
+                        <li>
+                            <b>Launch Pogostuck:</b> Launch Pogostuck (either with the button here, or via Steam). It will try to find the path to your Pogostuck installation and your userdata path.
+                            However, this does not always work, especially if you have Pogostuck installed on a different drive than Steam.
+                            Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct, or it should give you feedback in the overlay if anything is wrong.
+                            If one or both paths are not filled out, you need to follow the next two steps.
+                        </li>
+                        <li>
+                            <b>Steam Userdata Path:</b> You need to input your Steam userdata path (in the <a data-tab-link="paths">Paths</a>
+                            tab). It is used to read your <code>Settings.txt</code>, so it can read your current pb split times.
+                            <br>
+                            Most likely it will be something similar to this:<br>
+                            <code>C:\Program Files (x86)\Steam\userdata\$steam-user-id</code>
+                        </li>
+                        <li>
+                            <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab as well). It is needed
+                            for basically everything. In there the before mentioned logs are put.
+                            <br>
+                            <i>It should be looking similar to this: <br>
+                                <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i> <br>
+                            You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
+                        </li>
+                        <li>
+                            <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
+                            set it to "Minimal", "Off" wont work
+                        </li>
+                        <li>
+                            <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
+                            So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
+                        </li>
+                        <li>
+                            <b>Enter Split Skips:</b> If you skip any full splits (e.g. palms skip, mushroom skip or in extra modes like puzzle & double jump),
+                            you need to enter them in the <a data-tab-link="splits">Splits</a> tab. Otherwise the sum-of-best-splits cannot be calculated properly.
+                        </li>
+                        <li class="only-win11" style="display: none">
+                            <b>Windows 11 Users:</b> If you are using Windows 11 and have window shadow enabled, you can choose to disable it in these <a class="open-settings-link">settings</a>.
+                            <br>
+                        </li>
+                    </ul>
+                    <h3>Preference Configuration Suggestions</h3>
+                    <ul>
+                        <li class="only-fs" style="display: none"><b>If you play fullscreen</b>, you cannot use the split overlay. However you can have it on a second monitor or running in the background. <br>
+                            If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
+                        <li>
+                            <b>If you play borderless</b>, after resizing and dragging the overlay to the desired position set "Overlay is not clickable" to true, this way you will able to click stuff behind the overlay.
+                        </li>
+                        <li>
+                            <b>If you stream</b> and want to use this overlay. Set "Hide overlay when Pogostuck not active" to false, so the overlay does not disappear when you tab out.
+                        </li>
+                        <li>
+                            To reduce the amount of programs you need to open, set the "Launch Pogostuck on startup" to true, so you can just open this program and it will launch Pogostuck for you.
+                        </li>
+                    </ul>
+                    Thats it :D. I hope you have fun. If you find any bugs or have any other feedback you can dm me on
+                    discord (@derjunker)👍.
+                </div>
+                <div class="setup-text" lang="ja" style="display: none">
+                    <p>こんにちは！プログラムをご利用いただきありがとうございます :)</p>
+                    <br>
+                    <p class="only-fs" style="display: none">
+                        フルスクリーンモードをご利用中のようです。残念ながら、オーバーレイはフルスクリーンでは動作しません ― ウィンドウモードまたはボーダーレスモードのみ対応しています☹️。<br>
+                        それでも、ゴールドスプリットの追跡などにはプログラムをご利用いただけますし、オーバーレイをセカンドモニターに移動させることも可能です。ただし、ゲームの上に表示させる方法はありません。<br><br>
+                    </p>
+                    <p>スプリットプログラムを使用する前に、いくつかの設定が必要です。<br><br></p>
+
+                    <ul>
+                        <li>
+                            <b>Steam 起動オプションを追加:</b> Pogostuck の Steam 起動オプションに "-diag" を追加してください。これはゲームがログファイルを書き出し、このプログラムがスプリット検出等に利用するために必要です。<br>
+                            <i>方法: Steam ライブラリで Pogostuck を右クリック → プロパティ → 起動オプションに "-diag"（引用符なし）を追加。</i><br>
+                            <b>または:</b> このプログラムの「Launch Pogostuck」ボタンで Pogostuck を起動してください。必要な起動オプ��ョン付きで起動されます。
+                        </li>
+                        <li>
+                            <b>Pogostuck を起動:</b> Pogostuck を起動して��ださい（このボタンまたは Steam 経由）。インストールパスと userdata パスを自動で検出しようとします。<br>
+                            ただし、Pogostuck が Steam とは別のドライブにインストールされている場合などは失敗することがあります。<br>
+                            <a data-tab-link="paths">Paths</a> タブでパスが正しいか確認してください。問題がある場合はオーバーレイにフィードバックが表示されます。<br>
+                            どちらかのパスが未設定の場合は、次の 2 ステップを実行してください。
+                        </li>
+                        <li>
+                            <b>Steam Userdata Path:</b> <a data-tab-link="paths">Paths</a> タブで、Steam の userdata パスを入力してください。これは <code>Settings.txt</code> を読み取り、現在の PB スプリットタイムを取得するために使用されます。<br>
+                            一般的には以下のようなパスになります：<br>
+                            <code>C:\Program Files (x86)\Steam\userdata\$steam-user-id</code>
+                        </li>
+                        <li>
+                            <b>Pogo Path:</b> 同じく <a data-tab-link="paths">Paths</a> タブで Pogostuck のパスを入力してください。これはあらゆる機能に必要です。このフォルダに前述のログファイルが出力されます。<br>
+                            <i>以下のようなパスになります：<br>
+                                <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i><br>
+                            Pogostuck の Steam ライブラリページで設定アイコン → 管理 → ローカルファイルを参照 を選ぶと簡単に見つけられます。
+                        </li>
+                        <li>
+                            <b>ゲーム内でスプリットを調整:</b> Pogostuck の Options → Misc → Show speedrun splits を "Minimal" に設定してください。"Off" では動作しません。
+                        </li>
+                        <li>
+                            <b>PB（自己ベスト）を入力:</b> 現時点では PB の自動検出には対応していません。<a data-tab-link="pbs">Pbs</a> タブで手動入力をお願いします。
+                        </li>
+                        <li>
+                            <b>スプリットスキップを入力:</b> palms skip、mushroom skip、または puzzle や double jump のような追加モードでスプリットをスキップした場合は、<a data-tab-link="splits">Splits</a> タブに入力してください。そうしないと sum-of-best-splits が正しく計算できません。
+                        </li>
+                        <li class="only-win11" style="display: none">
+                            <b>Windows 11 の方へ:</b> Windows 11 でウィンドウの影が有効になっている場合は、<a class="open-settings-link">この設定</a> から無効化が可能です。<br>
+                        </li>
+                    </ul>
+
+                    <h3>プレイ環境別のおすすめ設定</h3>
+                    <ul>
+                        <li class="only-fs" style="display: none">
+                            <b>フルスクリーンでプレイする場合</b>、ス���リットオーバーレイは使用できません。ただし、別モニターで表示するか、バックグラウンドで動作させることが可能です。<br>
+                            セカンドモニターで使用する場合は、"Enable background color" を true に���て背景色を設定するのがおすすめです。
+                        </li>
+                        <li>
+                            <b>ボーダーレスでプレイする場合</b>、オーバーレイのサイズ調整と位置調整をした後��"Overlay is not clickable" を true に設定してください。これでオーバーレイ越しに後ろの操作が可能になります。
+                        </li>
+                        <li>
+                            <b>配信を行う場合</b>、オーバーレイを使用するなら "Hide overlay when Pogostuck not active" を false に設定してください。これにより、Pogostuck を非アクティブにしてもオーバーレイが消えません。
+                        </li>
+                        <li>
+                            起動するプログラム数を減らしたい場合は、"Launch Pogostuck on startup" を true に設定すると、このプログラムを起動するだけで Pogostuck も同時に起動します。
+                        </li>
+                    </ul>
+
+                    <p>以上です :D 楽しんでください。バグ報告やフィードバックがあれば Discord（@derjunker）まで DM をどうぞ 👍。</p>
+
+                </div>
             </div>
             <div id="preferences-content" class="menu-content">
                 <div class="toggle-switch">

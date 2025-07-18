@@ -49,12 +49,11 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const timeAsFloat  = parseFloat(time);
             let pbTime;
             if (settingsManager.raceGoldSplits()) {
-                const currentStateTracker = CurrentStateTracker.getInstance();
                 const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
-                const goldSplitTime = goldenSplitsTracker.getGoldSplitForModeAndSplit(mode, currentStateTracker.getLastSplitTime().split, split) || 0
+                const goldSplitsForMode = goldenSplitsTracker.getGoldSplitsForMode(mode)!
+                const goldSplitTime = goldSplitsForMode.goldenSplits.find(info => info.to === split)?.time || 0;
                 const goldSplitPace = goldenSplitsTracker.calculateGoldSplitPace(mode, split, splitAmount)
                 pbTime = goldSplitPace + goldSplitTime;
-                log.debug(`goldSplitTime: ${goldSplitTime}, goldSplitPace: ${goldSplitPace}, pbTime: ${pbTime} for split ${split}`);
 
             } else {
                 pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
@@ -67,7 +66,12 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 diff = timeAsFloat - pbTime
             }
             const shouldSkip = settingsManager.splitShouldBeSkipped(stateTracker.getCurrentMode(), split)
-            const {isGoldSplit, isGoldPace} = stateTracker.passedSplit(split, timeAsFloat, shouldSkip)
+            let {isGoldSplit, isGoldPace} = stateTracker.passedSplit(split, timeAsFloat, shouldSkip)
+            if (settingsManager.raceGoldSplits() && shouldSkip) {
+                isGoldPace = false
+                isGoldSplit = false;
+                diff = - timeAsFloat;
+            }
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored()});
             if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),

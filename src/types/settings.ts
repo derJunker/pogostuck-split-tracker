@@ -5,6 +5,7 @@ export interface Settings {
     // Design
     hideSkippedSplits: boolean,
     onlyDiffsColored: boolean,
+    raceGoldSplits: boolean,
     showNewSplitNames: boolean,
     clickThroughOverlay: boolean,
 

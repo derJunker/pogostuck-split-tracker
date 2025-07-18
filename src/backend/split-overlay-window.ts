@@ -123,7 +123,31 @@ function getPbRunInfoAndSoB(
     const nameMappings = PogoNameMappings.getInstance();
 
     const mapModeAndSplits = nameMappings.getMapModeAndSplits(mapNum, modeNum);
-    const pbSplitTimes = pbSplitTracker.getPbSplitsForMode(modeNum);
+    let pbSplitTimes = pbSplitTracker.getPbSplitsForMode(modeNum);
+
+    if (settingsManager.raceGoldSplits()) {
+        const splitAmount = mapModeAndSplits.splits.length;
+        const splitPath = settingsManager.getSplitIndexPath(modeNum, splitAmount);
+        pbSplitTimes = []
+        let sum = 0;
+        for (let i = 0; i < splitAmount; i++) {
+            const splitSegment = splitPath.find(seg => seg.to === i);
+            if (!splitSegment) {
+                pbSplitTimes.push({
+                    split: i,
+                    time: 0
+                })
+                continue;
+            }
+            const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeNum, splitSegment.from, splitSegment.to) || 0;
+            sum += splitTime;
+            pbSplitTimes.push({
+                split: splitSegment.to,
+                time: sum
+            });
+        }
+        log.debug(`pbSplitTimes for mode ${modeNum} with gold splits: ${JSON.stringify(pbSplitTimes)}`);
+    }
 
     const pbTime = goldenSplitTracker.getPbForMode(modeNum);
     const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));

@@ -1,14 +1,10 @@
 import './overlay.css';
 import './components.css';
 import { formatPbTime } from './util/time-formating';
+import {PbRunInfoAndSoB} from "../types/global";
 
-function loadMapMode(mapAndModeChanged: {
-    splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
-    pb: number,
-    sumOfBest: number,
-    settings: any,
-}) {
-    const { splits, pb, sumOfBest } = mapAndModeChanged;
+function loadMapMode(mapAndModeChanged: PbRunInfoAndSoB) {
+    const { splits, pb, sumOfBest, settings } = mapAndModeChanged;
 
     // Clear splits
     const splitsDiv = document.getElementById('splits');
@@ -103,28 +99,12 @@ function updateSplitResets(splitKey: number, newResetCount: number) {
 }
 
 window.electronAPI.resetOverlay((event: Electron.IpcRendererEvent,
-                                       mapAndMode: {
-                                           splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
-                                           pb: number,
-                                           sumOfBest: number
-                                           settings: any
-                                       }) => {
+                                       mapAndMode: PbRunInfoAndSoB) => {
     loadMapMode(mapAndMode);
 });
 
 window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
-                                  pbRunInfoAndSoB: {
-                                      splits: {
-                                          name: string;
-                                          split: number;
-                                          time: number;
-                                          hide: boolean;
-                                          skipped: boolean
-                                      }[],
-                                      pb: number,
-                                      sumOfBest: number,
-                                      settings: any
-                                       }) => {
+                                  pbRunInfoAndSoB: PbRunInfoAndSoB) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     resetPbAndSumOfBest(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest);
 

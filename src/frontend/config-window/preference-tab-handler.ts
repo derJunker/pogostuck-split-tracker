@@ -6,6 +6,7 @@ const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElem
 const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
 const hideWindowWhenPogoNotActiveCheckbox = document.getElementById('hide-when-pogo-not-active') as HTMLInputElement;
 const onlyColorDiffCheckbox = document.getElementById('only-colored-diff') as HTMLInputElement;
+const raceGoldSplitsCheckbox = document.getElementById('race-gold-splits') as HTMLInputElement;
 const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-startup') as HTMLInputElement;
 const clickThroughOverlayCheckbox = document.getElementById('click-through-overlay') as HTMLInputElement;
 const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
@@ -29,6 +30,9 @@ export function setPreferenceTabValuesFromSettings() {
 
     onlyColorDiffCheckbox.checked = settings.onlyDiffsColored;
     onlyColorDiffCheckbox.dispatchEvent(new Event('change'));
+
+    raceGoldSplitsCheckbox.checked = settings.raceGoldSplits;
+    raceGoldSplitsCheckbox.dispatchEvent(new Event('change'));
 
     launchPogoOnStartupCheckbox.checked = settings.launchPogoOnStartup;
     launchPogoOnStartupCheckbox.dispatchEvent(new Event('change'));
@@ -56,6 +60,11 @@ hideWindowWhenPogoNotActiveCheckbox.addEventListener('change', async (e) => {
 onlyColorDiffCheckbox.addEventListener('change', async (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     updateFrontendSettings(await window.electronAPI.onOnlyDiffColoredChanged(checked))
+});
+
+raceGoldSplitsCheckbox.addEventListener('change', async (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    updateFrontendSettings(await window.electronAPI.onRaceGoldsChanged(checked))
 });
 
 launchPogoOnStartupCheckbox.addEventListener('change', async (e) => {

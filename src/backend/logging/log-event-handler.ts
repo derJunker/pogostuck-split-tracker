@@ -37,13 +37,28 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     fileWatcher.registerListener(
         /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\), old\((?<old>-?\d+)\) runTimeCurrent\((?<time>\d+\.\d+)\), cpTime\((?<overwrittenTime>\d+\.\d+)\)/,
         (match) => {
-            if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
+            const map = stateTracker.getCurrentMap();
+            const mode = stateTracker.getCurrentMode();
+            if (!isValidModeAndMap(map, mode)) {
                 return
             }
             const { checkpoint, old, time, overwrittenTime } = match.groups!;
+
+
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
-            const pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
+            let pbTime;
+            if (settingsManager.raceGoldSplits()) {
+                const currentStateTracker = CurrentStateTracker.getInstance();
+                const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
+                const goldSplitTime = goldenSplitsTracker.getGoldSplitForModeAndSplit(mode, currentStateTracker.getLastSplitTime().split, split) || 0
+                const goldSplitPace = goldenSplitsTracker.calculateGoldSplitPace(mode, split, splitAmount)
+                pbTime = goldSplitPace + goldSplitTime;
+                log.debug(`goldSplitTime: ${goldSplitTime}, goldSplitPace: ${goldSplitPace}, pbTime: ${pbTime} for split ${split}`);
+
+            } else {
+                pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
+            }
             const firstTimePass = pbTime === Infinity || pbTime <= 0
             let diff;
             if (firstTimePass) {
@@ -101,6 +116,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         /levelLoadMenu - START at frame/,
         (match) => {
             overlayWindow.webContents.send("main-menu-opened")
+
         }
     );
 

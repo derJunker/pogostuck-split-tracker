@@ -29,6 +29,10 @@ export class GoldSplitsTracker {
         return GoldSplitsTracker.instance;
     }
 
+    public getGoldSplitsForMode(modeIndex: number): GoldenSplitsForMode | null {
+        return this.goldenSplits.find(gs => gs.modeIndex === modeIndex) || null;
+    }
+
     public getGoldSplitForModeAndSplit(modeIndex: number, from: number, to: number): number | null {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
@@ -38,6 +42,22 @@ export class GoldSplitsTracker {
             }
         }
         return null;
+    }
+
+    public calculateGoldSplitPace(modeIndex: number, to: number, splitAmount: number): number {
+        const settingsManager = SettingsManager.getInstance();
+        const goldenSplitTracker = GoldSplitsTracker.getInstance();
+        const splitPath = settingsManager.getSplitIndexPath(modeIndex, splitAmount)
+        let sum = 0;
+        for (let i = 0; i < to; i++) {
+            const splitSegment = splitPath.find(seg => seg.to === i);
+            if (!splitSegment) {
+                continue;
+            }
+            const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeIndex, splitSegment.from, splitSegment.to) || 0;
+            sum += splitTime;
+        }
+        return sum;
     }
 
     private findIndexOfGoldSplitWithModeSplits(modeSplits: GoldenSplitsForMode, from: number, to: number): number {

@@ -69,6 +69,16 @@ export class SettingsManager {
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
+            this.saveSettings();
+            return this.currentSettings;
+        });
+        ipcMain.handle('race-golds-changed', (event, raceGoldSplits: boolean) => {
+            this.currentSettings.raceGoldSplits = raceGoldSplits;
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            resetOverlay(mapNum, modeNum, overlayWindow)
+            this.saveSettings()
+            return this.currentSettings;
         });
         ipcMain.handle("option-launch-pogo-on-startup", (event, launchPogoOnStartup: boolean) => {
             this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
@@ -229,6 +239,7 @@ export class SettingsManager {
                 // design
                 hideSkippedSplits: false,
                 onlyDiffsColored: false,
+                raceGoldSplits: false,
                 showNewSplitNames: true,
                 clickThroughOverlay: false,
 
@@ -317,6 +328,10 @@ export class SettingsManager {
 
     public hideWindowWhenPogoNotActive() {
         return this.currentSettings.hideWindowWhenPogoNotActive;
+    }
+
+    public raceGoldSplits() {
+        return this.currentSettings.raceGoldSplits;
     }
 
     public updatePogoPath(pogoPath: string, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {

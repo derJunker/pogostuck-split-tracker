@@ -138,10 +138,12 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
             splitDiv.classList.add("skipped");
             splitTime.classList.add('skipped');
             splitName.classList.add('skipped');
+            if (pbRunInfoAndSoB.settings.raceGoldSplits) splitTime.textContent = formatPbTime(0)
         } else {
             splitDiv.classList.remove("skipped");
             splitTime.classList.remove('skipped');
             splitName.classList.remove('skipped');
+            if (pbRunInfoAndSoB.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
     })
 });

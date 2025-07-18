@@ -141,6 +141,7 @@ function getPbRunInfoAndSoB(
             }
             const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeNum, splitSegment.from, splitSegment.to) || 0;
             sum += splitTime;
+            log.debug(`sum for split ${i} is now ${sum}, splitSegment: ${JSON.stringify(splitSegment)} splitTime: ${splitTime}`);
             pbSplitTimes.push({
                 split: splitSegment.to,
                 time: sum

@@ -27,7 +27,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const modeNum = parseInt(mode);
             log.debug(`Map or mode changed to ${mapNum}, ${modeNum} with run ${run}`);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
-            if (changed) {
+            if (changed || run === "-1") {
                 resetOverlay(mapNum, modeNum, overlayWindow);
                 settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
             }
@@ -45,17 +45,23 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             }
             const { checkpoint, old, time, overwrittenTime } = match.groups!;
 
-
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
             let pbTime;
             if (settingsManager.raceGoldSplits()) {
-                const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
-                const goldSplitsForMode = goldenSplitsTracker.getGoldSplitsForMode(mode)!
-                const goldSplitTime = goldSplitsForMode.goldenSplits.find(info => info.to === split)?.time || 0;
-                const goldSplitPace = goldenSplitsTracker.calculateGoldSplitPace(mode, split, splitAmount)
-                pbTime = goldSplitPace + goldSplitTime;
-
+                if (settingsManager.splitShouldBeSkipped(mode, split)) {
+                    pbTime = 0;
+                } else {
+                    const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
+                    const splitIndexPath = settingsManager.getSplitIndexPath(mode, splitAmount);
+                    const splitSegment = splitIndexPath.find(seg => seg.to === split)!;
+                    const goldSplitsForMode = goldenSplitsTracker.getGoldSplitsForMode(mode)!
+                    const goldSplitTime = goldSplitsForMode.goldenSplits.find(info => info.to === splitSegment.to
+                        && info.from  === splitSegment.from)?.time || 0;
+                    const goldSplitPace = goldenSplitsTracker.calculateGoldSplitPace(mode, split, splitAmount)
+                    pbTime = goldSplitPace + goldSplitTime;
+                    log.debug(`calculated pbTime ${pbTime} goldSplitTime: ${goldSplitTime}, goldSplitPace: ${goldSplitPace} from ${JSON.stringify(goldSplitsForMode.goldenSplits)}`);
+                }
             } else {
                 pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
             }
@@ -73,6 +79,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 isGoldSplit = false;
                 diff = - timeAsFloat;
             }
+            log.debug(`Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime}`);
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored()});
             if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),

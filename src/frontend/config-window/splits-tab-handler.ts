@@ -135,7 +135,7 @@ async function reloadGoldPaces() {
     goldPaceSelection.innerHTML = '';
 
     const title = document.createElement('h3')
-    title.textContent = 'Gold Paces'
+    title.textContent = 'Best Paces'
     goldPaceSelection.appendChild(title)
 
     const levels = getFrontendMappings();

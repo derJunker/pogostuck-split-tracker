@@ -25,6 +25,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
             const modeNum = parseInt(mode);
+            log.debug(`Map or mode changed to ${mapNum}, ${modeNum} with run ${run}`);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
                 resetOverlay(mapNum, modeNum, overlayWindow);
@@ -87,6 +88,8 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             stateTracker.resetRun();
             if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
                 resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
+            else
+                log.debug(`player reset with invalid map or mode: ${stateTracker.getCurrentMap()}, ${stateTracker.getCurrentMode()}`);
             writeGoldSplitsIfChanged(configWindow)
             writeGoldPacesIfChanged(configWindow)
         }

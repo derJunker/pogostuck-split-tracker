@@ -13,6 +13,7 @@ import {redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
+import {GoldPaceTracker} from "./data/gold-pace-tracker";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -38,6 +39,7 @@ export class SettingsManager {
         const stateTracker = CurrentStateTracker.getInstance();
         const pbSplitTracker = PbSplitTracker.getInstance();
         const goldenSplitsTracker = GoldSplitsTracker.getInstance();
+        const goldenPaceTracker = GoldPaceTracker.getInstance();
         const indexToNamesMappings = PogoNameMappings.getInstance();
 
         overlayWindow.on("ready-to-show", () => {
@@ -110,9 +112,11 @@ export class SettingsManager {
                 return this.currentSettings;
             }
             this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
+            stateTracker.updatePathsValidity()
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
             pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow);
             goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
+            goldenPaceTracker.updateGoldPacesIfInPbSplits();
             writeGoldSplitsIfChanged(configWindow)
             writeGoldPacesIfChanged(configWindow)
             const mapNum = stateTracker.getCurrentMap()
@@ -252,7 +256,7 @@ export class SettingsManager {
                 skippedSplits: [],
 
                 launchPogoOnStartup: false,
-                language: "en"
+                language: "ja"
             };
         }
     }
@@ -343,6 +347,7 @@ export class SettingsManager {
         if (!currentStateTracker.pogoPathIsValid()) {
             this.currentSettings.pogostuckConfigPath = pogoPath;
             log.info(`PogoStuck config path changed to: ${pogoPath}`);
+            FileWatcher.getInstance().startWatching(pogoPath, pogoLogName)
             this.saveSettings();
             currentStateTracker.updatePathsValidity();
             this.updateFrontendStatus(overlayWindow);
@@ -377,6 +382,11 @@ export class SettingsManager {
                 this.saveSettings();
                 configWindow.webContents.send("steam-user-data-path-found", path.join(userdataRoot, folder));
                 this.updateFrontendStatus(overlayWindow);
+                GoldSplitsTracker.getInstance().updateGoldSplitsIfInPbSplits();
+                GoldPaceTracker.getInstance().updateGoldPacesIfInPbSplits()
+                writeGoldSplitsIfChanged(configWindow)
+                writeGoldPacesIfChanged(configWindow)
+
                 return;
             }
         }

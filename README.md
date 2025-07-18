@@ -14,6 +14,7 @@ Additionally to the basic features it also has:
 - hiding splits that are skipped
 - old split names (very important)
 - best pace pbs
+- Gold Splits as your ingame splits
 
 (Coming at some point)
 - reset counters

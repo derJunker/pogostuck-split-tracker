@@ -19,9 +19,6 @@ export async function launchPogostuckIfNotOpenYet(): Promise<boolean> {
     } catch (err) {
         console.error('Failed to check running processes:', err);
     }
-    const pogostuckDir = SettingsManager.getInstance().pogostuckSteamPath();
-    const pogostuckExecutablePath = path.join(pogostuckDir, "pogostuck.exe");
-    log.info(`Launching PogoStuck from: ${pogostuckExecutablePath}`);
     const steamAppId = "688130"; // PogoStuck's Steam App ID
     const steamUri = `steam://run/${steamAppId}//-diag`;
     shell.openExternal(steamUri);

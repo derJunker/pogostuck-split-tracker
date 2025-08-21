@@ -56,6 +56,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
 
     overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
     overlayWindow.on('close', () => {
+        log.info(`Closing overlay window at position (${overlayWindow.getPosition().join(', ')}) with size (${overlayWindow.getSize().join(', ')})`);
         overlayState.saveState(overlayWindow)
     })
     return overlayWindow

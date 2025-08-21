@@ -19,6 +19,7 @@ export class CurrentStateTracker {
 
     private pogoPathValid: boolean = false;
     private userDataPathValid: boolean = false;
+    private steamFriendCodeValid: boolean = false;
 
     public static getInstance(): CurrentStateTracker {
         if (!CurrentStateTracker.instance) {
@@ -157,12 +158,13 @@ export class CurrentStateTracker {
     public updatePathsValidity() {
         const settingsManager = SettingsManager.getInstance();
         this.pogoPathValid = settingsManager.pogostuckSteamPath() !== '' && fs.existsSync(settingsManager.pogostuckSteamPath());
-        this.userDataPathValid = settingsManager.steamUserDataPath() !== '' && fs.existsSync(path.join(settingsManager.steamUserDataPath(), ...userDataPathEnd));
-        log.debug(`Pogo path valid: ${this.pogoPathValid}, User data path valid: ${this.userDataPathValid} for paths: ${settingsManager.pogostuckSteamPath()} and ${settingsManager.steamUserDataPath()}`);
+        this.userDataPathValid = settingsManager.steamPath() !== '' && fs.existsSync(path.join(settingsManager.steamPath(), "userdata"));
+        this.steamFriendCodeValid = fs.existsSync(path.join(settingsManager.steamPath(), "userdata", settingsManager.steamFriendCode(), ...userDataPathEnd));
+        log.info(`Pogo path valid: ${this.pogoPathValid}, User data path valid: ${this.userDataPathValid} Steam friend code valid: ${this.steamFriendCodeValid}; For paths: ${settingsManager.pogostuckSteamPath()}, ${settingsManager.steamPath()} and code: ${settingsManager.steamFriendCode()}`);
     }
 
     public configPathsAreValid(): boolean {
-        return this.pogoPathValid && this.userDataPathValid;
+        return this.pogoPathValid && this.userDataPathValid && this.steamFriendCodeValid;
     }
 
     public pogoPathIsValid(): boolean {
@@ -171,5 +173,9 @@ export class CurrentStateTracker {
 
     public userDataPathIsValid(): boolean {
         return this.userDataPathValid;
+    }
+
+    public steamFriendCodeIsValid(): boolean {
+        return this.steamFriendCodeValid;
     }
 }

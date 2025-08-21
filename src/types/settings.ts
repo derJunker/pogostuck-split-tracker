@@ -1,7 +1,8 @@
 export interface Settings {
     // Paths
     pogostuckConfigPath: string;
-    pogostuckSteamUserDataPath: string;
+    steamPath: string;
+    userFriendCode: string;
     // Design
     hideSkippedSplits: boolean,
     onlyDiffsColored: boolean,

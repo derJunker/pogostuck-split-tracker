@@ -13,14 +13,14 @@ export async function launchPogostuckIfNotOpenYet(): Promise<boolean> {
     try {
         const tasklist = execSync('tasklist', { encoding: 'utf8' });
         if (tasklist.toLowerCase().includes('pogostuck.exe')) {
-            log.info('PogoStuck is already running. Not launching again.');
+            log.info('Trying to launch Pogostuck is already running. Not launching again.');
             return false;
         }
     } catch (err) {
         console.error('Failed to check running processes:', err);
     }
     const steamAppId = "688130"; // PogoStuck's Steam App ID
-    const steamUri = `steam://run/${steamAppId}//-diag`;
+    const steamUri = `steam://run/${steamAppId}/-diag`;
     shell.openExternal(steamUri);
     return true;
 }

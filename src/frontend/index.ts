@@ -16,7 +16,6 @@ import {setPreferenceTabValuesFromSettings} from "./config-window/preference-tab
 import {initMenuNavListeners} from "./config-window/menu-buttons";
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./config-window/pb-tab-handler";
 import {initPathsTabListeners} from "./config-window/paths-tab-handler";
-import log from "electron-log/main";
 import {initLanguageListeners} from "./config-window/language-handler";
 
 

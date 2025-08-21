@@ -21,6 +21,7 @@ import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 
 log.initialize();
+log.info(`Junker's Split Tracker v${VERSION} is starting...`);
 
 ActiveWindow.initialize();
 if (!ActiveWindow.requestPermissions()) {
@@ -43,6 +44,7 @@ if (settingsManager.launchPogoOnStartup())
     launchPogostuckIfNotOpenYet().then(() => log.debug("PogoStuck launched on startup."));
 
 app.on("ready", async () => {
+    log.info(`App is ready. Initializing main window...`);
     let configWindowState = windowStateKeeper({
         defaultWidth: 950,
         defaultHeight: 800,
@@ -99,7 +101,8 @@ app.on("ready", async () => {
 
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth
-    configWindow.on('closed', () => {
+    configWindow.on('close', () => {
+        log.info(`Closing config window at position (${configWindow.getPosition().join(', ')}) with size (${configWindow.getSize().join(', ')})`);
         configWindowState.saveState(configWindow)
         overlayWindow.close()
     });

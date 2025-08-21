@@ -2,6 +2,7 @@ import {getFrontendSettings, updateFrontendMappings, updateFrontendSettings} fro
 import {updateSplitsAndGolds} from "./splits-tab-handler";
 
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
+const steamFriendCode = document.getElementById('steam-friend-code') as HTMLInputElement;
 const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
 const hideSkippedSplitsCheckbox = document.getElementById('ignore-skipped-splits') as HTMLInputElement;
 const hideWindowWhenPogoNotActiveCheckbox = document.getElementById('hide-when-pogo-not-active') as HTMLInputElement;
@@ -18,7 +19,8 @@ const backgroundColorInput = document.getElementById('set-background-color') as 
 export function setPreferenceTabValuesFromSettings() {
     const settings = getFrontendSettings();
 
-    steamPathInput.value = settings.pogostuckSteamUserDataPath;
+    steamPathInput.value = settings.steamPath;
+    steamFriendCode.value = settings.userFriendCode;
     pogoPathInput.value = settings.pogostuckConfigPath;
     splitNamingSelect.value = settings.showNewSplitNames ? 'new' : 'old';
 

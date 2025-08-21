@@ -93,8 +93,9 @@ export class UserDataReader {
 
     private readSteamUserData(configWindow?: BrowserWindow, overlayWindow?: BrowserWindow): string | null {
         const settingsManager = SettingsManager.getInstance();
-        const filePath = path.join(settingsManager.steamUserDataPath(), ...userDataPathEnd);
+        const filePath = path.join(settingsManager.steamPath(), "userdata", settingsManager.steamFriendCode(), ...userDataPathEnd);
         if (fs.existsSync(filePath)) {
+            log.info(`found steam user data file at: ${filePath}`);
             return fs.readFileSync(filePath, 'utf-8');
         }
         log.error(`Steam user data file not found at: ${filePath}`);

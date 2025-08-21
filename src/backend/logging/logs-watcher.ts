@@ -21,7 +21,6 @@ export class FileWatcher {
 
     startWatching(dirPath: string, fileName: string) {
         this.stopWatching();
-        log.debug(`Starting to watch directory: ${dirPath} for file: ${fileName}`);
         const filePath = path.join(dirPath, fileName);
 
         this.dirWatcher = chokidar.watch(dirPath, { persistent: true, depth: 0 });
@@ -29,17 +28,22 @@ export class FileWatcher {
             if (path.basename(addedPath) === fileName && !this.fileWatcher) {
                 this.lastSize = 0;
                 this.watchFile(filePath);
+                log.info(`Started watching file: ${filePath}`);
             }
         });
         this.dirWatcher.on('unlink', (removedPath: string) => {
             if (path.basename(removedPath) === fileName) {
+                log.debug(`removed ${fileName} from ${dirPath}`);
                 this.stopFileWatcher();
             }
         });
-
+        log.debug(`attemting to access file: ${filePath}`);
         fs.access(filePath, fs.constants.F_OK, (err) => {
             if (!err) {
+                log.info(`File ${fileName} exists, starting to watch it.`);
                 this.watchFile(filePath);
+            } else {
+                log.warn(`File ${fileName} does not exist in ${dirPath}, will wait for it to be created.`);
             }
         });
     }

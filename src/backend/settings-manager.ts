@@ -18,7 +18,6 @@ import {GoldPaceTracker} from "./data/gold-pace-tracker";
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
     private readonly settingsPath: string;
-    private configWindow: BrowserWindow | null = null;
     public currentSettings: Settings;
 
     private constructor() {
@@ -52,6 +51,9 @@ export class SettingsManager {
         });
 
         ipcMain.handle("option-hide-skipped-splits-changed", (event, hideSplits: boolean) => {
+            if (this.currentSettings.hideSkippedSplits === hideSplits)
+                return this.currentSettings;
+            log.info(`[Setting] 'Hide skipped splits' changed to: ${hideSplits}`);
             this.currentSettings.hideSkippedSplits = hideSplits;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
@@ -61,12 +63,18 @@ export class SettingsManager {
         });
 
         ipcMain.handle("option-hide-overlay-when-not-active-changed", (event, hideWindow: boolean) => {
+            if (this.currentSettings.hideWindowWhenPogoNotActive === hideWindow)
+                return this.currentSettings;
+            log.info(`[Setting] 'Hide window when PogoStuck is not active' changed to: ${hideWindow}`);
             this.currentSettings.hideWindowWhenPogoNotActive = hideWindow;
             if (!hideWindow) overlayWindow.show();
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle('only-diff-colored-changed', (event, colorOnlyDiffs: boolean) => {
+            if (this.currentSettings.onlyDiffsColored === colorOnlyDiffs)
+                return this.currentSettings;
+            log.info(`[Setting] 'Only diffs colored' changed to: ${colorOnlyDiffs}`);
             this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
@@ -75,6 +83,9 @@ export class SettingsManager {
             return this.currentSettings;
         });
         ipcMain.handle('race-golds-changed', (event, raceGoldSplits: boolean) => {
+            if (this.currentSettings.raceGoldSplits === raceGoldSplits)
+                return this.currentSettings;
+            log.info(`[Setting] 'Race gold splits' changed to: ${raceGoldSplits}`);
             this.currentSettings.raceGoldSplits = raceGoldSplits;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
@@ -83,11 +94,17 @@ export class SettingsManager {
             return this.currentSettings;
         });
         ipcMain.handle("option-launch-pogo-on-startup", (event, launchPogoOnStartup: boolean) => {
+            if (this.currentSettings.launchPogoOnStartup === launchPogoOnStartup)
+                return this.currentSettings;
+            log.info(`[Setting] 'Launch PogoStuck on startup' changed to: ${launchPogoOnStartup}`);
             this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
+            if (this.currentSettings.showNewSplitNames === showNewSplits)
+                return this.currentSettings;
+            log.info(`[Setting] 'Show new split names' changed to: ${showNewSplits}`);
             this.currentSettings.showNewSplitNames = showNewSplits;
             indexToNamesMappings.switchMap1SplitNames(showNewSplits)
             const modeNum = stateTracker.getCurrentMode();
@@ -97,34 +114,46 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle("option-click-through-overlay-changed", (event, clickThroughOverlay: boolean) => {
+            if (this.currentSettings.clickThroughOverlay === clickThroughOverlay)
+                return this.currentSettings;
+            log.info(`[Setting] 'Click through overlay' changed to: ${clickThroughOverlay}`);
             this.currentSettings.clickThroughOverlay = clickThroughOverlay;
             overlayWindow.setIgnoreMouseEvents(clickThroughOverlay);
             this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
-            const settingsTxtPath = path.join(steamUserDataPath, ...userDataPathEnd)
+            const settingsTxtPath = path.join(steamUserDataPath, "userdata")
             if (!existsSync(settingsTxtPath)) {
-                log.info(`Steam user data path does not exist: settingsPath calculated: ${settingsTxtPath} for steamUserDataPath: ${steamUserDataPath}`);
+                log.info(`Steam path does not exist: settingsPath calculated: ${settingsTxtPath} for steamUserDataPath: ${steamUserDataPath}`);
                 const steamUserDataPathExists = existsSync(steamUserDataPath);
                 const settingsPathExists = existsSync(settingsTxtPath);
-                log.info(`Steam user data path exists: ${steamUserDataPathExists}, settings.txt exists: ${settingsPathExists}`);
+                log.info(`Steam path exists: ${steamUserDataPathExists}, settings.txt exists: ${settingsPathExists}`);
                 return this.currentSettings;
             }
-            this.currentSettings.pogostuckSteamUserDataPath = steamUserDataPath;
+            this.currentSettings.steamPath = steamUserDataPath;
             stateTracker.updatePathsValidity()
+            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.userDataPathIsValid()) {
+                return this.currentSettings;
+            }
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
-            pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow);
-            goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
-            goldenPaceTracker.updateGoldPacesIfInPbSplits();
-            writeGoldSplitsIfChanged(configWindow)
-            writeGoldPacesIfChanged(configWindow)
-            const mapNum = stateTracker.getCurrentMap()
-            const modeNum = stateTracker.getCurrentMode();
-            resetOverlay(mapNum, modeNum, overlayWindow);
-            this.saveSettings()
-            this.updateFrontendStatus(overlayWindow)
+            this.loadSteamUserdataInfoIntoApplication(stateTracker, pbSplitTracker, goldenSplitsTracker, goldenPaceTracker, configWindow, overlayWindow)
             return this.currentSettings
+        });
+        ipcMain.handle('steam-friend-code-changed', (event, steamFriendCode: string) => {
+            const steamPath = this.currentSettings.steamPath;
+            if (steamPath && fs.existsSync(path.join(steamPath, "userdata", steamFriendCode, ...userDataPathEnd))) {
+                log.info(`[Setting] 'Steam friend code' changed to: ${steamFriendCode}`);
+                this.currentSettings.userFriendCode = steamFriendCode;
+                this.saveSettings()
+            } else {
+                log.error(`Steam friend code ${steamFriendCode} does not exist in steam path: ${steamPath}`);
+            }
+            stateTracker.updatePathsValidity();
+            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.userDataPathIsValid()) {
+                return this.currentSettings;
+            }
+            return this.currentSettings;
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
             if (!existsSync(pogostuckConfPath)) {
@@ -161,6 +190,9 @@ export class SettingsManager {
             return this.currentSettings;
         });
         ipcMain.handle('enable-background-color-changed', (event, enableBackgroundColor: boolean) => {
+            if (this.currentSettings.enableBackgroundColor === enableBackgroundColor)
+                return this.currentSettings;
+            log.info(`[Setting] 'Enable background color' changed to: ${enableBackgroundColor}`);
             this.currentSettings.enableBackgroundColor = enableBackgroundColor;
             overlayWindow.webContents.send('change-background', enableBackgroundColor ? this.currentSettings.backgroundColor : null);
             this.saveSettings();
@@ -168,6 +200,9 @@ export class SettingsManager {
         });
 
         ipcMain.handle('background-color-changed', (event, bgCol: string) => {
+            if (this.currentSettings.backgroundColor === bgCol)
+                return this.currentSettings;
+            log.info(`[Setting] 'Background color' changed to: ${bgCol}`);
             this.currentSettings.backgroundColor = bgCol;
             if (this.currentSettings.enableBackgroundColor)
                 overlayWindow.webContents.send('change-background', bgCol);
@@ -176,9 +211,9 @@ export class SettingsManager {
         });
 
         ipcMain.handle('get-split-path', (event, mode: number) => {
-            const steamUserDataPathIsValid = existsSync(path.join(this.currentSettings.pogostuckSteamUserDataPath, ...userDataPathEnd));
+            const steamUserDataPathIsValid = existsSync(path.join(this.currentSettings.steamPath, ...userDataPathEnd));
             if (!steamUserDataPathIsValid) {
-                log.info(`Querying split path, but steam user data path is not valid: ${this.currentSettings.pogostuckSteamUserDataPath}`);
+                log.info(`Querying split path, but steam user data path is not valid: ${this.currentSettings.steamPath}`);
                 return []
             }
             const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
@@ -186,6 +221,9 @@ export class SettingsManager {
         });
 
         ipcMain.handle('language-changed', (event, language: string) => {
+            if (this.currentSettings.language === language)
+                return this.currentSettings;
+            log.info(`[Setting] 'Language' changed to: ${language}`);
             if (language !== 'en' && language !== 'ja') {
                 log.error(`Language "${language}" not found!`);
                 return;
@@ -226,20 +264,34 @@ export class SettingsManager {
 
     private loadSettings(): Settings {
         if (existsSync(this.settingsPath)) {
-            // Migration vom alten settings path: Nur entfernen, wenn am Ende, und Trennzeichen-unabhängig
-            const settings: Settings = JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
-            if (typeof settings.hideWindowWhenPogoNotActive === "undefined") {
-                settings.hideWindowWhenPogoNotActive = true;
+            const loadedSettings: any = JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
+            if (typeof loadedSettings.hideWindowWhenPogoNotActive === "undefined")
+                loadedSettings.hideWindowWhenPogoNotActive = true;
+            if (typeof loadedSettings.steamPath === "undefined" && typeof loadedSettings.pogostuckSteamUserDataPath !== "undefined")
+                loadedSettings.steamPath = loadedSettings.pogostuckSteamUserDataPath;
+            if (typeof loadedSettings.userFriendCode === "undefined")
+                loadedSettings.userFriendCode = "";
+            if (loadedSettings.steamPath) {
+                if (loadedSettings.steamPath.includes("688130") && loadedSettings.steamPath.includes("remote")) {
+                    loadedSettings.steamPath = loadedSettings.steamPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/, "");
+                    log.info(`Migrated steam path from: ${loadedSettings.steamPath} to ${loadedSettings.steamPath}`);
+                }
+                if (loadedSettings.steamPath.includes(`userdata`)) {
+                    const regex = /userdata[\\/](?<steamFriendCode>\d{4,})/;
+                    const match: RegExpMatchArray|null = loadedSettings.steamPath.match(regex);
+                    if (match) {
+                        loadedSettings.userFriendCode = match.groups!.steamFriendCode;
+                        loadedSettings.steamPath = loadedSettings.steamPath.replace(regex, "");
+                        log.info(`Found steam friend code in steam path: ${loadedSettings.userFriendCode}`);
+                    }
+                }
             }
-            if (settings.pogostuckSteamUserDataPath) {
-                // Regex: entfernt '688130/remote' oder '688130\\remote' am Ende des Strings
-                settings.pogostuckSteamUserDataPath = settings.pogostuckSteamUserDataPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/ , "");
-            }
-            return settings;
+            return loadedSettings;
         } else {
             return {
                 pogostuckConfigPath: "",
-                pogostuckSteamUserDataPath: "",
+                steamPath: "",
+                userFriendCode: "",
                 // design
                 hideSkippedSplits: false,
                 onlyDiffsColored: false,
@@ -285,11 +337,25 @@ export class SettingsManager {
         overlayWindow.webContents.send("status-changed", statusMessage);
     }
 
+    private loadSteamUserdataInfoIntoApplication(stateTracker: CurrentStateTracker, pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker, goldenPaceTracker: GoldPaceTracker, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
+        pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow);
+        goldenSplitsTracker.updateGoldSplitsIfInPbSplits();
+        goldenPaceTracker.updateGoldPacesIfInPbSplits();
+        writeGoldSplitsIfChanged(configWindow)
+        writeGoldPacesIfChanged(configWindow)
+        const mapNum = stateTracker.getCurrentMap()
+        const modeNum = stateTracker.getCurrentMode();
+        resetOverlay(mapNum, modeNum, overlayWindow);
+        this.saveSettings()
+        this.updateFrontendStatus(overlayWindow)
+    }
+
     private createStatusMessage(): string {
         const stateTracker = CurrentStateTracker.getInstance();
         let msg = "Config Status\n"
         const pogoConfigPathIsValid = stateTracker.pogoPathIsValid();
         const steamUserDataPathIsValid = stateTracker.userDataPathIsValid();
+        const friendCodeIsValid = stateTracker.userDataPathIsValid()
         if (pogoConfigPathIsValid && steamUserDataPathIsValid) {
             return "Pogostuck-Splits - Active"
         }
@@ -299,9 +365,15 @@ export class SettingsManager {
             msg += `Pogostuck Steam Path: ✅\n`;
         }
         if (!steamUserDataPathIsValid) {
-            msg += "Steam user-data path: ❌\n";
+            msg += "Steam path: ❌\n";
         } else {
-            msg += "Steam user-data path: ✅\n";
+            msg += "Steam path: ✅\n";
+        }
+
+        if (!friendCodeIsValid) {
+            msg += "Steam friend code: ❌\n";
+        } else {
+            msg += "Steam friend code: ✅\n";
         }
         return msg;
     }
@@ -314,8 +386,12 @@ export class SettingsManager {
         return this.currentSettings.launchPogoOnStartup;
     }
 
-    public steamUserDataPath(): string {
-        return this.currentSettings.pogostuckSteamUserDataPath;
+    public steamPath(): string {
+        return this.currentSettings.steamPath;
+    }
+
+    public steamFriendCode(): string {
+        return this.currentSettings.userFriendCode;
     }
 
     public hideSkippedSplits(): boolean {
@@ -370,17 +446,19 @@ export class SettingsManager {
         }
 
         const folders = fs.readdirSync(userdataRoot, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory() && /^\d{5,10}$/.test(dirent.name))
+            .filter(dirent => dirent.isDirectory() && /^\d{5,12}$/.test(dirent.name))
             .map(dirent => dirent.name);
 
         for (const folder of folders) {
             const potentialPath = path.join(userdataRoot, folder, ...userDataPathWithNoFile);
             if (existsSync(potentialPath)) {
                 log.info(`Found userdata path at ${potentialPath}, updating settings.`);
-                this.currentSettings.pogostuckSteamUserDataPath = path.join(userdataRoot, folder);
+                this.currentSettings.steamPath = path.join(userdataRoot, "..");
+                this.currentSettings.userFriendCode = folder;
                 CurrentStateTracker.getInstance().updatePathsValidity();
                 this.saveSettings();
                 configWindow.webContents.send("steam-user-data-path-found", path.join(userdataRoot, folder));
+                configWindow.webContents.send("steam-friend-code-found", path.join(userdataRoot, folder));
                 this.updateFrontendStatus(overlayWindow);
                 GoldSplitsTracker.getInstance().updateGoldSplitsIfInPbSplits();
                 GoldPaceTracker.getInstance().updateGoldPacesIfInPbSplits()

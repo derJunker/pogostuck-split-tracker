@@ -35,6 +35,7 @@ declare global { interface Window {
         onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;
         onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => Promise<Settings>;
         onSteamUserDataPathChanged: (steamUserDataPath: string) => Promise<Settings>;
+        onSteamFriendCodeChanged: (steamFriendCode: string) => Promise<Settings>;
         onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<Settings>;
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;
         onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => Promise<Settings>;
@@ -62,6 +63,7 @@ declare global { interface Window {
         onPbImproved: (callback: (event: Electron.IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => void;
         onPogoPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
         onUserDataPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
+        onSteamFriendCodeFound: (callback: (event: Electron.IpcRendererEvent, code: string) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;

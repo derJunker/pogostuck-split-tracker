@@ -128,7 +128,6 @@ window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
         // if you want to not only color the diffs, then make sure the splitTime has the color class
         if (potentialClassesFromDiff && potentialClassesFromDiff.length > 0 && !pbRunInfoAndSoB.settings.onlyDiffsColored) {
             const classToAdd = potentialClassesFromDiff[0];
-            __electronLog.debug(`Adding class ${classToAdd} to splitTime`);
             if (!splitTime.classList.contains(classToAdd)) {
                 splitTime.classList.add(classToAdd);
             }

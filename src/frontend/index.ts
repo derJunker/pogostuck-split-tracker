@@ -18,6 +18,7 @@ import {addEmptyPbInputFields, setPbValuesToInputs} from "./config-window/pb-tab
 import {initPathsTabListeners} from "./config-window/paths-tab-handler";
 import {initLanguageListeners} from "./config-window/language-handler";
 import {initLaunchPogostuckButtonListeners} from "./config-window/launch-pogostuck-button-handler";
+import {initDebugButtonListeners} from "./config-window/debug-tab-handler";
 
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -37,6 +38,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     initMenuNavListeners();
     initPathsTabListeners();
+    initDebugButtonListeners();
 
     initLanguageListeners();
 });

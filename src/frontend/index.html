@@ -24,6 +24,10 @@
                 <span lang="en" style="display: none">Paths</span>
                 <span lang="ja" style="display: none">パス</span>
             </button>
+            <button id="debug-btn" class="menu-btn">
+                <span lang="en" style="display: none">Debug</span>
+                <span lang="ja" style="display: none">デバッグ</span>
+            </button>
         </div>
         <div id="menu-content">
             <div id="setup-guide-content" class="menu-content">
@@ -319,24 +323,24 @@
                     </div>
                     <div id="gold-pace-selection">
                         <h3>Best Paces</h3>
-                        <label for="pace-0-input">Bones</label>
-                        <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-1-input">Wind</label>
-                        <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-2-input">Grapes</label>
-                        <input type="text" id="pace-2-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-3-input">Trees</label>
-                        <input type="text" id="pace-3-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-4-input">Pineapples</label>
-                        <input type="text" id="pace-4-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-5-input">Palms</label>
-                        <input type="text" id="pace-5-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-6-input">Mushrooms</label>
-                        <input type="text" id="pace-6-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-7-input">Flowers</label>
-                        <input type="text" id="pace-7-input" class="input-field" placeholder="00:00.000">
-                        <label for="pace-8-input">Ice</label>
-                        <input type="text" id="pace-8-input" class="input-field" placeholder="00:00.000">
+<!--                        <label for="pace-0-input">Bones</label>-->
+<!--                        <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-1-input">Wind</label>-->
+<!--                        <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-2-input">Grapes</label>-->
+<!--                        <input type="text" id="pace-2-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-3-input">Trees</label>-->
+<!--                        <input type="text" id="pace-3-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-4-input">Pineapples</label>-->
+<!--                        <input type="text" id="pace-4-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-5-input">Palms</label>-->
+<!--                        <input type="text" id="pace-5-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-6-input">Mushrooms</label>-->
+<!--                        <input type="text" id="pace-6-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-7-input">Flowers</label>-->
+<!--                        <input type="text" id="pace-7-input" class="input-field" placeholder="00:00.000">-->
+<!--                        <label for="pace-8-input">Ice</label>-->
+<!--                        <input type="text" id="pace-8-input" class="input-field" placeholder="00:00.000">-->
                     </div>
                 </div>
             </div>
@@ -367,6 +371,18 @@
                     </label>
                     <input type="text" id="steam-friend-code" class="input-field"
                            placeholder="Enter Steam Friend-Code...">
+                </div>
+            </div>
+            <div id="debug-content" class="menu-content">
+                <div style="display: flex; flex-direction: column; gap: 1rem">
+                    <button id="copy-logs-btn">
+                        <span lang="en" style="display: none">Copy recent logs</span>
+                        <span lang="ja" style="display: none">最近のログをコピー</span>
+                    </button>
+                    <button id="open-appdata-dir-btn">
+                        <span lang="en" style="display: none">Open AppData Directory</span>
+                        <span lang="ja" style="display: none">AppDataディレクトリを開く</span>
+                    </button>
                 </div>
             </div>
         </div>

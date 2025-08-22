@@ -17,27 +17,26 @@ import {initMenuNavListeners} from "./config-window/menu-buttons";
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./config-window/pb-tab-handler";
 import {initPathsTabListeners} from "./config-window/paths-tab-handler";
 import {initLanguageListeners} from "./config-window/language-handler";
+import {initLaunchPogostuckButtonListeners} from "./config-window/launch-pogostuck-button-handler";
 
 
 window.addEventListener('DOMContentLoaded', async () => {
-    await loadSettingsAndMappingsFromBackend()
+    initLaunchPogostuckButtonListeners();
+    await loadSettingsAndMappingsFromBackend();
     await loadBackendPbs();
-    await showWin11MessagesIfOnWin11()
-    await showFullscreenMessageIfPlayingWithFullscreen()
+    await showWin11MessagesIfOnWin11();
+    await showFullscreenMessageIfPlayingWithFullscreen();
 
-    syncInitialCheckboxes()
-    setPreferenceTabValuesFromSettings()
+    syncInitialCheckboxes();
+    setPreferenceTabValuesFromSettings();
 
     await initSplitsTab();
 
-    addEmptyPbInputFields()
-    setPbValuesToInputs()
+    addEmptyPbInputFields();
+    setPbValuesToInputs();
 
-    initMenuNavListeners()
+    initMenuNavListeners();
     initPathsTabListeners();
 
-    document.getElementById("launch-pogo-btn")?.addEventListener("click", async () => {
-        await window.electronAPI.openPogostuck();
-    })
-    initLanguageListeners()
+    initLanguageListeners();
 });

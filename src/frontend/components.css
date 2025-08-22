@@ -118,6 +118,13 @@ button.inverted {
     border: var(--border-width) solid var(--color-border);
 }
 
+button.inverted[disabled] {
+    background: darkgray;
+    color: dimgray;
+    border: var(--border-width) solid dimgray;
+    cursor: not-allowed;
+}
+
 /* Checkbox Styles */
 input[type="checkbox"] {
     display: none;

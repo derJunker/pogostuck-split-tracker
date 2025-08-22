@@ -26,7 +26,7 @@ declare global { interface Window {
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
         onGoldPacePassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
-        onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: string) => void) => void;
+        onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean }) => void) => void;
 
         // config window sending events to backend
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;

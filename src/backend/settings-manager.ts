@@ -41,9 +41,19 @@ export class SettingsManager {
         const goldenPaceTracker = GoldPaceTracker.getInstance();
         const indexToNamesMappings = PogoNameMappings.getInstance();
 
-        overlayWindow.on("ready-to-show", () => {
-            this.updateFrontendStatus(overlayWindow)
-        })
+        let windowsReady = 0;
+        const onWindowReady = () => {
+            windowsReady++;
+            if (windowsReady === 2) {
+                log.info(`Both windows are ready, updating frontend status.`);
+                this.updateFrontendStatus(overlayWindow, configWindow);
+            }
+        };
+
+        overlayWindow.on("ready-to-show", onWindowReady);
+        configWindow.on("ready-to-show", onWindowReady);
+
+
 
         indexToNamesMappings.switchMap1SplitNames(this.currentSettings.showNewSplitNames)
         ipcMain.handle("load-settings", () => {
@@ -133,7 +143,7 @@ export class SettingsManager {
             }
             this.currentSettings.steamPath = steamUserDataPath;
             stateTracker.updatePathsValidity()
-            this.updateFrontendStatus(overlayWindow)
+            this.updateFrontendStatus(overlayWindow, configWindow)
             if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
                 return this.currentSettings;
             }
@@ -151,7 +161,7 @@ export class SettingsManager {
                 log.error(`Steam friend code ${steamFriendCode} does not exist in steam path: ${steamPath}`);
             }
             stateTracker.updatePathsValidity();
-            this.updateFrontendStatus(overlayWindow)
+            this.updateFrontendStatus(overlayWindow, configWindow)
             if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
                 return this.currentSettings;
             }
@@ -168,7 +178,7 @@ export class SettingsManager {
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
             this.saveSettings()
-            this.updateFrontendStatus(overlayWindow)
+            this.updateFrontendStatus(overlayWindow, configWindow)
             return this.currentSettings
         });
         ipcMain.handle('pogo-path-is-valid', () => {
@@ -337,9 +347,14 @@ export class SettingsManager {
         fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
     }
 
-    private updateFrontendStatus(overlayWindow: BrowserWindow) {
-        const statusMessage = this.createStatusMessage();
-        overlayWindow.webContents.send("status-changed", statusMessage);
+    private updateFrontendStatus(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+        const stateTracker = CurrentStateTracker.getInstance();
+        [overlayWindow.webContents, configWindow.webContents].forEach(state =>
+            state.send("status-changed", {
+                pogoPathValid: stateTracker.pogoPathIsValid(),
+                steamPathValid: stateTracker.steamPathIsValid(),
+                friendCodeValid: stateTracker.steamFriendCodeIsValid()
+            }))
     }
 
     private loadSteamUserdataInfoIntoApplication(stateTracker: CurrentStateTracker, pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker, goldenPaceTracker: GoldPaceTracker, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
@@ -352,34 +367,6 @@ export class SettingsManager {
         const modeNum = stateTracker.getCurrentMode();
         resetOverlay(mapNum, modeNum, overlayWindow);
         this.saveSettings()
-    }
-
-    private createStatusMessage(): string {
-        const stateTracker = CurrentStateTracker.getInstance();
-        let msg = "Config Status\n"
-        const pogoConfigPathIsValid = stateTracker.pogoPathIsValid();
-        const steamUserDataPathIsValid = stateTracker.steamPathIsValid();
-        const friendCodeIsValid = stateTracker.steamFriendCodeIsValid()
-        if (stateTracker.configPathsAreValid()) {
-            return "Pogostuck-Splits - Active"
-        }
-        if (!pogoConfigPathIsValid) {
-            msg += `Pogostuck Steam Path: ❌\n`;
-        } else {
-            msg += `Pogostuck Steam Path: ✅\n`;
-        }
-        if (!steamUserDataPathIsValid) {
-            msg += "Steam path: ❌\n";
-        } else {
-            msg += "Steam path: ✅\n";
-        }
-
-        if (!friendCodeIsValid) {
-            msg += "Steam friend code: ❌\n";
-        } else {
-            msg += "Steam friend code: ✅\n";
-        }
-        return msg;
     }
 
     public pogostuckSteamPath() {
@@ -430,7 +417,7 @@ export class SettingsManager {
             FileWatcher.getInstance().startWatching(pogoPath, pogoLogName)
             this.saveSettings();
             currentStateTracker.updatePathsValidity();
-            this.updateFrontendStatus(overlayWindow);
+            this.updateFrontendStatus(overlayWindow, configWindow);
             configWindow.webContents.send("pogostuck-config-path-found", pogoPath);
         }
 
@@ -463,7 +450,7 @@ export class SettingsManager {
                 this.saveSettings();
                 configWindow.webContents.send("steam-user-data-path-found", path.join(userdataRoot, folder));
                 configWindow.webContents.send("steam-friend-code-found", path.join(userdataRoot, folder));
-                this.updateFrontendStatus(overlayWindow);
+                this.updateFrontendStatus(overlayWindow, configWindow);
                 GoldSplitsTracker.getInstance().updateGoldSplitsIfInPbSplits();
                 GoldPaceTracker.getInstance().updateGoldPacesIfInPbSplits()
                 writeGoldSplitsIfChanged(configWindow)

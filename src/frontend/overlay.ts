@@ -188,15 +188,18 @@ window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfB
     }
 });
 
-window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, statusMsg: string) => {
+window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean }) => {
+    __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}`);
     const statusElement = document.getElementById('status-msg')!;
     statusElement.innerHTML = '';
+    const statusMsg = createStatusMessage(status.pogoPathValid, status.steamPathValid, status.friendCodeValid)
     statusMsg.split('\n').forEach(line => {
         const div = document.createElement('div');
         div.textContent = line;
         statusElement.appendChild(div);
     });
 })
+
 
 window.electronAPI.changeBackground((event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => {
     const body = document.body;
@@ -206,3 +209,27 @@ window.electronAPI.changeBackground((event: Electron.IpcRendererEvent, enableBac
         body.style.backgroundColor = '';
     }
 })
+
+function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean): string {
+    let msg = "Config Status\n"
+    if (pogoPathValid && steamPathValid && friendCodeValid) {
+        return "Pogostuck-Splits - Active"
+    }
+    if (!pogoPathValid) {
+        msg += `Pogostuck Steam Path: ❌\n`;
+    } else {
+        msg += `Pogostuck Steam Path: ✅\n`;
+    }
+    if (!steamPathValid) {
+        msg += "Steam path: ❌\n";
+    } else {
+        msg += "Steam path: ✅\n";
+    }
+
+    if (!friendCodeValid) {
+        msg += "Steam friend code: ❌\n";
+    } else {
+        msg += "Steam friend code: ✅\n";
+    }
+    return msg;
+}

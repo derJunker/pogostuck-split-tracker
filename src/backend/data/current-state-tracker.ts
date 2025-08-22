@@ -18,7 +18,7 @@ export class CurrentStateTracker {
     private finalTime: number = -1;
 
     private pogoPathValid: boolean = false;
-    private userDataPathValid: boolean = false;
+    private steamPathValid: boolean = false;
     private steamFriendCodeValid: boolean = false;
 
     public static getInstance(): CurrentStateTracker {
@@ -158,21 +158,21 @@ export class CurrentStateTracker {
     public updatePathsValidity() {
         const settingsManager = SettingsManager.getInstance();
         this.pogoPathValid = settingsManager.pogostuckSteamPath() !== '' && fs.existsSync(settingsManager.pogostuckSteamPath());
-        this.userDataPathValid = settingsManager.steamPath() !== '' && fs.existsSync(path.join(settingsManager.steamPath(), "userdata"));
+        this.steamPathValid = settingsManager.steamPath() !== '' && fs.existsSync(path.join(settingsManager.steamPath(), "userdata"));
         this.steamFriendCodeValid = fs.existsSync(path.join(settingsManager.steamPath(), "userdata", settingsManager.steamFriendCode(), ...userDataPathEnd));
-        log.info(`Pogo path valid: ${this.pogoPathValid}, User data path valid: ${this.userDataPathValid} Steam friend code valid: ${this.steamFriendCodeValid}; For paths: ${settingsManager.pogostuckSteamPath()}, ${settingsManager.steamPath()} and code: ${settingsManager.steamFriendCode()}`);
+        log.info(`Pogo path valid: ${this.pogoPathValid}, Steam path valid: ${this.steamPathValid} Steam friend code valid: ${this.steamFriendCodeValid}; For paths: ${settingsManager.pogostuckSteamPath()}, ${settingsManager.steamPath()} and code: ${settingsManager.steamFriendCode()}`);
     }
 
     public configPathsAreValid(): boolean {
-        return this.pogoPathValid && this.userDataPathValid && this.steamFriendCodeValid;
+        return this.pogoPathValid && this.steamPathValid && this.steamFriendCodeValid;
     }
 
     public pogoPathIsValid(): boolean {
         return this.pogoPathValid;
     }
 
-    public userDataPathIsValid(): boolean {
-        return this.userDataPathValid;
+    public steamPathIsValid(): boolean {
+        return this.steamPathValid;
     }
 
     public steamFriendCodeIsValid(): boolean {

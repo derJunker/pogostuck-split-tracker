@@ -2,6 +2,7 @@ import {createCustomLabledCheckbox} from "./custom-checkboxes";
 import {formatPbTime, parsePbTime} from "../util/time-formating";
 import {IpcRendererEvent} from "electron";
 import {getFrontendMappings, getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
+import log from "electron-log/main";
 
 let mapSelect: HTMLSelectElement;
 let modeSelect: HTMLSelectElement;
@@ -98,10 +99,10 @@ async function reloadGoldSplits() {
     goldSplitSelection.appendChild(title)
 
     const splitPath = await window.electronAPI.getSplitPath(mode)
+    __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
     if (splitPath.length === 0) {
         return
     }
-    __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
     const mappings = getFrontendMappings();
     const levelMappings = mappings.find(mapInfo => mapInfo.mapIndex === map)!
     const mapSplits = levelMappings.splits
@@ -133,6 +134,7 @@ async function reloadGoldPaces() {
     goldPaceSelection.style.width = currentWidth + 'px';
 
     goldPaceSelection.innerHTML = '';
+    __electronLog.debug('Cleared gold pace selection div', goldPaceSelection.innerHTML);
 
     const title = document.createElement('h3')
     title.textContent = 'Best Paces'

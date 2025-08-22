@@ -122,7 +122,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
-        ipcMain.handle("steam-user-data-path-changed", (event, steamUserDataPath: string) => {
+        ipcMain.handle("steam-path-changed", (event, steamUserDataPath: string) => {
             const settingsTxtPath = path.join(steamUserDataPath, "userdata")
             if (!existsSync(settingsTxtPath)) {
                 log.info(`Steam path does not exist: settingsPath calculated: ${settingsTxtPath} for steamUserDataPath: ${steamUserDataPath}`);
@@ -133,7 +133,8 @@ export class SettingsManager {
             }
             this.currentSettings.steamPath = steamUserDataPath;
             stateTracker.updatePathsValidity()
-            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.userDataPathIsValid()) {
+            this.updateFrontendStatus(overlayWindow)
+            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
                 return this.currentSettings;
             }
             log.info(`PogoStuck Steam user data path changed to: ${steamUserDataPath}`);
@@ -150,9 +151,11 @@ export class SettingsManager {
                 log.error(`Steam friend code ${steamFriendCode} does not exist in steam path: ${steamPath}`);
             }
             stateTracker.updatePathsValidity();
-            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.userDataPathIsValid()) {
+            this.updateFrontendStatus(overlayWindow)
+            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
                 return this.currentSettings;
             }
+            this.loadSteamUserdataInfoIntoApplication(stateTracker, pbSplitTracker, goldenSplitsTracker, goldenPaceTracker, configWindow, overlayWindow)
             return this.currentSettings;
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
@@ -211,9 +214,11 @@ export class SettingsManager {
         });
 
         ipcMain.handle('get-split-path', (event, mode: number) => {
-            const steamUserDataPathIsValid = existsSync(path.join(this.currentSettings.steamPath, ...userDataPathEnd));
-            if (!steamUserDataPathIsValid) {
-                log.info(`Querying split path, but steam user data path is not valid: ${this.currentSettings.steamPath}`);
+            const stateTracker = CurrentStateTracker.getInstance();
+            const steamPathValid = stateTracker.steamPathIsValid();
+            const friendCodeValid = stateTracker.steamFriendCodeIsValid();
+            if (!steamPathValid || !friendCodeValid) {
+                log.warn(`Querying split path, but steam user data path is not valid; steam path valid:${steamPathValid} friend code valid: ${friendCodeValid}`);
                 return []
             }
             const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
@@ -347,16 +352,15 @@ export class SettingsManager {
         const modeNum = stateTracker.getCurrentMode();
         resetOverlay(mapNum, modeNum, overlayWindow);
         this.saveSettings()
-        this.updateFrontendStatus(overlayWindow)
     }
 
     private createStatusMessage(): string {
         const stateTracker = CurrentStateTracker.getInstance();
         let msg = "Config Status\n"
         const pogoConfigPathIsValid = stateTracker.pogoPathIsValid();
-        const steamUserDataPathIsValid = stateTracker.userDataPathIsValid();
-        const friendCodeIsValid = stateTracker.userDataPathIsValid()
-        if (pogoConfigPathIsValid && steamUserDataPathIsValid) {
+        const steamUserDataPathIsValid = stateTracker.steamPathIsValid();
+        const friendCodeIsValid = stateTracker.steamFriendCodeIsValid()
+        if (stateTracker.configPathsAreValid()) {
             return "Pogostuck-Splits - Active"
         }
         if (!pogoConfigPathIsValid) {

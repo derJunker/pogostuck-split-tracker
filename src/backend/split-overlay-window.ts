@@ -93,8 +93,10 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
 }
 
 export function resetOverlay(mapNum: number, modeNum: number, overlayWindow: BrowserWindow) {
-    log.info(`Map or mode changed to map ${mapNum}, mode ${modeNum}`);
-    if (!isValidModeAndMap(mapNum, modeNum)) {
+    log.info(`Resetting Overlay for map ${mapNum}, mode ${modeNum}`);
+    const stateTracker = CurrentStateTracker.getInstance();
+    if (!isValidModeAndMap(mapNum, modeNum) || !stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
+        log.warn(`Cannot reset overlay for map ${mapNum}, mode ${modeNum} because either map or mode is invalid or steam path/friend code is not valid.`);
         return;
     }
 
@@ -107,8 +109,11 @@ export function redrawSplitDisplay(
     modeNum: number,
     overlayWindow: BrowserWindow,
 ) {
-    if (!isValidModeAndMap(mapNum, modeNum))
+    const stateTracker = CurrentStateTracker.getInstance();
+    if (!isValidModeAndMap(mapNum, modeNum) || !stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
+        log.warn(`Cannot redraw overlay for map ${mapNum}, mode ${modeNum} because either map or mode is invalid or steam path/friend code is not valid.`);
         return;
+    }
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum);
     log.info(`Backend: Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);

@@ -25,7 +25,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => ipcRenderer.invoke('option-launch-pogo-on-startup', launchPogoOnStartup),
     onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => ipcRenderer.invoke('option-show-new-split-names-changed', showNewSplitNames),
     onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => ipcRenderer.invoke('option-click-through-overlay-changed', clickThroughOverlay),
-    onSteamUserDataPathChanged: (steamUserDataPath: string) => ipcRenderer.invoke('steam-user-data-path-changed', steamUserDataPath),
+    onSteamUserDataPathChanged: (steamUserDataPath: string) => ipcRenderer.invoke('steam-path-changed', steamUserDataPath),
     onSteamFriendCodeChanged: (steamFriendCode: string) => ipcRenderer.invoke('steam-friend-code-changed', steamFriendCode),
     onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => ipcRenderer.invoke('pogostuck-config-path-changed', pogostuckConfigPath),
     onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),
@@ -54,7 +54,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => ipcRenderer.on('change-background', callback),
     onPbImproved: (callback: (event: IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => ipcRenderer.on('pb-improved', callback),
     onPogoPathFound: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('pogostuck-config-path-found', callback),
-    onUserDataPathFound: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('steam-user-data-path-found', callback),
+    onSteamPathFound: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('steam-user-data-path-found', callback),
     onSteamFriendCodeFound: (callback: (event: IpcRendererEvent, code: string) => void) => ipcRenderer.on('steam-friend-code-found', callback),
 
 });

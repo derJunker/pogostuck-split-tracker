@@ -62,7 +62,7 @@ declare global { interface Window {
         onGoldPaceImproved: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         onPbImproved: (callback: (event: Electron.IpcRendererEvent, data: {mode: number, pbTime: number}) => void) => void;
         onPogoPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
-        onUserDataPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
+        onSteamPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
         onSteamFriendCodeFound: (callback: (event: Electron.IpcRendererEvent, code: string) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)

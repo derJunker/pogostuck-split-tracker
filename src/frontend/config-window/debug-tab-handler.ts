@@ -3,10 +3,13 @@ export function initDebugButtonListeners() {
     const openAppDataDirButton = document.getElementById('open-appdata-dir-btn') as HTMLButtonElement;
 
     copyLogsButton?.addEventListener('click', async () => {
-        __electronLog.debug('copyLogsButton', copyLogsButton);
+        const recentLogs = await window.electronAPI.getRecentLogs();
+        if(!recentLogs)
+            return;
+        await navigator.clipboard.writeText(recentLogs);
     });
 
     openAppDataDirButton?.addEventListener('click', async () => {
-        __electronLog.debug('openAppDataDirButton', openAppDataDirButton);
+        await window.electronAPI.openAppdataExplorer()
     });
 }

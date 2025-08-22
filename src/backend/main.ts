@@ -1,7 +1,7 @@
 import * as path from "path";
 import ActiveWindow from "@paymoapp/active-window";
 import log from 'electron-log/main';
-import {app, BrowserWindow, ipcMain} from "electron";
+import {app, BrowserWindow, ipcMain, shell} from "electron";
 
 import {registerLogEventHandlers} from "./logging/log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
@@ -19,6 +19,7 @@ import { VERSION } from "../version";
 import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
+import fs from "fs";
 
 log.initialize();
 log.info(`Junker's Split Tracker v${VERSION} is starting...`);
@@ -106,4 +107,25 @@ app.on("ready", async () => {
         configWindowState.saveState(configWindow)
         overlayWindow.close()
     });
+
+    ipcMain.handle('open-appdata-explorer', () => shell.openPath(app.getPath("userData")))
+
+    ipcMain.handle('recent-logs', () => {
+        const logFilePath = path.join(app.getPath("userData"), "logs", "main.log");
+        if (!fs.existsSync(logFilePath)) {
+            log.error(`Log file does not exist: ${logFilePath}`);
+            return "";
+        }
+        try {
+            let recentLogs = fs.readFileSync(logFilePath, 'utf-8');
+            recentLogs = recentLogs.split("\n").slice(-3000).join("\n");
+            log.info(`Recent logs fetched, lines: ${recentLogs.split("\n").length}`);
+            return recentLogs;
+        } catch (error) {
+            log.error("Error reading recent logs:", error);
+            return "";
+        }
+    })
+
+
 });

@@ -55,6 +55,8 @@ declare global { interface Window {
         getSplitPath: (mode: number) => Promise<{from: number, to: number}[]>;
         getGoldSplits: (mode: number) => Promise<{from: number, to: number, time: number}[]>;
         getGoldPaces: (mode: number) => Promise<{splitIndex: number, time: number}[]>;
+        openAppdataExplorer: () => Promise<void>;
+        getRecentLogs: () => Promise<string>;
 
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;

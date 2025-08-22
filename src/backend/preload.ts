@@ -46,6 +46,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSplitPath: (mode: number) : Promise<{from: number, to: number}[]> => ipcRenderer.invoke('get-split-path', mode),
     getGoldSplits: (mode: number) : Promise<{from: number, to: number, time: number}[]> => ipcRenderer.invoke('get-gold-splits', mode),
     getGoldPaces: (mode: number) : Promise<{ splitIndex: number, time: number}[]> => ipcRenderer.invoke('get-gold-paces', mode),
+    openAppdataExplorer: (): Promise<void> => ipcRenderer.invoke('open-appdata-explorer'),
+    getRecentLogs: (): Promise<string> => ipcRenderer.invoke('recent-logs'),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),

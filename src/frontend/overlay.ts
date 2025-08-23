@@ -23,7 +23,7 @@ function loadMapMode(mapAndModeChanged: PbRunInfoAndSoB) {
 
             // const resetsSpan = document.createElement('span');
             // resetsSpan.className = 'split-resets';
-            // resetsSpan.textContent = `0`; // TODO adjust with actual values
+            // resetsSpan.textContent = `0`; // adjust with actual values
             // splitDiv.appendChild(resetsSpan);
 
             const diffSpan = document.createElement('span');

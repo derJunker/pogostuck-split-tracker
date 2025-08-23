@@ -42,49 +42,61 @@
                     <ul>
                         <li>
                             <b>Add Steam Launch Option:</b> You need to add "-diag" as a launch option to your Pogostuck
-                            Steam launch configuration. This is needed so the game writes the logs that this
-                            program reads for split detection, etc..
+                                                            Steam launch configuration. This is needed so the game writes the logs that this
+                                                            program reads for split detection, etc..
                             <br>
                             <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
-                                Launch Options and add "-diag" (without quotes) to the text field.</i>
+                               Launch Options and add "-diag" (without quotes) to the text field.</i>
                             <br>
                             <b>Alternatively:</b> Launch Pogostuck with the "Launch Pogostuck" button in this
-                                                            program. This will launch Pogostuck with the mentioned launch option.
+                                                            program - after everything is setup correctly. This will
+                                                            launch Pogostuck with the mentioned launch option.
 
                         </li>
                         <li>
-                            <b>Launch Pogostuck:</b> Launch Pogostuck (either with the button here, or via Steam). It will try to find the path to your Pogostuck installation and your userdata path.
-                            However, this does not always work, especially if you have Pogostuck installed on a different drive than Steam.
-                            Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct, or it should give you feedback in the overlay if anything is wrong.
-                            If one or both paths are not filled out OR you have multiple steam accounts with
+                            <b>Launch Pogostuck:</b> Launch Pogostuck (via Steam). It will try to find the path to your Pogostuck installation and your userdata path.
+                                                     However, this does not always work, especially if you have Pogostuck installed on a different drive than Steam.
+                                                     Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct, or it should give you feedback in the overlay if anything is wrong.
+                                                     If one or both paths are not filled out OR you have multiple steam accounts with
                                                      pogostuck owned, you need to follow the next two steps.
                         </li>
                         <li>
-                            <b>Steam Userdata Path:</b> You need to input your Steam userdata path (in the <a data-tab-link="paths">Paths</a>
-                            tab). It is used to read your <code>Settings.txt</code>, so it can read your current pb split times.
-                            <br>
-                            Most likely it will be something similar to this:<br>
-                            <code>C:\Program Files (x86)\Steam\userdata\$steam-friend-code</code>
-                        </li>
-                        <li>
-                            <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab as well). It is needed
-                            for basically everything. In there the before mentioned logs are put.
+                            <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab). It is needed
+                                              for basically everything. In there the before mentioned logs are put.
                             <br>
                             <i>It should be looking similar to this: <br>
                                 <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i> <br>
-                            You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
+                                              You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
+                        </li>
+                        <li>
+                            <b>Steam Path:</b> You need to input your Steam path (in the <a data-tab-link="paths">Paths</a>
+                                               tab as well). It is used to read your <code>Settings.txt</code> within,
+                                               so it can read your current
+                                               split times.
+                            <br>
+                                               Most likely it will be something similar to this:<br>
+                            <code>C:\Program Files (x86)\Steam\</code>
+                        </li>
+                        <li>
+                            <b>Steam Friend Code:</b> You need to input your Steam Friend code (in the <a
+                                data-tab-link="paths">Paths
+                        </a>
+                                                      tab once again). It is necessary for to find the <code>Settings.txt</code>
+                            <br>
+                                                      Most likely it will be 5-10 digits long. You can find it at "Add
+                                                      Friend" Section in Steam.
                         </li>
                         <li>
                             <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
-                            set it to "Minimal", "Off" wont work
+                                                                  set it to "Minimal", "Off" won't work.
                         </li>
                         <li>
                             <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
-                            So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
+                                              So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
                         </li>
                         <li>
                             <b>Enter Split Skips:</b> If you skip any full splits (e.g. palms skip, mushroom skip or in extra modes like puzzle & double jump),
-                            you need to enter them in the <a data-tab-link="splits">Splits</a> tab. Otherwise the sum-of-best-splits cannot be calculated properly.
+                                                      you need to enter them in the <a data-tab-link="splits">Splits</a> tab. Otherwise the sum-of-best-splits cannot be calculated properly.
                         </li>
                         <li class="only-win11" style="display: none">
                             <b>Windows 11 Users:</b> If you are using Windows 11 and have window shadow enabled, you can choose to disable it in these <a class="open-settings-link">settings</a>.
@@ -94,7 +106,7 @@
                     <h3>Preference Configuration Suggestions</h3>
                     <ul>
                         <li class="only-fs" style="display: none"><b>If you play fullscreen</b>, you cannot use the split overlay. However you can have it on a second monitor or running in the background. <br>
-                            If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
+                                                                                               If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
                         <li>
                             <b>If you play borderless</b>, after resizing and dragging the overlay to the desired position set "Overlay is not clickable" to true, this way you will able to click stuff behind the overlay.
                         </li>
@@ -129,7 +141,7 @@
                         </li>
                         <li>
                             <b>Steam Userdata Path：</b> <a data-tab-link="paths">パス</a> タブでSteamのuserdata経路を入力してください。これは<code>Settings.txt</code>からPBのスプリットを読み込むために必要です。<br>
-                                                                                           一般的には以次のような経路になります：<br>
+                                                                                          一般的には以次のような経路になります：<br>
                             <code>C:\Program Files (x86)\Steam\userdata\$steam-friend-code</code>
                         </li>
                         <li>

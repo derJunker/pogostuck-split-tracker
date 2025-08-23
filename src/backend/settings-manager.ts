@@ -14,6 +14,7 @@ import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
+import {UserDataReader} from "./data/user-data-reader";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -457,6 +458,8 @@ export class SettingsManager {
                 configWindow.webContents.send("steam-user-data-path-found", path.join(userdataRoot, folder));
                 configWindow.webContents.send("steam-friend-code-found", path.join(userdataRoot, folder));
                 this.updateFrontendStatus(overlayWindow, configWindow);
+                const pbSplitTracker = PbSplitTracker.getInstance();
+                pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow)
                 GoldSplitsTracker.getInstance().updateGoldSplitsIfInPbSplits();
                 GoldPaceTracker.getInstance().updateGoldPacesIfInPbSplits()
                 writeGoldSplitsIfChanged(configWindow)

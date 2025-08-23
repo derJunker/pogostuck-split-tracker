@@ -157,8 +157,10 @@ export class GoldSplitsTracker {
     }
 
     public updateGoldSplitsIfInPbSplits() {
+        log.info("updating gold splits based on pb splits");
         const pbSplitTracker = PbSplitTracker.getInstance();
         const modeSplits = pbSplitTracker.getAllPbSplits();
+        log.debug(`pb splits: ${JSON.stringify(modeSplits)}`);
         modeSplits.forEach(modeSplit => {
             let {mode, times} = modeSplit;
             const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(mode, times.length)

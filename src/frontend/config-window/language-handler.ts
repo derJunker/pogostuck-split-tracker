@@ -18,7 +18,7 @@ export function initLanguageListeners() {
     }
 }
 
-function switchLangueTexts(language: string): string {
+export function switchLangueTexts(language: string): string {
     const enTexts = document.querySelectorAll("body [lang='en']") as NodeListOf<HTMLElement>;
     const jaTexts = document.querySelectorAll("[lang='ja']") as NodeListOf<HTMLElement>;
 

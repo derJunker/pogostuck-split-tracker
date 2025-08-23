@@ -131,24 +131,28 @@
                         <li>
                             <b>Steam起動オプションを追加：</b> PogostuckのSteam起動オプションに「-diag」を追加してください。このオプションにより、ゲームがログファイルを作成し、プログラムがスプリットを探知することが可能になります。<br>
                             <i>方法：SteamのライブラリでPogostuckを右クリック → 「プロパティ」 → 「起動オプション」に「-diag」（引用符なし）を追加</i><br>
-                            <b>対案：</b> スプリットプログラムの「Launch Pogostuck」ボタンからPogostuckを起動してください。自動的に起動オプション付きでゲームが起動されます。
+                            <b>対案：</b> 全ての設定を完了した後、このプログラムの「Launch Pogostuck」ボタンからPogostuckを起動してください。自動的に起動オプション付きでゲームが起動されます。
                         </li>
                         <li>
-                            <b>Pogostuckを起動：</b> Pogostuckを起動してください。（ここのボタンまたは Steam経由）インストール経路とuserdata経路の自動検出を行います。<br>
+                            <b>Pogostuckを起動：</b> SteamからPogostuckを起動してください。インストール経路とuserdata経路の自動検出を行います。<br>
                                                     PogostuckがSteamと別のドライブにインストールされている場合などは経路の検出に失敗することがあります。<br>
                             <a data-tab-link="paths">パス</a>タブで経路が正しいか確認してください。問題がある場合はスプリットのオーバーレイにフィードバックが表示されます。<br>
-                                                    どちらかの経路が未設定の場合、または複数のSteamアカウントでPogostuckを所有している場合は、次の2つの手順に従ってください。
+                                                    どちらかの経路が未設定の場合、または複数のSteamアカウントでPogostuckを所有している場合は、次の手順に従ってください。
                         </li>
                         <li>
-                            <b>Steam Userdata Path：</b> <a data-tab-link="paths">パス</a> タブでSteamのuserdata経路を入力してください。これは<code>Settings.txt</code>からPBのスプリットを読み込むために必要です。<br>
-                                                                                          一般的には以次のような経路になります：<br>
-                            <code>C:\Program Files (x86)\Steam\userdata\$steam-friend-code</code>
-                        </li>
-                        <li>
-                            <b>Pogo Path：</b> 同様に<a data-tab-link="paths">パス</a>タブでPogostuckのインストール経路を入力してください。これはスプリットプログラムの作動に必修です。この経路にゲームのログファイルが出力されます。<br>
+                            <b>Pogo Path：</b> <a data-tab-link="paths">パス</a>タブでPogostuckのインストール経路を入力してください。これはスプリットプログラムの作動に必修です。この経路にゲームのログファイルが出力されます。<br>
                             <i>一般的には以下のような経路になります：<br>
                                 <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i><br>
-                                              PogostuckのSteamライブラリでPogostuckを右クリック → 「管理」 → 「ローカルファイルを参照」 → 経路をコピー
+                                                                               PogostuckのSteamライブラリでPogostuckを右クリック → 「管理」 → 「ローカルファイルを参照」 → 経路をコピー
+                        </li>
+                        <li>
+                            <b>Steam Path：</b> <a data-tab-link="paths">パス</a>タブでSteamのインストール経路を入力してください。これは<code>Settings.txt</code>を読み込み、現在のスプリットタイムを取得するために必要です。<br>
+                                                                                一般的には以下のような経路になります：<br>
+                            <code>C:\Program Files (x86)\Steam\</code>
+                        </li>
+                        <li>
+                            <b>Steam フレンドコード：</b> <a data-tab-link="paths">パス</a>タブでSteamのフレンドコードを入力してください。これは<code>Settings.txt</code>を探すために必要です。<br>
+                                                                                          通常は5〜10桁の数字です。Steamの「フレンド追加」セクションで確認できます。
                         </li>
                         <li>
                             <b>ゲーム内でスプリットを調整:</b> Pogostuckの「オプション」 → 「その他」 → 「タイムアタックのスプリットを表示」を「プラスマイナスのみ」に設定してください。「オフ」では動作しません。

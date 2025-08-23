@@ -3,12 +3,17 @@ import * as path from 'path';
 import chokidar, { FSWatcher } from 'chokidar';
 import log from "electron-log/main";
 
+const DEBUG_PRINT_MESSAGES = false;
+
 export class FileWatcher {
     private static instance: FileWatcher | null = null;
     private dirWatcher: FSWatcher | null = null;
     private fileWatcher: FSWatcher | null = null;
     private lastSize = 0;
+
     private listeners: { regex: RegExp, callback: (match: RegExpMatchArray) => void }[] = [];
+
+    private logsDetected = false;
 
     private constructor() {}
 
@@ -54,6 +59,7 @@ export class FileWatcher {
 
     private watchFile(filePath: string) {
         this.stopFileWatcher();
+        this.logsDetected = false;
         fs.stat(filePath, (err, stats) => {
             if (!err) {
                 this.lastSize = stats.size;
@@ -71,6 +77,7 @@ export class FileWatcher {
                         this.lastSize = 0;
                     }
                     if (stats.size > this.lastSize) {
+                        this.logsDetected = true;
                         const stream = fs.createReadStream(filePath, {
                             start: this.lastSize,
                             end: stats.size
@@ -78,6 +85,9 @@ export class FileWatcher {
                         stream.on('data', (data) => {
                             const newLines = data.toString().split('\n').filter(Boolean);
                             newLines.forEach(line => {
+                                if (DEBUG_PRINT_MESSAGES) {
+                                    log.debug(`[LogWatcher]: ${line}`);
+                                }
                                 this.listeners.forEach(listener => {
                                     const match = line.match(listener.regex);
                                     if (match) {
@@ -101,11 +111,15 @@ export class FileWatcher {
         this.lastSize = 0;
     }
 
-    stopWatching() {
+    public stopWatching() {
         if (this.dirWatcher) {
             this.dirWatcher.close();
             this.dirWatcher = null;
         }
         this.stopFileWatcher();
+    }
+
+    public logsHaveBeenDetected() {
+        return this.logsDetected;
     }
 }

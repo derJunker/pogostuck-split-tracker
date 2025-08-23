@@ -9,7 +9,7 @@ import { PbSplitTracker } from "./data/pb-split-tracker";
 import { PogoNameMappings } from "./data/pogo-name-mappings";
 import {writeGoldSplitsIfChanged} from "./file-reading/read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
-import {redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
+import {pogostuckHasBeenOpenedOnce, redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
@@ -343,18 +343,22 @@ export class SettingsManager {
         return false;
     }
 
-    private saveSettings() {
-        fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
-    }
-
-    private updateFrontendStatus(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+    public updateFrontendStatus(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
         const stateTracker = CurrentStateTracker.getInstance();
+        const logsWatcher = FileWatcher.getInstance();
+        log.info(`pogostuckHasBeenOpenedOnce: ${pogostuckHasBeenOpenedOnce}, logsDetected: ${logsWatcher.logsHaveBeenDetected()}`);
         [overlayWindow.webContents, configWindow.webContents].forEach(state =>
             state.send("status-changed", {
                 pogoPathValid: stateTracker.pogoPathIsValid(),
                 steamPathValid: stateTracker.steamPathIsValid(),
-                friendCodeValid: stateTracker.steamFriendCodeIsValid()
+                friendCodeValid: stateTracker.steamFriendCodeIsValid(),
+                showLogDetectMessage: pogostuckHasBeenOpenedOnce,
+                logsDetected: logsWatcher.logsHaveBeenDetected() || !pogostuckHasBeenOpenedOnce
             }))
+    }
+
+    private saveSettings() {
+        fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
     }
 
     private loadSteamUserdataInfoIntoApplication(stateTracker: CurrentStateTracker, pbSplitTracker: PbSplitTracker, goldenSplitsTracker: GoldSplitsTracker, goldenPaceTracker: GoldPaceTracker, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {

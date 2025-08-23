@@ -9,6 +9,7 @@ import {GoldPaceTracker} from "./gold-pace-tracker";
 import fs from "fs";
 import {userDataPathEnd} from "./paths";
 import path from "path";
+import {FileWatcher} from "../logging/logs-watcher";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;

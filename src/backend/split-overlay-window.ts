@@ -10,8 +10,10 @@ import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
 import windowStateKeeper from "electron-window-state";
 import {CurrentStateTracker} from "./data/current-state-tracker";
+import {FileWatcher} from "./logging/logs-watcher";
 
-let pogostuckIsActiveWindow = false;
+let correctWindowForOverlayInFocus = false;
+export let pogostuckHasBeenOpenedOnce = false;
 
 export function openOverlayWindow(mainWindow: BrowserWindow) {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
@@ -50,7 +52,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     addPogostuckOpenedListener(overlayWindow, mainWindow)
 
     overlayWindow.on("ready-to-show", () => {
-        if (pogostuckIsActiveWindow || !SettingsManager.getInstance().hideWindowWhenPogoNotActive())
+        if (correctWindowForOverlayInFocus || !SettingsManager.getInstance().hideWindowWhenPogoNotActive())
             overlayWindow.show();
     })
 
@@ -62,22 +64,39 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     return overlayWindow
 }
 
-function addPogostuckOpenedListener(overlayWindow: BrowserWindow, mainWindow: BrowserWindow) {
-    pogostuckIsActiveWindow = pogostuckIsActive(ActiveWindow.getActiveWindow(), overlayWindow, mainWindow)
+function addPogostuckOpenedListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     ActiveWindow.subscribe(windowInfo => {
-        const showWindowEvenWhenNotActive = !SettingsManager.getInstance().hideWindowWhenPogoNotActive()
-        const pogostuckWasActive = pogostuckIsActiveWindow;
-        pogostuckIsActiveWindow = pogostuckIsActive(windowInfo, overlayWindow, mainWindow);
-        if ((!pogostuckWasActive && pogostuckIsActiveWindow) || (!overlayWindow.isVisible() && showWindowEvenWhenNotActive)) {
-            overlayWindow.show();
-        } else if (pogostuckWasActive && !pogostuckIsActiveWindow && !showWindowEvenWhenNotActive) {
-            overlayWindow.hide();
-        }
+        onActiveWindowChanged(overlayWindow, configWindow, windowInfo);
     })
+    onActiveWindowChanged(overlayWindow, configWindow, ActiveWindow.getActiveWindow())
 }
 
-function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWindow, mainWindow: BrowserWindow) : boolean {
-    if (!winInfo) return false;
+function onActiveWindowChanged(overlayWindow: BrowserWindow, configWindow: BrowserWindow, windowInfo: WindowInfo|null) {
+    const showWindowEvenWhenNotActive = !SettingsManager.getInstance().hideWindowWhenPogoNotActive()
+    const pogostuckWasActive = correctWindowForOverlayInFocus;
+    const { pogoIsActive, configIsActive } = pogostuckIsActive(windowInfo, overlayWindow, configWindow);
+    correctWindowForOverlayInFocus = pogoIsActive || configIsActive;
+    if (pogoIsActive) {
+        pogostuckHasBeenOpenedOnce = true;
+        const logsWatcher = FileWatcher.getInstance();
+        if (!logsWatcher.logsHaveBeenDetected()) {
+            log.warn("Pogostuck window detected but no logs detected yet. Most likely pogostuck is not run with '-diag'");
+        }
+        const settingsManager = SettingsManager.getInstance();
+        settingsManager.updateFrontendStatus(overlayWindow, configWindow)
+    }
+    if ((!pogostuckWasActive && correctWindowForOverlayInFocus) || (!overlayWindow.isVisible() && showWindowEvenWhenNotActive)) {
+        overlayWindow.show();
+    } else if (pogostuckWasActive && !correctWindowForOverlayInFocus && !showWindowEvenWhenNotActive) {
+        overlayWindow.hide();
+    }
+}
+
+function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWindow, mainWindow: BrowserWindow) : {
+    pogoIsActive: boolean;
+    configIsActive: boolean;
+} {
+    if (!winInfo) return {pogoIsActive: false, configIsActive: false};
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
     const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
     const configPathsValid = CurrentStateTracker.getInstance().configPathsAreValid()
@@ -88,9 +107,7 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
         const path = winInfo.path.replace(/pogostuck\.exe/i, "");
         settingsManager.updatePogoPath(path, mainWindow, overlayWindow)
     }
-    pogostuckIsActiveWindow = isPogostuck;
-    return isPogostuck || isThisWindow;
-
+    return {pogoIsActive: isPogostuck, configIsActive: isThisWindow};
 }
 
 export function resetOverlay(mapNum: number, modeNum: number, overlayWindow: BrowserWindow) {

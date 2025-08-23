@@ -183,15 +183,15 @@ window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo) =
 window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfBest: number) => {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
-        sumOfBestSpan.textContent = formatPbTime(sumOfBest);
+        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
     }
 });
 
-window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean }) => {
-    __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}`);
+window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
+    __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}, showLogDetectMessage: ${status.showLogDetectMessage}, logsDetected: ${status.logsDetected}`);
     const statusElement = document.getElementById('status-msg')!;
     statusElement.innerHTML = '';
-    const statusMsg = createStatusMessage(status.pogoPathValid, status.steamPathValid, status.friendCodeValid)
+    const statusMsg = createStatusMessage(status.pogoPathValid, status.steamPathValid, status.friendCodeValid, status.logsDetected, status.showLogDetectMessage)
     statusMsg.split('\n').forEach(line => {
         const div = document.createElement('div');
         div.textContent = line;
@@ -209,9 +209,9 @@ window.electronAPI.changeBackground((event: Electron.IpcRendererEvent, enableBac
     }
 })
 
-function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean): string {
+function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean, logsDetected: boolean, showLogDetectMessage: boolean): string {
     let msg = "Config Status\n"
-    if (pogoPathValid && steamPathValid && friendCodeValid) {
+    if (pogoPathValid && steamPathValid && friendCodeValid && logsDetected) {
         return "Pogostuck-Splits - Active"
     }
     if (!pogoPathValid) {
@@ -229,6 +229,13 @@ function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, fr
         msg += "Steam friend code: ❌\n";
     } else {
         msg += "Steam friend code: ✅\n";
+    }
+    if (showLogDetectMessage) {
+        if (!logsDetected) {
+            msg += "Logs detected (Check if you run Pogostuck with -diag): ❌\n";
+        } else {
+            msg += "Logs detected: ✅\n";
+        }
     }
     return msg;
 }

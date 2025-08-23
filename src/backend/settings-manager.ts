@@ -23,6 +23,7 @@ export class SettingsManager {
     private constructor() {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
         this.currentSettings = this.loadSettings();
+        this.saveSettings(); // saving if any migrations were done
 
         FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
     }
@@ -358,6 +359,7 @@ export class SettingsManager {
     }
 
     private saveSettings() {
+        log.debug("saving settings")
         fs.writeFileSync(this.settingsPath, JSON.stringify(this.currentSettings, null, 2), "utf-8");
     }
 

@@ -22,7 +22,8 @@ export class BackupGoldSplitTracker {
 
     private backups: GoldSplitHistory[] = []
 
-    public loadBackups(indexToNamesMappings: PogoNameMappings) {
+    public loadBackups() {
+        const indexToNamesMappings = PogoNameMappings.getInstance()
         if (fs.existsSync(backupGoldsPath)) {
             log.info(`Loading Backup Gold Splits from ${backupGoldsPath}`);
             try {

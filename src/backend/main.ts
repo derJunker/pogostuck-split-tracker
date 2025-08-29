@@ -41,7 +41,7 @@ writeGoldenSplits()
 const goldPaceTracker = GoldPaceTracker.getInstance(readGoldenPaces());
 writeGoldenPace()
 const backupGoldTracker = BackupGoldSplitTracker.getInstance()
-backupGoldTracker.loadBackups(indexToNamesMappings)
+backupGoldTracker.loadBackups()
 
 const settingsManager = SettingsManager.getInstance()
 if (settingsManager.launchPogoOnStartup())

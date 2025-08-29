@@ -60,7 +60,7 @@ export class CurrentStateTracker {
         }
         const isUD = isUpsideDownMode(this.mode);
         if (lastSplit.split >= split && !isUD) {
-            console.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
+            log.warn(`Tried to pass split ${split} but last split was ${lastSplit.split}. Ignoring.`);
             return {isGoldSplit: false, isGoldPace: false}
         }
         const splitTime = Math.round((time - (lastSplit ? lastSplit.time : 0)) * 1000) / 1000;
@@ -109,6 +109,9 @@ export class CurrentStateTracker {
         log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
         if (lastGoldSplit.time > lastDiff) {
             goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
+            const backupGoldTracker = BackupGoldSplitTracker.getInstance()
+            backupGoldTracker.addBackup(lastGoldSplit.time, {from: lastGoldSplit.from, to: lastGoldSplit.to}, this.mode)
+            overlay.webContents.send("last-split-gold");
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
         const pbTimeMismatch = pb !== igPbTime;

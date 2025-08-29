@@ -157,6 +157,7 @@ function resetPbAndSumOfBest(pb: number, sumOfBest: number) {
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {
         pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
+        pbTimeSpan.classList.remove("golden")
     }
 }
 window.electronAPI.mainMenuOpened(() => {
@@ -184,6 +185,13 @@ window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfB
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
+    }
+});
+
+window.electronAPI.onLastSplitGolden((event: Electron.IpcRendererEvent) => {
+    const pbSpan = document.getElementById('pb-time');
+    if (pbSpan) {
+        pbSpan.classList.add("golden")
     }
 });
 

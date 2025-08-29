@@ -17,7 +17,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onSplitPassed: (callback: (event: Electron.IpcRendererEvent, splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean}) => void) => ipcRenderer.on('split-passed', callback),
     onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => ipcRenderer.on('golden-split-passed', callback),
     onStatusChanged: (callback: (event: IpcRendererEvent, statusMsg: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => void) => ipcRenderer.on('status-changed', callback),
-    onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => ipcRenderer.on('new-release-available', callback),
+    onLastSplitGolden: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('last-split-gold', callback),
 
     // config window sending events to backend
     onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => ipcRenderer.invoke('option-hide-skipped-splits-changed', hideSkippedSplits),
@@ -58,5 +58,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPogoPathFound: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('pogostuck-config-path-found', callback),
     onSteamPathFound: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('steam-user-data-path-found', callback),
     onSteamFriendCodeFound: (callback: (event: IpcRendererEvent, code: string) => void) => ipcRenderer.on('steam-friend-code-found', callback),
-
+    onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => ipcRenderer.on('new-release-available', callback),
 });

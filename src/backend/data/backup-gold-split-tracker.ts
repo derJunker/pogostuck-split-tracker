@@ -75,7 +75,6 @@ export class BackupGoldSplitTracker {
     }
 
     public saveBackupsIfChanged() {
-        log.debug(`Saving backups if changed: ${this.backupsChanged}`);
         if (!this.backupsChanged)
             return;
         fs.writeFileSync(backupGoldsPath, JSON.stringify(this.backups, null, 2));

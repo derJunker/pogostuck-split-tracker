@@ -26,6 +26,7 @@ declare global { interface Window {
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
         onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => void) => void;
+        onLastSplitGolden: (callback: (event: Electron.IpcRendererEvent) => void) => void;
 
         // config window sending events to backend
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;
@@ -65,10 +66,11 @@ declare global { interface Window {
         onPogoPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
         onSteamPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
         onSteamFriendCodeFound: (callback: (event: Electron.IpcRendererEvent, code: string) => void) => void;
+        onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => void;
+
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;
-        onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => void;
     };
 } }
 

@@ -10,6 +10,7 @@ import {isValidModeAndMap} from "../data/valid-modes";
 import {resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import log from "electron-log/main";
+import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     const stateTracker = CurrentStateTracker.getInstance();
@@ -27,7 +28,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const modeNum = parseInt(mode);
             log.debug(`Map or mode changed to ${mapNum}, ${modeNum} with run ${run}`);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
-            if (changed || run === "-1") {
+            if (changed) {
                 resetOverlay(mapNum, modeNum, overlayWindow);
                 settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
             }
@@ -97,8 +98,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
             else
                 log.debug(`player reset with invalid map or mode: ${stateTracker.getCurrentMap()}, ${stateTracker.getCurrentMode()}`);
-            writeGoldSplitsIfChanged(configWindow)
-            writeGoldPacesIfChanged(configWindow)
+            onTimeToFileWrite(configWindow);
         }
     )
 
@@ -113,16 +113,14 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const timeInMS = parseFloat(time)
             const pbTimeInMS = parseFloat(pbTime);
             stateTracker.finishedRun(timeInMS/1000, pbTimeInMS/1000, configWindow, overlayWindow)
-            writeGoldSplitsIfChanged(configWindow)
-            writeGoldPacesIfChanged(configWindow)
+            onTimeToFileWrite(configWindow);
         }
     )
     // when going into the menu or closing the window save the golden splits, to reduce lag during play
     fileWatcher.registerListener(
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
-            writeGoldSplitsIfChanged(configWindow)
-            writeGoldPacesIfChanged(configWindow)
+            onTimeToFileWrite(configWindow);
         }
     );
 
@@ -138,10 +136,15 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         /Close window at/,
         (match) => {
             log.info("Closing pogostuck window, saving gold splits and paces");
-            writeGoldSplitsIfChanged(configWindow)
-            writeGoldPacesIfChanged(configWindow);
+            onTimeToFileWrite(configWindow);
             overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"
         }
     )
+}
+
+function onTimeToFileWrite(configWindow: BrowserWindow) {
+    writeGoldSplitsIfChanged(configWindow)
+    writeGoldPacesIfChanged(configWindow)
+    BackupGoldSplitTracker.getInstance().saveBackupsIfChanged();
 }
 

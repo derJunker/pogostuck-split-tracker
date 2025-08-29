@@ -20,6 +20,7 @@ import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import fs from "fs";
+import {BackupGoldSplitTracker} from "./data/backup-gold-split-tracker";
 
 log.initialize();
 log.info(`Junker's Split Tracker v${VERSION} is starting...`);
@@ -39,6 +40,8 @@ const goldSplitsTracker = GoldSplitsTracker.getInstance(readGoldenSplits())
 writeGoldenSplits()
 const goldPaceTracker = GoldPaceTracker.getInstance(readGoldenPaces());
 writeGoldenPace()
+const backupGoldTracker = BackupGoldSplitTracker.getInstance()
+backupGoldTracker.loadBackups(indexToNamesMappings)
 
 const settingsManager = SettingsManager.getInstance()
 if (settingsManager.launchPogoOnStartup())

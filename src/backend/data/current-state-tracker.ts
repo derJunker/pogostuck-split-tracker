@@ -9,7 +9,7 @@ import {GoldPaceTracker} from "./gold-pace-tracker";
 import fs from "fs";
 import {userDataPathEnd} from "./paths";
 import path from "path";
-import {FileWatcher} from "../logging/logs-watcher";
+import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -74,6 +74,11 @@ export class CurrentStateTracker {
             goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
             log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime} gold split was ${goldSplit}`);
             isGoldSplit = true;
+            log.debug(`attempting to backup old goldSplit: ${goldSplit}`);
+            if (goldSplit) {
+                const backupGoldTracker = BackupGoldSplitTracker.getInstance()
+                backupGoldTracker.addBackup(goldSplit, {from, to: split}, this.mode)
+            }
         } else {
             log.info(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);
             log.info(`"goldSplit": ${goldSplit}, "splitTime": ${splitTime}, "goldSplitIsInSplitPath": ${fromAndToAreInPlannedPath}`);

@@ -2,7 +2,6 @@ import {createCustomLabledCheckbox} from "./custom-checkboxes";
 import {formatPbTime, parsePbTime} from "../util/time-formating";
 import {IpcRendererEvent} from "electron";
 import {getFrontendMappings, getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
-import log from "electron-log/main";
 
 let mapSelect: HTMLSelectElement;
 let modeSelect: HTMLSelectElement;
@@ -144,6 +143,7 @@ async function reloadGoldPaces() {
     const levelMappings = levels.find(level => level.mapIndex === map)!;
 
     const goldPaceTimes = await window.electronAPI.getGoldPaces(mode)
+    __electronLog.debug(`Got gold pace times: ${JSON.stringify(goldPaceTimes)}`);
     appendAllGoldPaces(goldPaceSelection, goldPaceTimes, levelMappings);
 
     setTimeout(() => {

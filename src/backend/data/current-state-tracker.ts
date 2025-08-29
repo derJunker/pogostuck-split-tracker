@@ -107,7 +107,7 @@ export class CurrentStateTracker {
         const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode)
         log.info(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
         log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
-        if (lastGoldSplit.to >= 0 && lastGoldSplit.time > lastDiff) {
+        if (lastGoldSplit.time > lastDiff) {
             goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }

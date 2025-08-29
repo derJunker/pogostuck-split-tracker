@@ -129,39 +129,39 @@
                     <p>スプリットプログラムを使用する前に、幾つかの設定が必要です。<br><br></p>
                     <ul>
                         <li>
-                            <b>Steam起動オプションを追加：</b> PogostuckのSteam起動オプションに「-diag」を追加してください。このオプションにより、ゲームがログファイルを作成し、プログラムがスプリットを探知することが可能になります。<br>
-                            <i>方法：SteamのライブラリでPogostuckを右クリック → 「プロパティ」 → 「起動オプション」に「-diag」（引用符なし）を追加</i><br>
-                            <b>対案：</b> 全ての設定を完了した後、このプログラムの「Launch Pogostuck」ボタンからPogostuckを起動してください。自動的に起動オプション付きでゲームが起動されます。
+                            <b>Steam起動オプションを追加：</b> PogostuckのSteam起動オプションに「-diag」を追加してください。このオプションにより、ゲームがログファイルを作成し、プログラムがスプリット などを探知することが可能になります。<br>
+                            <i>方法：SteamのライブラリでPogostuckを右クリック → プロパティ → 起動オプションに「-diag」（引用符なし）を追加</i><br>
+                                                              起動オプションが正しく設定されたら、このプログラムのLaunch Pogostuckボタンを通じてもPogostuckを起動できます。
                         </li>
                         <li>
-                            <b>Pogostuckを起動：</b> SteamからPogostuckを起動してください。インストール経路とuserdata経路の自動検出を行います。<br>
-                                                    PogostuckがSteamと別のドライブにインストールされている場合などは経路の検出に失敗することがあります。<br>
-                            <a data-tab-link="paths">パス</a>タブで経路が正しいか確認してください。問題がある場合はスプリットのオーバーレイにフィードバックが表示されます。<br>
-                                                    どちらかの経路が未設定の場合、または複数のSteamアカウントでPogostuckを所有している場合は、次の手順に従ってください。
+                            <b>Pogostuckを起動：</b> SteamからPogostuckを起動してください。インストールパスとuserdataパスの自動検出を行います。<br>
+                                                    PogostuckとSteamが違うドライブにインストールされている場合などはパスの検出に失敗することがあります。<br>
+                            <a data-tab-link="paths">パス</a>タブでパスが正しいか確認してください。問題がある場合はスプリットのオーバーレイに解決のためのフィードバックが表示されます。<br>
+                                                    どちらかのパスが未設定の場合、または複数のSteamアカウントでPogostuckを所有している場合は、次の手順に従ってください。
                         </li>
                         <li>
-                            <b>Pogo Path：</b> <a data-tab-link="paths">パス</a>タブでPogostuckのインストール経路を入力してください。これはスプリットプログラムの作動に必修です。この経路にゲームのログファイルが出力されます。<br>
-                            <i>一般的には以下のような経路になります：<br>
+                            <b>Pogo Path：</b> <a data-tab-link="paths">パス</a>タブでPogostuckのインストールパスを入力してください。これはスプリットプログラムの作動に必修です。このパスにゲームのログファイルが出力されます。<br>
+                            <i>一般的には以下のようなパスになります：<br>
                                 <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i><br>
-                                                                               PogostuckのSteamライブラリでPogostuckを右クリック → 「管理」 → 「ローカルファイルを参照」 → 経路をコピー
+                                                                               PogostuckのSteamライブラリでPogostuckを右クリック → 管理 → ローカルファイルを参照→ パスをコピー
                         </li>
                         <li>
-                            <b>Steam Path：</b> <a data-tab-link="paths">パス</a>タブでSteamのインストール経路を入力してください。これは<code>Settings.txt</code>を読み込み、現在のスプリットタイムを取得するために必要です。<br>
-                                                                                一般的には以下のような経路になります：<br>
+                            <b>Steam Path：</b> <a data-tab-link="paths">パス</a>タブでSteamのインストールパスを入力してください。これは<code>Settings.txt</code>を読み込み、現在のスプリットタイムを取得するために必要です。<br>
+                                                                                一般的には以下のようなパスになります：<br>
                             <code>C:\Program Files (x86)\Steam\</code>
                         </li>
                         <li>
-                            <b>Steam フレンドコード：</b> <a data-tab-link="paths">パス</a>タブでSteamのフレンドコードを入力してください。これは<code>Settings.txt</code>を探すために必要です。<br>
-                                                                                          通常は5〜10桁の数字です。Steamの「フレンド追加」セクションで確認できます。
+                            <b>Steam フレンドコード：</b> <a data-tab-link="paths">パス</a>タブでSteamのフレンドコードを入力してください。これも<code>Settings.txt</code>を探すために必要です。<br>
+                                                                                          通常は5~10桁の数字となっています。Steamのフレンド追加メニューで確認できます。
                         </li>
                         <li>
-                            <b>ゲーム内でスプリットを調整:</b> Pogostuckの「オプション」 → 「その他」 → 「タイムアタックのスプリットを表示」を「プラスマイナスのみ」に設定してください。「オフ」では動作しません。
+                            <b>ゲーム内でスプリットを調整:</b> Pogostuckのオプション → その他 → タイムアタックのスプリットを表示を「プラスマイナスのみ」に設定してください。「オフ」では動作しません。
                         </li>
                         <li>
                             <b>PBを入力:</b> 現時点ではPBの自動探知は対応していません。<a data-tab-link="pbs">Pbs</a>タブで手動で入力してください。
                         </li>
                         <li>
-                            <b>スプリットスキップを入力：</b> パルムスキップ、きのこスキップ、またはパズルやダブルジャンプのモードでのスキップなどをする場合、<a data-tab-link="splits">スプリット</a>タブにスキップを入力してください。入力されないと、区間PB合計が正しく計算されません。
+                            <b>スプリットスキップを入力：</b> パルムスキップ、きのこスキップ、またはパズルやダブルジャンプのモードでのスキップなどをする場合、<a data-tab-link="splits">スプリット</a>タブにスキップを入力してください。入力されないと、区間PBの合計が正しく計算されません。
                         </li>
                         <li class="only-win11" style="display: none">
                             <b>Windows 11を利用してる方へ：</b> Windows 11でウィンドウの下の影が表示になっている場合は、<a class="open-settings-link">設定</a>から非表示に変えれます。<br>
@@ -171,20 +171,20 @@
                     <ul>
                         <li class="only-fs" style="display: none">
                             <b>フルスクリーンモードでプレイする場合</b>、スプリットのオーバーレイは基本使用できません。サブモニターやゲーム裏で表示させることは可能です。<br>
-                                                                       サブモニターで使用する場合は、「Enable background color」を「true」に設定し、背景色を指定するのがおすすめです。
+                                                                       サブモニターで使用する場合は、Enable background colorを「true」に設定し、背景色を指定することをおすすめします。
                         </li>
                         <li>
-                            <b>ボーダーレスモードでプレイする場合</b>、スプリットのオーバーレイのサイズと位置の調整をした後、「Overlay is not clickable」を「true」に設定してください。これによってオーバーレイ越しにクリックすることが可能になります。
+                            <b>ボーダーレスモードでプレイする場合</b>、スプリットのオーバーレイのサイズと位置の調整をした後、Overlay is not clickableを「true」に設定してください。これによってオーバーレイ越しにクリックすることが可能になります。
                         </li>
                         <li>
-                            <b>配信をしてる場合</b>、オーバーレイを配信に移したいなら「Hide overlay when Pogostuck not active」を「false」に設定してください。これによってPogostuckが非アクティブになってもオーバーレイは消えません。
+                            <b>配信をしてる場合</b>、オーバーレイを配信に移したいならHide overlay when Pogostuck not activeを「false」に設定してください。これによってPogostuckが非アクティブになってもオーバーレイは消えません。
                         </li>
                         <li>
-                            起動するプログラムの数を減らしたい場合は、「Launch Pogostuck on startup」を「true」に設定すると、このプログラムを起動するだけでPogostuckも自動的に起動されます。
+                            起動するプログラムの数を減らしたい場合は、Launch Pogostuck on startupを「true」に設定すると、このプログラムを起動するだけでPogostuckも自動的に起動されます。
                         </li>
                     </ul>
 
-                    <p>以上となります :D楽しんでもらえたら嬉しいです。バグ報告やフィードバックがあればDiscordの@derjunkerにDMをおくってください。👍</p>
+                    <p>以上となります :D 楽しんでもらえたら嬉しいです。バグ報告やフィードバックはDiscordの@derjunkerにDMを送ってください。👍</p>
 
                 </div>
             </div>

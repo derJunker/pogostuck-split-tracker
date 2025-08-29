@@ -112,7 +112,7 @@ async function reloadGoldSplits() {
         splitPath.splice(udStartIndex, 1);
     }
     const settings = getFrontendSettings();
-    const useOldNames = mapSelect.value === "0" && !settings.showNewSplitNames;
+    const useOldNames = (mapSelect.value === "0" || mapSelect.value === "99") && !settings.showNewSplitNames;
 
     const goldSplitTimes = await window.electronAPI.getGoldSplits(mode)
     appendAllGoldSplits(goldSplitSelection, goldSplitTimes, splitPath, mapSplits, levelMappings, udStart, isUD, useOldNames);

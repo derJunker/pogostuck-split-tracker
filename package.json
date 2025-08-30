@@ -1,6 +1,6 @@
 {
   "name": "pogostuck-split-tracker",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "split tracker for the game \"Pogostuck - Rage with your Friends\"",
   "main": "build/backend/main.js",
   "scripts": {

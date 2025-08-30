@@ -9,12 +9,17 @@ import { PbSplitTracker } from "./data/pb-split-tracker";
 import { PogoNameMappings } from "./data/pogo-name-mappings";
 import {writeGoldSplitsIfChanged} from "./file-reading/read-golden-splits";
 import {hasUnusedExtraSplit, isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
-import {pogostuckHasBeenOpenedOnce, redrawSplitDisplay, resetOverlay} from "./split-overlay-window";
+import {
+    pogostuckHasBeenOpenedOnce,
+    redrawSplitDisplay,
+    resetOverlay
+} from "./split-overlay-window";
 import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {UserDataReader} from "./data/user-data-reader";
+import {execSync} from "child_process";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -171,14 +176,18 @@ export class SettingsManager {
             return this.currentSettings;
         });
         ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
-            if (!existsSync(pogostuckConfPath)) {
-                log.info(`PogoStuck config path does not exist: ${pogostuckConfPath}`);
+            const exists = existsSync(pogostuckConfPath);
+            const isDir = fs.statSync(pogostuckConfPath).isDirectory();
+            const containsPogostuckExe = isDir && (existsSync(path.join(pogostuckConfPath, "pogostuck.exe")) || existsSync(path.join(pogostuckConfPath, "Pogostuck.exe")));
+            if (!exists ||!isDir || !containsPogostuckExe) {
+                log.info(`pogostuck path changed but not valid : '${pogostuckConfPath}' exists: ${exists} isDir: ${isDir} containsPogostuckExe: ${containsPogostuckExe}`);
                 return this.currentSettings;
             }
-            stateTracker.updatePathsValidity();
             log.info(`PogoStuck config path changed to: ${pogostuckConfPath}`);
             this.currentSettings.pogostuckConfigPath = pogostuckConfPath;
             FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName);
+            stateTracker.updatePathsValidity();
+            this.attemptToFindUserDataPath(configWindow, overlayWindow)
             this.saveSettings()
             this.updateFrontendStatus(overlayWindow, configWindow)
             return this.currentSettings
@@ -348,15 +357,35 @@ export class SettingsManager {
     public updateFrontendStatus(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
         const stateTracker = CurrentStateTracker.getInstance();
         const logsWatcher = FileWatcher.getInstance();
+        const settingsManager = SettingsManager.getInstance();
         log.info(`pogostuckHasBeenOpenedOnce: ${pogostuckHasBeenOpenedOnce}, logsDetected: ${logsWatcher.logsHaveBeenDetected()}`);
+        const pogoStuckLogPath = path.join(settingsManager.pogostuckSteamPath(), pogoLogName);
+        const acklogExists = stateTracker.pogoPathIsValid() && fs.existsSync(pogoStuckLogPath);
+        // not pretty but idc
+        const lastMsgClose = acklogExists && (() => {
+            try {
+                const data = fs.readFileSync(pogoStuckLogPath, "utf-8");
+                const lines = data.trim().split(/\r?\n/);
+                return lines[lines.length - 1].includes("Close window at ");
+            } catch (e) {
+                log.error(`Failed to read last line of log: ${e}`);
+                return null;
+            }
+        })();
+        const tasklist = execSync('tasklist', { encoding: 'utf8' });
+        const pogoStuckCurrentlyOpen = tasklist.toLowerCase().includes('pogostuck.exe');
+        const valid = (pogostuckHasBeenOpenedOnce && acklogExists) && ((!lastMsgClose && pogoStuckCurrentlyOpen) || (lastMsgClose && !pogoStuckCurrentlyOpen));
+        log.info(`checking if all config paths etc are valid`);
+        log.info(`opened once: ${pogostuckHasBeenOpenedOnce}, acklogExists: ${acklogExists}, lastMsgClose: ${lastMsgClose}, pogoStuckCurrentlyOpen: ${pogoStuckCurrentlyOpen}, valid: ${valid}`);
         [overlayWindow.webContents, configWindow.webContents].forEach(state =>
             state.send("status-changed", {
                 pogoPathValid: stateTracker.pogoPathIsValid(),
                 steamPathValid: stateTracker.steamPathIsValid(),
                 friendCodeValid: stateTracker.steamFriendCodeIsValid(),
                 showLogDetectMessage: pogostuckHasBeenOpenedOnce,
-                logsDetected: logsWatcher.logsHaveBeenDetected() || !pogostuckHasBeenOpenedOnce
-            }))
+                logsDetected: valid || !pogostuckHasBeenOpenedOnce
+            })
+        )
     }
 
     private saveSettings() {
@@ -414,14 +443,14 @@ export class SettingsManager {
 
     public updatePogoPath(pogoPath: string, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
         if (!existsSync(pogoPath)) {
-            log.error(`PogoStuck config path does not exist: ${pogoPath}`);
+            log.error(`Tried to automatically update Pogo Path, but it does not exist? ${pogoPath}`);
             return;
         }
         const currentStateTracker = CurrentStateTracker.getInstance();
         if (!currentStateTracker.pogoPathIsValid()) {
             this.currentSettings.pogostuckConfigPath = pogoPath;
             log.info(`PogoStuck config path changed to: ${pogoPath}`);
-            FileWatcher.getInstance().startWatching(pogoPath, pogoLogName)
+            FileWatcher.getInstance().startWatching(this.currentSettings.pogostuckConfigPath, pogoLogName)
             this.saveSettings();
             currentStateTracker.updatePathsValidity();
             this.updateFrontendStatus(overlayWindow, configWindow);

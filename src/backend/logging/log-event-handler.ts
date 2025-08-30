@@ -137,6 +137,8 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         (match) => {
             log.info("Closing pogostuck window, saving gold splits and paces");
             onTimeToFileWrite(configWindow);
+            if(settingsManager.hideWindowWhenPogoNotActive())
+                overlayWindow.hide()
             overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"
         }
     )

@@ -53,7 +53,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
 
     overlayWindow.on("ready-to-show", () => {
         if (correctWindowForOverlayInFocus || !SettingsManager.getInstance().hideWindowWhenPogoNotActive())
-            overlayWindow.show();
+            overlayWindow.showInactive();
     })
 
     overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
@@ -86,7 +86,7 @@ function onActiveWindowChanged(overlayWindow: BrowserWindow, configWindow: Brows
         settingsManager.updateFrontendStatus(overlayWindow, configWindow)
     }
     if ((!pogostuckWasActive && correctWindowForOverlayInFocus) || (!overlayWindow.isVisible() && showWindowEvenWhenNotActive)) {
-        overlayWindow.show();
+        overlayWindow.showInactive();
     } else if (pogostuckWasActive && !correctWindowForOverlayInFocus && !showWindowEvenWhenNotActive) {
         overlayWindow.hide();
     }

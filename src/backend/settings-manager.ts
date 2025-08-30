@@ -84,7 +84,7 @@ export class SettingsManager {
                 return this.currentSettings;
             log.info(`[Setting] 'Hide window when PogoStuck is not active' changed to: ${hideWindow}`);
             this.currentSettings.hideWindowWhenPogoNotActive = hideWindow;
-            if (!hideWindow) overlayWindow.show();
+            if (!hideWindow) overlayWindow.showInactive();
             this.saveSettings()
             return this.currentSettings
         });

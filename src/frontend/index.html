@@ -5,7 +5,8 @@
     <body>
         <header>
             <div id="title-bar">
-                Junker's Split Tracker
+                <img src="assets/clipboard.ico" alt="frog-icon" id="title-bar-icon"/> <span>Junker's Split Tracker</span>
+                <span>-</span><span id="version">v0.1.6</span>
             </div>
             <div id="menu-bar">
                 <button id="setup-guide-btn" class="active menu-btn">
@@ -34,376 +35,378 @@
                 </button>
             </div>
         </header>
-        <div id="menu-content">
-            <div id="setup-guide-content" class="menu-content">
-                <div class="setup-text" lang="en" style="display: none">
-                    Hi! Ty for using my Program :)<br>
-                    <br>
-                    <p class="only-fs" style="display: none">
-                        Seems like you are using fullscreen. Sadly the overlay does not work with
-                        fullscreen - only windowed or borderless☹️. You can still use the program to track your gold splits etc, or move the overlay to a 2nd monitor. But sadly there is no way of putting it on top of the game.<br><br></p>
-                    Before you can use the splits-program, you need to set up a few things.<br>
-                    <br>
-                    <ul>
-                        <li>
-                            <b>Add Steam Launch Option:</b> You need to add "-diag" as a launch option to your Pogostuck
-                                                            Steam launch configuration. This is needed so the game writes the logs that this
-                                                            program reads for split detection, etc..
-                            <br>
-                            <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
-                               Launch Options and add "-diag" (without quotes) to the text field.</i>
-                            <br>
-                            <b>Alternatively:</b> Launch Pogostuck with the "Launch Pogostuck" button in this
-                                                            program - after everything is setup correctly. This will
-                                                            launch Pogostuck with the mentioned launch option.
+        <div class="main-content">
+            <div id="menu-content">
+                <div id="setup-guide-content" class="menu-content">
+                    <div class="setup-text" lang="en" style="display: none">
+                        Hi! Ty for using my Program :)<br>
+                        <br>
+                        <p class="only-fs" style="display: none">
+                            Seems like you are using fullscreen. Sadly the overlay does not work with
+                            fullscreen - only windowed or borderless☹️. You can still use the program to track your gold splits etc, or move the overlay to a 2nd monitor. But sadly there is no way of putting it on top of the game.<br><br></p>
+                        Before you can use the splits-program, you need to set up a few things.<br>
+                        <br>
+                        <ul>
+                            <li>
+                                <b>Add Steam Launch Option:</b> You need to add "-diag" as a launch option to your Pogostuck
+                                                                Steam launch configuration. This is needed so the game writes the logs that this
+                                                                program reads for split detection, etc..
+                                <br>
+                                <i>To do this, right-click on Pogostuck in your Steam Library, go to Properties, then
+                                   Launch Options and add "-diag" (without quotes) to the text field.</i>
+                                <br>
+                                <b>Alternatively:</b> Launch Pogostuck with the "Launch Pogostuck" button in this
+                                                                program - after everything is setup correctly. This will
+                                                                launch Pogostuck with the mentioned launch option.
 
-                        </li>
-                        <li>
-                            <b>Launch Pogostuck:</b> Launch Pogostuck (via Steam). It will try to find the path to your Pogostuck installation and your userdata path.
-                                                     However, this does not always work, especially if you have Pogostuck installed on a different drive than Steam.
-                                                     Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct, or it should give you feedback in the overlay if anything is wrong.
-                                                     If one or both paths are not filled out OR you have multiple steam accounts with
-                                                     pogostuck owned, you need to follow the next two steps.
-                        </li>
-                        <li>
-                            <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab). It is needed
-                                              for basically everything. In there the before mentioned logs are put.
-                            <br>
-                            <i>It should be looking similar to this: <br>
-                                <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i> <br>
-                                              You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
-                        </li>
-                        <li>
-                            <b>Steam Path:</b> You need to input your Steam path (in the <a data-tab-link="paths">Paths</a>
-                                               tab as well). It is used to read your <code>Settings.txt</code> within,
-                                               so it can read your current
-                                               split times.
-                            <br>
-                                               Most likely it will be something similar to this:<br>
-                            <code>C:\Program Files (x86)\Steam\</code>
-                        </li>
-                        <li>
-                            <b>Steam Friend Code:</b> You need to input your Steam Friend code (in the <a
-                                data-tab-link="paths">Paths
-                        </a>
+                            </li>
+                            <li>
+                                <b>Launch Pogostuck:</b> Launch Pogostuck (via Steam). It will try to find the path to your Pogostuck installation and your userdata path.
+                                                         However, this does not always work, especially if you have Pogostuck installed on a different drive than Steam.
+                                                         Check the <a data-tab-link="paths">Paths</a> tab to see if the paths are correct, or it should give you feedback in the overlay if anything is wrong.
+                                                         If one or both paths are not filled out OR you have multiple steam accounts with
+                                                         pogostuck owned, you need to follow the next two steps.
+                            </li>
+                            <li>
+                                <b>Pogo Path:</b> You need to input your Pogostuck path (in the <a data-tab-link="paths">Paths</a> tab). It is needed
+                                                  for basically everything. In there the before mentioned logs are put.
+                                <br>
+                                <i>It should be looking similar to this: <br>
+                                    <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i> <br>
+                                                  You can also this path when you go to the Pogostuck steam library page, click on the settings wheel -> manage -> browse local files.
+                            </li>
+                            <li>
+                                <b>Steam Path:</b> You need to input your Steam path (in the <a data-tab-link="paths">Paths</a>
+                                                   tab as well). It is used to read your <code>Settings.txt</code> within,
+                                                   so it can read your current
+                                                   split times.
+                                <br>
+                                                   Most likely it will be something similar to this:<br>
+                                <code>C:\Program Files (x86)\Steam\</code>
+                            </li>
+                            <li>
+                                <b>Steam Friend Code:</b> You need to input your Steam Friend code (in the <a
+                                    data-tab-link="paths">Paths
+                            </a>
                                                       tab once again). It is necessary for to find the <code>Settings.txt</code>
-                            <br>
+                                <br>
                                                       Most likely it will be 5-10 digits long. You can find it at "Add
                                                       Friend" Section in Steam.
-                        </li>
-                        <li>
-                            <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
-                                                                  set it to "Minimal", "Off" won't work.
-                        </li>
-                        <li>
-                            <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
-                                              So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
-                        </li>
-                        <li>
-                            <b>Enter Split Skips:</b> If you skip any full splits (e.g. palms skip, mushroom skip or in extra modes like puzzle & double jump),
+                            </li>
+                            <li>
+                                <b>Adjust Speedrun splits ingame:</b> In pogostuck Options -> Misc -> Show speedrun splits ->
+                                                                      set it to "Minimal", "Off" won't work.
+                            </li>
+                            <li>
+                                <b>Enter Pbs:</b> Currently i dont have a way to automatically detect your Pbs.
+                                                  So you have to enter it manually. So you need to do that under the <a data-tab-link="pbs">Pbs</a> tab.
+                            </li>
+                            <li>
+                                <b>Enter Split Skips:</b> If you skip any full splits (e.g. palms skip, mushroom skip or in extra modes like puzzle & double jump),
                                                       you need to enter them in the <a data-tab-link="splits">Splits</a> tab. Otherwise the sum-of-best-splits cannot be calculated properly.
-                        </li>
-                        <li class="only-win11" style="display: none">
-                            <b>Windows 11 Users:</b> If you are using Windows 11 and have window shadow enabled, you can choose to disable it in these <a class="open-settings-link">settings</a>.
-                            <br>
-                        </li>
-                    </ul>
-                    <h3>Preference Configuration Suggestions</h3>
-                    <ul>
-                        <li class="only-fs" style="display: none"><b>If you play fullscreen</b>, you cannot use the split overlay. However you can have it on a second monitor or running in the background. <br>
-                                                                                               If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
-                        <li>
-                            <b>If you play borderless</b>, after resizing and dragging the overlay to the desired position set "Overlay is not clickable" to true, this way you will able to click stuff behind the overlay.
-                        </li>
-                        <li>
-                            <b>If you stream</b> and want to use this overlay. Set "Hide overlay when Pogostuck not active" to false, so the overlay does not disappear when you tab out.
-                        </li>
-                        <li>
-                            To reduce the amount of programs you need to open, set the "Launch Pogostuck on startup" to true, so you can just open this program and it will launch Pogostuck for you.
-                        </li>
-                    </ul>
-                    Thats it :D. I hope you have fun. If you find any bugs or have any other feedback you can dm me on
-                    discord (@derjunker)👍.
-                </div>
-                <div class="setup-text" lang="ja" style="display: none">
-                    <p>こんにちは！このプログラムをご利用いただきありがとうございます :)</p>
-                    <br>
-                    <p class="only-fs" style="display: none">
-                        フルスクリーンモードをご利用中のようです。残念ながら、スプリットのオーバーレイはウィンドウモードまたはボーダーレスモードのみ対応しています☹️。区間PBの記録などは問題なく作動しますが、フルスクリーンモードでオーバーレイを利用するためにはオーバーレイをサブモニターに移動する必要があります。ゲーム上に直接表示させる方法はありません。<br><br>
-                    </p>
-                    <p>スプリットプログラムを使用する前に、幾つかの設定が必要です。<br><br></p>
-                    <ul>
-                        <li>
-                            <b>Steam起動オプションを追加：</b> PogostuckのSteam起動オプションに「-diag」を追加してください。このオプションにより、ゲームがログファイルを作成し、プログラムがスプリット などを探知することが可能になります。<br>
-                            <i>方法：SteamのライブラリでPogostuckを右クリック → プロパティ → 起動オプションに「-diag」（引用符なし）を追加</i><br>
-                                                              起動オプションが正しく設定されたら、このプログラムのLaunch Pogostuckボタンを通じてもPogostuckを起動できます。
-                        </li>
-                        <li>
-                            <b>Pogostuckを起動：</b> SteamからPogostuckを起動してください。インストールパスとuserdataパスの自動検出を行います。<br>
-                                                    PogostuckとSteamが違うドライブにインストールされている場合などはパスの検出に失敗することがあります。<br>
+                            </li>
+                            <li class="only-win11" style="display: none">
+                                <b>Windows 11 Users:</b> If you are using Windows 11 and have window shadow enabled, you can choose to disable it in these <a class="open-settings-link">settings</a>.
+                                <br>
+                            </li>
+                        </ul>
+                        <h3>Preference Configuration Suggestions</h3>
+                        <ul>
+                            <li class="only-fs" style="display: none"><b>If you play fullscreen</b>, you cannot use the split overlay. However you can have it on a second monitor or running in the background. <br>
+                                                                                                   If you choose to have it on a second monitor, you should set "Enable background color" to true, and then set your background color.</li>
+                            <li>
+                                <b>If you play borderless</b>, after resizing and dragging the overlay to the desired position set "Overlay is not clickable" to true, this way you will able to click stuff behind the overlay.
+                            </li>
+                            <li>
+                                <b>If you stream</b> and want to use this overlay. Set "Hide overlay when Pogostuck not active" to false, so the overlay does not disappear when you tab out.
+                            </li>
+                            <li>
+                                To reduce the amount of programs you need to open, set the "Launch Pogostuck on startup" to true, so you can just open this program and it will launch Pogostuck for you.
+                            </li>
+                        </ul>
+                        Thats it :D. I hope you have fun. If you find any bugs or have any other feedback you can dm me on
+                        discord (@derjunker)👍.
+                    </div>
+                    <div class="setup-text" lang="ja" style="display: none">
+                        <p>こんにちは！このプログラムをご利用いただきありがとうございます :)</p>
+                        <br>
+                        <p class="only-fs" style="display: none">
+                            フルスクリーンモードをご利用中のようです。残念ながら、スプリットのオーバーレイはウィンドウモードまたはボーダーレスモードのみ対応しています☹️。区間PBの記録などは問題なく作動しますが、フルスクリーンモードでオーバーレイを利用するためにはオーバーレイをサブモニターに移動する必要があります。ゲーム上に直接表示させる方法はありません。<br><br>
+                        </p>
+                        <p>スプリットプログラムを使用する前に、幾つかの設定が必要です。<br><br></p>
+                        <ul>
+                            <li>
+                                <b>Steam起動オプションを追加：</b> PogostuckのSteam起動オプションに「-diag」を追加してください。このオプションにより、ゲームがログファイルを作成し、プログラムがスプリット などを探知することが可能になります。<br>
+                                <i>方法：SteamのライブラリでPogostuckを右クリック → プロパティ → 起動オプションに「-diag」（引用符なし）を追加</i><br>
+                                                                  起動オプションが正しく設定されたら、このプログラムのLaunch Pogostuckボタンを通じてもPogostuckを起動できます。
+                            </li>
+                            <li>
+                                <b>Pogostuckを起動：</b> SteamからPogostuckを起動してください。インストールパスとuserdataパスの自動検出を行います。<br>
+                                                        PogostuckとSteamが違うドライブにインストールされている場合などはパスの検出に失敗することがあります。<br>
                             <a data-tab-link="paths">パス</a>タブでパスが正しいか確認してください。問題がある場合はスプリットのオーバーレイに解決のためのフィードバックが表示されます。<br>
-                                                    どちらかのパスが未設定の場合、または複数のSteamアカウントでPogostuckを所有している場合は、次の手順に従ってください。
-                        </li>
-                        <li>
-                            <b>Pogo Path：</b> <a data-tab-link="paths">パス</a>タブでPogostuckのインストールパスを入力してください。これはスプリットプログラムの作動に必修です。このパスにゲームのログファイルが出力されます。<br>
-                            <i>一般的には以下のようなパスになります：<br>
-                                <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i><br>
-                                                                               PogostuckのSteamライブラリでPogostuckを右クリック → 管理 → ローカルファイルを参照→ パスをコピー
-                        </li>
-                        <li>
-                            <b>Steam Path：</b> <a data-tab-link="paths">パス</a>タブでSteamのインストールパスを入力してください。これは<code>Settings.txt</code>を読み込み、現在のスプリットタイムを取得するために必要です。<br>
-                                                                                一般的には以下のようなパスになります：<br>
-                            <code>C:\Program Files (x86)\Steam\</code>
-                        </li>
-                        <li>
-                            <b>Steam フレンドコード：</b> <a data-tab-link="paths">パス</a>タブでSteamのフレンドコードを入力してください。これも<code>Settings.txt</code>を探すために必要です。<br>
-                                                                                          通常は5~10桁の数字となっています。Steamのフレンド追加メニューで確認できます。
-                        </li>
-                        <li>
-                            <b>ゲーム内でスプリットを調整:</b> Pogostuckのオプション → その他 → タイムアタックのスプリットを表示を「プラスマイナスのみ」に設定してください。「オフ」では動作しません。
-                        </li>
-                        <li>
-                            <b>PBを入力:</b> 現時点ではPBの自動探知は対応していません。<a data-tab-link="pbs">Pbs</a>タブで手動で入力してください。
-                        </li>
-                        <li>
-                            <b>スプリットスキップを入力：</b> パルムスキップ、きのこスキップ、またはパズルやダブルジャンプのモードでのスキップなどをする場合、<a data-tab-link="splits">スプリット</a>タブにスキップを入力してください。入力されないと、区間PBの合計が正しく計算されません。
-                        </li>
-                        <li class="only-win11" style="display: none">
-                            <b>Windows 11を利用してる方へ：</b> Windows 11でウィンドウの下の影が表示になっている場合は、<a class="open-settings-link">設定</a>から非表示に変えれます。<br>
-                        </li>
-                    </ul>
-                    <h3>おすすめの設定</h3>
-                    <ul>
-                        <li class="only-fs" style="display: none">
-                            <b>フルスクリーンモードでプレイする場合</b>、スプリットのオーバーレイは基本使用できません。サブモニターやゲーム裏で表示させることは可能です。<br>
-                                                                       サブモニターで使用する場合は、Enable background colorを「true」に設定し、背景色を指定することをおすすめします。
-                        </li>
-                        <li>
-                            <b>ボーダーレスモードでプレイする場合</b>、スプリットのオーバーレイのサイズと位置の調整をした後、Overlay is not clickableを「true」に設定してください。これによってオーバーレイ越しにクリックすることが可能になります。
-                        </li>
-                        <li>
-                            <b>配信をしてる場合</b>、オーバーレイを配信に移したいならHide overlay when Pogostuck not activeを「false」に設定してください。これによってPogostuckが非アクティブになってもオーバーレイは消えません。
-                        </li>
-                        <li>
-                            起動するプログラムの数を減らしたい場合は、Launch Pogostuck on startupを「true」に設定すると、このプログラムを起動するだけでPogostuckも自動的に起動されます。
-                        </li>
-                    </ul>
+                                                        どちらかのパスが未設定の場合、または複数のSteamアカウントでPogostuckを所有している場合は、次の手順に従ってください。
+                            </li>
+                            <li>
+                                <b>Pogo Path：</b> <a data-tab-link="paths">パス</a>タブでPogostuckのインストールパスを入力してください。これはスプリットプログラムの作動に必修です。このパスにゲームのログファイルが出力されます。<br>
+                                <i>一般的には以下のようなパスになります：<br>
+                                    <code>C:\Program Files (x86)\Steam\steamapps\common\Pogostuck</code></i><br>
+                                                                                   PogostuckのSteamライブラリでPogostuckを右クリック → 管理 → ローカルファイルを参照→ パスをコピー
+                            </li>
+                            <li>
+                                <b>Steam Path：</b> <a data-tab-link="paths">パス</a>タブでSteamのインストールパスを入力してください。これは<code>Settings.txt</code>を読み込み、現在のスプリットタイムを取得するために必要です。<br>
+                                                                                    一般的には以下のようなパスになります：<br>
+                                <code>C:\Program Files (x86)\Steam\</code>
+                            </li>
+                            <li>
+                                <b>Steam フレンドコード：</b> <a data-tab-link="paths">パス</a>タブでSteamのフレンドコードを入力してください。これも<code>Settings.txt</code>を探すために必要です。<br>
+                                                                                              通常は5~10桁の数字となっています。Steamのフレンド追加メニューで確認できます。
+                            </li>
+                            <li>
+                                <b>ゲーム内でスプリットを調整:</b> Pogostuckのオプション → その他 → タイムアタックのスプリットを表示を「プラスマイナスのみ」に設定してください。「オフ」では動作しません。
+                            </li>
+                            <li>
+                                <b>PBを入力:</b> 現時点ではPBの自動探知は対応していません。<a data-tab-link="pbs">Pbs</a>タブで手動で入力してください。
+                            </li>
+                            <li>
+                                <b>スプリットスキップを入力：</b> パルムスキップ、きのこスキップ、またはパズルやダブルジャンプのモードでのスキップなどをする場合、<a data-tab-link="splits">スプリット</a>タブにスキップを入力してください。入力されないと、区間PBの合計が正しく計算されません。
+                            </li>
+                            <li class="only-win11" style="display: none">
+                                <b>Windows 11を利用してる方へ：</b> Windows 11でウィンドウの下の影が表示になっている場合は、<a class="open-settings-link">設定</a>から非表示に変えれます。<br>
+                            </li>
+                        </ul>
+                        <h3>おすすめの設定</h3>
+                        <ul>
+                            <li class="only-fs" style="display: none">
+                                <b>フルスクリーンモードでプレイする場合</b>、スプリットのオーバーレイは基本使用できません。サブモニターやゲーム裏で表示させることは可能です。<br>
+                                                                           サブモニターで使用する場合は、Enable background colorを「true」に設定し、背景色を指定することをおすすめします。
+                            </li>
+                            <li>
+                                <b>ボーダーレスモードでプレイする場合</b>、スプリットのオーバーレイのサイズと位置の調整をした後、Overlay is not clickableを「true」に設定してください。これによってオーバーレイ越しにクリックすることが可能になります。
+                            </li>
+                            <li>
+                                <b>配信をしてる場合</b>、オーバーレイを配信に移したいならHide overlay when Pogostuck not activeを「false」に設定してください。これによってPogostuckが非アクティブになってもオーバーレイは消えません。
+                            </li>
+                            <li>
+                                起動するプログラムの数を減らしたい場合は、Launch Pogostuck on startupを「true」に設定すると、このプログラムを起動するだけでPogostuckも自動的に起動されます。
+                            </li>
+                        </ul>
 
-                    <p>以上となります :D 楽しんでもらえたら嬉しいです。バグ報告やフィードバックはDiscordの@derjunkerにDMを送ってください。👍</p>
+                        <p>以上となります :D 楽しんでもらえたら嬉しいです。バグ報告やフィードバックはDiscordの@derjunkerにDMを送ってください。👍</p>
+
+                    </div>
+                </div>
+                <div id="preferences-content" class="menu-content">
+                    <div class="toggle-switch">
+                        <label for="only-colored-diff"
+                               class="toggle-label">
+                            <span lang="en" style="display: none">Only color the time difference</span>
+                            <span lang="ja" style="display: none">スプリットの差分だけ色表示</span>:</label>
+                        <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
+                        <button id="only-colored-diff-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="race-gold-splits"
+                               class="toggle-label">
+                            <span lang="en" style="display: none">Compare Run to Gold Splits</span>
+                            <span lang="ja" style="display: none">ベストスプリットと比較</span>:
+                        </label>
+                        <input type="checkbox" id="race-gold-splits" class="toggle-checkbox">
+                        <button id="race-gold-splits-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="ignore-skipped-splits" class="toggle-label">
+                            <span  lang="en" style="display: none">Hide skipped splits</span>
+                            <span lang="ja" style="display: none">スキップしたスプリットを非表示</span>:
+                        </label>
+                        <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
+                        <button id="ignore-skipped-splits-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div>
+                        <label for="split-naming-select">
+                            <span lang="en" style="display: none">Split Names</span>
+                            <span lang="ja" style="display: none">スプリット名</span>:
+                        </label>
+                        <div class="dropdown-container">
+                            <select id="split-naming-select" class="dropdown">
+                                <option value="new">New</option>
+                                <option value="old">Old</option>
+                            </select>
+                            <span class="dropdown-arrow">
+                            <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                        </span>
+                        </div>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="click-through-overlay" class="toggle-label">
+                            <span lang="en" style="display: none">Overlay is not clickable</span>
+                            <span lang="ja" style="display: none">オーバーレイをクリック不可</span>:
+                        </label>
+                        <input type="checkbox" id="click-through-overlay" class="toggle-checkbox">
+                        <button id="click-through-overlay-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="hide-when-pogo-not-active" class="toggle-label">
+                            <span lang="en" style="display: none">Hide overlay when Pogostuck not active</span>
+                            <span lang="ja" style="display: none">Pogostuckが非アクティブの時オーバーレイを非表示</span>:
+                        </label>
+                        <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
+                        <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
+                    </div>
+
+                    <div class="toggle-switch">
+                        <label for="enable-background-color" class="toggle-label">
+                            <span lang="en" style="display: none">Enable background color</span>
+                            <span lang="ja" style="display: none">背景色を有効化</span>:
+                        </label>
+                        <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
+                        <button id="enable-background-color-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div>
+                        <label for="set-background-color" class="input-label">
+                            <span lang="en" style="display: none">Set background color</span>
+                            <span lang="ja" style="display: none">背景色を設定</span>:
+                        </label>
+                        <input type="color" id="set-background-color" value="#000000">
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="launch-pogo-on-startup" class="toggle-label">
+                            <span lang="en" style="display: none">Launch Pogostuck on startup</span>
+                            <span lang="ja" style="display: none">起動時にPogostuckを起動</span>:
+                        </label>
+                        <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
+                        <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
+                    </div>
+                </div>
+                <div id="splits-content" class="menu-content">
+                    <div id="map-n-mode-selection">
+                        <div class="dropdown-container">
+                            <label for="map-select">Map: </label>
+                            <select id="map-select" class="dropdown">
+                            </select>
+                            <span class="dropdown-arrow">
+                            <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                        </span>
+                        </div>
+                        <div class="dropdown-container">
+                            <label for="mode-select">Mode: </label>
+                            <select id="mode-select" class="dropdown">
+                                <option value="new">Regular</option>
+                                <option value="old">Skipless</option>
+                            </select>
+                            <span class="dropdown-arrow">
+                            <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                        </span>
+                        </div>
+                    </div>
+                    <div id="skip-selection">
+                        <div id="map-n-mode-split-selection">
+                        </div>
+                        <div id="gold-split-selection">
+                            <h3>Gold Splits</h3>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-0-1-input">Bones</label>
+                                <input type="text" id="gold-0-1-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-1-2-input">Wind</label>
+                                <input type="text" id="gold-1-2-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-2-3-input">Grapes</label>
+                                <input type="text" id="gold-2-3-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-3-5-input">Trees</label>
+                                <input type="text" id="gold-3-5-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-5-7-input">Palms</label>
+                                <input type="text" id="gold-5-7-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-7-8-input">Flowers</label>
+                                <input type="text" id="gold-7-8-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-8-9-input">Ice</label>
+                                <input type="text" id="gold-8-9-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div>
+                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
+                                <label for="gold-9-10-input">Egg</label>
+                                <input type="text" id="gold-9-10-input" class="input-field" placeholder="00:00.000">
+                            </div>
+                            <div id="final">Finish</div>
+                        </div>
+                        <div id="gold-pace-selection">
+                            <h3>Best Paces</h3>
+    <!--                        <label for="pace-0-input">Bones</label>-->
+    <!--                        <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-1-input">Wind</label>-->
+    <!--                        <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-2-input">Grapes</label>-->
+    <!--                        <input type="text" id="pace-2-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-3-input">Trees</label>-->
+    <!--                        <input type="text" id="pace-3-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-4-input">Pineapples</label>-->
+    <!--                        <input type="text" id="pace-4-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-5-input">Palms</label>-->
+    <!--                        <input type="text" id="pace-5-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-6-input">Mushrooms</label>-->
+    <!--                        <input type="text" id="pace-6-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-7-input">Flowers</label>-->
+    <!--                        <input type="text" id="pace-7-input" class="input-field" placeholder="00:00.000">-->
+    <!--                        <label for="pace-8-input">Ice</label>-->
+    <!--                        <input type="text" id="pace-8-input" class="input-field" placeholder="00:00.000">-->
+                        </div>
+                    </div>
+                </div>
+                <div id="pbs-content" class="menu-content">
 
                 </div>
-            </div>
-            <div id="preferences-content" class="menu-content">
-                <div class="toggle-switch">
-                    <label for="only-colored-diff"
-                           class="toggle-label">
-                        <span lang="en" style="display: none">Only color the time difference</span>
-                        <span lang="ja" style="display: none">スプリットの差分だけ色表示</span>:</label>
-                    <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
-                    <button id="only-colored-diff-custom" class="custom-checkbox"></button>
-                </div>
-                <div class="toggle-switch">
-                    <label for="race-gold-splits"
-                           class="toggle-label">
-                        <span lang="en" style="display: none">Compare Run to Gold Splits</span>
-                        <span lang="ja" style="display: none">ベストスプリットと比較</span>:
-                    </label>
-                    <input type="checkbox" id="race-gold-splits" class="toggle-checkbox">
-                    <button id="race-gold-splits-custom" class="custom-checkbox"></button>
-                </div>
-                <div class="toggle-switch">
-                    <label for="ignore-skipped-splits" class="toggle-label">
-                        <span  lang="en" style="display: none">Hide skipped splits</span>
-                        <span lang="ja" style="display: none">スキップしたスプリットを非表示</span>:
-                    </label>
-                    <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
-                    <button id="ignore-skipped-splits-custom" class="custom-checkbox"></button>
-                </div>
-                <div>
-                    <label for="split-naming-select">
-                        <span lang="en" style="display: none">Split Names</span>
-                        <span lang="ja" style="display: none">スプリット名</span>:
-                    </label>
-                    <div class="dropdown-container">
-                        <select id="split-naming-select" class="dropdown">
-                            <option value="new">New</option>
-                            <option value="old">Old</option>
-                        </select>
-                        <span class="dropdown-arrow">
-                        <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
-                    </span>
+                <div id="paths-content" class="menu-content">
+                    <div class="text-input-container">
+                        <label for="pogo-path-text" class="input-label">
+                            <span lang="en" style="display: none">Pogo Path</span>
+                            <span lang="ja" style="display: none">Pogostuckのパス</span>:
+                        </label>
+                        <input type="text" id="pogo-path-text" class="input-field"
+                               placeholder="Enter Pogostuck folder...">
+                    </div>
+                    <div class="text-input-container">
+                        <label for="steam-path-text" class="input-label">
+                            <span lang="en" style="display: none">Steam Path</span>
+                            <span lang="ja" style="display: none">Steamのパス</span>:
+                        </label>
+                        <input type="text" id="steam-path-text" class="input-field" placeholder="Enter Steam folder...">
+                    </div>
+                    <div class="text-input-container">
+                        <label for="steam-friend-code" class="input-label">
+                            <span lang="en" style="display: none">Steam Friend Code</span>
+                            <span lang="ja" style="display: none">フレンドコード</span>:
+                        </label>
+                        <input type="text" id="steam-friend-code" class="input-field"
+                               placeholder="Enter Steam Friend-Code...">
                     </div>
                 </div>
-                <div class="toggle-switch">
-                    <label for="click-through-overlay" class="toggle-label">
-                        <span lang="en" style="display: none">Overlay is not clickable</span>
-                        <span lang="ja" style="display: none">オーバーレイをクリック不可</span>:
-                    </label>
-                    <input type="checkbox" id="click-through-overlay" class="toggle-checkbox">
-                    <button id="click-through-overlay-custom" class="custom-checkbox"></button>
-                </div>
-                <div class="toggle-switch">
-                    <label for="hide-when-pogo-not-active" class="toggle-label">
-                        <span lang="en" style="display: none">Hide overlay when Pogostuck not active</span>
-                        <span lang="ja" style="display: none">Pogostuckが非アクティブの時オーバーレイを非表示</span>:
-                    </label>
-                    <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
-                    <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
-                </div>
-
-                <div class="toggle-switch">
-                    <label for="enable-background-color" class="toggle-label">
-                        <span lang="en" style="display: none">Enable background color</span>
-                        <span lang="ja" style="display: none">背景色を有効化</span>:
-                    </label>
-                    <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
-                    <button id="enable-background-color-custom" class="custom-checkbox"></button>
-                </div>
-                <div>
-                    <label for="set-background-color" class="input-label">
-                        <span lang="en" style="display: none">Set background color</span>
-                        <span lang="ja" style="display: none">背景色を設定</span>:
-                    </label>
-                    <input type="color" id="set-background-color" value="#000000">
-                </div>
-                <div class="toggle-switch">
-                    <label for="launch-pogo-on-startup" class="toggle-label">
-                        <span lang="en" style="display: none">Launch Pogostuck on startup</span>
-                        <span lang="ja" style="display: none">起動時にPogostuckを起動</span>:
-                    </label>
-                    <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
-                    <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
-                </div>
-            </div>
-            <div id="splits-content" class="menu-content">
-                <div id="map-n-mode-selection">
-                    <div class="dropdown-container">
-                        <label for="map-select">Map: </label>
-                        <select id="map-select" class="dropdown">
-                        </select>
-                        <span class="dropdown-arrow">
-                        <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
-                    </span>
+                <div id="debug-content" class="menu-content">
+                    <div style="display: flex; flex-direction: column; gap: 1rem">
+                        <button id="copy-logs-btn">
+                            <span lang="en" style="display: none">Copy recent logs</span>
+                            <span lang="ja" style="display: none">最近のログをコピー</span>
+                        </button>
+                        <button id="open-appdata-dir-btn">
+                            <span lang="en" style="display: none">Open AppData Directory</span>
+                            <span lang="ja" style="display: none">AppDataディレクトリを開く</span>
+                        </button>
                     </div>
-                    <div class="dropdown-container">
-                        <label for="mode-select">Mode: </label>
-                        <select id="mode-select" class="dropdown">
-                            <option value="new">Regular</option>
-                            <option value="old">Skipless</option>
-                        </select>
-                        <span class="dropdown-arrow">
-                        <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
-                    </span>
-                    </div>
-                </div>
-                <div id="skip-selection">
-                    <div id="map-n-mode-split-selection">
-                    </div>
-                    <div id="gold-split-selection">
-                        <h3>Gold Splits</h3>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-0-1-input">Bones</label>
-                            <input type="text" id="gold-0-1-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-1-2-input">Wind</label>
-                            <input type="text" id="gold-1-2-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-2-3-input">Grapes</label>
-                            <input type="text" id="gold-2-3-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-3-5-input">Trees</label>
-                            <input type="text" id="gold-3-5-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-5-7-input">Palms</label>
-                            <input type="text" id="gold-5-7-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-7-8-input">Flowers</label>
-                            <input type="text" id="gold-7-8-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-8-9-input">Ice</label>
-                            <input type="text" id="gold-8-9-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div>
-                            <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>
-                            <label for="gold-9-10-input">Egg</label>
-                            <input type="text" id="gold-9-10-input" class="input-field" placeholder="00:00.000">
-                        </div>
-                        <div id="final">Finish</div>
-                    </div>
-                    <div id="gold-pace-selection">
-                        <h3>Best Paces</h3>
-<!--                        <label for="pace-0-input">Bones</label>-->
-<!--                        <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-1-input">Wind</label>-->
-<!--                        <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-2-input">Grapes</label>-->
-<!--                        <input type="text" id="pace-2-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-3-input">Trees</label>-->
-<!--                        <input type="text" id="pace-3-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-4-input">Pineapples</label>-->
-<!--                        <input type="text" id="pace-4-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-5-input">Palms</label>-->
-<!--                        <input type="text" id="pace-5-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-6-input">Mushrooms</label>-->
-<!--                        <input type="text" id="pace-6-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-7-input">Flowers</label>-->
-<!--                        <input type="text" id="pace-7-input" class="input-field" placeholder="00:00.000">-->
-<!--                        <label for="pace-8-input">Ice</label>-->
-<!--                        <input type="text" id="pace-8-input" class="input-field" placeholder="00:00.000">-->
-                    </div>
-                </div>
-            </div>
-            <div id="pbs-content" class="menu-content">
-
-            </div>
-            <div id="paths-content" class="menu-content">
-                <div class="text-input-container">
-                    <label for="pogo-path-text" class="input-label">
-                        <span lang="en" style="display: none">Pogo Path</span>
-                        <span lang="ja" style="display: none">Pogostuckのパス</span>:
-                    </label>
-                    <input type="text" id="pogo-path-text" class="input-field"
-                           placeholder="Enter Pogostuck folder...">
-                </div>
-                <div class="text-input-container">
-                    <label for="steam-path-text" class="input-label">
-                        <span lang="en" style="display: none">Steam Path</span>
-                        <span lang="ja" style="display: none">Steamのパス</span>:
-                    </label>
-                    <input type="text" id="steam-path-text" class="input-field" placeholder="Enter Steam folder...">
-                </div>
-                <div class="text-input-container">
-                    <label for="steam-friend-code" class="input-label">
-                        <span lang="en" style="display: none">Steam Friend Code</span>
-                        <span lang="ja" style="display: none">フレンドコード</span>:
-                    </label>
-                    <input type="text" id="steam-friend-code" class="input-field"
-                           placeholder="Enter Steam Friend-Code...">
-                </div>
-            </div>
-            <div id="debug-content" class="menu-content">
-                <div style="display: flex; flex-direction: column; gap: 1rem">
-                    <button id="copy-logs-btn">
-                        <span lang="en" style="display: none">Copy recent logs</span>
-                        <span lang="ja" style="display: none">最近のログをコピー</span>
-                    </button>
-                    <button id="open-appdata-dir-btn">
-                        <span lang="en" style="display: none">Open AppData Directory</span>
-                        <span lang="ja" style="display: none">AppDataディレクトリを開く</span>
-                    </button>
                 </div>
             </div>
         </div>

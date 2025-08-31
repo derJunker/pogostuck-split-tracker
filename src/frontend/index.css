@@ -303,6 +303,19 @@ label {
     gap: 0.5em 1em;
 }
 
+#preferences-content > div {
+    display: contents;
+}
+
+.preference-separator {
+    text-align: center;
+    display: block!important;
+    grid-column: 1 / -1;
+    border-bottom: 2px dashed var(--color-border);
+    margin: 1rem 0;
+    font-size: 1.2rem;
+}
+
 #pbs-content {
     display: grid;
     grid-template-columns: max-content 1fr max-content;
@@ -385,11 +398,6 @@ label {
 
 #pbs-content > div {
     display: contents;
-}
-
-#preferences-content > div {
-    display: contents;
-    margin-inline: 2rem;
 }
 
 #paths-content {

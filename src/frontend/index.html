@@ -196,13 +196,45 @@
                     </div>
                 </div>
                 <div id="preferences-content" class="menu-content">
+                    <div class="preference-separator">
+                        <span lang="en" style="display: none">
+                            Overlay Behavior
+                        </span>
+                        <span lang="ja" style="display: none">
+                            オーバーレイの動作
+                        </span>
+                    </div>
                     <div class="toggle-switch">
-                        <label for="only-colored-diff"
-                               class="toggle-label">
-                            <span lang="en" style="display: none">Only color the time difference</span>
-                            <span lang="ja" style="display: none">スプリットの差分だけ色表示</span>:</label>
-                        <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
-                        <button id="only-colored-diff-custom" class="custom-checkbox"></button>
+                        <label for="click-through-overlay" class="toggle-label">
+                            <span lang="en" style="display: none">Overlay is not clickable</span>
+                            <span lang="ja" style="display: none">オーバーレイをクリック不可</span>:
+                        </label>
+                        <input type="checkbox" id="click-through-overlay" class="toggle-checkbox">
+                        <button id="click-through-overlay-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="hide-when-pogo-not-active" class="toggle-label">
+                            <span lang="en" style="display: none">Hide overlay when Pogostuck not active</span>
+                            <span lang="ja" style="display: none">Pogostuckが非アクティブの時オーバーレイを非表示</span>:
+                        </label>
+                        <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
+                        <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div class="toggle-switch">
+                        <label for="launch-pogo-on-startup" class="toggle-label">
+                            <span lang="en" style="display: none">Launch Pogostuck on startup</span>
+                            <span lang="ja" style="display: none">起動時にPogostuckを起動</span>:
+                        </label>
+                        <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
+                        <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
+                    </div>
+                    <div class="preference-separator">
+                        <span lang="en" style="display: none">
+                            Splits
+                        </span>
+                        <span lang="ja" style="display: none">
+                            スプリット
+                        </span>
                     </div>
                     <div class="toggle-switch">
                         <label for="race-gold-splits"
@@ -237,22 +269,21 @@
                         </div>
                     </div>
                     <div class="toggle-switch">
-                        <label for="click-through-overlay" class="toggle-label">
-                            <span lang="en" style="display: none">Overlay is not clickable</span>
-                            <span lang="ja" style="display: none">オーバーレイをクリック不可</span>:
-                        </label>
-                        <input type="checkbox" id="click-through-overlay" class="toggle-checkbox">
-                        <button id="click-through-overlay-custom" class="custom-checkbox"></button>
+                        <label for="only-colored-diff"
+                               class="toggle-label">
+                            <span lang="en" style="display: none">Only color the time difference</span>
+                            <span lang="ja" style="display: none">スプリットの差分だけ色表示</span>:</label>
+                        <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
+                        <button id="only-colored-diff-custom" class="custom-checkbox"></button>
                     </div>
-                    <div class="toggle-switch">
-                        <label for="hide-when-pogo-not-active" class="toggle-label">
-                            <span lang="en" style="display: none">Hide overlay when Pogostuck not active</span>
-                            <span lang="ja" style="display: none">Pogostuckが非アクティブの時オーバーレイを非表示</span>:
-                        </label>
-                        <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
-                        <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
+                    <div class="preference-separator">
+                        <span lang="en" style="display: none">
+                            Design
+                        </span>
+                        <span lang="ja" style="display: none">
+                            デザイン
+                        </span>
                     </div>
-
                     <div class="toggle-switch">
                         <label for="enable-background-color" class="toggle-label">
                             <span lang="en" style="display: none">Enable background color</span>
@@ -267,14 +298,6 @@
                             <span lang="ja" style="display: none">背景色を設定</span>:
                         </label>
                         <input type="color" id="set-background-color" value="#000000">
-                    </div>
-                    <div class="toggle-switch">
-                        <label for="launch-pogo-on-startup" class="toggle-label">
-                            <span lang="en" style="display: none">Launch Pogostuck on startup</span>
-                            <span lang="ja" style="display: none">起動時にPogostuckを起動</span>:
-                        </label>
-                        <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
-                        <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
                     </div>
                 </div>
                 <div id="splits-content" class="menu-content">

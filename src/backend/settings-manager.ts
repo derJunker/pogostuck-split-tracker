@@ -20,6 +20,7 @@ import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {UserDataReader} from "./data/user-data-reader";
 import {execSync} from "child_process";
+import {Split} from "../types/mode-splits";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -260,13 +261,13 @@ export class SettingsManager {
         });
     }
 
-    public getSplitIndexPath( mode: number, splitAmount: number ): {from: number, to: number}[] {
+    public getSplitIndexPath( mode: number, splitAmount: number ): Split[] {
         // some of the newer map 1 modes have a unused split for some reason :(
         if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
             splitAmount = 9
             log.info(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
         }
-        let splitIndexPath: {from: number, to: number}[] = [];
+        let splitIndexPath: Split[] = [];
         let lastTo = -1;
         let index = -1
         while (index < splitAmount) {

@@ -5,12 +5,13 @@ import {PogoNameMappings} from "./data/pogo-name-mappings";
 import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {SettingsManager} from "./settings-manager";
-import {isValidModeAndMap} from "./data/valid-modes";
+import {isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
 import windowStateKeeper from "electron-window-state";
 import {CurrentStateTracker} from "./data/current-state-tracker";
 import {FileWatcher} from "./logging/logs-watcher";
+import {Split} from "../types/mode-splits";
 
 let correctWindowForOverlayInFocus = false;
 export let pogostuckHasBeenOpenedOnce = false;
@@ -154,22 +155,15 @@ function getPbRunInfoAndSoB(
         const splitPath = settingsManager.getSplitIndexPath(modeNum, splitAmount);
         pbSplitTimes = []
         let sum = 0;
-        for (let i = 0; i < splitAmount; i++) {
-            const splitSegment = splitPath.find(seg => seg.to === i);
-            if (!splitSegment) {
-                pbSplitTimes.push({
-                    split: i,
-                    time: 0
-                })
-                continue;
+        const isUD = isUpsideDownMode(modeNum)
+        if (isUD) {
+            for (let i = splitAmount; i >= -1; i--) {
+                sum = sumUpGoldSegments(modeNum, splitPath, pbSplitTimes, goldenSplitTracker, sum, i, isUD)
             }
-            const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeNum, splitSegment.from, splitSegment.to) || 0;
-            sum += splitTime;
-            log.debug(`sum for split ${i} is now ${sum}, splitSegment: ${JSON.stringify(splitSegment)} splitTime: ${splitTime}`);
-            pbSplitTimes.push({
-                split: splitSegment.to,
-                time: sum
-            });
+        } else {
+            for (let i = 0; i < splitAmount; i++) {
+                sum = sumUpGoldSegments(modeNum, splitPath, pbSplitTimes, goldenSplitTracker, sum, i, isUD)
+            }
         }
         log.debug(`pbSplitTimes for mode ${modeNum} with gold splits: ${JSON.stringify(pbSplitTimes)}`);
     }
@@ -179,15 +173,43 @@ function getPbRunInfoAndSoB(
 
     log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
     return {
-        splits: mapModeAndSplits.splits.map((splitName, i) => ({
-            name: splitName,
-            split: pbSplitTimes[i]!.split,
-            time: pbSplitTimes[i]!.time,
-            hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
-            skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
-        })),
+        splits: mapModeAndSplits.splits.map((splitName, i) => {
+            const splitInfo = pbSplitTimes.find(infos => infos.split === i)
+            log.debug(`found splitInfo for i: ${i}, ${JSON.stringify(splitInfo)}`)
+            return ({
+                name: splitName,
+                split: splitInfo!.split,
+                time: splitInfo!.time,
+                hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
+                skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
+            })
+        }),
         pb: pbTime === Infinity ? -1 : pbTime,
         sumOfBest: sumOfBest,
         settings: settingsManager.currentSettings
     };
+}
+
+function sumUpGoldSegments(modeNum: number,
+                           splitPath: Split[], pbSplitTimes: {
+                                split: number;
+                                time: number;
+                           }[], goldenSplitTracker: GoldSplitsTracker, sum: number, index: number, isUD: boolean) {
+    const getRelevantSplitNum = (segment: Split) => isUD? segment.from : segment.to
+    const splitSegment = splitPath.find(seg => getRelevantSplitNum(seg) === index);
+    if (!splitSegment) {
+        pbSplitTimes.push({
+            split: index,
+            time: 0
+        })
+        return sum;
+    }
+    const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeNum, splitSegment.from, splitSegment.to) || 0;
+    sum += splitTime;
+    log.debug(`sum for split ${index} is now ${sum}, splitSegment: ${JSON.stringify(splitSegment)} splitTime: ${splitTime}`);
+    pbSplitTimes.push({
+        split: splitSegment.to,
+        time: sum
+    });
+    return sum;
 }

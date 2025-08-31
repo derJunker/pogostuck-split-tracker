@@ -59,18 +59,36 @@ button > img {
     vertical-align: middle;
 }
 
-#menu-bar {
+header {
+    position: fixed;
+    z-index: 101;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    pointer-events: auto;
     background: var(--color-bg);
     color: var(--color-fg);
+}
+
+
+#title-bar {
+    display: flex;
+    align-items: center;
+    text-wrap: nowrap;
+    height: 31px;
+    app-region: drag;
+    padding-top: .2rem;
+    padding-left: .4rem;
+    font-size: var(--font-size);
+    border: white solid 1px;
+}
+
+#menu-bar {
     display: flex;
     flex-direction: row;
     padding-top: 5px;
     padding-inline: 5px;
-    position: sticky;
-    z-index: 100;
-    top: 0;
-    left: 0;
-    right: 0;
 }
 
 .menu-btn {

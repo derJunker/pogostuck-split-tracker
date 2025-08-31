@@ -70,6 +70,17 @@ app.on("ready", async () => {
         },
         title: "Junker's Split Tracker - v" + VERSION,
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
+        titleBarStyle: "hidden",
+        // expose window controls in Windows/Linux
+        ...(process.platform !== "darwin"
+            ? {
+                titleBarOverlay: {
+                    color: "#000000",            // background color under controls
+                    symbolColor: "#ffffff",      // color of the traffic-light buttons
+                    height: 30                   // overlay height (optional)
+                }
+            }
+            : {}),
     });
     configWindowState.manage(configWindow);
     // configWindow.setMenu(null);

@@ -141,5 +141,7 @@ app.on("ready", async () => {
         }
     })
 
+    ipcMain.handle('get-version', () => VERSION)
+
 
 });

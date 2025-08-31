@@ -111,20 +111,24 @@ header {
 
 #title-bar {
     display: flex;
-    gap: .6rem;
+    gap: .4rem;
     align-items: center;
     text-wrap: nowrap;
     height: 31px;
     app-region: drag;
     padding-left: .6rem;
-    font-size: var(--font-size);
+    font-size: .8rem;
     border: white solid 1px;
+}
+
+#title-bar span {
+    margin-top: .2rem;
 }
 
 #title-bar-icon {
     height: 20px;
     width: auto;
-    margin-right: .5rem;
+    margin-right: .25rem;
 }
 
 #menu-bar {

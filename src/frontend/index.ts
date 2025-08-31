@@ -41,4 +41,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     initDebugButtonListeners();
 
     initLanguageListeners();
+
+    document.getElementById('version')!.textContent = await window.electronAPI.getVersion();
 });

@@ -3,6 +3,7 @@ import {Settings} from "../types/settings";
 import {PbRunInfoAndSoB} from "../types/global";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import IpcRendererEvent = Electron.IpcRendererEvent;
+import {VERSION} from "../version";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     // overlay querying to backend
@@ -48,6 +49,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getGoldPaces: (mode: number) : Promise<{ splitIndex: number, time: number}[]> => ipcRenderer.invoke('get-gold-paces', mode),
     openAppdataExplorer: (): Promise<void> => ipcRenderer.invoke('open-appdata-explorer'),
     getRecentLogs: (): Promise<string> => ipcRenderer.invoke('recent-logs'),
+    getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),

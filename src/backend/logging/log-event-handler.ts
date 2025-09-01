@@ -48,9 +48,10 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
+            const shouldSkip = settingsManager.splitShouldBeSkipped(mode, split)
             let pbTime;
             if (settingsManager.raceGoldSplits()) {
-                if (settingsManager.splitShouldBeSkipped(mode, split)) {
+                if (shouldSkip) {
                     pbTime = 0;
                 } else {
                     const splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
@@ -73,7 +74,6 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             } else {
                 diff = timeAsFloat - pbTime
             }
-            const shouldSkip = settingsManager.splitShouldBeSkipped(stateTracker.getCurrentMode(), split)
             let {isGoldSplit, isGoldPace} = stateTracker.passedSplit(split, timeAsFloat, shouldSkip)
             if (settingsManager.raceGoldSplits() && shouldSkip) {
                 isGoldPace = false

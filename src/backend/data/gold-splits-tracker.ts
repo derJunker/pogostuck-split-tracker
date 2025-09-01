@@ -9,6 +9,7 @@ import log from "electron-log/main";
 import {PogoNameMappings} from "./pogo-name-mappings";
 import {UserDataReader} from "./user-data-reader";
 import {CurrentStateTracker} from "./current-state-tracker";
+import {Split} from "../../types/mode-splits";
 
 export class GoldSplitsTracker {
     private static instance: GoldSplitsTracker | null = null;
@@ -44,20 +45,34 @@ export class GoldSplitsTracker {
         return null;
     }
 
-    public calculateGoldSplitPace(modeIndex: number, to: number, splitAmount: number): number {
+    public calculateGoldSplitPace(modeIndex: number, split: number, splitAmount: number): number {
+        const isUD = isUpsideDownMode(modeIndex);
         const settingsManager = SettingsManager.getInstance();
         const goldenSplitTracker = GoldSplitsTracker.getInstance();
         const splitPath = settingsManager.getSplitIndexPath(modeIndex, splitAmount)
         let sum = 0;
-        for (let i = 0; i < to; i++) {
-            const splitSegment = splitPath.find(seg => seg.to === i);
-            if (!splitSegment) {
-                continue;
+        if (isUD) {
+            for (let i = splitAmount; i > split; i--) {
+                sum = this.sumUpSegment(isUD, splitPath, i, sum, goldenSplitTracker, modeIndex)
             }
-            const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeIndex, splitSegment.from, splitSegment.to) || 0;
-            sum += splitTime;
+        } else {
+            for (let i = 0; i < split; i++) {
+                sum = this.sumUpSegment(isUD, splitPath, i, sum, goldenSplitTracker, modeIndex)
+            }
         }
+
         return sum;
+    }
+
+    private sumUpSegment(isUD: boolean, splitPath: Split[], index: number, sum: number, goldenSplitTracker: GoldSplitsTracker, mode: number): number {
+        const splitSegment = splitPath.find(seg => (!isUD && seg.to === index) || (isUD && seg.to === index));
+        if (!splitSegment) {
+            return sum;
+        }
+        const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(mode, splitSegment.from, splitSegment.to) || 0;
+        log.debug(`found split segment at index ${index}: ${JSON.stringify(splitSegment)} with time ${splitTime} sum: ${sum}`);
+        sum += splitTime;
+        return sum
     }
 
     private findIndexOfGoldSplitWithModeSplits(modeSplits: GoldenSplitsForMode, from: number, to: number): number {

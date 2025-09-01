@@ -175,7 +175,6 @@ function getPbRunInfoAndSoB(
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
             const splitInfo = pbSplitTimes.find(infos => infos.split === i)
-            log.debug(`found splitInfo for i: ${i}, ${JSON.stringify(splitInfo)}`)
             return ({
                 name: splitName,
                 split: splitInfo!.split,

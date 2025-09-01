@@ -101,7 +101,8 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
     const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
     const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
     const configPathsValid = CurrentStateTracker.getInstance().configPathsAreValid()
-    log.debug(`checking if pogostuck is active: ${isPogostuck}, isThisWindow: ${isThisWindow}, configPathsValid: ${configPathsValid}`);
+    // TODO put back in
+    // log.debug(`checking if pogostuck is active: ${isPogostuck}, isThisWindow: ${isThisWindow}, configPathsValid: ${configPathsValid}`);
     if (isPogostuck && !configPathsValid) {
         const settingsManager = SettingsManager.getInstance();
         // path is something like ... \common\Pogostuck\pogostuck.exe, i want to remove the pogostuck.exe part
@@ -175,7 +176,6 @@ function getPbRunInfoAndSoB(
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
             const splitInfo = pbSplitTimes.find(infos => infos.split === i)
-            log.debug(`found splitInfo for i: ${i}, ${JSON.stringify(splitInfo)}`)
             return ({
                 name: splitName,
                 split: splitInfo!.split,
@@ -206,7 +206,6 @@ function sumUpGoldSegments(modeNum: number,
     }
     const splitTime = goldenSplitTracker.getGoldSplitForModeAndSplit(modeNum, splitSegment.from, splitSegment.to) || 0;
     sum += splitTime;
-    log.debug(`sum for split ${index} is now ${sum}, splitSegment: ${JSON.stringify(splitSegment)} splitTime: ${splitTime}`);
     pbSplitTimes.push({
         split: splitSegment.to,
         time: sum

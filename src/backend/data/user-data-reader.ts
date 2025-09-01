@@ -6,6 +6,7 @@ import log from "electron-log/main";
 import {SettingsManager} from "../settings-manager";
 import {BrowserWindow, ipcMain} from "electron";
 import {ModeSplits} from "../../types/mode-splits";
+import {PogoLevel} from "../../types/pogo-index-mapping";
 
 
 
@@ -34,8 +35,10 @@ export class UserDataReader {
         const modeMap: { [modeName: string]: number } = {};
         const settingsNames: string[] = [];
 
-        for (const map of (pogoNameMappings as any).nameMappings) {
+        for (const map of pogoNameMappings.getAllLevels()) {
             for (const mode of map.modes) {
+                if (mode.custom || !mode.settingsName)
+                    continue;
                 modeMap[mode.settingsName] = mode.key;
                 settingsNames.push(mode.settingsName);
             }

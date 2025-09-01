@@ -10,11 +10,12 @@ import fs from "fs";
 import {userDataPathEnd} from "./paths";
 import path from "path";
 import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
+import {CustomModeHandler} from "./custom-mode-handler";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
-    private mode: number = -1;
-    private map: number = -1;
+    private mode: number = 0;
+    private map: number = 0;
     private recordedSplits: { split: number, time: number }[] = [];
     private finalTime: number = -1;
 
@@ -30,6 +31,7 @@ export class CurrentStateTracker {
     }
 
     public updateMapAndMode(map: number, mode: number): boolean {
+        mode = this.checkForCustomMode(mode)
         if (this.map !== map || this.mode !== mode) {
             this.map = map;
             this.mode = mode;
@@ -39,6 +41,27 @@ export class CurrentStateTracker {
             return true;
         }
         return false;
+    }
+
+    /**
+     * clears the custom mode if you changed from custom mode to sth else
+     * returns the now active mode (if you're playing custom mode it returns that)
+     */
+    private checkForCustomMode(mode: number) {
+        const customModeHandler = CustomModeHandler.getInstance()
+        const customModeInfo = customModeHandler.getCustomMode()
+        const isPlayingCustomMode = customModeHandler.isPlayingCustomMode()
+        const newModeIsNotCustom = !isPlayingCustomMode || (customModeInfo.underlyingMode !== mode)
+        log.debug(`Checking for custom mode. Current mode: ${this.mode}, new mode: ${mode}, isPlayingCustomMode: ${isPlayingCustomMode}, customModeInfo: ${JSON.stringify(customModeInfo)}, newModeIsNotCustom: ${newModeIsNotCustom}`);
+        if (newModeIsNotCustom) {
+            log.info(`No longer playing custom mode. Switched to mode ${mode}.`);
+            customModeHandler.clearCustomMode()
+        }
+        else {
+            log.info(`Detected custom mode! ${JSON.stringify(customModeInfo)}`);
+            return customModeInfo.customMode!
+        }
+        return mode;
     }
 
     public passedSplit(split: number, time: number, shouldSkip: boolean): {

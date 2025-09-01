@@ -6,6 +6,7 @@ export interface PogoLevel {
     modes: {
         key: number;
         name: string;
-        settingsName: string;
+        settingsName?: string; // Either custom or settingsName has to be set!
+        custom?: boolean;
     }[];
 }

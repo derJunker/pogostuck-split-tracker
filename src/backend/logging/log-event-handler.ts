@@ -11,6 +11,7 @@ import {resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
+import {CustomModeHandler} from "../data/custom-mode-handler";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     const stateTracker = CurrentStateTracker.getInstance();
@@ -25,10 +26,13 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         (match) => {
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
-            const modeNum = parseInt(mode);
-            log.debug(`Map or mode changed to ${mapNum}, ${modeNum} with run ${run}`);
+            let modeNum = parseInt(mode);
+            log.info(`Map or mode logged; map: ${mapNum}, mode: ${modeNum} with run: ${run}`);
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
             if (changed) {
+                modeNum = stateTracker.getCurrentMode();
+                // TODO next: fix crashes when custom mode selected and its trying to find gold splits etc.
+                //  (currently just manually add it)
                 resetOverlay(mapNum, modeNum, overlayWindow);
                 settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
             }

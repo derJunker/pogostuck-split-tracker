@@ -7,6 +7,7 @@ import {SettingsManager} from "../settings-manager";
 import {BrowserWindow, ipcMain} from "electron";
 import {ModeSplits} from "../../types/mode-splits";
 import {PogoLevel} from "../../types/pogo-index-mapping";
+import {CustomModeHandler} from "./custom-mode-handler";
 
 
 
@@ -27,20 +28,20 @@ export class UserDataReader {
 
     public readPbSplitsFromFile(configWindow?: BrowserWindow, overlayWindow?: BrowserWindow): ModeSplits[] {
         const fileContent = this.readSteamUserData(configWindow, overlayWindow)
-        const pogoNameMappings = PogoNameMappings.getInstance();
         if (!fileContent) {
             return [];
         }
+        const pogoNameMappings = PogoNameMappings.getInstance();
+        const customModeHandler = CustomModeHandler.getInstance();
         const lines = fileContent.split(/\r?\n/).filter(line => line.trim().length > 0);
         const modeMap: { [modeName: string]: number } = {};
         const settingsNames: string[] = [];
-
         for (const map of pogoNameMappings.getAllLevels()) {
             for (const mode of map.modes) {
-                if (mode.custom || !mode.settingsName)
+                if (customModeHandler.isCustomMode(map.mapIndex, mode.key))
                     continue;
-                modeMap[mode.settingsName] = mode.key;
-                settingsNames.push(mode.settingsName);
+                modeMap[mode.settingsName!] = mode.key;
+                settingsNames.push(mode.settingsName!);
             }
         }
 

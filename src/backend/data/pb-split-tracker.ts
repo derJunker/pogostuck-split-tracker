@@ -1,6 +1,8 @@
 import {UserDataReader} from "./user-data-reader";
 import {ModeSplits} from "../../types/mode-splits";
 import {BrowserWindow} from "electron";
+import log from "electron-log/main";
+import {CustomModeHandler} from "./custom-mode-handler";
 
 export class PbSplitTracker {
     private static instance: PbSplitTracker | null = null;
@@ -26,7 +28,7 @@ export class PbSplitTracker {
     public getPbSplitsForMode(mode: number): { split: number, time: number }[] {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);
         if (!modeSplits) {
-            console.warn(`No splits found for mode ${mode}`);
+            log.warn(`No splits found, when getting splits for mode ${mode}`);
             return [];
         }
         return modeSplits.times;
@@ -35,11 +37,12 @@ export class PbSplitTracker {
     public getPbTimeForSplit(mode: number, split: number) {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);
         if (!modeSplits) {
-            console.warn(`No splits found for mode ${mode}`);
+            log.warn(`No splits found, when getting pb time for split ${split} in mode ${mode}`);
             return -1;
         }
         const splitTime = modeSplits.times.find(s => s.split === split);
         if (!splitTime) {
+            // log.warn(`No split time found for split ${split} in mode ${mode}; however the mode was found.`);
             return -1;
         }
         return splitTime.time;
@@ -52,7 +55,7 @@ export class PbSplitTracker {
     public setSplitsForMode(mode: number, recordedSplits: { split: number; time: number }[]) {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);
         if (!modeSplits) {
-            console.warn(`No splits found for mode ${mode}, creating new entry.`);
+            log.warn(`No splits found for mode ${mode}, creating new entry.`);
             this.modeTimes.push({ mode, times: recordedSplits });
         } else {
             // keeping old ones but adding and overriding with new ones
@@ -67,6 +70,13 @@ export class PbSplitTracker {
 
     public updatePbSplitsFromFile(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
         const userDataReader = UserDataReader.getInstance()
-        this.modeTimes = userDataReader.readPbSplitsFromFile(configWindow, overlayWindow);
+        const customModeHandler = CustomModeHandler.getInstance();
+        const regularModeTimes = userDataReader.readPbSplitsFromFile(configWindow, overlayWindow);
+        const customModeTimes: ModeSplits[] = customModeHandler.getCustomModeInfos().map(cm => ({
+            mode: cm.modeIndex,
+            times: cm.modeTimes.map((time, index) => ({ split: index, time }))
+        }));
+        this.modeTimes = [...regularModeTimes, ...customModeTimes];
+        log.info(`Updated PB splits from file. Found splits for modes: ${this.modeTimes.map(m => m.mode).join(", " )}`);
     }
 }

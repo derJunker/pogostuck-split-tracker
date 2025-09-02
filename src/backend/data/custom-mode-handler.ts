@@ -75,7 +75,6 @@ export class CustomModeHandler {
         } else {
             this.customModes = this.createDefaultCustomModesFile();
         }
-        this.setCustomMode(0, 100, 0)
     }
 
     private createDefaultCustomModesFile() {

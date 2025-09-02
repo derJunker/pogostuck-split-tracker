@@ -83,6 +83,15 @@ app.on("ready", async () => {
             : {}),
     });
     configWindowState.manage(configWindow);
+    configWindow.on("moved", async () => {
+        log.debug(`config window moved, saving position: (${configWindow.getPosition().join(', ')})`);
+        configWindowState.saveState(configWindow)
+    })
+
+    configWindow.on("resized", async () => {
+        log.debug(`config window resized, saving size: (${configWindow.getSize().join(', ')})`);
+        configWindowState.saveState(configWindow)
+    })
     // configWindow.setMenu(null);
 
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");

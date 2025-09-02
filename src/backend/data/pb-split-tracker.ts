@@ -77,6 +77,5 @@ export class PbSplitTracker {
             times: cm.modeTimes.map((time, index) => ({ split: index, time }))
         }));
         this.modeTimes = [...regularModeTimes, ...customModeTimes];
-        log.info(`Updated PB splits from file. Found splits for modes: ${this.modeTimes.map(m => m.mode).join(", " )}`);
     }
 }

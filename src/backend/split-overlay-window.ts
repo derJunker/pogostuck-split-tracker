@@ -30,6 +30,9 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     const x = overlayState.x !== undefined ? overlayState.x : screen.getPrimaryDisplay().workArea.width - overlayWidth;
     const y = overlayState.y !== undefined ? overlayState.y : 0;
 
+    if (overlayState.x === undefined)
+        log.info(`No saved x pos, setting it to: ${x} (Primary display width: ${screen.getPrimaryDisplay().workArea.width})`);
+
     const overlayWindow = new BrowserWindow({
         width: overlayState.width,
         height: overlayState.height,
@@ -58,6 +61,14 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     })
 
     overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
+    overlayWindow.on("moved", async () => {
+        log.debug(`overlay window moved, saving position: (${overlayWindow.getPosition().join(', ')})`);
+        overlayState.saveState(overlayWindow)
+    })
+    overlayWindow.on("resized", async () => {
+        log.debug(`overlay window resized, saving size: (${overlayWindow.getSize().join(', ')})`);
+        overlayState.saveState(overlayWindow)
+    })
     overlayWindow.on('close', () => {
         log.info(`Closing overlay window at position (${overlayWindow.getPosition().join(', ')}) with size (${overlayWindow.getSize().join(', ')})`);
         overlayState.saveState(overlayWindow)

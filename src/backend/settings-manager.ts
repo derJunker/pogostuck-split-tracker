@@ -18,7 +18,6 @@ import {pogoLogName, userDataPathEnd} from "./data/paths";
 import log from "electron-log/main";
 import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
-import {UserDataReader} from "./data/user-data-reader";
 import {execSync} from "child_process";
 import {Split} from "../types/mode-splits";
 
@@ -259,6 +258,12 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings;
         });
+
+        ipcMain.handle('tab-changed', (event, tabId: string) => {
+            log.debug(`Tab Changed to ${tabId}`);
+            this.currentSettings.lastOpenedTab = tabId;
+            this.saveSettings();
+        })
     }
 
     public getSplitIndexPath( mode: number, splitAmount: number ): Split[] {
@@ -335,7 +340,7 @@ export class SettingsManager {
                 skippedSplits: [],
 
                 launchPogoOnStartup: false,
-                language: "ja"
+                language: "ja",
             };
         }
     }
@@ -440,6 +445,10 @@ export class SettingsManager {
 
     public raceGoldSplits() {
         return this.currentSettings.raceGoldSplits;
+    }
+
+    public lastOpenedTab(): string {
+        return this.currentSettings.lastOpenedTab ?? "setup-guide";
     }
 
     public updatePogoPath(pogoPath: string, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {

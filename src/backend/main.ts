@@ -83,11 +83,11 @@ app.on("ready", async () => {
             : {}),
     });
     configWindowState.manage(configWindow);
+
     configWindow.on("moved", async () => {
         log.debug(`config window moved, saving position: (${configWindow.getPosition().join(', ')})`);
         configWindowState.saveState(configWindow)
     })
-
     configWindow.on("resized", async () => {
         log.debug(`config window resized, saving size: (${configWindow.getSize().join(', ')})`);
         configWindowState.saveState(configWindow)
@@ -122,8 +122,6 @@ app.on("ready", async () => {
     userDataReader.initListeners();
     initWindows11Listeners();
 
-
-    ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth
     configWindow.on('close', () => {
         log.info(`Closing config window at position (${configWindow.getPosition().join(', ')}) with size (${configWindow.getSize().join(', ')})`);
@@ -152,5 +150,6 @@ app.on("ready", async () => {
 
     ipcMain.handle('get-version', () => VERSION)
 
-
+    ipcMain.handle('get-selected-tab', () => settingsManager.lastOpenedTab())
+    ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
 });

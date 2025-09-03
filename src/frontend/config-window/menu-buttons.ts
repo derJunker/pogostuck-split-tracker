@@ -37,12 +37,13 @@ export function initMenuNavListeners() {
                 }
             });
             showTimeout = setTimeout(() => {
-                contentDivs.forEach(div => {
+                contentDivs.forEach(async div => {
                     const htmlDiv = div as HTMLElement;
                     if (div.id === btn.id.replace('-btn', '-content')) {
                         htmlDiv.style.display = '';
                         void htmlDiv.offsetWidth;
                         htmlDiv.classList.remove('hide');
+                        void window.electronAPI.tabChanged(btn.id.replace('-btn', ''))
                     }
                 });
             }, 300);
@@ -50,6 +51,12 @@ export function initMenuNavListeners() {
     });
 
     addTabLinkListeners()
+
+    window.electronAPI.getSelectedTab().then(tab => {
+        if (tab.length === 0) return;
+        const button = (document.querySelector(`#${tab}-btn`) as HTMLButtonElement | null);
+        button?.click()
+    });
 }
 
 function addTabLinkListeners() {

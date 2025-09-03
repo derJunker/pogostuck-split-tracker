@@ -14,6 +14,7 @@ declare global { interface Window {
         // overlay querying to backend
         loadSettings: () => Promise<Settings>;
         getMappings: () => Promise<PogoLevel[]>;
+        getSelectedTab: () => Promise<string>;
         getPbs: () => Promise<{mode: number, time: number}[]>;
 
         // overlay subscribing to backend events
@@ -47,6 +48,9 @@ declare global { interface Window {
         onEnableBackgroundColorChanged: (enable: boolean) => Promise<Settings>;
         onBackgroundColorChanged: (color: string) => Promise<Settings>;
         onLanguageChanged: (language: string) => Promise<Settings>;
+        tabChanged: (tabId: string) => Promise<void>; // Dont have to return settings, because the frontend doesnt
+        // need to save this, its only needed for the startup
+
 
         // config querying backend
         isWindows11: () => Promise<boolean>;
@@ -68,7 +72,7 @@ declare global { interface Window {
         onSteamPathFound: (callback: (event: Electron.IpcRendererEvent, path: string) => void) => void;
         onSteamFriendCodeFound: (callback: (event: Electron.IpcRendererEvent, code: string) => void) => void;
         onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => void;
-
+        selectTab: (callback: (event: Electron.IpcRendererEvent, tab: string) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;

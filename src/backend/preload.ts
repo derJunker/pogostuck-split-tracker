@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // overlay querying to backend
     loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
     getMappings: (): Promise<PogoLevel[]> => ipcRenderer.invoke('get-mappings'),
+    getSelectedTab: (): Promise<string> => ipcRenderer.invoke('get-selected-tab'),
     getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
 
     // overlay subscribing to backend events
@@ -39,6 +40,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onEnableBackgroundColorChanged: (enable: boolean) => ipcRenderer.invoke('enable-background-color-changed', enable),
     onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
     onLanguageChanged: (language: string): Promise<Settings> => ipcRenderer.invoke('language-changed', language),
+    tabChanged: (tabId: string): Promise<void> =>  ipcRenderer.invoke('tab-changed', tabId),
+
 
     // config querying backend
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),

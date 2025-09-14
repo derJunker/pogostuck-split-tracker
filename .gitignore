@@ -140,3 +140,5 @@ dist
 /.idea/vcs.xml
 /.idea/material_theme_project_new.xml
 /.idea/compiler.xml
+/.idea/copilot.data.migration.agent.xml
+/.idea/copilot.data.migration.edit.xml

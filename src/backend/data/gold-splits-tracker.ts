@@ -105,7 +105,16 @@ export class GoldSplitsTracker {
     }
 
     public updateGoldSplit(modeIndex: number, from: number, to: number, newTime: number): void {
-        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
+        let modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
+        if (!modeSplits) {
+            this.goldenSplits.push({
+                modeIndex,
+                pb: Infinity,
+                goldenSplits: []
+            });
+            modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex)!;
+            log.info(`No golden splits found for mode ${modeIndex}, creating new entry.`);
+        }
         const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to);
         this.changed = true;
         if (index !== -1) {

@@ -4,14 +4,9 @@ import {PbRunInfoAndSoB} from "../types/global";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import IpcRendererEvent = Electron.IpcRendererEvent;
 import {VERSION} from "../version";
+import {CustomModeInfo} from "./data/custom-mode-handler";
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    // overlay querying to backend
-    loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
-    getMappings: (): Promise<PogoLevel[]> => ipcRenderer.invoke('get-mappings'),
-    getSelectedTab: (): Promise<string> => ipcRenderer.invoke('get-selected-tab'),
-    getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
-
     // overlay subscribing to backend events
     mainMenuOpened: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('main-menu-opened', callback),
     resetOverlay: (callback: (event: IpcRendererEvent, mapAndMode: PbRunInfoAndSoB) => void) => ipcRenderer.on('reset-overlay', callback),
@@ -41,6 +36,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
     onLanguageChanged: (language: string): Promise<Settings> => ipcRenderer.invoke('language-changed', language),
     tabChanged: (tabId: string): Promise<void> =>  ipcRenderer.invoke('tab-changed', tabId),
+    onCreateCustomMode: (map: number): Promise<number> => ipcRenderer.invoke('create-custom-mode', map),
+    onCustomModeSave: (modeIndex: number, newName: string): Promise<PogoLevel[]> => ipcRenderer.invoke('save-custom-mode-name', modeIndex, newName),
+    onPlayCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('play-custom-mode', modeIndex),
+    onDeleteCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('delete-custom-mode', modeIndex),
 
 
     // config querying backend
@@ -53,6 +52,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openAppdataExplorer: (): Promise<void> => ipcRenderer.invoke('open-appdata-explorer'),
     getRecentLogs: (): Promise<string> => ipcRenderer.invoke('recent-logs'),
     getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),
+    loadSettings: (): Promise<Settings> => ipcRenderer.invoke('load-settings'),
+    getMappings: (): Promise<PogoLevel[]> => ipcRenderer.invoke('get-mappings'),
+    getSelectedTab: (): Promise<string> => ipcRenderer.invoke('get-selected-tab'),
+    getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
+    getCustomModes: (): Promise<CustomModeInfo[]> => ipcRenderer.invoke('get-custom-modes'),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),

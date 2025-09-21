@@ -543,3 +543,12 @@ footer {
     top: 50%;
     transform: translateY(-50%);
 }
+
+#custom-mode-name-container {
+    display: flex;
+    gap: .4rem;
+}
+
+#custom-mode-name {
+    width: 75%;
+}

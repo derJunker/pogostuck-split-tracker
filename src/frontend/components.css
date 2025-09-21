@@ -125,6 +125,13 @@ button.inverted[disabled] {
     cursor: not-allowed;
 }
 
+button[disabled] {
+    background: dimgray;
+    color: darkgray;
+    border: var(--border-width) solid dimgray;
+    cursor: not-allowed;
+}
+
 /* Checkbox Styles */
 input[type="checkbox"] {
     display: none;

@@ -1,4 +1,8 @@
-import {getFrontendSettings, updateFrontendMappings, updateFrontendSettings} from "./backend-state-handler";
+import {
+    getFrontendSettings,
+    loadBackendMappings,
+    updateFrontendSettings
+} from "./backend-state-handler";
 import {updateSplitsAndGolds} from "./splits-tab-handler";
 
 const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
@@ -83,7 +87,7 @@ clickThroughOverlayCheckbox.addEventListener('change', async (e) => {
 splitNamingSelect.addEventListener('change', async (e) => {
     const value = (e.target as HTMLSelectElement).value === 'new';
     updateFrontendSettings(await window.electronAPI.onOptionShowNewSplitNamesChanged(value))
-    updateFrontendMappings(await window.electronAPI.getMappings())
+    await loadBackendMappings()
     await updateSplitsAndGolds()
 });
 

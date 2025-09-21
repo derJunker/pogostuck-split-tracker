@@ -4,7 +4,7 @@ import fs from "fs";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
-interface CustomModeInfo {
+export interface CustomModeInfo {
     map: number,
     modeIndex: number,
     modeTimes: number[]

@@ -21,6 +21,7 @@ import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import fs from "fs";
 import {BackupGoldSplitTracker} from "./data/backup-gold-split-tracker";
+import {CustomModeHandler} from "./data/custom-mode-handler";
 
 log.initialize();
 log.info(`Junker's Split Tracker v${VERSION} is starting...`);
@@ -152,4 +153,5 @@ app.on("ready", async () => {
 
     ipcMain.handle('get-selected-tab', () => settingsManager.lastOpenedTab())
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
+    ipcMain.handle("get-custom-modes", () => CustomModeHandler.getInstance().getCustomModeInfos())
 });

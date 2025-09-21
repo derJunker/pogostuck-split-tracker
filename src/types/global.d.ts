@@ -11,12 +11,6 @@ export interface PbRunInfoAndSoB {
 
 declare global { interface Window {
     electronAPI: {
-        // overlay querying to backend
-        loadSettings: () => Promise<Settings>;
-        getMappings: () => Promise<PogoLevel[]>;
-        getSelectedTab: () => Promise<string>;
-        getPbs: () => Promise<{mode: number, time: number}[]>;
-
         // overlay subscribing to backend events
         mainMenuOpened: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         resetOverlay: (callback: (event: Electron.IpcRendererEvent,
@@ -50,6 +44,11 @@ declare global { interface Window {
         onLanguageChanged: (language: string) => Promise<Settings>;
         tabChanged: (tabId: string) => Promise<void>; // Dont have to return settings, because the frontend doesnt
         // need to save this, its only needed for the startup
+        // TODO impl these in backend
+        onCreateCustomMode: (map: number) => Promise<number>;
+        onCustomModeSave: (modeIndex: number, newName: string) => Promise<PogoLevel[]>;
+        onPlayCustomMode: (modeIndex: number) => Promise<void>;
+        onDeleteCustomMode: (modeIndex: number) => Promise<void>;
 
 
         // config querying backend
@@ -62,6 +61,11 @@ declare global { interface Window {
         openAppdataExplorer: () => Promise<void>;
         getRecentLogs: () => Promise<string>;
         getVersion: () => Promise<string>;
+        loadSettings: () => Promise<Settings>;
+        getMappings: () => Promise<PogoLevel[]>;
+        getSelectedTab: () => Promise<string>;
+        getPbs: () => Promise<{mode: number, time: number}[]>;
+        getCustomModes: () => Promise<{map: number, modeIndex: number, modeTimes: number[]}[]>;
 
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;

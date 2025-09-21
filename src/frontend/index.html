@@ -25,6 +25,10 @@
                     <span lang="en" style="display: none">PBs</span>
                     <span lang="ja" style="display: none">PBs</span>
                 </button>
+                <button id="custom-modes-btn" class="menu-btn">
+                    <span lang="en" style="display: none">Custom Modes</span>
+                    <span lang="ja" style="display: none">カスタムモード</span>
+                </button>
                 <button id="paths-btn" class="menu-btn">
                     <span lang="en" style="display: none">Paths</span>
                     <span lang="ja" style="display: none">パス</span>
@@ -313,8 +317,6 @@
                         <div class="dropdown-container">
                             <label for="mode-select">Mode: </label>
                             <select id="mode-select" class="dropdown">
-                                <option value="new">Regular</option>
-                                <option value="old">Skipless</option>
                             </select>
                             <span class="dropdown-arrow">
                             <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
@@ -393,6 +395,52 @@
                 </div>
                 <div id="pbs-content" class="menu-content">
 
+                </div>
+                <div id="custom-modes-content" class="menu-content">
+                    <div id="custom-modes-selection">
+                        <div class="dropdown-container">
+                            <label for="regular-map-select">Map: </label>
+                            <select id="regular-map-select" class="dropdown">
+                            </select>
+                            <span class="dropdown-arrow">
+                            <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                        </span>
+                        </div>
+                        <div class="dropdown-container">
+                            <label for="custom-mode-select">Mode: </label>
+                            <select id="custom-mode-select" class="dropdown">
+                                <option value="" disabled selected hidden></option>
+                                <option>+</option>
+                            </select>
+                            <span class="dropdown-arrow">
+                            <img src="assets/dropdown-arrow.svg" alt="Dropdown Arrow"/>
+                        </span>
+                        </div>
+                    </div>
+                    <div id="custom-mode-name-container">
+                        <label for="custom-mode-name">
+                            <span lang="en" style="display: none">Name:</span>
+                            <span lang="ja" style="display: none">名前:</span>
+                        </label>
+                        <input id="custom-mode-name" type="text"/>
+                        <button id="save-custom-mode">
+                            <img src="./assets/diskette.png" alt="Save Icon">
+                        </button>
+                    </div>
+                    <div>
+                        <button id="delete-custom-mode" class="inverted">
+                            <span lang="en">Delete</span>
+                            <span lang="ja">削除</span>
+                        </button>
+                        <button id="play-custom-mode">
+                            <span lang="en">Play</span>
+                            <span lang="ja">プレイ</span>
+                        </button>
+                        <button id="stop-custom-mode" class="inverted" style="display: none">
+                            <span lang="en">Stop</span>
+                            <span lang="ja">停止</span>
+                        </button>
+                    </div>
                 </div>
                 <div id="paths-content" class="menu-content">
                     <div class="text-input-container">

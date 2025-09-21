@@ -38,7 +38,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     tabChanged: (tabId: string): Promise<void> =>  ipcRenderer.invoke('tab-changed', tabId),
     onCreateCustomMode: (map: number): Promise<number> => ipcRenderer.invoke('create-custom-mode', map),
     onCustomModeSave: (modeIndex: number, newName: string): Promise<PogoLevel[]> => ipcRenderer.invoke('save-custom-mode-name', modeIndex, newName),
-    onPlayCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('play-custom-mode', modeIndex),
+    onPlayCustomMode: (modeIndex: number): Promise<boolean> => ipcRenderer.invoke('play-custom-mode', modeIndex),
     onDeleteCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('delete-custom-mode', modeIndex),
 
 
@@ -68,4 +68,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onSteamPathFound: (callback: (event: IpcRendererEvent, path: string) => void) => ipcRenderer.on('steam-user-data-path-found', callback),
     onSteamFriendCodeFound: (callback: (event: IpcRendererEvent, code: string) => void) => ipcRenderer.on('steam-friend-code-found', callback),
     onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => ipcRenderer.on('new-release-available', callback),
+    onCustomModeStopped: (callback: (event: Electron.IpcRendererEvent) => void) => ipcRenderer.on('custom-mode-stopped', callback),
 });

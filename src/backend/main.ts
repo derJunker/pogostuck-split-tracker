@@ -6,7 +6,6 @@ import {app, BrowserWindow, ipcMain, shell} from "electron";
 import {registerLogEventHandlers} from "./logging/log-event-handler";
 import {openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "./data/current-state-tracker";
-import {initMappings} from "./file-reading/create-index-mappings";
 import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./file-reading/read-golden-splits";
@@ -22,6 +21,7 @@ import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-
 import fs from "fs";
 import {BackupGoldSplitTracker} from "./data/backup-gold-split-tracker";
 import {CustomModeHandler} from "./data/custom-mode-handler";
+import {PogoNameMappings} from "./data/pogo-name-mappings";
 
 log.initialize();
 log.info(`Junker's Split Tracker v${VERSION} is starting...`);
@@ -35,7 +35,7 @@ if (!ActiveWindow.requestPermissions()) {
 let configWindow: BrowserWindow;
 let overlayWindow: BrowserWindow;
 
-const indexToNamesMappings = initMappings();
+const indexToNamesMappings = PogoNameMappings.getInstance();
 const userDataReader = UserDataReader.getInstance();
 const goldSplitsTracker = GoldSplitsTracker.getInstance(readGoldenSplits())
 writeGoldenSplits()
@@ -107,6 +107,7 @@ app.on("ready", async () => {
     });
 
     overlayWindow = openOverlayWindow(configWindow);
+    CustomModeHandler.getInstance(overlayWindow, configWindow)
     settingsManager.initListeners(overlayWindow, configWindow)
     CurrentStateTracker.getInstance().updatePathsValidity()
     initLaunchPogoListener();

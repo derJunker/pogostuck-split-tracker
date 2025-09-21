@@ -28,7 +28,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const mapNum = parseInt(map);
             let modeNum = parseInt(mode);
             log.info(`Map or mode logged; map: ${mapNum}, mode: ${modeNum} with run: ${run}`);
-            const changed = stateTracker.updateMapAndMode(mapNum, modeNum);
+            const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
             if (changed) {
                 modeNum = stateTracker.getCurrentMode();
                 // TODO next: fix crashes when custom mode selected and its trying to find gold splits etc.
@@ -132,7 +132,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         /levelLoadMenu - START at frame/,
         (match) => {
             overlayWindow.webContents.send("main-menu-opened")
-
+            stateTracker.updateMapAndMode(-1, -1, configWindow)
         }
     );
 
@@ -144,6 +144,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             if(settingsManager.hideWindowWhenPogoNotActive())
                 overlayWindow.hide()
             overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"
+            stateTracker.updateMapAndMode(-1, -1, configWindow)
         }
     )
 }

@@ -44,10 +44,9 @@ declare global { interface Window {
         onLanguageChanged: (language: string) => Promise<Settings>;
         tabChanged: (tabId: string) => Promise<void>; // Dont have to return settings, because the frontend doesnt
         // need to save this, its only needed for the startup
-        // TODO impl these in backend
         onCreateCustomMode: (map: number) => Promise<number>;
         onCustomModeSave: (modeIndex: number, newName: string) => Promise<PogoLevel[]>;
-        onPlayCustomMode: (modeIndex: number) => Promise<void>;
+        onPlayCustomMode: (modeIndex: number) => Promise<boolean>;
         onDeleteCustomMode: (modeIndex: number) => Promise<void>;
 
 
@@ -77,6 +76,7 @@ declare global { interface Window {
         onSteamFriendCodeFound: (callback: (event: Electron.IpcRendererEvent, code: string) => void) => void;
         onNewReleaseAvailable: (callback: (event: Electron.IpcRendererEvent, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => void) => void;
         selectTab: (callback: (event: Electron.IpcRendererEvent, tab: string) => void) => void;
+        onCustomModeStopped: (callback: (event: Electron.IpcRendererEvent) => void) => void;
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;

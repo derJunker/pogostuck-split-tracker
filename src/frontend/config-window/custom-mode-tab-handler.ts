@@ -11,6 +11,7 @@ let customModeNameInput: HTMLInputElement;
 let saveNameButton: HTMLButtonElement;
 let playButton: HTMLButtonElement;
 let deleteButton: HTMLButtonElement;
+let stopButton: HTMLButtonElement;
 
 export function initializeCustomModeTabHandler() {
     mapSelect = document.getElementById("regular-map-select") as HTMLSelectElement;
@@ -19,6 +20,7 @@ export function initializeCustomModeTabHandler() {
     saveNameButton = document.getElementById("save-custom-mode") as HTMLButtonElement;
     playButton = document.getElementById("play-custom-mode") as HTMLButtonElement;
     deleteButton = document.getElementById("delete-custom-mode") as HTMLButtonElement;
+    stopButton = document.getElementById("stop-custom-mode") as HTMLButtonElement;
 
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (e) => {
@@ -31,6 +33,11 @@ export function initializeCustomModeTabHandler() {
     saveNameButton.addEventListener("click", () => onSaveName(customModeNameInput.value));
     playButton.addEventListener("click", () => onPlayCustomMode(parseInt(modeSelect.value)));
     deleteButton.addEventListener("click", () => onDeleteCustomMode(parseInt(modeSelect.value)));
+    stopButton.addEventListener("click", () => onStopCustomMode(parseInt(modeSelect.value)));
+
+    window.electronAPI.onCustomModeStopped(() => {
+        showPlayButton(true)
+    });
 
     loadLevelsFromMapping()
     loadCustomModesForMap();
@@ -112,10 +119,31 @@ async function onSaveName(name: string) {
     updateFrontendMappings(await window.electronAPI.onCustomModeSave(parseInt(modeSelect.value), name))
 }
 function onPlayCustomMode(mode: number) {
-    __electronLog.debug("[Frontend] Play custom mode", mode);
-    window.electronAPI.onPlayCustomMode(mode).then(r => {});
+    window.electronAPI.onPlayCustomMode(mode).then(validChange => {
+        if (validChange) {
+            showPlayButton(false)
+        }
+    });
+}
+
+function onStopCustomMode(mode: number) {
+    window.electronAPI.onPlayCustomMode(-1).then(validChange => {
+        if (validChange) {
+            showPlayButton(true)
+        }
+    })
 }
 function onDeleteCustomMode(mode: number) {
     __electronLog.debug("[Frontend] Delete custom mode", mode);
     window.electronAPI.onDeleteCustomMode(mode).then(r => {});
+}
+
+function showPlayButton(boolean: boolean) {
+    if (boolean) {
+        playButton.style.display = 'inline';
+        stopButton.style.display = 'none';
+    } else {
+        playButton.style.display = 'none';
+        stopButton.style.display = 'inline';
+    }
 }

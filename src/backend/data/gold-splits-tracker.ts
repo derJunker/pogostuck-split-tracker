@@ -296,4 +296,13 @@ export class GoldSplitsTracker {
     public changeSaved() {
         this.changed = false;
     }
+
+    public deleteModeIfExists(modeIndex: number) {
+        const modeIndexInGoldSplits = this.goldenSplits.findIndex(gs => gs.modeIndex === modeIndex);
+        if (modeIndexInGoldSplits !== -1) {
+            this.goldenSplits.splice(modeIndexInGoldSplits, 1);
+            this.changed = true;
+            log.info(`Deleted gold splits for mode ${modeIndex}`);
+        }
+    }
 }

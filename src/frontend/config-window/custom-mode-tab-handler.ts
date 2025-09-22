@@ -1,9 +1,11 @@
 import {
     getFrontendCustomModes,
     getFrontendMappings,
-    loadBackendCustomModes, updateFrontendMappings,
+    loadBackendCustomModes, loadBackendPbs, loadSettingsAndMappingsFromBackend, updateFrontendMappings,
     updateFrontendSettings
 } from "./backend-state-handler";
+import {addEmptyPbInputFields, setPbValuesToInputs} from "./pb-tab-handler";
+import {loadLevelsFromMappingSplitTab, updateModesForLevel, updateSplitsAndGolds} from "./splits-tab-handler";
 
 let mapSelect: HTMLSelectElement;
 let modeSelect: HTMLSelectElement;
@@ -12,6 +14,8 @@ let saveNameButton: HTMLButtonElement;
 let playButton: HTMLButtonElement;
 let deleteButton: HTMLButtonElement;
 let stopButton: HTMLButtonElement;
+let buttonsContainer: HTMLDivElement;
+let nameContainer: HTMLDivElement;
 
 export function initializeCustomModeTabHandler() {
     mapSelect = document.getElementById("regular-map-select") as HTMLSelectElement;
@@ -21,6 +25,8 @@ export function initializeCustomModeTabHandler() {
     playButton = document.getElementById("play-custom-mode") as HTMLButtonElement;
     deleteButton = document.getElementById("delete-custom-mode") as HTMLButtonElement;
     stopButton = document.getElementById("stop-custom-mode") as HTMLButtonElement;
+    buttonsContainer = document.getElementById("custom-mode-name-container") as HTMLDivElement;
+    nameContainer = document.getElementById("custom-mode-btns") as HTMLDivElement;
 
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (e) => {
@@ -92,16 +98,25 @@ function onMapChange() {
 
 async function onModeCreate() {
     playButton.disabled = true;
-    const modeIndex = await window.electronAPI.onCreateCustomMode(Number.parseInt(mapSelect.value));
-    customModeNameInput.value = `Mode ${modeIndex}`;
-    await loadBackendCustomModes();
+    const modeInfo = await window.electronAPI.onCreateCustomMode(Number.parseInt(mapSelect.value));
+    customModeNameInput.value = modeInfo.name;
+    await loadSettingsAndMappingsFromBackend()
+    await loadBackendPbs();
+    await loadBackendCustomModes()
     loadCustomModesForMap();
-    modeSelect.value = modeIndex.toString();
+    modeSelect.value = modeInfo.index.toString();
     onModeChange();
+    await updateOtherTabs();
 }
 
 function onModeChange() {
-    if (modeSelect.value.length === 0) return;
+    __electronLog.info(`Mode changed to ${modeSelect.value}`);
+    if (modeSelect.value.length === 0) {
+        customModeNameInput.value = "";
+        buttonsContainer.style.display = 'none';
+        nameContainer.style.display = 'none';
+        return;
+    }
     const selectedModeIndex = parseInt(modeSelect.value);
     const selectedMapIndex = parseInt(mapSelect.value);
     const customMode = getFrontendCustomModes().find(cm => cm.map === selectedMapIndex && cm.modeIndex === selectedModeIndex);
@@ -109,14 +124,24 @@ function onModeChange() {
         customModeNameInput.value = getFrontendMappings().find(m => m.mapIndex === selectedMapIndex)?.modes.find(m => m.key === customMode.modeIndex)?.name || `Mode ${customMode.modeIndex}`;
         playButton.disabled = false;
         deleteButton.disabled = false;
+        buttonsContainer.style.display = 'flex';
+        nameContainer.style.display = 'flex';
     } else {
         customModeNameInput.value = "";
+        buttonsContainer.style.display = 'none';
+        nameContainer.style.display = 'none';
     }
 }
 
 async function onSaveName(name: string) {
     __electronLog.debug("[Frontend] Save name", name);
+    const previousIndex = modeSelect.selectedIndex;
+    __electronLog.debug(`[Frontend] previous index: ${previousIndex}, value: ${modeSelect.value}`);
     updateFrontendMappings(await window.electronAPI.onCustomModeSave(parseInt(modeSelect.value), name))
+    await updateOtherTabs();
+    loadCustomModesForMap()
+    modeSelect.selectedIndex = previousIndex;
+    onModeChange();
 }
 function onPlayCustomMode(mode: number) {
     window.electronAPI.onPlayCustomMode(mode).then(validChange => {
@@ -133,9 +158,30 @@ function onStopCustomMode(mode: number) {
         }
     })
 }
-function onDeleteCustomMode(mode: number) {
+async function onDeleteCustomMode(mode: number) {
     __electronLog.debug("[Frontend] Delete custom mode", mode);
-    window.electronAPI.onDeleteCustomMode(mode).then(r => {});
+    const previousIndex = modeSelect.selectedIndex;
+    await window.electronAPI.onDeleteCustomMode(mode);
+    await loadSettingsAndMappingsFromBackend()
+    await loadBackendPbs();
+    await loadBackendCustomModes()
+    loadCustomModesForMap()
+
+    await updateOtherTabs()
+
+    modeSelect.selectedIndex = Math.max(previousIndex - 1, 1);
+    onModeChange();
+}
+
+async function updateOtherTabs() {
+    // Pb Tab
+    addEmptyPbInputFields();
+    setPbValuesToInputs();
+
+    // Splits tab
+    loadLevelsFromMappingSplitTab()
+    updateModesForLevel()
+    await updateSplitsAndGolds()
 }
 
 function showPlayButton(boolean: boolean) {

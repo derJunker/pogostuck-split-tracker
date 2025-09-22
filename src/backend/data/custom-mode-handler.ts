@@ -6,6 +6,10 @@ import {PogoNameMappings} from "./pogo-name-mappings";
 import {CurrentStateTracker} from "./current-state-tracker";
 import {resetOverlay} from "../split-overlay-window";
 import log from "electron-log/main";
+import {GoldPaceTracker} from "./gold-pace-tracker";
+import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
+import {GoldSplitsTracker} from "./gold-splits-tracker";
+import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
@@ -90,13 +94,13 @@ export class CustomModeHandler {
     }
 
     private initCustomModeFrontendListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
-        ipcMain.handle('create-custom-mode', async (event, map: number) => this.createCustomMode(map));
-        ipcMain.handle('save-custom-mode-name', async (event, modeIndex: number, newName: string) => this.saveCustomModeName(modeIndex, newName, configWindow));
-        ipcMain.handle('play-custom-mode', async (event, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
-        ipcMain.handle('delete-custom-mode', async (event, modeIndex: number) => this.deleteCustomMode(modeIndex));
+        ipcMain.handle('create-custom-mode', async (_, map: number) => this.createCustomMode(map, configWindow));
+        ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => this.saveCustomModeName(modeIndex, newName, configWindow));
+        ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
+        ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow));
     }
 
-    private createCustomMode(map: number): number {
+    private createCustomMode(map: number, configWindow: BrowserWindow): { index: number, name: string } {
         let newModeIndex = 100;
         let found = false;
         while (!found) {
@@ -113,7 +117,9 @@ export class CustomModeHandler {
         };
         this.customModes.push(newCustomMode);
         this.saveCustomModesToFile()
-        return newModeIndex;
+        const name = `Mode ${newModeIndex}`;
+        this.saveCustomModeName(newModeIndex, name, configWindow);
+        return { index: newModeIndex, name: name };
     }
 
     private saveCustomModeName(modeIndex: number, newName: string, configWindow: BrowserWindow): PogoLevel[] {
@@ -155,9 +161,22 @@ export class CustomModeHandler {
         return true;
     }
 
-    private deleteCustomMode(modeIndex: number): void {
+    private deleteCustomMode(modeIndex: number, configWindow: BrowserWindow): void {
+        const prevLength = this.customModes.length;
         this.customModes = this.customModes.filter(cm => cm.modeIndex !== modeIndex);
+        if (this.customModes.length === prevLength) {
+            console.error(`Custom mode with index ${modeIndex} not found, cannot delete`);
+            return;
+        }
         this.saveCustomModesToFile();
+
+        PogoNameMappings.getInstance().deleteMapping(modeIndex);
+        GoldPaceTracker.getInstance().deleteModeIfExists(modeIndex);
+
+        writeGoldPacesIfChanged(configWindow)
+        GoldSplitsTracker.getInstance().deleteModeIfExists(modeIndex);
+
+        writeGoldSplitsIfChanged(configWindow)
     }
 
     private createDefaultCustomModesFile() {
@@ -185,6 +204,7 @@ export class CustomModeHandler {
     private saveCustomModesToFile() {
         try {
             fs.writeFileSync(customModesPath, JSON.stringify(this.customModes, null, 4), 'utf-8');
+            log.info(`Custom modes saved to ${customModesPath}`);
         } catch (error) {
             console.error("Error saving custom modes file:", error);
         }

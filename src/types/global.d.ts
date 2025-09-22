@@ -44,7 +44,7 @@ declare global { interface Window {
         onLanguageChanged: (language: string) => Promise<Settings>;
         tabChanged: (tabId: string) => Promise<void>; // Dont have to return settings, because the frontend doesnt
         // need to save this, its only needed for the startup
-        onCreateCustomMode: (map: number) => Promise<number>;
+        onCreateCustomMode: (map: number) => Promise<{ index: number, name: string }>;
         onCustomModeSave: (modeIndex: number, newName: string) => Promise<PogoLevel[]>;
         onPlayCustomMode: (modeIndex: number) => Promise<boolean>;
         onDeleteCustomMode: (modeIndex: number) => Promise<void>;

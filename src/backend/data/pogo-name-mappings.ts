@@ -58,12 +58,14 @@ export class PogoNameMappings {
             return;
         }
 
-        const mode = map.modes.find(m => m.key === modeIndex);
+        let mode = map.modes.find(m => m.key === modeIndex);
         if (!mode) {
             log.info(`Mode with index ${modeIndex} not found for map ${map.levelName}`);
-            return;
+            mode = { key: modeIndex, name: newName };
+            map.modes.push(mode);
+        } else {
+            mode.name = newName;
         }
-        mode.name = newName;
         this.saveMappingsToFile();
     }
 
@@ -95,6 +97,21 @@ export class PogoNameMappings {
         } catch (error) {
             log.error(`Something went wrong loading your mappings from ${mappingsPath}, using default mappings instead. Error:`, error);
             return defaultMappings;
+        }
+    }
+
+    public deleteMapping(modeIndex: number) {
+        let modified = false;
+        this.nameMappings.forEach(map => {
+            const modeIndexInMap = map.modes.findIndex(m => m.key === modeIndex);
+            if (modeIndexInMap !== -1) {
+                map.modes.splice(modeIndexInMap, 1);
+                modified = true;
+            }
+        });
+        if (modified) {
+            this.saveMappingsToFile();
+            log.info(`Deleted mode ${modeIndex} from mappings`);
         }
     }
 }

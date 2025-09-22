@@ -36,7 +36,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
     onLanguageChanged: (language: string): Promise<Settings> => ipcRenderer.invoke('language-changed', language),
     tabChanged: (tabId: string): Promise<void> =>  ipcRenderer.invoke('tab-changed', tabId),
-    onCreateCustomMode: (map: number): Promise<number> => ipcRenderer.invoke('create-custom-mode', map),
+    onCreateCustomMode: (map: number): Promise<{ index: number, name: string }> => ipcRenderer.invoke('create-custom-mode', map),
     onCustomModeSave: (modeIndex: number, newName: string): Promise<PogoLevel[]> => ipcRenderer.invoke('save-custom-mode-name', modeIndex, newName),
     onPlayCustomMode: (modeIndex: number): Promise<boolean> => ipcRenderer.invoke('play-custom-mode', modeIndex),
     onDeleteCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('delete-custom-mode', modeIndex),

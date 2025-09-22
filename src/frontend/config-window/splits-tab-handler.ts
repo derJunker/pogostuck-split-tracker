@@ -10,7 +10,7 @@ export async function initSplitsTab() {
     mapSelect = document.getElementById('map-select') as HTMLSelectElement;
     modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
 
-    loadLevelsFromMapping()
+    loadLevelsFromMappingSplitTab()
     updateModesForLevel()
     await updateSplitsAndGolds()
     mapSelect.addEventListener('change', async () => {
@@ -35,7 +35,7 @@ export async function reloadGoldSplitsIfModeActive(mode: number) {
 }
 
 
-function updateModesForLevel() {
+export function updateModesForLevel() {
     if (!mapSelect || !modeSelect) return;
     const mappings = getFrontendMappings();
     const selectedMapIndex = parseInt(mapSelect.value, 10);
@@ -66,7 +66,7 @@ function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, 
     splitSelectionDiv.appendChild(div);
 }
 
-function loadLevelsFromMapping() {
+export function loadLevelsFromMappingSplitTab() {
     if (!mapSelect || !modeSelect) return;
     mapSelect.innerHTML = '';
     modeSelect.innerHTML = '';

@@ -1,6 +1,6 @@
 import {
     getFrontendCustomModes,
-    getFrontendMappings,
+    getFrontendMappings, getFrontendSettings,
     loadBackendCustomModes, loadBackendPbs, loadSettingsAndMappingsFromBackend, updateFrontendMappings,
     updateFrontendSettings
 } from "./backend-state-handler";
@@ -16,6 +16,8 @@ let deleteButton: HTMLButtonElement;
 let stopButton: HTMLButtonElement;
 let buttonsContainer: HTMLDivElement;
 let nameContainer: HTMLDivElement;
+
+let currentCustomMode: number | null = null;
 
 export function initializeCustomModeTabHandler() {
     mapSelect = document.getElementById("regular-map-select") as HTMLSelectElement;
@@ -43,6 +45,7 @@ export function initializeCustomModeTabHandler() {
 
     window.electronAPI.onCustomModeStopped(() => {
         showPlayButton(true)
+        currentCustomMode = null;
     });
 
     loadLevelsFromMapping()
@@ -126,6 +129,7 @@ function onModeChange() {
         deleteButton.disabled = false;
         buttonsContainer.style.display = 'flex';
         nameContainer.style.display = 'flex';
+        showPlayButton(customMode.modeIndex !== currentCustomMode)
     } else {
         customModeNameInput.value = "";
         buttonsContainer.style.display = 'none';
@@ -152,6 +156,7 @@ function onPlayCustomMode(mode: number) {
     window.electronAPI.onPlayCustomMode(mode).then(validChange => {
         if (validChange) {
             showPlayButton(false)
+            currentCustomMode = mode;
         }
     });
 }
@@ -160,6 +165,7 @@ function onStopCustomMode(mode: number) {
     window.electronAPI.onPlayCustomMode(-1).then(validChange => {
         if (validChange) {
             showPlayButton(true)
+            currentCustomMode = null;
         }
     })
 }

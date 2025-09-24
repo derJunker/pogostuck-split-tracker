@@ -42,10 +42,6 @@ export const defaultMappings: PogoLevel[] = [
                 name: "Puzzle",
                 settingsName: "Map1Puzzle_"
             },
-            {
-                key: 100,
-                name: "Boostless",
-            }
         ]
     },
     {

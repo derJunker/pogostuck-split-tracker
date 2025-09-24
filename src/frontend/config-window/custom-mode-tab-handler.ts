@@ -49,6 +49,13 @@ export function initializeCustomModeTabHandler() {
 
     loadLevelsFromMapping()
     loadCustomModesForMap();
+
+    window.electronAPI.mapAndModeChanged((_, mapAndMode) => {
+        if (mapSelect.value !== mapAndMode.map.toString()) {
+            mapSelect.value = mapAndMode.map.toString();
+            onMapChange();
+        }
+    })
 }
 
 function loadLevelsFromMapping() {
@@ -66,6 +73,7 @@ function loadLevelsFromMapping() {
 
     mapSelect.selectedIndex = 0;
 }
+
 
 function loadCustomModesForMap() {
     if (!mapSelect || !modeSelect) return;

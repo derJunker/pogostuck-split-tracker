@@ -149,9 +149,12 @@ export class CustomModeHandler {
             log.error(`Custom mode with index ${modeIndex} not found`);
             return false;
         }
-        const currentMode = stateTracker.getCurrentMode() // this can be -1, if that's the case then somewhere else it will be set to the then changed mode
-        log.debug(`Current mode is ${currentMode}, underlying mode is ${this.underlyingMode}`)
-        this.setCustomMode(customMode.map, customMode.modeIndex, currentMode, overlayWindow);
+        if (customMode.map !== stateTracker.getCurrentMap() && stateTracker.getCurrentMap() !== -1) {
+            log.error(`Custom mode with index ${modeIndex} is for map ${customMode.map}, but current map is ${stateTracker.getCurrentMap()}`);
+            return false;
+        }
+        const underlyingMode = stateTracker.getCurrentMode() // this can be -1, if that's the case then somewhere else it will be set to the then changed mode
+        this.setCustomMode(customMode.map, customMode.modeIndex, underlyingMode, overlayWindow);
         return true;
     }
 
@@ -189,22 +192,7 @@ export class CustomModeHandler {
 
     private createDefaultCustomModesFile() {
         this.customModes = [
-            {
-                map: 0,
-                modeIndex: 100,
-                modeTimes: [
-                    30,
-                    120.410,
-                    173.522,
-                    191.088,
-                    0,
-                    256.541,
-                    0,
-                    // 160.222,
-                    292.071,
-                    319.936
-                ]
-            }
+
         ];
         this.saveCustomModesToFile();
     }

@@ -4,7 +4,7 @@ import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB} from "../types/global";
 
 function loadMapMode(mapAndModeChanged: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest, settings } = mapAndModeChanged;
+    const { splits, pb, sumOfBest } = mapAndModeChanged;
 
     // Clear splits
     const splitsDiv = document.getElementById('splits');
@@ -98,12 +98,12 @@ function updateSplitResets(splitKey: number, newResetCount: number) {
     }
 }
 
-window.electronAPI.resetOverlay((event: Electron.IpcRendererEvent,
+window.electronAPI.resetOverlay((_event: Electron.IpcRendererEvent,
                                        mapAndMode: PbRunInfoAndSoB) => {
     loadMapMode(mapAndMode);
 });
 
-window.electronAPI.redrawOverlay((event: Electron.IpcRendererEvent,
+window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     resetPbAndSumOfBest(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest);
@@ -177,25 +177,25 @@ window.electronAPI.mainMenuOpened(() => {
     document.getElementById('status-msg')!.style!.display = 'inline';
 });
 
-window.electronAPI.onSplitPassed((event: Electron.IpcRendererEvent, splitInfo) => {
+window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {
     addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored);
 });
 
-window.electronAPI.onGoldenSplitPassed((event: Electron.IpcRendererEvent, sumOfBest: number) => {
+window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOfBest: number) => {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
     }
 });
 
-window.electronAPI.onLastSplitGolden((event: Electron.IpcRendererEvent) => {
+window.electronAPI.onLastSplitGolden(() => {
     const pbSpan = document.getElementById('pb-time');
     if (pbSpan) {
         pbSpan.classList.add("golden")
     }
 });
 
-window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
+window.electronAPI.onStatusChanged((_event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
     __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}, showLogDetectMessage: ${status.showLogDetectMessage}, logsDetected: ${status.logsDetected}`);
     const statusElement = document.getElementById('status-msg')!;
     statusElement.innerHTML = '';
@@ -208,7 +208,7 @@ window.electronAPI.onStatusChanged((event: Electron.IpcRendererEvent, status: { 
 })
 
 
-window.electronAPI.changeBackground((event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => {
+window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => {
     const body = document.body;
     if (enableBackgroundColor) {
         body.style.backgroundColor = enableBackgroundColor;

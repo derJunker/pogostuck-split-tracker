@@ -1,6 +1,5 @@
 import {createCustomLabledCheckbox} from "./custom-checkboxes";
 import {formatPbTime, parsePbTime} from "../util/time-formating";
-import {IpcRendererEvent} from "electron";
 import {getFrontendMappings, getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
 
 let mapSelect: HTMLSelectElement;
@@ -58,7 +57,7 @@ function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, 
     const div = document.createElement('div');
     div.className = 'toggle-switch';
     const {label, checkbox, customCheckbox} = createCustomLabledCheckbox(`checkpoint-${idx}`, split,
-        !skippedIndices.includes(idx), async (checked: boolean) => await updateSkippedSplits());
+        !skippedIndices.includes(idx), async () => await updateSkippedSplits());
 
     div.appendChild(label);
     div.appendChild(checkbox);
@@ -213,8 +212,8 @@ function appendAllGoldSplits(
     if (isUD) {
         appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes);
     }
-    splitPath.forEach((splitPathEl, index) => {
-        let name = mapSplits.find((name, index) => {
+    splitPath.forEach((splitPathEl) => {
+        let name = mapSplits.find((_name, index) => {
             if (useOldNames || isUD)
                 return splitPathEl.from === index
             return splitPathEl.to === index
@@ -240,7 +239,7 @@ async function updateSkippedSplits() {
     __electronLog.info("Updating skipped splits...");
     const selection = getSelectedMapAndMode();
     if (!selection) return;
-    const { mapObj, modeObj } = selection;
+    const { modeObj } = selection;
 
     const splitSelectionDiv = document.getElementById('map-n-mode-split-selection');
     if (!splitSelectionDiv) return;
@@ -365,7 +364,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     goldSplitSelection.appendChild(div);
 }
 
-window.electronAPI.mapAndModeChanged(async (event: Electron.IpcRendererEvent,
+window.electronAPI.mapAndModeChanged(async (_event: Electron.IpcRendererEvent,
                                             mapAndMode: {
                                                 map: number,
                                                 mode: number
@@ -379,11 +378,11 @@ window.electronAPI.mapAndModeChanged(async (event: Electron.IpcRendererEvent,
     }
 });
 
-window.electronAPI.onGoldenSplitsImproved(async (event: IpcRendererEvent) => {
+window.electronAPI.onGoldenSplitsImproved(async () => {
     await reloadGoldSplits();
 });
 
-window.electronAPI.onGoldPaceImproved(async (event: IpcRendererEvent) => {
+window.electronAPI.onGoldPaceImproved(async () => {
     await reloadGoldPaces();
 });
 

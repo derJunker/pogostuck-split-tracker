@@ -32,7 +32,7 @@ export function initializeCustomModeTabHandler() {
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (_) => {
         if (modeSelect.value === "+" && modeSelect.selectedIndex === 0 && modeSelect.options[0].id === "create-custom-mode-option") {
-            onModeCreate();
+            onModeCreate().then(() => {});
             return;
         }
         onModeChange();

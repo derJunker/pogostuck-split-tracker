@@ -6,7 +6,8 @@ export interface PbRunInfoAndSoB {
     splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
     pb: number,
     sumOfBest: number,
-    settings: Settings
+    settings: Settings,
+    customModeName?: string
 }
 
 declare global { interface Window {

@@ -42,8 +42,23 @@ function loadMapMode(mapAndModeChanged: PbRunInfoAndSoB) {
     }
     // Sum of Best und PB setzen
     resetPbAndSumOfBest(pb, sumOfBest)
+    __electronLog.debug(`mapAndModeChanged: ${JSON.stringify(mapAndModeChanged.customModeName)}`);
+    toggleCustomModeDisplay(mapAndModeChanged.customModeName)
+
     document.getElementById('totals')!.style!.display = 'inline';
     document.getElementById('status-msg')!.style!.display = 'none';
+}
+
+function toggleCustomModeDisplay(customModeName?: string) {
+    const customModeDisplay = document.getElementById('custom-mode-display');
+    const customModeNameSpan = document.getElementById('custom-mode-name')!;
+    if (customModeName) {
+        customModeNameSpan.innerText = customModeName;
+        customModeDisplay!.style.display = 'inline';
+    } else {
+        customModeDisplay!.style.display = 'none';
+        customModeNameSpan.innerText = '';
+    }
 }
 
 function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean) {
@@ -174,6 +189,8 @@ window.electronAPI.mainMenuOpened(() => {
         pbTimeSpan.textContent = '';
     }
     document.getElementById('totals')!.style!.display = 'None';
+    document.getElementById('custom-mode-display')!.style!.display = 'None';
+
     document.getElementById('status-msg')!.style!.display = 'inline';
 });
 

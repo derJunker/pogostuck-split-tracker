@@ -50,22 +50,21 @@ export class CurrentStateTracker {
      */
     private checkForCustomMode(mode: number, configWindow: BrowserWindow): number {
         const customModeHandler = CustomModeHandler.getInstance()
-        const customModeInfo = customModeHandler.getCustomMode()
         const isPlayingCustomMode = customModeHandler.isPlayingCustomMode()
-        if (customModeInfo.underlyingMode === -1) { // when you press play with no mode known
-            customModeHandler.setCustomMode(this.map, customModeInfo.customMode!, mode, configWindow)
-            customModeInfo.underlyingMode = mode;
+        const customModeInfo = customModeHandler.getCustomMode()
+        if (isPlayingCustomMode && customModeInfo!.underlyingMode === -1) { // when you press play with no mode known
+            customModeHandler.setCustomMode(this.map, customModeInfo!.customMode!, mode, configWindow)
+            customModeInfo!.underlyingMode = mode;
             console.log(`Setting underlying mode to ${mode} because it was -1`);
         }
-        const newModeIsNotCustom = !isPlayingCustomMode || (customModeInfo.underlyingMode !== mode) || mode === -1;
+        const newModeIsNotCustom = !isPlayingCustomMode || (customModeInfo!.underlyingMode !== mode) || mode === -1;
         log.debug(`Checking for custom mode. Current mode: ${this.mode}, new mode: ${mode}, isPlayingCustomMode: ${isPlayingCustomMode}, customModeInfo: ${JSON.stringify(customModeInfo)}, newModeIsNotCustom: ${newModeIsNotCustom}`);
         if (newModeIsNotCustom) {
-            log.info(`No longer playing custom mode. Switched to mode ${mode}.`);
             customModeHandler.clearCustomMode(configWindow)
         }
         else {
             log.info(`Detected custom mode! ${JSON.stringify(customModeInfo)}`);
-            return customModeInfo.customMode!
+            return customModeInfo!.customMode
         }
         return mode;
     }

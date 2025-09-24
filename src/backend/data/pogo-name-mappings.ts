@@ -36,7 +36,7 @@ export class PogoNameMappings {
         const mode = map.modes.find(m => m.key === modeIndex);
         if (!mode) {
             log.info(`Mode with index ${modeIndex} not found for map ${map.levelName}`);
-            return { map: map.levelName, mode: modeIndex + "", splits: ["Mode not found"] }
+            return { map: map.levelName, mode: modeIndex + "", splits: ["Invalid Mode"] }
         }
 
 

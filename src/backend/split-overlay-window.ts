@@ -12,6 +12,7 @@ import windowStateKeeper from "electron-window-state";
 import {CurrentStateTracker} from "./data/current-state-tracker";
 import {FileWatcher} from "./logging/logs-watcher";
 import {Split} from "../types/mode-splits";
+import {CustomModeHandler} from "./data/custom-mode-handler";
 
 let correctWindowForOverlayInFocus = false;
 export let pogostuckHasBeenOpenedOnce = false;
@@ -183,8 +184,10 @@ function getPbRunInfoAndSoB(
 
     const pbTime = goldenSplitTracker.getPbForMode(modeNum);
     const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));
+    const customMode = CustomModeHandler.getInstance().getCustomMode()
+    const customModeName = customMode ? nameMappings.getMapModeAndSplits(customMode.map!, customMode.customMode!).mode : undefined
 
-    log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
+    log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}, custom mode name is ${customModeName}`);
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
             let splitInfo = pbSplitTimes.find(infos => infos.split === i)
@@ -201,7 +204,9 @@ function getPbRunInfoAndSoB(
         }),
         pb: pbTime === Infinity ? -1 : pbTime,
         sumOfBest: sumOfBest,
-        settings: settingsManager.currentSettings
+        settings: settingsManager.currentSettings,
+        // only add custom mode name if it is not undefined
+        customModeName: customModeName
     };
 }
 

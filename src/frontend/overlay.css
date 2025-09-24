@@ -1,7 +1,7 @@
 body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
-    font-size: min(max(min(5vw, 8.5vh), 10px), 48px);
+    font-size: min(max(min(5vw,7.5vh),10px),48px);
     font-weight: bold;
     -webkit-app-region: drag;
     -webkit-text-stroke-width: 1px;
@@ -125,4 +125,9 @@ button {
 
 #totals {
     display: none;
+}
+
+#custom-mode-display {
+    padding-top: .2em;
+    padding-right:  .2em;
 }

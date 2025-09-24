@@ -66,10 +66,13 @@ export class CustomModeHandler {
     }
 
     public isPlayingCustomMode(): boolean {
-        return this.currentCustomMode !== null;
+        return this.currentCustomMode !== null && this.mapForCustomMode !== null && this.underlyingMode !== null;
     }
 
-    public getCustomMode(): { map: number | null, customMode: number | null, underlyingMode: number | null } {
+    public getCustomMode(): { map: number, customMode: number, underlyingMode: number } | undefined {
+        if (this.currentCustomMode === null || this.mapForCustomMode === null || this.underlyingMode === null) {
+            return undefined;
+        }
         return {map: this.mapForCustomMode, customMode: this.currentCustomMode, underlyingMode: this.underlyingMode};
     }
 

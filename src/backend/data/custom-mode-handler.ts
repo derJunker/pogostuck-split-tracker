@@ -11,6 +11,7 @@ import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
+import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
@@ -187,7 +188,10 @@ export class CustomModeHandler {
 
         SettingsManager.getInstance().deleteMode(modeIndex);
 
+        BackupGoldSplitTracker.getInstance().deleteMode(modeIndex)
+
         writeGoldSplitsIfChanged(configWindow)
+
     }
 
     private createDefaultCustomModesFile() {

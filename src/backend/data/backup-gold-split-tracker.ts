@@ -106,4 +106,11 @@ export class BackupGoldSplitTracker {
         return history
 
     }
+
+    public deleteMode(modeIndex: number) {
+        const modeIndexExists = this.backups.some(b => b.mode === modeIndex)
+        this.backups = this.backups.filter(b => b.mode !== modeIndex)
+        this.backupsChanged = modeIndexExists;
+        this.saveBackupsIfChanged()
+    }
 }

@@ -14,13 +14,14 @@ import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import {UserDataReader} from "./data/user-data-reader";
 import { VERSION } from "../version";
-import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
+import {getNewReleaseInfoIfOutdated, initUpdateBtnListener} from "./version-update-checker";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {readGoldenPaces, writeGoldenPace, writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import fs from "fs";
 import {BackupGoldSplitTracker} from "./data/backup-gold-split-tracker";
 import {CustomModeHandler} from "./data/custom-mode-handler";
 import {PogoNameMappings} from "./data/pogo-name-mappings";
+import { net } from "electron";
 
 // @ts-ignore
 import WindowStateManager from 'electron-window-state-manager';
@@ -98,17 +99,10 @@ app.on("ready", async () => {
     const indexHTML = path.join(__dirname, "..", "frontend", "index.html");
     configWindow.loadFile(indexHTML).then(async () => {})
 
-    configWindow.webContents.on('did-finish-load', () => {
-        getNewReleaseInfoIfOutdated().then(releaseInfo => {
-            if (releaseInfo) {
-                configWindow!.webContents.send('new-release-available', releaseInfo);
-            }
-        })
-    });
-
     overlayWindow = openOverlayWindow();
     CustomModeHandler.getInstance(overlayWindow, configWindow)
     settingsManager.initListeners(overlayWindow, configWindow)
+
     addPogostuckOpenedListener(overlayWindow, configWindow)
     CurrentStateTracker.getInstance().updatePathsValidity()
     initLaunchPogoListener();
@@ -130,6 +124,15 @@ app.on("ready", async () => {
         log.info(`Closing config window at position (${configWindow.getPosition().join(', ')}) with size (${configWindow.getSize().join(', ')})`);
         configWindowState.saveState(configWindow)
         overlayWindow.close()
+    });
+
+    configWindow.webContents.on('did-finish-load', () => {
+        initUpdateBtnListener()
+        getNewReleaseInfoIfOutdated().then(releaseInfo => {
+            if (releaseInfo) {
+                configWindow!.webContents.send('new-release-available', releaseInfo);
+            }
+        })
     });
 
     ipcMain.handle('open-appdata-explorer', () => shell.openPath(app.getPath("userData")))

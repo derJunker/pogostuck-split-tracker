@@ -494,15 +494,27 @@
                 <h2>New Release Available!</h2>
                 <div id="release-info-content"></div>
                 <div id="release-btns">
-                    <a class="button" id="release-download-link">Download Link</a>
-                    <button id="release-modal-ok">OK</button>
+                    <div>
+                        <button id="release-download-btn">
+                            <span lang="en" style="display: none">Update</span>
+                            <span lang="ja" style="display: none">更新</span>
+                        </button>
+                        <a class="button" id="release-download-link">
+                            <span lang="en" style="display: none">Manual Download</span>
+                            <span lang="ja" style="display: none">手動ダウンロード</span>
+                        </a>
+                    </div>
+                    <button id="release-modal-ok">
+                        <span lang="en" style="display: none">Later</span>
+                        <span lang="ja" style="display: none">後で</span>
+                    </button>
                 </div>
             </div>
         </div>
         <div id="loading-overlay">
             <div>
                 <img src="assets/clipboard.ico" alt="frog-icon" id="loading-frog-img"/>
-                <div>Loading...</div>
+                <div id="loading-text">Loading...</div>
             </div>
         </div>
         <script type="module" src="index.ts"></script>

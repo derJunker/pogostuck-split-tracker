@@ -1,5 +1,6 @@
 import {switchLangueTexts} from "./language-handler";
 import {getFrontendSettings} from "./backend-state-handler";
+import {showDownloadingScreen} from "./loading-screen-handler";
 
 window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => {
     const modal = document.getElementById('new-release-modal') as HTMLElement;
@@ -16,6 +17,12 @@ window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, bo
         modal.style.display = 'block';
         const downloadLink = document.getElementById('release-download-link') as HTMLAnchorElement;
         downloadLink.href = releaseInfo.browser_download_url;
+
+        const updateBtn = document.getElementById('release-download-btn')
+        updateBtn?.addEventListener('click', async () => {
+            showDownloadingScreen();
+            await window.electronAPI.onUpdateBtnClicked(releaseInfo.browser_download_url);
+        })
 
         const updateButton = document.getElementById('update-btn')! as HTMLElement
         updateButton.style.display = 'block';

@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onCustomModeSave: (modeIndex: number, newName: string): Promise<PogoLevel[]> => ipcRenderer.invoke('save-custom-mode-name', modeIndex, newName),
     onPlayCustomMode: (modeIndex: number): Promise<boolean> => ipcRenderer.invoke('play-custom-mode', modeIndex),
     onDeleteCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('delete-custom-mode', modeIndex),
+    onUpdateBtnClicked: (downloadLink: string): Promise<void> => ipcRenderer.invoke('update-btn-clicked', downloadLink),
 
 
     // config querying backend

@@ -49,6 +49,7 @@ declare global { interface Window {
         onCustomModeSave: (modeIndex: number, newName: string) => Promise<PogoLevel[]>;
         onPlayCustomMode: (modeIndex: number) => Promise<boolean>;
         onDeleteCustomMode: (modeIndex: number) => Promise<void>;
+        onUpdateBtnClicked: (downloadLink: string) => Promise<void>;
 
 
         // config querying backend

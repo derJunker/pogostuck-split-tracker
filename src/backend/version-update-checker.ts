@@ -1,6 +1,27 @@
 import fetch from "node-fetch";
 import log from "electron-log/main";
 import {VERSION} from "../version";
+import {app, ipcMain, net, shell} from "electron";
+import path from "path";
+import fs from "fs";
+
+export function initUpdateBtnListener() {
+    ipcMain.handle('update-btn-clicked', async (_event, downloadLink: string) => {
+        const tempFilePath = path.join(app.getPath("temp"), "new-release.exe");
+        const request = net.request(downloadLink);
+        request.on("response", (response) => {
+            const fileStream = fs.createWriteStream(tempFilePath);
+            response.on("data", (chunk) => fileStream.write(chunk));
+            response.on("end", () => {
+                fileStream.end();
+                log.info(`Downloaded new release to ${tempFilePath}`);
+                shell.openPath(tempFilePath); // Executes the downloaded file
+                app.quit();
+            });
+        });
+        request.end();
+    })
+}
 
 export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string, body: string, browser_download_url: string } | null> {
     try {
@@ -11,8 +32,8 @@ export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string,
         if (!data || typeof data !== "object") {
             return null;
         }
-        const tagName = (data as { tag_name?: string, body?: string }).tag_name;
-        const body = (data as { body?: string }).body;
+        const tagName = (data as { tag_name?: any, body?: string }).tag_name;
+        const body = (data as { body?: any }).body;
         if (typeof tagName !== "string" || typeof body !== "string") {
             return null;
         }
@@ -27,6 +48,7 @@ export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string,
             log.warn(`No executable asset found in release ${tagName}.`);
             return null
         }
+
         return { tag_name: tagName, body, browser_download_url: asset.browser_download_url };
     } catch (e) {
         return null;

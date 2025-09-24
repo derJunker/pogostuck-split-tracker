@@ -10,6 +10,7 @@ import {GoldPaceTracker} from "./gold-pace-tracker";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
+import {SettingsManager} from "../settings-manager";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
@@ -176,6 +177,8 @@ export class CustomModeHandler {
         writeGoldPacesIfChanged(configWindow)
         GoldSplitsTracker.getInstance().deleteModeIfExists(modeIndex);
 
+        SettingsManager.getInstance().deleteMode(modeIndex);
+
         writeGoldSplitsIfChanged(configWindow)
     }
 
@@ -198,6 +201,17 @@ export class CustomModeHandler {
                 ]
             }
         ];
+        this.saveCustomModesToFile();
+    }
+
+    public updateCustomModePbTimes(modeIndex: number, newTimes: number[]) {
+        log.info(`updating custom mode ${modeIndex} with new times: ${newTimes}`);
+        const customMode = this.customModes.find(cm => cm.modeIndex === modeIndex);
+        if (!customMode) {
+            log.error(`Custom mode with index ${modeIndex} not found, cannot update times`);
+            return;
+        }
+        customMode.modeTimes = newTimes;
         this.saveCustomModesToFile();
     }
 

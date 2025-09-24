@@ -4,7 +4,7 @@ import log from 'electron-log/main';
 import {app, BrowserWindow, ipcMain, shell} from "electron";
 
 import {registerLogEventHandlers} from "./logging/log-event-handler";
-import {openOverlayWindow} from "./split-overlay-window";
+import {addPogostuckOpenedListener, openOverlayWindow} from "./split-overlay-window";
 import {CurrentStateTracker} from "./data/current-state-tracker";
 import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
@@ -106,9 +106,10 @@ app.on("ready", async () => {
         })
     });
 
-    overlayWindow = openOverlayWindow(configWindow);
+    overlayWindow = openOverlayWindow();
     CustomModeHandler.getInstance(overlayWindow, configWindow)
     settingsManager.initListeners(overlayWindow, configWindow)
+    addPogostuckOpenedListener(overlayWindow, configWindow)
     CurrentStateTracker.getInstance().updatePathsValidity()
     initLaunchPogoListener();
 

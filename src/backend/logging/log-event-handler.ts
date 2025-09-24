@@ -31,8 +31,6 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
             if (changed) {
                 modeNum = stateTracker.getCurrentMode();
-                // TODO next: fix crashes when custom mode selected and its trying to find gold splits etc.
-                //  (currently just manually add it)
                 resetOverlay(mapNum, modeNum, overlayWindow);
                 settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
             }
@@ -108,7 +106,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
     // player run finish gets logged
     fileWatcher.registerListener(
-        /playerRunFinish at frame .* requestProgressUploadTime\((?<time>\d+)\) <\? bestTime\((?<pbTime>\d+)\)/,
+        /playerRunFinish at frame .* requestProgressUploadTime\((?<time>\d+)\) <\? bestTime\((?<pbTime>-?\d+)\)/,
         (match) => {
             if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
                 return;

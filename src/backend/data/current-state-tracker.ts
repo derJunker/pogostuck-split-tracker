@@ -11,6 +11,7 @@ import {userDataPathEnd} from "./paths";
 import path from "path";
 import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
 import {CustomModeHandler} from "./custom-mode-handler";
+import {PogoNameMappings} from "./pogo-name-mappings";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -124,6 +125,8 @@ export class CurrentStateTracker {
     public finishedRun(time: number, igPbTime: number, configWindow: BrowserWindow, overlay: BrowserWindow): void {
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
         const pbTracker = PbSplitTracker.getInstance();
+        const customModeHandler = CustomModeHandler.getInstance()
+        const pogoMappings = PogoNameMappings.getInstance()
         this.finalTime = time;
         let pb = goldSplitsTracker.getPbForMode(this.mode)
         log.info(`Run finished with time: ${time} registered ingame pb time: ${igPbTime} programmed pb time: ${pb}`);
@@ -139,17 +142,33 @@ export class CurrentStateTracker {
             overlay.webContents.send("last-split-gold");
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
+        if (igPbTime < 0)
+            igPbTime = Infinity
+
+        const isCustom = customModeHandler.isCustomMode(this.map, this.mode);
         const pbTimeMismatch = pb !== igPbTime;
         const stateTracker = CurrentStateTracker.getInstance();
 
-        if (pbTimeMismatch) { // kinda redundant, but reads better
-            log.info(`PB time mismatch: entered:vs actual: ${igPbTime}. This might have caused a faulty last Goldsplit. Not my fault tho:)`);
+        if (pbTimeMismatch && !isCustom) { // kinda redundant, but reads better
+            log.warn(`PB time mismatch: entered:vs actual: ${igPbTime}. This might have caused a faulty last Goldsplit. Not my fault tho:)`);
             pb = igPbTime;
         }
         if (this.finalTime < pb) {
             log.info(`New personal best: ${this.finalTime}`);
             pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
+            const isCustom = customModeHandler.isCustomMode(this.map, this.mode);
+            if (isCustom) {
+                const splitTimes: number[] = []
+                for (let i = 0; i < pogoMappings.getMapModeAndSplits(this.map, this.mode).splits.length; i++) {
+                    let split = this.recordedSplits.find(s => s.split === i);
+                    if (!split)
+                        split = {split: i, time: Infinity};
+
+                    splitTimes.push(split.time);
+                }
+                customModeHandler.updateCustomModePbTimes(this.mode, splitTimes)
+            }
             redrawSplitDisplay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlay);
             configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: this.finalTime});
         } else if (pbTimeMismatch) { // if there was a mismatch and this run was not an actual pb still redraw the overlay

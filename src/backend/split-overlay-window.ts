@@ -16,7 +16,7 @@ import {Split} from "../types/mode-splits";
 let correctWindowForOverlayInFocus = false;
 export let pogostuckHasBeenOpenedOnce = false;
 
-export function openOverlayWindow(mainWindow: BrowserWindow) {
+export function openOverlayWindow() {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
     const overlayWidth = 530;
     const overlayHeight = 300;
@@ -32,6 +32,8 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
 
     if (overlayState.x === undefined)
         log.info(`No saved x pos, setting it to: ${x} (Primary display width: ${screen.getPrimaryDisplay().workArea.width})`);
+    else
+        log.info(`Restoring overlay x pos to: ${overlayState.x} y pos to: ${overlayState.y}`);
 
     const overlayWindow = new BrowserWindow({
         width: overlayState.width,
@@ -53,7 +55,6 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     overlayState.manage(overlayWindow)
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
-    addPogostuckOpenedListener(overlayWindow, mainWindow)
 
     overlayWindow.on("ready-to-show", () => {
         if (correctWindowForOverlayInFocus || !SettingsManager.getInstance().hideWindowWhenPogoNotActive())
@@ -76,7 +77,7 @@ export function openOverlayWindow(mainWindow: BrowserWindow) {
     return overlayWindow
 }
 
-function addPogostuckOpenedListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+export function addPogostuckOpenedListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     ActiveWindow.subscribe(windowInfo => {
         onActiveWindowChanged(overlayWindow, configWindow, windowInfo);
     })
@@ -186,11 +187,14 @@ function getPbRunInfoAndSoB(
     log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}`);
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
-            const splitInfo = pbSplitTimes.find(infos => infos.split === i)
+            let splitInfo = pbSplitTimes.find(infos => infos.split === i)
+            if (!splitInfo) {
+                splitInfo = { split: i, time: Infinity}
+            }
             return ({
                 name: splitName,
-                split: splitInfo!.split,
-                time: splitInfo!.time,
+                split: splitInfo.split,
+                time: splitInfo.time,
                 hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
                 skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
             })

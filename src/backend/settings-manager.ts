@@ -20,6 +20,7 @@ import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {execSync} from "child_process";
 import {Split} from "../types/mode-splits";
+import {CustomModeHandler} from "./data/custom-mode-handler";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -268,7 +269,11 @@ export class SettingsManager {
 
     public getSplitIndexPath( mode: number, splitAmount: number ): Split[] {
         // some of the newer map 1 modes have a unused split for some reason :(
-        if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
+        const customModeHandler = CustomModeHandler.getInstance();
+        let underlyingMode = mode;
+        if (customModeHandler.isPlayingCustomMode() && customModeHandler.getCustomMode().underlyingMode)
+            underlyingMode = customModeHandler.getCustomMode().underlyingMode!
+        if (hasUnusedExtraSplit(underlyingMode) && splitAmount === 10) {
             splitAmount = 9
             log.info(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
         }
@@ -509,5 +514,11 @@ export class SettingsManager {
         }
 
         log.error(`Could not find valid userdata path in ${userdataRoot}`);
+    }
+
+    public deleteMode(modeIndex: number) {
+        // remove the mode from skippedsplits
+        this.currentSettings.skippedSplits = this.currentSettings.skippedSplits.filter(s => s.mode !== modeIndex);
+        this.saveSettings();
     }
 }

@@ -136,6 +136,11 @@ function onModeChange() {
 async function onSaveName(name: string) {
     __electronLog.debug("[Frontend] Save name", name);
     const previousIndex = modeSelect.selectedIndex;
+    customModeNameInput.classList.remove("invalid")
+    if (name.trim().length === 0) {
+        customModeNameInput.classList.add("invalid")
+        return;
+    }
     __electronLog.debug(`[Frontend] previous index: ${previousIndex}, value: ${modeSelect.value}`);
     updateFrontendMappings(await window.electronAPI.onCustomModeSave(parseInt(modeSelect.value), name))
     await updateOtherTabs();

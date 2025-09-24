@@ -1,4 +1,6 @@
 export function formatPbTime(seconds: number, noZeroFill: boolean = false): string {
+    if (seconds === Infinity)
+        seconds = 0;
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);
     const secs = Math.floor(absSeconds % 60);

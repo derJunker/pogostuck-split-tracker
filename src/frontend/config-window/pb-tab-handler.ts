@@ -7,7 +7,6 @@ export function addEmptyPbInputFields() {
     const pbContentDiv = document.getElementById('pbs-content');
     if (!pbContentDiv) return;
     const mappings = getFrontendMappings();
-    __electronLog.debug(mappings.map(level => level.modes.map(mode => mode.name).join(', ')))
     pbContentDiv.innerHTML = ''; // Clear existing content
     mappings.forEach(map => {
         const mapHeader = document.createElement('h3');

@@ -3,6 +3,7 @@ import {ModeSplits} from "../../types/mode-splits";
 import {BrowserWindow} from "electron";
 import log from "electron-log/main";
 import {CustomModeHandler} from "./custom-mode-handler";
+import {PogoNameMappings} from "./pogo-name-mappings";
 
 export class PbSplitTracker {
     private static instance: PbSplitTracker | null = null;
@@ -18,11 +19,13 @@ export class PbSplitTracker {
     }
 
     public getSplitAmountForMode(mode: number): number {
-        const modeSplits = this.modeTimes.find(m => m.mode === mode);
-        if (!modeSplits) {
+        const mappings = PogoNameMappings.getInstance();
+        const map = mappings.getAllLevels().find(m => m.modes.some(md => md.key === mode));
+        if (!map) {
+            log.warn(`No map found for mode ${mode}, when getting split amount`);
             return 0;
         }
-        return modeSplits.times.length;
+        return map.splits.length
     }
 
     public getPbSplitsForMode(mode: number): { split: number, time: number }[] {
@@ -42,8 +45,9 @@ export class PbSplitTracker {
         }
         const splitTime = modeSplits.times.find(s => s.split === split);
         if (!splitTime) {
-            // log.warn(`No split time found for split ${split} in mode ${mode}; however the mode was found.`);
-            return -1;
+            const newTime = { split, time: Infinity }
+            modeSplits.times.push(newTime);
+            return Infinity;
         }
         return splitTime.time;
     }

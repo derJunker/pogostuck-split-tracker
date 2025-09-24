@@ -50,7 +50,8 @@ export class CustomModeHandler {
         this.currentCustomMode = customMode;
         this.underlyingMode = underlyingMode;
         this.mapForCustomMode = map;
-        resetOverlay(map, customMode, overlayWindow);
+        if (underlyingMode !== -1)
+            resetOverlay(map, customMode, overlayWindow);
     }
 
     public isCustomMode(map: number, mode: number): boolean {
@@ -136,16 +137,9 @@ export class CustomModeHandler {
 
     private playCustomMode(modeIndex: number, overlayWindow: BrowserWindow, configWindow: BrowserWindow): boolean {
         const stateTracker = CurrentStateTracker.getInstance();
+        // -1 means stopping the current custom mode
         if (modeIndex === -1) {
-            const newMode = this.underlyingMode;
-            if (newMode === null) {
-                console.error("No underlying mode found to switch back to");
-                return false;
-            }
-            this.clearCustomMode(configWindow)
-            stateTracker.updateMapAndMode(stateTracker.getCurrentMap(), newMode, configWindow)
-            resetOverlay(stateTracker.getCurrentMap(), newMode, overlayWindow);
-            return true;
+            return this.stopCustomMode(configWindow, overlayWindow, stateTracker);
         }
         const customMode = this.customModes.find(cm => cm.modeIndex === modeIndex);
         if (!customMode) {
@@ -154,11 +148,19 @@ export class CustomModeHandler {
         }
         const currentMode = stateTracker.getCurrentMode() // this can be -1, if that's the case then somewhere else it will be set to the then changed mode
         log.debug(`Current mode is ${currentMode}, underlying mode is ${this.underlyingMode}`)
-        if (currentMode === -1) {
-            log.error(`You are currently not in a valid mode, cannot switch to custom mode ${modeIndex}`);
+        this.setCustomMode(customMode.map, customMode.modeIndex, currentMode, overlayWindow);
+        return true;
+    }
+
+    private stopCustomMode(configWindow: BrowserWindow, overlayWindow: BrowserWindow, stateTracker: CurrentStateTracker) {
+        const newMode = this.underlyingMode;
+        if (newMode === null) {
+            console.error("No underlying mode found to switch back to");
             return false;
         }
-        this.setCustomMode(customMode.map, customMode.modeIndex, currentMode, overlayWindow);
+        this.clearCustomMode(configWindow)
+        stateTracker.updateMapAndMode(stateTracker.getCurrentMap(), newMode, configWindow)
+        resetOverlay(stateTracker.getCurrentMap(), newMode, overlayWindow);
         return true;
     }
 

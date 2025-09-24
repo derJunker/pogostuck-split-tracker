@@ -8,7 +8,7 @@
                 <img src="assets/clipboard.ico" alt="frog-icon" id="title-bar-icon"/> <span>Junker's Split Tracker</span>
                 <span>-</span><span id="version"></span>
             </div>
-            <div id="menu-bar">
+            <div id="menu-bar" class="hidden">
                 <button id="setup-guide-btn" class="menu-btn">
                     <span lang="en" style="display: none">Setup</span>
                     <span lang="ja" style="display: none">セットアップガイド</span>
@@ -481,7 +481,7 @@
                 </div>
             </div>
         </div>
-        <footer>
+        <footer class="hidden">
             <button id="update-btn" class="inverted" style="display: none">Update!</button>
             <button id="launch-pogo-btn" class="inverted">
                 <span lang="en" style="display: none">Launch Pogostuck</span>
@@ -498,6 +498,12 @@
                     <a class="button" id="release-download-link">Download Link</a>
                     <button id="release-modal-ok">OK</button>
                 </div>
+            </div>
+        </div>
+        <div id="loading-overlay">
+            <div>
+                <img src="assets/clipboard.ico" alt="frog-icon" id="loading-frog-img"/>
+                <div>Loading...</div>
             </div>
         </div>
         <script type="module" src="index.ts"></script>

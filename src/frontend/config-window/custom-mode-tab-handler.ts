@@ -38,6 +38,12 @@ export function initializeCustomModeTabHandler() {
         onModeChange();
     });
     saveNameButton.addEventListener("click", () => onSaveName(customModeNameInput.value));
+    customModeNameInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            onSaveName(customModeNameInput.value).then(() => {});
+            customModeNameInput.blur();
+        }
+    });
     playButton.addEventListener("click", () => onPlayCustomMode(parseInt(modeSelect.value)));
     deleteButton.addEventListener("click", () => onDeleteCustomMode(parseInt(modeSelect.value)));
     stopButton.addEventListener("click", () => onStopCustomMode());
@@ -116,6 +122,7 @@ async function onModeCreate() {
     loadCustomModesForMap();
     modeSelect.value = modeInfo.index.toString();
     onModeChange();
+    customModeNameInput.focus();
     await updateOtherTabs();
 }
 

@@ -126,8 +126,8 @@ app.on("ready", async () => {
         overlayWindow.close()
     });
 
+    initUpdateBtnListener()
     configWindow.webContents.on('did-finish-load', () => {
-        initUpdateBtnListener()
         getNewReleaseInfoIfOutdated().then(releaseInfo => {
             if (releaseInfo) {
                 configWindow!.webContents.send('new-release-available', releaseInfo);

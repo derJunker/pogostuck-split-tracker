@@ -55,7 +55,7 @@
     border-radius: var(--border-radius);
     padding: var(--padding-dropdown);
     font-size: var(--font-size);
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     font-weight: var(--font-weight);
     letter-spacing: 0.02em;
     -webkit-font-smoothing: antialiased;
@@ -95,7 +95,7 @@
     z-index: 2;
     transition: color var(--transition-fast);
     line-height: 1;
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     letter-spacing: -0.1em;
 }
 .dropdown-arrow img {
@@ -107,7 +107,7 @@
     background: var(--color-bg);
     color: var(--color-fg);
     border-radius: 0;
-    font-family: var(--font-family);
+    font-family: var(--font-family), serif;
     font-weight: var(--font-weight);
     letter-spacing: 0.02em;
 }

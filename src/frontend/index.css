@@ -319,6 +319,7 @@ label {
     left: -30px;
     bottom: -2px;
     max-height: 2rem;
+    user-select: none;
     transform: rotate(260deg) scaleX(-1) scale(1.25);
 }
 

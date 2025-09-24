@@ -1,7 +1,6 @@
 import {FileWatcher} from './logs-watcher';
 import {CurrentStateTracker} from "../data/current-state-tracker";
 import {BrowserWindow} from "electron";
-import {PogoNameMappings} from "../data/pogo-name-mappings";
 import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
@@ -11,7 +10,6 @@ import {resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
-import {CustomModeHandler} from "../data/custom-mode-handler";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     const stateTracker = CurrentStateTracker.getInstance();
@@ -46,7 +44,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             if (!isValidModeAndMap(map, mode)) {
                 return
             }
-            const { checkpoint, old, time, overwrittenTime } = match.groups!;
+            const { checkpoint, time } = match.groups!;
 
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
@@ -94,7 +92,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     // player reset gets logged
     fileWatcher.registerListener(
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
-        (match) => {
+        () => {
             stateTracker.resetRun();
             if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
                 resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
@@ -128,7 +126,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
     fileWatcher.registerListener(
         /levelLoadMenu - START at frame/,
-        (match) => {
+        () => {
             overlayWindow.webContents.send("main-menu-opened")
             stateTracker.updateMapAndMode(-1, -1, configWindow)
         }
@@ -136,7 +134,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
     fileWatcher.registerListener(
         /Close window at/,
-        (match) => {
+        () => {
             log.info("Closing pogostuck window, saving gold splits and paces");
             onTimeToFileWrite(configWindow);
             if(settingsManager.hideWindowWhenPogoNotActive())

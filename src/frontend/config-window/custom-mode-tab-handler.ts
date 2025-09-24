@@ -1,8 +1,7 @@
 import {
     getFrontendCustomModes,
-    getFrontendMappings, getFrontendSettings,
-    loadBackendCustomModes, loadBackendPbs, loadSettingsAndMappingsFromBackend, updateFrontendMappings,
-    updateFrontendSettings
+    getFrontendMappings,
+    loadBackendCustomModes, loadBackendPbs, loadSettingsAndMappingsFromBackend, updateFrontendMappings
 } from "./backend-state-handler";
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./pb-tab-handler";
 import {loadLevelsFromMappingSplitTab, updateModesForLevel, updateSplitsAndGolds} from "./splits-tab-handler";
@@ -31,7 +30,7 @@ export function initializeCustomModeTabHandler() {
     nameContainer = document.getElementById("custom-mode-btns") as HTMLDivElement;
 
     mapSelect.addEventListener("change", onMapChange);
-    modeSelect.addEventListener("change", (e) => {
+    modeSelect.addEventListener("change", (_) => {
         if (modeSelect.value === "+" && modeSelect.selectedIndex === 0 && modeSelect.options[0].id === "create-custom-mode-option") {
             onModeCreate();
             return;
@@ -41,7 +40,7 @@ export function initializeCustomModeTabHandler() {
     saveNameButton.addEventListener("click", () => onSaveName(customModeNameInput.value));
     playButton.addEventListener("click", () => onPlayCustomMode(parseInt(modeSelect.value)));
     deleteButton.addEventListener("click", () => onDeleteCustomMode(parseInt(modeSelect.value)));
-    stopButton.addEventListener("click", () => onStopCustomMode(parseInt(modeSelect.value)));
+    stopButton.addEventListener("click", () => onStopCustomMode());
 
     window.electronAPI.onCustomModeStopped(() => {
         showPlayButton(true)
@@ -161,7 +160,7 @@ function onPlayCustomMode(mode: number) {
     });
 }
 
-function onStopCustomMode(mode: number) {
+function onStopCustomMode() {
     window.electronAPI.onPlayCustomMode(-1).then(validChange => {
         if (validChange) {
             showPlayButton(true)

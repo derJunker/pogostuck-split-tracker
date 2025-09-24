@@ -96,13 +96,13 @@ export class CustomModeHandler {
     }
 
     private initCustomModeFrontendListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
-        ipcMain.handle('create-custom-mode', async (_, map: number) => this.createCustomMode(map, configWindow));
-        ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => this.saveCustomModeName(modeIndex, newName, configWindow));
+        ipcMain.handle('create-custom-mode', async (_, map: number) => this.createCustomMode(map));
+        ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => this.saveCustomModeName(modeIndex, newName));
         ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
         ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow));
     }
 
-    private createCustomMode(map: number, configWindow: BrowserWindow): { index: number, name: string } {
+    private createCustomMode(map: number): { index: number, name: string } {
         let newModeIndex = 100;
         let found = false;
         while (!found) {
@@ -120,11 +120,11 @@ export class CustomModeHandler {
         this.customModes.push(newCustomMode);
         this.saveCustomModesToFile()
         const name = `Mode ${newModeIndex}`;
-        this.saveCustomModeName(newModeIndex, name, configWindow);
+        this.saveCustomModeName(newModeIndex, name);
         return { index: newModeIndex, name: name };
     }
 
-    private saveCustomModeName(modeIndex: number, newName: string, configWindow: BrowserWindow): PogoLevel[] {
+    private saveCustomModeName(modeIndex: number, newName: string): PogoLevel[] {
         const pogoNameMappings = PogoNameMappings.getInstance();
         const map = this.customModes.find(cm => cm.modeIndex === modeIndex)?.map;
         if (map === undefined) {

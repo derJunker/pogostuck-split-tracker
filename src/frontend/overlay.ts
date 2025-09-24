@@ -192,7 +192,7 @@ window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOf
 });
 
 window.electronAPI.onLastSplitGolden(() => {
-
+// Maybe sth? currently empty
 });
 
 window.electronAPI.onStatusChanged((_event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {

@@ -100,19 +100,6 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
     }
 }
 
-
-
-// TODO add send logic from backend
-function updateSplitResets(splitKey: number, newResetCount: number) {
-    const splitDiv = document.getElementById(splitKey.toString());
-    if (splitDiv) {
-        const resetsSpan = splitDiv.querySelector('.split-resets');
-        if (resetsSpan) {
-            resetsSpan.textContent = newResetCount.toString();
-        }
-    }
-}
-
 window.electronAPI.resetOverlay((_event: Electron.IpcRendererEvent,
                                        mapAndMode: PbRunInfoAndSoB) => {
     loadMapMode(mapAndMode);

@@ -13,7 +13,6 @@ import { SettingsManager } from "./settings-manager";
 import { initListeners as initWindows11Listeners } from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import {UserDataReader} from "./data/user-data-reader";
-import windowStateKeeper from "electron-window-state";
 import { VERSION } from "../version";
 import {getNewReleaseInfoIfOutdated} from "./version-update-checker";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
@@ -22,6 +21,9 @@ import fs from "fs";
 import {BackupGoldSplitTracker} from "./data/backup-gold-split-tracker";
 import {CustomModeHandler} from "./data/custom-mode-handler";
 import {PogoNameMappings} from "./data/pogo-name-mappings";
+
+// @ts-ignore
+import WindowStateManager from 'electron-window-state-manager';
 
 log.initialize();
 log.info(`Junker's Split Tracker v${VERSION} is starting...`);
@@ -50,10 +52,9 @@ if (settingsManager.launchPogoOnStartup())
 
 app.on("ready", async () => {
     log.info(`App is ready. Initializing main window...`);
-    let configWindowState = windowStateKeeper({
+    let configWindowState = new WindowStateManager("ConfigWindow",{
         defaultWidth: 950,
         defaultHeight: 800,
-        file: 'config-window-state.json',
     });
 
     configWindow = new BrowserWindow({
@@ -83,7 +84,6 @@ app.on("ready", async () => {
             }
             : {}),
     });
-    configWindowState.manage(configWindow);
 
     configWindow.on("moved", async () => {
         log.debug(`config window moved, saving position: (${configWindow.getPosition().join(', ')})`);

@@ -302,6 +302,7 @@ export class SettingsManager {
     private loadSettings(): Settings {
         if (existsSync(this.settingsPath)) {
             const loadedSettings: any = JSON.parse(require("fs").readFileSync(this.settingsPath, "utf-8"));
+            log.info(`Loaded Settings: ${JSON.stringify(loadedSettings)}`);
             if (typeof loadedSettings.hideWindowWhenPogoNotActive === "undefined")
                 loadedSettings.hideWindowWhenPogoNotActive = true;
             if (typeof loadedSettings.steamPath === "undefined" && typeof loadedSettings.pogostuckSteamUserDataPath !== "undefined")
@@ -323,6 +324,7 @@ export class SettingsManager {
                     }
                 }
             }
+            log.debug(`After migration loaded settings: ${JSON.stringify(loadedSettings)}`);
             return loadedSettings;
         } else {
             return {

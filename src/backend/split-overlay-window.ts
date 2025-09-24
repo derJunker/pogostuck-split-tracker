@@ -8,11 +8,12 @@ import {SettingsManager} from "./settings-manager";
 import {isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
-import windowStateKeeper from "electron-window-state";
 import {CurrentStateTracker} from "./data/current-state-tracker";
 import {FileWatcher} from "./logging/logs-watcher";
 import {Split} from "../types/mode-splits";
 import {CustomModeHandler} from "./data/custom-mode-handler";
+// @ts-ignore
+import WindowStateManager from 'electron-window-state-manager';
 
 let correctWindowForOverlayInFocus = false;
 export let pogostuckHasBeenOpenedOnce = false;
@@ -22,10 +23,9 @@ export function openOverlayWindow() {
     const overlayWidth = 530;
     const overlayHeight = 300;
 
-    const overlayState = windowStateKeeper({
+    const overlayState = new WindowStateManager("OverlayWindow", {
         defaultWidth: overlayWidth,
         defaultHeight: overlayHeight,
-        file: 'overlay-window-state.json',
     })
 
     const x = overlayState.x !== undefined ? overlayState.x : screen.getPrimaryDisplay().workArea.width - overlayWidth;
@@ -53,7 +53,6 @@ export function openOverlayWindow() {
         title: "split-overlay",
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
-    overlayState.manage(overlayWindow)
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
 

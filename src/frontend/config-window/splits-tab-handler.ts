@@ -114,11 +114,12 @@ async function reloadGoldSplits() {
     const useOldNames = (mapSelect.value === "0" || mapSelect.value === "99") && !settings.showNewSplitNames;
 
     const goldSplitTimes = await window.electronAPI.getGoldSplits(mode)
-    appendAllGoldSplits(goldSplitSelection, goldSplitTimes, splitPath, mapSplits, levelMappings, udStart, isUD, useOldNames);
+    appendAllGoldSplits(goldSplitSelection, goldSplitTimes, splitPath, mapSplits, levelMappings, mode, udStart, isUD, useOldNames);
+    await updateRevertButtonValidity(mode)
 
     setTimeout(() => {
         goldSplitSelection.style.width = '';
-    }, 0);
+    }, 0); // ?? i dont remember why i did this lmao; But im too scared to remove it
 }
 
 async function reloadGoldPaces() {
@@ -200,17 +201,15 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
 }
 
 function appendAllGoldSplits(
-    goldSplitSelection: HTMLElement,
-    goldSplitTimes: { from: number; to: number; time: number; }[],
-    splitPath: { from: number; to: number; }[],
-    mapSplits: string[],
-    levelMappings: { endSplitName: string },
-    udStart?: { from: number; to: number; },
-    isUD?: boolean,
-    useOldNames?: boolean
-) {
+    goldSplitSelection: HTMLElement, goldSplitTimes: { from: number; to: number; time: number; }[], splitPath: {
+        from: number;
+        to: number;
+    }[], mapSplits: string[], levelMappings: { endSplitName: string; }, mode: number, udStart?: {
+        from: number;
+        to: number;
+    }, isUD?: boolean, useOldNames?: boolean) {
     if (isUD) {
-        appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes);
+        appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes, mode);
     }
     splitPath.forEach((splitPathEl) => {
         let name = mapSplits.find((_name, index) => {
@@ -226,7 +225,7 @@ function appendAllGoldSplits(
                 else name = levelMappings.endSplitName
             }
         }
-        appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection, goldSplitTimes);
+        appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection, goldSplitTimes, mode);
     })
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
@@ -313,7 +312,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     from: number;
     to: number;
     time: number;
-}[]): void {
+}[], mode: number): void {
     const div = document.createElement('div');
     const arrow = document.createElement('img');
     arrow.src = './assets/curved-arrow.svg';
@@ -324,7 +323,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     const inputRollbackWrapper = document.createElement('div');
     inputRollbackWrapper.id = "input-rollback-wrapper";
     const input = document.createElement('input');
-    const rollbackButton = createRevertButton();
+    const rollbackButton = createRevertButton(from, to, mode, input);
     input.type = 'text';
     input.id = `gold-${from}-${to}-input`;
     input.className = 'input-field';
@@ -367,9 +366,20 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     goldSplitSelection.appendChild(div);
 }
 
-function createRevertButton() {
+function createRevertButton(from: number, to: number, mode: number, input: HTMLInputElement): HTMLButtonElement {
     const rollbackButton = document.createElement('button');
     rollbackButton.title = "Revert to previous value";
+    rollbackButton.id=`rollback-${from}-${to}-btn`;
+    rollbackButton.classList.add('rollback-button');
+
+    rollbackButton.addEventListener('click', async () => {
+        const newTime: number = await window.electronAPI.onRevertGoldSplit(from, to, mode);
+        if (newTime === -1)
+            return;
+        input.value = newTime > 0 ? formatPbTime(newTime, true) : '';
+        input.classList.remove('invalid');
+        await updateRevertButtonValidity(mode)
+    })
 
     const image = document.createElement('img');
     image.src = './assets/white-rollback-arrow.png';
@@ -377,6 +387,18 @@ function createRevertButton() {
     rollbackButton.appendChild(image);
 
     return rollbackButton;
+}
+
+async function updateRevertButtonValidity(mode: number) {
+    const validRollbacksPromise = await window.electronAPI.getValidRollbacks(mode);
+    const revertButtons = document.querySelectorAll('button.rollback-button') as NodeListOf<HTMLButtonElement>;
+    revertButtons.forEach(btn => btn.disabled = true);
+    validRollbacksPromise.forEach(vr => {
+        const btn = document.getElementById(`rollback-${vr.from}-${vr.to}-btn`) as HTMLButtonElement | null;
+        if (!btn || !vr.valid) return;
+        else
+            btn.disabled = false;
+    });
 }
 
 window.electronAPI.mapAndModeChanged(async (_event: Electron.IpcRendererEvent,
@@ -395,6 +417,8 @@ window.electronAPI.mapAndModeChanged(async (_event: Electron.IpcRendererEvent,
 
 window.electronAPI.onGoldenSplitsImproved(async () => {
     await reloadGoldSplits();
+    const mode = parseInt(modeSelect.value, 10);
+    await updateRevertButtonValidity(mode)
 });
 
 window.electronAPI.onGoldPaceImproved(async () => {

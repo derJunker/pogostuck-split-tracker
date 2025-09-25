@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPlayCustomMode: (modeIndex: number): Promise<boolean> => ipcRenderer.invoke('play-custom-mode', modeIndex),
     onDeleteCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('delete-custom-mode', modeIndex),
     onUpdateBtnClicked: (downloadLink: string): Promise<void> => ipcRenderer.invoke('update-btn-clicked', downloadLink),
+    onRevertGoldSplit: (from: number, to: number, mode: number): Promise<number> => ipcRenderer.invoke('revert-gold-split', from, to, mode),
 
 
     // config querying backend
@@ -58,6 +59,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSelectedTab: (): Promise<string> => ipcRenderer.invoke('get-selected-tab'),
     getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
     getCustomModes: (): Promise<CustomModeInfo[]> => ipcRenderer.invoke('get-custom-modes'),
+    getValidRollbacks: (mode: number): Promise<{from: number, to: number, valid: boolean}[]> => ipcRenderer.invoke('get-valid-rollbacks', mode),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),

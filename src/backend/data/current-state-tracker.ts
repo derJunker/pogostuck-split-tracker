@@ -57,7 +57,7 @@ export class CurrentStateTracker {
             customModeInfo!.underlyingMode = mode;
             console.log(`Setting underlying mode to ${mode} because it was -1`);
         }
-        const newModeIsNotCustom = !isPlayingCustomMode || (customModeInfo!.underlyingMode !== mode) || mode === -1;
+        const newModeIsNotCustom = !isPlayingCustomMode || (customModeInfo!.underlyingMode !== mode) || (mode === -1 && customModeInfo!.underlyingMode !== -1)
         log.debug(`Checking for custom mode. Current mode: ${this.mode}, new mode: ${mode}, isPlayingCustomMode: ${isPlayingCustomMode}, customModeInfo: ${JSON.stringify(customModeInfo)}, newModeIsNotCustom: ${newModeIsNotCustom}`);
         if (newModeIsNotCustom) {
             customModeHandler.clearCustomMode(configWindow)

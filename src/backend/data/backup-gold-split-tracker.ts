@@ -1,7 +1,7 @@
 import log from "electron-log/main";
 import fs from "fs";
 import path from "path";
-import {app} from "electron";
+import {app, ipcMain} from "electron";
 import { PogoNameMappings } from "./pogo-name-mappings";
 import {GoldSplitHistory} from "../../types/gold-split-history";
 import {Split} from "../../types/mode-splits";
@@ -21,6 +21,30 @@ export class BackupGoldSplitTracker {
     }
 
     private backups: GoldSplitHistory[] = []
+
+    public initListeners() {
+        ipcMain.handle("revert-gold-split", (_event, from: number, to: number, mode:number) => {
+            const restored = this.restoreBackup({from, to}, mode)
+            if (restored !== null) {
+                log.info(`Restored backup gold split for mode ${mode}, split from ${from} to ${to}: ${restored}`);
+                this.saveBackupsIfChanged()
+                return restored
+            }
+            return -1
+        })
+
+        ipcMain.handle("get-valid-rollbacks", (_event, mode: number) => {
+            const modeHistory = this.getHistoryForMode(mode)
+            log.debug(`Getting valid rollbacks for mode ${mode}, history: ${JSON.stringify(modeHistory)}`);
+            if (!modeHistory)
+                return [];
+            return modeHistory.splitHistories.map(sh => ({
+                from: sh.split.from,
+                to: sh.split.to,
+                valid: sh.history.length > 0
+            }))
+        })
+    }
 
     public loadBackups() {
         const indexToNamesMappings = PogoNameMappings.getInstance()
@@ -54,10 +78,8 @@ export class BackupGoldSplitTracker {
     }
 
     public addBackup(time:number, split: Split, mode: number): void {
-        const splitBackups = this.getHistoryForSplit(mode, split)
+        let splitBackups = this.getHistoryForSplit(mode, split)
         log.info(`adding backup for mode ${mode}, split ${JSON.stringify(split)}: ${time}, existing: ${JSON.stringify(splitBackups)}`);
-        if (!splitBackups)
-            return;
         if (splitBackups.length >= 5) {
             splitBackups.splice(0, 1)
         }
@@ -71,7 +93,7 @@ export class BackupGoldSplitTracker {
         if (!splitBackups || splitBackups.length == 0)
             return null;
         this.backupsChanged = true;
-        return splitBackups.splice(-1, 1)
+        return splitBackups.splice(-1, 1)[0]
     }
 
     public saveBackupsIfChanged() {
@@ -86,12 +108,18 @@ export class BackupGoldSplitTracker {
     }
 
     private getHistoryForSplit(mode: number, split: Split) {
-        const splitHistory = this.getHistoryForMode(mode)
-        if (!splitHistory) {
-            log.error(`Getting Backup but mode: ${mode} not found!`);
-            return undefined;
+        let modeHistory = this.getHistoryForMode(mode)
+        if (!modeHistory) {
+            log.warn(`Getting Backup but mode: ${mode} not found! (No worries, if it's a new custom mode)`);
+            const newHistory: GoldSplitHistory = {
+                mode: mode,
+                splitHistories: []
+            }
+            this.backups.push(newHistory)
+            modeHistory = newHistory;
+            this.backupsChanged = true;
         }
-        return this.getHistoryForSplitWithHistory(splitHistory, split)
+        return this.getHistoryForSplitWithHistory(modeHistory, split)
     }
 
     private getHistoryForSplitWithHistory(splitHistory: GoldSplitHistory, split: Split) {

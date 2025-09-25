@@ -10,6 +10,7 @@ import {PogoNameMappings} from "./pogo-name-mappings";
 import {UserDataReader} from "./user-data-reader";
 import {CurrentStateTracker} from "./current-state-tracker";
 import {Split} from "../../types/mode-splits";
+import {CustomModeHandler} from "./custom-mode-handler";
 
 export class GoldSplitsTracker {
     private static instance: GoldSplitsTracker | null = null;
@@ -26,6 +27,7 @@ export class GoldSplitsTracker {
                 throw new Error("Instance not initialized. Please provide goldenSplits array.");
             }
             GoldSplitsTracker.instance = new GoldSplitsTracker(goldenSplits);
+
         }
         return GoldSplitsTracker.instance;
     }
@@ -213,7 +215,7 @@ export class GoldSplitsTracker {
 
     public initListeners(overlayWindow: BrowserWindow,
                          indexToNamesMappings: PogoNameMappings) {
-        ipcMain.handle('pb-entered', (event, modeAndTime: {mode: number, time: number}) => {
+        ipcMain.handle('pb-entered', (_event, modeAndTime: {mode: number, time: number}) => {
             const {mode, time} = modeAndTime;
             const pbTime = this.getPbForMode(mode);
             if (pbTime !== time) {
@@ -228,12 +230,16 @@ export class GoldSplitsTracker {
             }
         })
 
-        ipcMain.handle('gold-split-entered', (event, goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => {
+        ipcMain.handle('gold-split-entered', (_event, goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => {
             const {map, mode, from, to, time} = goldSplitInfo;
-            const isFasterThanCurrentPbSplits = this.isFasterThanCurrentPbSplits(mode, from, to, time);
-            if (!isFasterThanCurrentPbSplits) {
-                log.warn(`Tried to enter gold split that is not faster than current PB split for mode ${mode}: from ${from} to ${to} with time ${time}`);
-                return false
+            const customModeHandler = CustomModeHandler.getInstance();
+            const isCustomMode = customModeHandler.isCustomMode(map, mode);
+            if(!isCustomMode) {
+                const isFasterThanCurrentPbSplits = this.isFasterThanCurrentPbSplits(mode, from, to, time);
+                if (!isFasterThanCurrentPbSplits) {
+                    log.warn(`Tried to enter gold split that is not faster than current PB split for mode ${mode}: from ${from} to ${to} with time ${time}`);
+                    return false
+                }
             }
 
             log.info(`New gold split for map ${map}, mode ${mode}: ${from} -> ${to} = ${time}`);
@@ -244,7 +250,7 @@ export class GoldSplitsTracker {
             return true;
         })
 
-        ipcMain.handle('get-gold-splits', (event, mode: number) => {
+        ipcMain.handle('get-gold-splits', (_event, mode: number) => {
             const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === mode);
             if (modeSplits) {
                 return modeSplits.goldenSplits;

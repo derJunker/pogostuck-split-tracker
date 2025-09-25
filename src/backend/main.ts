@@ -10,7 +10,7 @@ import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./file-reading/read-golden-splits";
 import { SettingsManager } from "./settings-manager";
-import { initListeners as initWindows11Listeners } from './windows11-listeners';
+import {initListeners, initListeners as initWindows11Listeners} from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import {UserDataReader} from "./data/user-data-reader";
 import { VERSION } from "../version";
@@ -100,7 +100,7 @@ app.on("ready", async () => {
     configWindow.loadFile(indexHTML).then(async () => {})
 
     overlayWindow = openOverlayWindow();
-    CustomModeHandler.getInstance(overlayWindow, configWindow)
+    CustomModeHandler.getInstance().initListeners(overlayWindow, configWindow);
     settingsManager.initListeners(overlayWindow, configWindow)
 
     addPogostuckOpenedListener(overlayWindow, configWindow)
@@ -117,6 +117,7 @@ app.on("ready", async () => {
     goldSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
     goldPaceTracker.initListeners(overlayWindow);
     userDataReader.initListeners();
+    backupGoldTracker.initListeners()
     initWindows11Listeners();
 
     // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth

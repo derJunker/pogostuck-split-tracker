@@ -50,6 +50,7 @@ declare global { interface Window {
         onPlayCustomMode: (modeIndex: number) => Promise<boolean>;
         onDeleteCustomMode: (modeIndex: number) => Promise<void>;
         onUpdateBtnClicked: (downloadLink: string) => Promise<void>;
+        onRevertGoldSplit: (from: number, to: number, mode: number) => Promise<number>,
 
 
         // config querying backend
@@ -67,6 +68,7 @@ declare global { interface Window {
         getSelectedTab: () => Promise<string>;
         getPbs: () => Promise<{mode: number, time: number}[]>;
         getCustomModes: () => Promise<{map: number, modeIndex: number, modeTimes: number[]}[]>;
+        getValidRollbacks: (mode: number) => Promise<{from: number, to: number, valid: boolean}[]>
 
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;

@@ -25,17 +25,16 @@ export class CustomModeHandler {
     private static instance: CustomModeHandler | null = null;
 
 
-    public static getInstance(overlayWindow?: BrowserWindow, configWindow?: BrowserWindow): CustomModeHandler {
+    public static getInstance(): CustomModeHandler {
         if (!CustomModeHandler.instance) {
-            if (!overlayWindow || !configWindow) {
-                throw new Error("Overlay and config windows must be provided the first time getInstance is called");
-            }
-            const instance = new CustomModeHandler();
-            CustomModeHandler.instance = instance;
-            instance.initCustomModeList();
-            instance.initCustomModeFrontendListener(overlayWindow, configWindow);
+            CustomModeHandler.instance = new CustomModeHandler();
         }
         return CustomModeHandler.instance;
+    }
+
+    public initListeners(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+        this.initCustomModeList();
+        this.initCustomModeFrontendListener(overlayWindow, configWindow);
     }
     private constructor() {}
 

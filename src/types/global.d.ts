@@ -55,6 +55,7 @@ declare global { interface Window {
         onDeleteCustomMode: (modeIndex: number) => Promise<void>;
         onUpdateBtnClicked: (downloadLink: string) => Promise<void>;
         onRevertGoldSplit: (from: number, to: number, mode: number) => Promise<number>,
+        onCustomModeIsUDModeChanged: (isUDMode: boolean, modeIndex: number) => Promise<void>
 
 
         // config querying backend

@@ -16,6 +16,7 @@ let deleteButton: HTMLButtonElement;
 let stopButton: HTMLButtonElement;
 let buttonsContainer: HTMLDivElement;
 let nameContainer: HTMLDivElement;
+let isUDModeToggle: HTMLInputElement;
 
 let currentCustomMode: number | null = null;
 
@@ -29,6 +30,7 @@ export function initializeCustomModeTabHandler() {
     stopButton = document.getElementById("stop-custom-mode") as HTMLButtonElement;
     buttonsContainer = document.getElementById("custom-mode-name-container") as HTMLDivElement;
     nameContainer = document.getElementById("custom-mode-btns") as HTMLDivElement;
+    isUDModeToggle = document.getElementById("custom-mode-is-ud-toggle") as HTMLInputElement;
 
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (_) => {
@@ -44,6 +46,10 @@ export function initializeCustomModeTabHandler() {
             onSaveName(customModeNameInput.value).then(() => {});
             customModeNameInput.blur();
         }
+    });
+    isUDModeToggle.addEventListener("change", async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        await window.electronAPI.onCustomModeIsUDModeChanged(checked, parseInt(modeSelect.value));
     });
     playButton.addEventListener("click", () => onPlayCustomMode(parseInt(modeSelect.value)));
     deleteButton.addEventListener("click", () => onDeleteCustomMode(parseInt(modeSelect.value)));

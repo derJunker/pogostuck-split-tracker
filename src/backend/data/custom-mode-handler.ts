@@ -15,10 +15,12 @@ import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
+
 export interface CustomModeInfo {
     map: number,
     modeIndex: number,
-    modeTimes: number[]
+    modeTimes: number[],
+    isUD: boolean
 }
 
 export class CustomModeHandler {
@@ -56,6 +58,10 @@ export class CustomModeHandler {
 
     public isCustomMode(map: number, mode: number): boolean {
         return this.customModes.some(cm => cm.map === map && cm.modeIndex === mode);
+    }
+
+    public getCustomModeInfoByMode(mode: number): CustomModeInfo | undefined {
+        return this.customModes.find(cm => cm.modeIndex === mode);
     }
 
     public clearCustomMode(configWindow: BrowserWindow) {
@@ -103,6 +109,17 @@ export class CustomModeHandler {
         ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => this.saveCustomModeName(modeIndex, newName));
         ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
         ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow));
+        ipcMain.handle('custom-mode-is-ud-mode-changed', async (_, isUDMode: boolean, modeIndex: number) => this.changeCustomModeIsUDMode(isUDMode, modeIndex));
+    }
+
+    private changeCustomModeIsUDMode(isUDMode: boolean, modeIndex: number) {
+        const mode = this.customModes.find(cm => cm.modeIndex === modeIndex);
+        if (!mode) {
+            log.error(`Custom mode with index ${modeIndex} not found, cannot change UD mode`);
+            return;
+        }
+        mode.isUD = isUDMode;
+        this.saveCustomModesToFile();
     }
 
     private createCustomMode(map: number): { index: number, name: string } {
@@ -118,7 +135,8 @@ export class CustomModeHandler {
         const newCustomMode: CustomModeInfo = {
             map,
             modeIndex: newModeIndex,
-            modeTimes: []
+            modeTimes: [],
+            isUD: false
         };
         this.customModes.push(newCustomMode);
         this.saveCustomModesToFile()

@@ -321,7 +321,10 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     const label = document.createElement('label');
     label.setAttribute('for', `gold-${from}-${to}-input`);
     label.textContent = name;
+    const inputRollbackWrapper = document.createElement('div');
+    inputRollbackWrapper.id = "input-rollback-wrapper";
     const input = document.createElement('input');
+    const rollbackButton = createRevertButton();
     input.type = 'text';
     input.id = `gold-${from}-${to}-input`;
     input.className = 'input-field';
@@ -354,14 +357,26 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
         } else {
             input.classList.remove('invalid');
         }
-
-
     })
 
     div.appendChild(arrow);
     div.appendChild(label);
-    div.appendChild(input);
+    inputRollbackWrapper.appendChild(input);
+    inputRollbackWrapper.appendChild(rollbackButton);
+    div.appendChild(inputRollbackWrapper);
     goldSplitSelection.appendChild(div);
+}
+
+function createRevertButton() {
+    const rollbackButton = document.createElement('button');
+    rollbackButton.title = "Revert to previous value";
+
+    const image = document.createElement('img');
+    image.src = './assets/white-rollback-arrow.png';
+    image.alt = 'Revert to previous value';
+    rollbackButton.appendChild(image);
+
+    return rollbackButton;
 }
 
 window.electronAPI.mapAndModeChanged(async (_event: Electron.IpcRendererEvent,

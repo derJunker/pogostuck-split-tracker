@@ -284,7 +284,7 @@ export class GoldSplitsTracker {
         } else {
             fileTo = modeSplits.times.find(split => split.split === to)?.time;
         }
-        const fileDiff = fileTo !== undefined && fileFrom !== undefined ? fileTo - fileFrom : -1;
+        const fileDiff = fileTo !== undefined && fileFrom !== undefined ? Math.round((fileTo - fileFrom) * 1000) / 1000 : -1;
 
         if (fileDiff === -1) {
             log.error(`No split times found for from ${from} or to ${to} in mode ${mode} in pb split entry; isUD: ${isUD}, fileFrom: ${fileFrom}, fileTo: ${fileTo}; fileDiff: ${fileDiff}; time: ${time}`);
@@ -295,7 +295,7 @@ export class GoldSplitsTracker {
             log.warn(`Gold split time ${time} is greater than or equal to the file diff ${fileDiff} for from ${from} and to ${to} in mode ${mode}`);
             return false;
         }
-        log.info(`Gold split time ${time} is faster than the file diff ${fileDiff} for from ${from} and to ${to} in mode ${mode} isUD: ${isUD} fileFrom: ${fileFrom}, fileTo: ${fileTo}`);
+        log.debug(`Gold split time ${time} is faster than the file diff ${fileDiff} for from ${from} and to ${to} in mode ${mode} isUD: ${isUD} fileFrom: ${fileFrom}, fileTo: ${fileTo}`);
         return true;
     }
 

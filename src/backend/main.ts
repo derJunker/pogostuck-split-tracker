@@ -115,7 +115,7 @@ app.on("ready", async () => {
     writeGoldPacesIfChanged(configWindow)
 
     goldSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
-    goldPaceTracker.initListeners(overlayWindow);
+    goldPaceTracker.initListeners();
     userDataReader.initListeners();
     backupGoldTracker.initListeners()
     initWindows11Listeners();

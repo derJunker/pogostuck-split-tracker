@@ -1,7 +1,7 @@
 import {getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
 import {updateSplitsAndGolds} from "./splits-tab-handler";
 import path from "path";
-import {addError, removeError} from "../form-error-handler";
+import {addEnterAndWaitValidator, addError, removeError} from "../form-error-handler";
 import {Settings} from "../../types/settings";
 
 export function initPathsTabListeners() {
@@ -19,7 +19,7 @@ export function initPathsTabListeners() {
             addError(steamPathInput)
         }
     });
-    addEnterErrorListener(steamPathInput, "Steam Path",
+    addSettingsErrorValidator(steamPathInput, "Steam Path",
         window.electronAPI.onSteamUserDataPathChanged, (settings) => settings.steamPath);
 
     const steamFriendCode = document.getElementById('steam-friend-code') as HTMLInputElement;
@@ -34,7 +34,7 @@ export function initPathsTabListeners() {
             addError(steamFriendCode)
         }
     });
-    addEnterErrorListener(steamFriendCode, "Steam Friend Code",
+    addSettingsErrorValidator(steamFriendCode, "Steam Friend Code",
         window.electronAPI.onSteamFriendCodeChanged, (settings) => settings.userFriendCode);
 
     // Pogo Path
@@ -50,7 +50,7 @@ export function initPathsTabListeners() {
             removeError(pogoPathInput)
         }
     });
-    addEnterErrorListener(pogoPathInput, "Pogostuck Config Path",
+    addSettingsErrorValidator(pogoPathInput, "Pogostuck Config Path",
         window.electronAPI.onPogostuckConfigPathChanged, (settings) => settings.pogostuckConfigPath);
 
 
@@ -76,13 +76,11 @@ export function initPathsTabListeners() {
     })
 }
 
-function addEnterErrorListener(inputElement: HTMLInputElement, fieldName: string, backendUpdater: (value:string) => Promise<Settings>, settingsField: (settings:Settings) => string) {
-    inputElement.addEventListener('keydown', async (event) => {
-        if (event.key === "Enter") {
-            const oldValue = inputElement.value
-            const settings = updateFrontendSettings(await backendUpdater(oldValue))
-            const valid = settingsField(settings) === oldValue;
-            if (!valid) addError(inputElement, `The provided ${fieldName} is not valid.`)
-        }
-    })
+function addSettingsErrorValidator(inputElement: HTMLInputElement, fieldName: string,
+                               backendUpdater: (value:string) => Promise<Settings>,
+                               settingsField: (settings:Settings) => string) {
+    addEnterAndWaitValidator(inputElement, `The provided ${fieldName} could not be found :(`, async (value) => {
+        const settings = updateFrontendSettings(await backendUpdater(value))
+        return settingsField(settings) === value;
+    });
 }

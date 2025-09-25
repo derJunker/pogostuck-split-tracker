@@ -6,6 +6,9 @@
 // when you add an error you fill the hidden field and add a new empty hidden field
 // then add another hidden field
 
+import {Settings} from "../types/settings";
+import {updateFrontendSettings} from "./config-window/backend-state-handler";
+
 let errorContainer: HTMLDivElement | null = null;
 let hiddenErrorElement: HTMLDivElement | null = null;
 
@@ -32,7 +35,7 @@ export function addError(inputElement: HTMLInputElement, errorMessage?:string): 
     setTimeout(() => {
         errorElement.classList.add('hidden');
         setTimeout(() => errorElement.remove(), 500)
-    }, 3000)
+    }, 5000)
     hiddenErrorElement = null;
     createHiddenErrorElement();
 }
@@ -54,4 +57,42 @@ export function createHiddenErrorElement() {
 
 export function removeError(inputElement: HTMLInputElement): void {
     inputElement.classList.remove('invalid')
+}
+
+export function addEnterAndWaitValidator(inputElement: HTMLInputElement, message: string, validator: (value: string) => Promise<boolean>) {
+    let debounceTimeout: NodeJS.Timeout | null = null;
+    let errorTriggered = false;
+    let currentDelay = 1000;
+
+    inputElement.addEventListener('input', () => {
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = null;
+        }
+        debounceTimeout = setTimeout(async () => {
+            const valid = await validator(inputElement.value);
+            if (!valid) {
+                addError(inputElement, message);
+                errorTriggered = true;
+                currentDelay = 3000; // Increase delay after error
+            } else {
+                removeError(inputElement);
+                errorTriggered = false;
+                currentDelay = 1000; // Reset delay when valid
+            }
+        }, currentDelay);
+    });
+
+    inputElement.addEventListener('keydown', async (event) => {
+        if (event.key === "Enter") {
+            const valid = await validator(inputElement.value)
+            if (!valid) addError(inputElement, message)
+            else removeError(inputElement)
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = null;
+                currentDelay = 1000;
+            }
+        }
+    })
 }

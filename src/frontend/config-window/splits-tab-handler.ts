@@ -1,7 +1,7 @@
 import {createCustomLabledCheckbox} from "./custom-checkboxes";
 import {formatPbTime, parsePbTime} from "../util/time-formating";
 import {getFrontendMappings, getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
-import {addError, removeError} from "../form-error-handler";
+import {addEnterAndWaitValidator, addError, removeError} from "../form-error-handler";
 
 let mapSelect: HTMLSelectElement;
 let modeSelect: HTMLSelectElement;
@@ -169,24 +169,8 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
         input.className = 'pace-input';
         input.placeholder = '00:00.000';
 
-        input.addEventListener('input', async (event) => {
-            const inputValue = (event.target as HTMLInputElement).value
-            const map = parseInt(mapSelect.value)
-            const mode = parseInt(modeSelect.value)
-            let time = parsePbTime(inputValue)
-            if (inputValue.trim() === '') {
-                time = 0;
-            }
-            let valid = time >= 0;
-            if (valid) {
-                valid = await window.electronAPI.onGoldenPaceEntered({
-                    map: map,
-                    mode: mode,
-                    splitIndex: index,
-                    time: time
-                })
-            }
-
+        input.addEventListener('input', async () => {
+            const valid = await validateGoldenPace(input.value, index);
             if (!valid) {
                 addError(input)
                 return;
@@ -194,11 +178,36 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
                 removeError(input)
             }
         })
+        addEnterAndWaitValidator(input, `Pace for '${split}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldenPace(value, index));
 
         goldPaceSelection.appendChild(label);
         goldPaceSelection.appendChild(input);
     })
 
+}
+
+// addEnterAndWaitValidator(input, split, async (value) => {
+//
+//
+//                 });
+
+async function validateGoldenPace(value: string, index: number) {
+    const map = parseInt(mapSelect.value)
+    const mode = parseInt(modeSelect.value)
+    let time = parsePbTime(value)
+    if (value.trim() === '') {
+        time = 0;
+    }
+    let valid = time >= 0;
+    if (valid) {
+        valid = await window.electronAPI.onGoldenPaceEntered({
+            map: map,
+            mode: mode,
+            splitIndex: index,
+            time: time
+        })
+    }
+    return valid
 }
 
 function appendAllGoldSplits(
@@ -336,28 +345,12 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
         input.value = '';
     }
 
-    input.addEventListener('input', async (event) => {
-        const map = parseInt(mapSelect.value)
-        const mode = parseInt(modeSelect.value)
-        const time = parsePbTime((event.target as HTMLInputElement).value)
-        let valid = time > 0;
-        if (valid) {
-            valid = await window.electronAPI.onGoldenSplitsEntered({
-                map: map,
-                mode: mode,
-                from: from,
-                to: to,
-                time: time
-            })
-        }
-
-        if (!valid) {
-            addError(input)
-            return;
-        } else {
-            removeError(input)
-        }
+    input.addEventListener('input', async () => {
+        const valid = await validateGoldSplit(input.value, from, to);
+        if (!valid) addError(input)
+        else removeError(input)
     })
+    addEnterAndWaitValidator(input, `Gold Split '${name}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldSplit(input.value, from, to));
 
     div.appendChild(arrow);
     div.appendChild(label);
@@ -365,6 +358,23 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     inputRollbackWrapper.appendChild(rollbackButton);
     div.appendChild(inputRollbackWrapper);
     goldSplitSelection.appendChild(div);
+}
+
+async function validateGoldSplit(value: string, from: number, to: number) {
+    const time = parsePbTime(value);
+    const map = parseInt(mapSelect.value)
+    const mode = parseInt(modeSelect.value)
+    let valid = time > 0;
+    if (valid) {
+        valid = await window.electronAPI.onGoldenSplitsEntered({
+            map: map,
+            mode: mode,
+            from: from,
+            to: to,
+            time: time
+        })
+    }
+    return valid;
 }
 
 function createRevertButton(from: number, to: number, mode: number, input: HTMLInputElement): HTMLButtonElement {

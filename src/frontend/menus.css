@@ -1,4 +1,7 @@
 /* css for the menu-bar and footer */
+:root {
+    --title-bar-height: 31px;
+}
 
 header {
     position: relative; /* Changed from fixed */
@@ -18,7 +21,7 @@ header {
     gap: .4rem;
     align-items: center;
     text-wrap: nowrap;
-    height: 31px;
+    height: var(--title-bar-height);
     app-region: drag;
     padding-left: .6rem;
     font-size: .8rem;

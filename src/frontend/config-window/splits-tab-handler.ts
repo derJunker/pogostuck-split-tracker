@@ -1,6 +1,7 @@
 import {createCustomLabledCheckbox} from "./custom-checkboxes";
 import {formatPbTime, parsePbTime} from "../util/time-formating";
 import {getFrontendMappings, getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
+import {addError, removeError} from "../form-error-handler";
 
 let mapSelect: HTMLSelectElement;
 let modeSelect: HTMLSelectElement;
@@ -187,10 +188,10 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
             }
 
             if (!valid) {
-                input.classList.add('invalid');
+                addError(input)
                 return;
             } else {
-                input.classList.remove('invalid');
+                removeError(input)
             }
         })
 
@@ -351,10 +352,10 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
         }
 
         if (!valid) {
-            input.classList.add('invalid');
+            addError(input)
             return;
         } else {
-            input.classList.remove('invalid');
+            removeError(input)
         }
     })
 
@@ -377,7 +378,7 @@ function createRevertButton(from: number, to: number, mode: number, input: HTMLI
         if (newTime === -1)
             return;
         input.value = newTime > 0 ? formatPbTime(newTime, true) : '';
-        input.classList.remove('invalid');
+        removeError(input)
         await updateRevertButtonValidity(mode)
     })
 

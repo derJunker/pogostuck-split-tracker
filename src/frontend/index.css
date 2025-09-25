@@ -99,6 +99,7 @@ button > img {
 
 /* Create a scrollable content container */
 .main-content {
+    position: relative;
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;

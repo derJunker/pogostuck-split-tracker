@@ -5,6 +5,7 @@ import {
 } from "./backend-state-handler";
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./pb-tab-handler";
 import {loadLevelsFromMappingSplitTab, updateModesForLevel, updateSplitsAndGolds} from "./splits-tab-handler";
+import {addError, removeError} from "../form-error-handler";
 
 let mapSelect: HTMLSelectElement;
 let modeSelect: HTMLSelectElement;
@@ -154,9 +155,9 @@ function onModeChange() {
 async function onSaveName(name: string) {
     __electronLog.debug("[Frontend] Save name", name);
     const previousIndex = modeSelect.selectedIndex;
-    customModeNameInput.classList.remove("invalid")
+    removeError(customModeNameInput)
     if (name.trim().length === 0) {
-        customModeNameInput.classList.add("invalid")
+        addError(customModeNameInput, "Name cannot be empty");
         return;
     }
     __electronLog.debug(`[Frontend] previous index: ${previousIndex}, value: ${modeSelect.value}`);
@@ -166,6 +167,7 @@ async function onSaveName(name: string) {
     modeSelect.selectedIndex = previousIndex;
     onModeChange();
 }
+
 function onPlayCustomMode(mode: number) {
     window.electronAPI.onPlayCustomMode(mode).then(validChange => {
         if (validChange) {

@@ -1,6 +1,8 @@
 import {getFrontendSettings, updateFrontendSettings} from "./backend-state-handler";
 import {updateSplitsAndGolds} from "./splits-tab-handler";
 import path from "path";
+import {addError, removeError} from "../form-error-handler";
+import {Settings} from "../../types/settings";
 
 export function initPathsTabListeners() {
     // Steam Path
@@ -10,26 +12,30 @@ export function initPathsTabListeners() {
         const settings = updateFrontendSettings(await window.electronAPI.onSteamUserDataPathChanged(value))
         const wasValidPath = settings.steamPath === value;
         if (wasValidPath) {
-            steamPathInput.classList.remove('invalid');
+            removeError(steamPathInput);
             await updateSplitsAndGolds()
         }
         else {
-            steamPathInput.classList.add('invalid');
+            addError(steamPathInput)
         }
     });
+    addEnterErrorListener(steamPathInput, "Steam Path",
+        window.electronAPI.onSteamUserDataPathChanged, (settings) => settings.steamPath);
 
     const steamFriendCode = document.getElementById('steam-friend-code') as HTMLInputElement;
-    steamFriendCode.addEventListener('input', async () => {
+    steamFriendCode.addEventListener('input', async (event) => {
         const value = steamFriendCode.value;
         const settings = updateFrontendSettings(await window.electronAPI.onSteamFriendCodeChanged(value))
         const wasValidCode = settings.userFriendCode === value;
         if (wasValidCode) {
-            steamFriendCode.classList.remove('invalid');
+            removeError(steamFriendCode)
         }
         else {
-            steamFriendCode.classList.add('invalid');
+            addError(steamFriendCode)
         }
     });
+    addEnterErrorListener(steamFriendCode, "Steam Friend Code",
+        window.electronAPI.onSteamFriendCodeChanged, (settings) => settings.userFriendCode);
 
     // Pogo Path
     const pogoPathInput = document.getElementById('pogo-path-text') as HTMLInputElement;
@@ -38,33 +44,45 @@ export function initPathsTabListeners() {
         const settings = updateFrontendSettings(await window.electronAPI.onPogostuckConfigPathChanged(value))
         const wasValidPath = settings.pogostuckConfigPath === value;
         if (wasValidPath) {
-            pogoPathInput.classList.remove('invalid');
+            addError(pogoPathInput)
         }
         else {
-            pogoPathInput.classList.add('invalid');
+            removeError(pogoPathInput)
         }
     });
+    addEnterErrorListener(pogoPathInput, "Pogostuck Config Path",
+        window.electronAPI.onPogostuckConfigPathChanged, (settings) => settings.pogostuckConfigPath);
+
 
     window.electronAPI.onPogoPathFound((event, path) => {
         pogoPathInput.value = path;
-        pogoPathInput.classList.remove('invalid');
+        removeError(pogoPathInput)
         const settings = getFrontendSettings();
         settings.pogostuckConfigPath = path;
     })
 
     window.electronAPI.onSteamPathFound((event, path) => {
         steamPathInput.value = path;
-        steamPathInput.classList.remove('invalid');
+        removeError(steamPathInput)
         const settings = getFrontendSettings();
         settings.steamPath = path;
     })
     
     window.electronAPI.onSteamFriendCodeFound((event, code) => {
         steamFriendCode.value = code;
-        steamFriendCode.classList.remove('invalid');
+        removeError(steamFriendCode)
         const settings = getFrontendSettings();
         settings.userFriendCode = code;
     })
+}
 
-
+function addEnterErrorListener(inputElement: HTMLInputElement, fieldName: string, backendUpdater: (value:string) => Promise<Settings>, settingsField: (settings:Settings) => string) {
+    inputElement.addEventListener('keydown', async (event) => {
+        if (event.key === "Enter") {
+            const oldValue = inputElement.value
+            const settings = updateFrontendSettings(await backendUpdater(oldValue))
+            const valid = settingsField(settings) === oldValue;
+            if (!valid) addError(inputElement, `The provided ${fieldName} is not valid.`)
+        }
+    })
 }

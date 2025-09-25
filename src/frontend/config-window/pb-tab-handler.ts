@@ -1,6 +1,7 @@
 import {reloadGoldSplitsIfModeActive} from "./splits-tab-handler";
 import {formatPbTime, parsePbTime} from "../util/time-formating";
 import {getFrontendMappings, getFrontendPbs} from "./backend-state-handler";
+import {addError, removeError} from "../form-error-handler";
 
 
 export function addEmptyPbInputFields() {
@@ -56,12 +57,12 @@ window.electronAPI.onPbImproved((event, data) => {
 async function onPbEntered(input: HTMLInputElement, modeKey: number): Promise<boolean> {
     const time = parsePbTime((input as HTMLInputElement).value);
     if (time < 0) {
-        input.classList.add('invalid');
+        addError(input, "Time is not in a valid format");
         return false;
     } else if (time === 0) {
         return false;
     } else {
-        input.classList.remove('invalid');
+        removeError(input)
     }
     __electronLog.info(`PB entered for mode ${modeKey}: ${time}`);
     await window.electronAPI.onPbEntered({mode: modeKey, time: time});

@@ -2,8 +2,12 @@ import {Settings} from "./settings";
 import {PogoLevel} from "./pogo-index-mapping";
 import {ipcRenderer} from "electron";
 
+export interface SplitInfo {
+    name: string; split: number; time: number; hide:boolean; skipped:boolean, resets: number
+}
+
 export interface PbRunInfoAndSoB {
-    splits: { name: string; split: number; time: number; hide:boolean; skipped:boolean}[],
+    splits: SplitInfo[],
     pb: number,
     sumOfBest: number,
     settings: Settings,

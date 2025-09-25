@@ -32,9 +32,9 @@ export function readUserStats(): UserModeStats[] {
 
 export function writeUserStats(): void {
     const userStatTracker = UserStatTracker.getInstance()
-    userStatTracker.changeSaved()
     const userStats = userStatTracker.getUserStats();
-    fs.writeFileSync(userStatsPath, JSON.stringify(userStats));
+    fs.writeFileSync(userStatsPath, JSON.stringify(userStats, null, 2), 'utf-8');
+    userStatTracker.changeSaved()
     log.info(`written user stats to ${userStatsPath}`);
 }
 

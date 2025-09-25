@@ -268,13 +268,10 @@ export class SettingsManager {
         })
     }
 
-    public getSplitIndexPath( mode: number, splitAmount: number ): Split[] {
+    public getSplitIndexPath( mode: number, splitAmount: number): Split[] {
         // some of the newer map 1 modes have a unused split for some reason :(
-        const customModeHandler = CustomModeHandler.getInstance();
-        let underlyingMode = mode;
-        if (customModeHandler.isPlayingCustomMode() && customModeHandler.getCustomMode()!.underlyingMode)
-            underlyingMode = customModeHandler.getCustomMode()!.underlyingMode!
-        if (hasUnusedExtraSplit(underlyingMode) && splitAmount === 10) {
+        const stateTracker = CurrentStateTracker.getInstance();
+        if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
             splitAmount = 9
             log.info(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);
         }

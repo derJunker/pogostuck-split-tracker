@@ -3,7 +3,7 @@ import * as path from 'path';
 import chokidar, { FSWatcher } from 'chokidar';
 import log from "electron-log/main";
 
-const DEBUG_PRINT_MESSAGES = true;
+const DEBUG_PRINT_MESSAGES = false;
 
 export class FileWatcher {
     private static instance: FileWatcher | null = null;

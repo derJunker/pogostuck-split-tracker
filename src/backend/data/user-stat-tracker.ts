@@ -1,5 +1,6 @@
 import {UserModeStats} from "../../types/user-stats-types";
-import {readUserStats} from "../file-reading/read-user-stats";
+import {readUserStats, writeUserStats, writeUserStatsIfChanged} from "../file-reading/read-user-stats";
+import log from "electron-log/main";
 
 
 export class UserStatTracker {
@@ -20,6 +21,7 @@ export class UserStatTracker {
     }
 
     public increaseResetsForSplit(map: number, mode: number, split: number) {
+        log.info(`increasing resets for map ${map}, mode ${mode}, split ${split}`);
         let modeStats = this.userStats.find(ums => ums.map === map && ums.mode === mode);
         if (!modeStats) {
             modeStats = {
@@ -35,8 +37,23 @@ export class UserStatTracker {
             modeStats.resetsAfterSplit.push(splitStat);
         }
         splitStat.resets += 1;
+        log.info(`modeStats after increase: ${JSON.stringify(modeStats)}`);
 
         this.changed = true;
+    }
+
+    public getUserStatsForMode(map: number, mode: number) {
+        let userStatsForMode = this.userStats.find(ums => ums.mode === mode && ums.map === map);
+        if (!userStatsForMode) {
+            userStatsForMode = {
+                map: map,
+                mode: mode,
+                resetsAfterSplit: []
+            }
+            this.userStats.push(userStatsForMode);
+            writeUserStats()
+        }
+        return userStatsForMode;
     }
 
 

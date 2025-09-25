@@ -2,52 +2,55 @@ import './overlay.css';
 import './components.css';
 
 import { formatPbTime } from './util/time-formating';
-import {PbRunInfoAndSoB} from "../types/global";
+import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 
-function loadMapMode(mapAndModeChanged: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest } = mapAndModeChanged;
+function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
+    const { splits, pb, sumOfBest } = pbRunInfo;
 
     // Clear splits
     const splitsDiv = document.getElementById('splits');
+    __electronLog.debug(`received splits: ${JSON.stringify(splits)}`);
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
-        splits.forEach(split => {
-            const skippedClass = split.skipped ? 'skipped' : '';
-            const splitDiv = document.createElement('div');
-            splitDiv.className = 'split';
-            splitDiv.id = split.split.toString();
-
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'split-name ' + skippedClass;
-            nameSpan.textContent = split.name;
-            splitDiv.appendChild(nameSpan);
-
-            // const resetsSpan = document.createElement('span');
-            // resetsSpan.className = 'split-resets';
-            // resetsSpan.textContent = `0`; // adjust with actual values
-            // splitDiv.appendChild(resetsSpan);
-
-            const diffSpan = document.createElement('span');
-            diffSpan.className = 'split-diff';
-            // Empty diff
-            splitDiv.appendChild(diffSpan);
-
-            const timeSpan = document.createElement('span');
-            timeSpan.className = 'split-time ' + skippedClass;
-            timeSpan.textContent = formatPbTime(split.time)
-            splitDiv.appendChild(timeSpan);
-            if (split.hide) splitDiv.style.display = 'none';
-
-            splitsDiv.appendChild(splitDiv);
-        });
+        splits.forEach((split: SplitInfo) => appendSplit(split, splitsDiv));
     }
     // Sum of Best und PB setzen
     resetPbAndSumOfBest(pb, sumOfBest)
-    __electronLog.debug(`mapAndModeChanged: ${JSON.stringify(mapAndModeChanged.customModeName)}`);
-    toggleCustomModeDisplay(mapAndModeChanged.customModeName)
+    __electronLog.debug(`mapAndModeChanged: ${JSON.stringify(pbRunInfo.customModeName)}`);
+    toggleCustomModeDisplay(pbRunInfo.customModeName)
 
     document.getElementById('totals')!.style!.display = 'inline';
     document.getElementById('status-msg')!.style!.display = 'none';
+}
+
+function appendSplit(split: SplitInfo, splitsDiv: HTMLElement) {
+    const skippedClass = split.skipped ? 'skipped' : '';
+    const splitDiv = document.createElement('div');
+    splitDiv.className = 'split';
+    splitDiv.id = split.split.toString();
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'split-name ' + skippedClass;
+    nameSpan.textContent = split.name;
+    splitDiv.appendChild(nameSpan);
+
+    const resetsSpan = document.createElement('span');
+    resetsSpan.className = 'split-resets';
+    resetsSpan.textContent = `${split.resets}`;
+    splitDiv.appendChild(resetsSpan);
+
+    const diffSpan = document.createElement('span');
+    diffSpan.className = 'split-diff';
+    // Empty diff
+    splitDiv.appendChild(diffSpan);
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'split-time ' + skippedClass;
+    timeSpan.textContent = formatPbTime(split.time)
+    splitDiv.appendChild(timeSpan);
+    if (split.hide) splitDiv.style.display = 'none';
+
+    splitsDiv.appendChild(splitDiv);
 }
 
 function toggleCustomModeDisplay(customModeName?: string) {
@@ -102,8 +105,8 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
 }
 
 window.electronAPI.resetOverlay((_event: Electron.IpcRendererEvent,
-                                       mapAndMode: PbRunInfoAndSoB) => {
-    loadMapMode(mapAndMode);
+                                       pbRunInfo: PbRunInfoAndSoB) => {
+    loadMapMode(pbRunInfo);
 });
 
 window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,

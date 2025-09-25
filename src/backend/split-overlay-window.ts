@@ -14,6 +14,7 @@ import {Split} from "../types/mode-splits";
 import {CustomModeHandler} from "./data/custom-mode-handler";
 // @ts-ignore
 import WindowStateManager from 'electron-window-state-manager';
+import {UserStatTracker} from "./data/user-stat-tracker";
 
 let correctWindowForOverlayInFocus = false;
 export let pogostuckHasBeenOpenedOnce = false;
@@ -163,6 +164,7 @@ function getPbRunInfoAndSoB(
     const settingsManager = SettingsManager.getInstance();
     const goldenSplitTracker = GoldSplitsTracker.getInstance();
     const nameMappings = PogoNameMappings.getInstance();
+    const customModeHandler = CustomModeHandler.getInstance();
 
     const mapModeAndSplits = nameMappings.getMapModeAndSplits(mapNum, modeNum);
     let pbSplitTimes = pbSplitTracker.getPbSplitsForMode(modeNum);
@@ -187,12 +189,22 @@ function getPbRunInfoAndSoB(
 
     const pbTime = goldenSplitTracker.getPbForMode(modeNum);
     const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));
-    const customMode = CustomModeHandler.getInstance().getCustomMode()
+    const customMode = customModeHandler.getCustomMode()
     const customModeName = customMode ? nameMappings.getMapModeAndSplits(customMode.map!, customMode.customMode!).mode : undefined
 
+    const userStats = UserStatTracker.getInstance();
+    const userStatsForMode = userStats.getUserStatsForMode(mapNum, modeNum);
     log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}, custom mode name is ${customModeName}`);
+    log.debug(`userStatsForMode: ${JSON.stringify(userStatsForMode)}`);
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
+            const underlyingMode = customMode ? customMode.underlyingMode : modeNum
+            const isUD = isUpsideDownMode(underlyingMode)
+            const resetSplitIndex = isUD ? i : i-1;
+            let resetInfo = userStatsForMode.resetsAfterSplit.find(rs => rs.split === resetSplitIndex);
+            if (!resetInfo) {
+                resetInfo = { split: i-1, resets: 0};
+            }
             let splitInfo = pbSplitTimes.find(infos => infos.split === i)
             if (!splitInfo) {
                 splitInfo = { split: i, time: Infinity}
@@ -202,7 +214,8 @@ function getPbRunInfoAndSoB(
                 split: splitInfo.split,
                 time: splitInfo.time,
                 hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
-                skipped: settingsManager.splitShouldBeSkipped(modeNum, i)
+                skipped: settingsManager.splitShouldBeSkipped(modeNum, i),
+                resets: resetInfo.resets
             })
         }),
         pb: pbTime === Infinity ? -1 : pbTime,

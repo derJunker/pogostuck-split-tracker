@@ -5,6 +5,7 @@ import {isUpsideDownMode} from "./valid-modes";
 import log from "electron-log/main";
 import {BrowserWindow, ipcMain} from "electron";
 import {writeGoldenPace} from "../file-reading/read-golden-paces";
+import {CustomModeHandler} from "./custom-mode-handler";
 
 export class GoldPaceTracker {
     private static instance: GoldPaceTracker;
@@ -28,10 +29,14 @@ export class GoldPaceTracker {
     public initListeners() {
         ipcMain.handle('gold-pace-entered', (event, goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }) => {
             const {map, mode , splitIndex, time} = goldPaceInfo;
-            const isFasterThanCurrentPbPace = this.isFasterThanCurrentPbPace(mode, splitIndex, time);
-            if (!isFasterThanCurrentPbPace) {
-                log.warn(`Gold pace for map ${map}, mode ${mode}, splitIndex ${splitIndex} is not faster than current PB pace.`);
-                return false;
+            const customModeHandler = CustomModeHandler.getInstance();
+            const isCustomMode = customModeHandler.isCustomMode(map, mode);
+            if(!isCustomMode) {
+                const isFasterThanCurrentPbPace = this.isFasterThanCurrentPbPace(mode, splitIndex, time);
+                if (!isFasterThanCurrentPbPace) {
+                    log.warn(`Gold pace for map ${map}, mode ${mode}, splitIndex ${splitIndex} is not faster than current PB pace.`);
+                    return false;
+                }
             }
             log.info(`Gold pace for map ${map}, mode ${mode}, splitIndex ${splitIndex} with time ${time} entered.`);
             this.updateGoldPace(mode, splitIndex, time);

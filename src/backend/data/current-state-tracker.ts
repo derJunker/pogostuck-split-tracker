@@ -18,7 +18,8 @@ export class CurrentStateTracker {
     private mode: number = -1;
     private map: number = -1;
     private recordedSplits: { split: number, time: number }[] = [];
-    private finalTime: number = -1;
+    private finalTime: number = -1; // not rly useful yet, but might be later just fits to put it here^^
+    private currentlyRunning: boolean = false;
 
     private pogoPathValid: boolean = false;
     private steamPathValid: boolean = false;
@@ -181,9 +182,21 @@ export class CurrentStateTracker {
     }
 
     public resetRun() {
-        // TODO save the recorded splits for data
         this.recordedSplits = [];
         this.finalTime = -1;
+        this.currentlyRunning = false;
+    }
+
+    public startingRun() {
+        this.currentlyRunning = true;
+    }
+
+    public stoppingRun() {
+        this.currentlyRunning = false;
+    }
+
+    public isCurrentlyRunning(): boolean {
+        return this.currentlyRunning;
     }
 
     public getCurrentMap(): number {

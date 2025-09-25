@@ -21,6 +21,7 @@ const enableBackgroundColorCheckbox = document.getElementById('enable-background
 const backgroundColorInput = document.getElementById('set-background-color') as HTMLInputElement;
 
 export function setPreferenceTabValuesFromSettings() {
+    initListeners()
     const settings = getFrontendSettings();
 
     steamPathInput.value = settings.steamPath;
@@ -53,49 +54,51 @@ export function setPreferenceTabValuesFromSettings() {
     backgroundColorInput.dispatchEvent(new Event('input'));
 }
 
-hideSkippedSplitsCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onOptionHideSkippedSplitsChanged(checked))
-});
+function initListeners() {
+    hideSkippedSplitsCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onOptionHideSkippedSplitsChanged(checked))
+    });
 
-hideWindowWhenPogoNotActiveCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onOptionHideWindowWhenPogoNotActive(checked))
-});
+    hideWindowWhenPogoNotActiveCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onOptionHideWindowWhenPogoNotActive(checked))
+    });
 
-onlyColorDiffCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onOnlyDiffColoredChanged(checked))
-});
+    onlyColorDiffCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onOnlyDiffColoredChanged(checked))
+    });
 
-raceGoldSplitsCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onRaceGoldsChanged(checked))
-});
+    raceGoldSplitsCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onRaceGoldsChanged(checked))
+    });
 
-launchPogoOnStartupCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onLaunchPogoOnStartupChanged(checked))
-});
+    launchPogoOnStartupCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onLaunchPogoOnStartupChanged(checked))
+    });
 
-// Split Names
-clickThroughOverlayCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onOptionClickThroughOverlayChanged(checked))
-})
+    // Split Names
+    clickThroughOverlayCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onOptionClickThroughOverlayChanged(checked))
+    })
 
-splitNamingSelect.addEventListener('change', async (e) => {
-    const value = (e.target as HTMLSelectElement).value === 'new';
-    updateFrontendSettings(await window.electronAPI.onOptionShowNewSplitNamesChanged(value))
-    await loadBackendMappings()
-    await updateSplitsAndGolds()
-});
+    splitNamingSelect.addEventListener('change', async (e) => {
+        const value = (e.target as HTMLSelectElement).value === 'new';
+        updateFrontendSettings(await window.electronAPI.onOptionShowNewSplitNamesChanged(value))
+        await loadBackendMappings()
+        await updateSplitsAndGolds()
+    });
 
-enableBackgroundColorCheckbox.addEventListener('change', async (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    updateFrontendSettings(await window.electronAPI.onEnableBackgroundColorChanged(checked))
-})
-backgroundColorInput.addEventListener('input', async (e) => {
-    const value = (e.target as HTMLInputElement).value;
-    updateFrontendSettings(await window.electronAPI.onBackgroundColorChanged(value))
-})
+    enableBackgroundColorCheckbox.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onEnableBackgroundColorChanged(checked))
+    })
+    backgroundColorInput.addEventListener('input', async (e) => {
+        const value = (e.target as HTMLInputElement).value;
+        updateFrontendSettings(await window.electronAPI.onBackgroundColorChanged(value))
+    })
+}

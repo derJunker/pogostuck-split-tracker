@@ -10,13 +10,17 @@ import {resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
+import {writeUserStatsIfChanged} from "../file-reading/read-user-stats";
+import {UserStatTracker} from "../data/user-stat-tracker";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+    // The holy mother of singleton-definitions
     const stateTracker = CurrentStateTracker.getInstance();
     const fileWatcher = FileWatcher.getInstance();
     const settingsManager = SettingsManager.getInstance();
     const pbSplitTracker = PbSplitTracker.getInstance();
     const goldenSplitsTracker = GoldSplitsTracker.getInstance();
+    const userStatTracker = UserStatTracker.getInstance();
 
     // map or mode gets logged
     fileWatcher.registerListener(
@@ -93,12 +97,28 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     fileWatcher.registerListener(
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
         () => {
-            stateTracker.resetRun();
-            if (isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode()))
-                resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
-            else
+            if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
                 log.debug(`player reset with invalid map or mode: ${stateTracker.getCurrentMap()}, ${stateTracker.getCurrentMode()}`);
+            } else if (stateTracker.isCurrentlyRunning()){
+                const map = stateTracker.getCurrentMap();
+                const mode = stateTracker.getCurrentMode();
+                const lastSplit = stateTracker.getLastSplitTime().split
+                userStatTracker.increaseResetsForSplit(map, mode, lastSplit)
+                stateTracker.resetRun();
+            } else {
+                log.debug(`player reset while not in a run, ignoring for stats`);
+                stateTracker.resetRun();
+            }
+            resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
             onTimeToFileWrite(configWindow);
+        }
+    )
+    // replayInit at frame 3541: replayKuLocal(00000000) | h(0) b(0) statusFlags(4)
+    fileWatcher.registerListener(
+        /replayInit .*/,
+        () => {
+            stateTracker.startingRun();
+            // TODO if no map or mode is selected backtrack to find map or mode
         }
     )
 
@@ -109,6 +129,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
                 return;
             }
+            stateTracker.stoppingRun();
             const { time, pbTime } = match.groups!;
             const timeInMS = parseFloat(time)
             const pbTimeInMS = parseFloat(pbTime);
@@ -121,6 +142,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
             onTimeToFileWrite(configWindow);
+            stateTracker.resetRun();
         }
     );
 
@@ -129,6 +151,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         () => {
             overlayWindow.webContents.send("main-menu-opened")
             stateTracker.updateMapAndMode(-1, -1, configWindow)
+            stateTracker.resetRun();
         }
     );
 
@@ -141,6 +164,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 overlayWindow.hide()
             overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"
             stateTracker.updateMapAndMode(-1, -1, configWindow)
+            stateTracker.resetRun();
         }
     )
 }
@@ -148,6 +172,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 function onTimeToFileWrite(configWindow: BrowserWindow) {
     writeGoldSplitsIfChanged(configWindow)
     writeGoldPacesIfChanged(configWindow)
+    writeUserStatsIfChanged()
     BackupGoldSplitTracker.getInstance().saveBackupsIfChanged();
 }
 

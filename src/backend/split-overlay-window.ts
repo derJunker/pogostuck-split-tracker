@@ -36,6 +36,8 @@ export function openOverlayWindow() {
     else
         log.info(`Restoring overlay x pos to: ${overlayState.x} y pos to: ${overlayState.y}`);
 
+    log.info(`loading width and height: (${overlayState.width}, ${overlayState.height})`)
+
     const overlayWindow = new BrowserWindow({
         width: overlayState.width,
         height: overlayState.height,
@@ -53,6 +55,8 @@ export function openOverlayWindow() {
         title: "split-overlay",
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
     });
+    // for some ungodly reason it just started setting the width and height to 2/3rds of the intended size, so i have to re-set it here :)
+    overlayWindow.setSize(overlayState.width, overlayState.height);
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
 

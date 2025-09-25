@@ -215,12 +215,13 @@ export class SettingsManager {
             return this.currentSettings;
         });
         ipcMain.handle('enable-background-color-changed', (event, enableBackgroundColor: boolean) => {
-            if (this.currentSettings.enableBackgroundColor === enableBackgroundColor)
-                return this.currentSettings;
+            if (this.currentSettings.enableBackgroundColor !== enableBackgroundColor) {
+                this.currentSettings.enableBackgroundColor = enableBackgroundColor;
+                this.saveSettings();
+            }
             log.info(`[Setting] 'Enable background color' changed to: ${enableBackgroundColor}`);
-            this.currentSettings.enableBackgroundColor = enableBackgroundColor;
             overlayWindow.webContents.send('change-background', enableBackgroundColor ? this.currentSettings.backgroundColor : null);
-            this.saveSettings();
+
             return this.currentSettings;
         });
 

@@ -1,26 +1,4 @@
-:root {
-    --color-bg: #000;
-    --color-fg: #fff;
-    --color-accent: #000;
-    --color-border: #000;
-    --color-checkbox-bg: #fff;
-    --color-checkbox-dot: #fff;
-    --color-placeholder: #888;
-    --color-active-bg: #fff;
-    --color-active-fg: #000;
-    --border-radius: 4px;
-    --border-width: 2px;
-    --font-family: 'Courier Prime', monospace;
-    --font-size: 1rem;
-    --font-size-large: 1.2rem;
-    --font-weight: bold;
-    --transition-fast: 0.2s;
-    --transition-medium: 0.3s;
-    --padding-btn: 0.25rem 1rem;
-    --padding-input: 0.25rem 0.8rem;
-    --padding-dropdown: 0.25em 2em 0.25em 0.5em;
-    --dropdown-arrow-size: 10px 5px;
-}
+@import "index.css";
 
 @font-face {
     font-family: 'Courier Prime';

@@ -178,7 +178,7 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
                 removeError(input)
             }
         })
-        addEnterAndWaitValidator(input, `Pace for '${split}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldenPace(value, index));
+        addEnterAndWaitValidator(input, `'${split}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldenPace(value, index));
 
         goldPaceSelection.appendChild(label);
         goldPaceSelection.appendChild(input);
@@ -350,7 +350,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
         if (!valid) addError(input)
         else removeError(input)
     })
-    addEnterAndWaitValidator(input, `Gold Split '${name}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldSplit(input.value, from, to));
+    addEnterAndWaitValidator(input, `Split '${name}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldSplit(input.value, from, to));
 
     div.appendChild(arrow);
     div.appendChild(label);

@@ -85,7 +85,6 @@ export class BackupGoldSplitTracker {
             splitBackups.splice(0, 1)
         }
         splitBackups.push(time)
-        log.info(`splitBackups: ${JSON.stringify(splitBackups)}, this.backups: ${JSON.stringify(this.backups)}`);
         this.backupsChanged = true;
     }
 

@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => ipcRenderer.invoke('pogostuck-config-path-changed', pogostuckConfigPath),
     onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),
     onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => ipcRenderer.invoke('only-diff-colored-changed', onlyDiffColored),
+    onShowResetCountersChanged: (onlyDiffColored: boolean): Promise<Settings> => ipcRenderer.invoke('show-reset-counters-changed', onlyDiffColored),
     onRaceGoldsChanged: (raceGolds: boolean) => ipcRenderer.invoke('race-golds-changed', raceGolds),
     onPbEntered: (modeAndTime: {mode: number, time: number}) => ipcRenderer.invoke('pb-entered', modeAndTime),
     openPogostuck: (): Promise<boolean> => ipcRenderer.invoke('open-pogostuck'),

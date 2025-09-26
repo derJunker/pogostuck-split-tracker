@@ -152,7 +152,7 @@ export function redrawSplitDisplay(
         return;
     }
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum);
-    log.info(`Backend: Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
+    log.info(`[Backend] Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
 }
 
@@ -194,8 +194,6 @@ function getPbRunInfoAndSoB(
 
     const userStats = UserStatTracker.getInstance();
     const userStatsForMode = userStats.getUserStatsForMode(mapNum, modeNum);
-    log.info(`pbTime for mode ${modeNum} is ${pbTime}, sum of best is ${sumOfBest}, custom mode name is ${customModeName}`);
-    log.debug(`userStatsForMode: ${JSON.stringify(userStatsForMode)}`);
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
             const underlyingMode = customMode ? customMode.underlyingMode : modeNum

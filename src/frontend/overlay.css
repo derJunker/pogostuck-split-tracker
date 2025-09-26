@@ -116,10 +116,10 @@ button {
     font-family: inherit;
     font-size: 1em;
 }
-.split-resets::before {
+.split-resets:not(.hidden)::before {
     content: '[';
 }
-.split-resets::after {
+.split-resets:not(.hidden)::after {
     content: ']';
 }
 

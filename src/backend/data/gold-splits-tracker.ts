@@ -149,7 +149,6 @@ export class GoldSplitsTracker {
     public updatePbForMode(modeIndex: number, newPb: number): void {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits) {
-            log.info(`Updating PB for mode ${modeIndex} from ${modeSplits.pb} to ${newPb}`);
             if (modeSplits.pb !== newPb) {
                 const pbSplitTracker = PbSplitTracker.getInstance();
                 modeSplits.pb = newPb;

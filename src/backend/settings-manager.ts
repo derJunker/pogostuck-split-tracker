@@ -20,7 +20,6 @@ import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {execSync} from "child_process";
 import {Split} from "../types/mode-splits";
-import {CustomModeHandler} from "./data/custom-mode-handler";
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -68,7 +67,7 @@ export class SettingsManager {
             return this.currentSettings;
         });
 
-        ipcMain.handle("option-hide-skipped-splits-changed", (event, hideSplits: boolean) => {
+        ipcMain.handle("option-hide-skipped-splits-changed", (_event, hideSplits: boolean) => {
             if (this.currentSettings.hideSkippedSplits === hideSplits)
                 return this.currentSettings;
             log.info(`[Setting] 'Hide skipped splits' changed to: ${hideSplits}`);
@@ -80,7 +79,7 @@ export class SettingsManager {
             return this.currentSettings
         });
 
-        ipcMain.handle("option-hide-overlay-when-not-active-changed", (event, hideWindow: boolean) => {
+        ipcMain.handle("option-hide-overlay-when-not-active-changed", (_event, hideWindow: boolean) => {
             if (this.currentSettings.hideWindowWhenPogoNotActive === hideWindow)
                 return this.currentSettings;
             log.info(`[Setting] 'Hide window when PogoStuck is not active' changed to: ${hideWindow}`);
@@ -89,7 +88,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
-        ipcMain.handle('only-diff-colored-changed', (event, colorOnlyDiffs: boolean) => {
+        ipcMain.handle('only-diff-colored-changed', (_event, colorOnlyDiffs: boolean) => {
             if (this.currentSettings.onlyDiffsColored === colorOnlyDiffs)
                 return this.currentSettings;
             log.info(`[Setting] 'Only diffs colored' changed to: ${colorOnlyDiffs}`);
@@ -100,7 +99,18 @@ export class SettingsManager {
             this.saveSettings();
             return this.currentSettings;
         });
-        ipcMain.handle('race-golds-changed', (event, raceGoldSplits: boolean) => {
+        ipcMain.handle('show-reset-counters-changed', (event, showResetCounters: boolean) => {
+            if (this.currentSettings.showResetCounters === showResetCounters)
+                return this.currentSettings;
+            log.info(`[Setting] 'Show reset counters' changed to: ${showResetCounters}`);
+            this.currentSettings.showResetCounters = showResetCounters;
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
+            this.saveSettings();
+            return this.currentSettings;
+        });
+        ipcMain.handle('race-golds-changed', (_event, raceGoldSplits: boolean) => {
             if (this.currentSettings.raceGoldSplits === raceGoldSplits)
                 return this.currentSettings;
             log.info(`[Setting] 'Race gold splits' changed to: ${raceGoldSplits}`);
@@ -111,7 +121,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings;
         });
-        ipcMain.handle("option-launch-pogo-on-startup", (event, launchPogoOnStartup: boolean) => {
+        ipcMain.handle("option-launch-pogo-on-startup", (_event, launchPogoOnStartup: boolean) => {
             if (this.currentSettings.launchPogoOnStartup === launchPogoOnStartup)
                 return this.currentSettings;
             log.info(`[Setting] 'Launch PogoStuck on startup' changed to: ${launchPogoOnStartup}`);
@@ -119,7 +129,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
-        ipcMain.handle("option-show-new-split-names-changed", (event, showNewSplits: boolean) => {
+        ipcMain.handle("option-show-new-split-names-changed", (_event, showNewSplits: boolean) => {
             if (this.currentSettings.showNewSplitNames === showNewSplits)
                 return this.currentSettings;
             log.info(`[Setting] 'Show new split names' changed to: ${showNewSplits}`);
@@ -131,7 +141,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
-        ipcMain.handle("option-click-through-overlay-changed", (event, clickThroughOverlay: boolean) => {
+        ipcMain.handle("option-click-through-overlay-changed", (_event, clickThroughOverlay: boolean) => {
             if (this.currentSettings.clickThroughOverlay === clickThroughOverlay)
                 return this.currentSettings;
             log.info(`[Setting] 'Click through overlay' changed to: ${clickThroughOverlay}`);
@@ -140,7 +150,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings
         });
-        ipcMain.handle("steam-path-changed", (event, steamUserDataPath: string) => {
+        ipcMain.handle("steam-path-changed", (_event, steamUserDataPath: string) => {
             const settingsTxtPath = path.join(steamUserDataPath, "userdata")
             if (!existsSync(settingsTxtPath)) {
                 log.info(`Steam path does not exist: settingsPath calculated: ${settingsTxtPath} for steamUserDataPath: ${steamUserDataPath}`);
@@ -159,7 +169,7 @@ export class SettingsManager {
             this.loadSteamUserdataInfoIntoApplication(stateTracker, pbSplitTracker, goldenSplitsTracker, goldenPaceTracker, configWindow, overlayWindow)
             return this.currentSettings
         });
-        ipcMain.handle('steam-friend-code-changed', (event, steamFriendCode: string) => {
+        ipcMain.handle('steam-friend-code-changed', (_event, steamFriendCode: string) => {
             const steamPath = this.currentSettings.steamPath;
             if (steamPath && fs.existsSync(path.join(steamPath, "userdata", steamFriendCode, ...userDataPathEnd))) {
                 log.info(`[Setting] 'Steam friend code' changed to: ${steamFriendCode}`);
@@ -176,7 +186,7 @@ export class SettingsManager {
             this.loadSteamUserdataInfoIntoApplication(stateTracker, pbSplitTracker, goldenSplitsTracker, goldenPaceTracker, configWindow, overlayWindow)
             return this.currentSettings;
         });
-        ipcMain.handle("pogostuck-config-path-changed", (event, pogostuckConfPath: string) => {
+        ipcMain.handle("pogostuck-config-path-changed", (_event, pogostuckConfPath: string) => {
             const exists = existsSync(pogostuckConfPath);
             const isDir = fs.statSync(pogostuckConfPath).isDirectory();
             const containsPogostuckExe = isDir && (existsSync(path.join(pogostuckConfPath, "pogostuck.exe")) || existsSync(path.join(pogostuckConfPath, "Pogostuck.exe")));
@@ -196,7 +206,7 @@ export class SettingsManager {
         ipcMain.handle('pogo-path-is-valid', () => {
             return existsSync(this.currentSettings.pogostuckConfigPath);
         })
-        ipcMain.handle("skip-splits-changed", (event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
+        ipcMain.handle("skip-splits-changed", (_event, skippedSplits: {mode:number, skippedSplitIndices: number[]}) => {
             log.info("skippedSplits", skippedSplits);
             const oldSkippedSplits = this.currentSettings.skippedSplits
             const existingIndex = oldSkippedSplits.findIndex(s => s.mode === skippedSplits.mode);
@@ -214,7 +224,7 @@ export class SettingsManager {
             this.saveSettings()
             return this.currentSettings;
         });
-        ipcMain.handle('enable-background-color-changed', (event, enableBackgroundColor: boolean) => {
+        ipcMain.handle('enable-background-color-changed', (_event, enableBackgroundColor: boolean) => {
             if (this.currentSettings.enableBackgroundColor !== enableBackgroundColor) {
                 this.currentSettings.enableBackgroundColor = enableBackgroundColor;
                 this.saveSettings();
@@ -225,7 +235,7 @@ export class SettingsManager {
             return this.currentSettings;
         });
 
-        ipcMain.handle('background-color-changed', (event, bgCol: string) => {
+        ipcMain.handle('background-color-changed', (_event, bgCol: string) => {
             if (this.currentSettings.backgroundColor === bgCol)
                 return this.currentSettings;
             log.info(`[Setting] 'Background color' changed to: ${bgCol}`);
@@ -236,7 +246,7 @@ export class SettingsManager {
             return this.currentSettings;
         });
 
-        ipcMain.handle('get-split-path', (event, mode: number) => {
+        ipcMain.handle('get-split-path', (_event, mode: number) => {
             const stateTracker = CurrentStateTracker.getInstance();
             const steamPathValid = stateTracker.steamPathIsValid();
             const friendCodeValid = stateTracker.steamFriendCodeIsValid();
@@ -248,7 +258,7 @@ export class SettingsManager {
             return this.getSplitIndexPath(mode, splitAmount);
         });
 
-        ipcMain.handle('language-changed', (event, language: string) => {
+        ipcMain.handle('language-changed', (_event, language: string) => {
             if (this.currentSettings.language === language)
                 return this.currentSettings;
             log.info(`[Setting] 'Language' changed to: ${language}`);
@@ -261,7 +271,7 @@ export class SettingsManager {
             return this.currentSettings;
         });
 
-        ipcMain.handle('tab-changed', (event, tabId: string) => {
+        ipcMain.handle('tab-changed', (_event, tabId: string) => {
             log.debug(`Tab Changed to ${tabId}`);
             this.currentSettings.lastOpenedTab = tabId;
             this.saveSettings();
@@ -270,7 +280,6 @@ export class SettingsManager {
 
     public getSplitIndexPath( mode: number, splitAmount: number): Split[] {
         // some of the newer map 1 modes have a unused split for some reason :(
-        const stateTracker = CurrentStateTracker.getInstance();
         if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
             splitAmount = 9
             log.info(`Split amount for mode ${mode} is 10, but it should be 9, so adjusting it.`);

@@ -12,7 +12,6 @@ import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
 import {writeUserStatsIfChanged} from "../file-reading/read-user-stats";
 import {UserStatTracker} from "../data/user-stat-tracker";
-import {CustomModeHandler} from "../data/custom-mode-handler";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     // The holy mother of singleton-definitions
@@ -22,7 +21,6 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     const pbSplitTracker = PbSplitTracker.getInstance();
     const goldenSplitsTracker = GoldSplitsTracker.getInstance();
     const userStatTracker = UserStatTracker.getInstance();
-    const customModeHandler = CustomModeHandler.getInstance();
 
     // map or mode gets logged
     fileWatcher.registerListener(
@@ -109,7 +107,6 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 stateTracker.resetRun();
                 userStatTracker.increaseResetsForSplit(map, mode, lastSplit)
             } else {
-                log.debug(`player reset while not in a run, ignoring for stats`);
                 stateTracker.resetRun();
             }
             resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);

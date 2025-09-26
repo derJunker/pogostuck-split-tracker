@@ -39,6 +39,7 @@ declare global { interface Window {
         onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<Settings>;
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;
         onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => Promise<Settings>;
+        onShowResetCountersChanged: (showResetCounters: boolean) => Promise<Settings>;
         onRaceGoldsChanged: (raceGolds: boolean) => Promise<Settings>;
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         openPogostuck: () => Promise<boolean>;

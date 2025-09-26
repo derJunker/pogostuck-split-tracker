@@ -15,6 +15,7 @@ const raceGoldSplitsCheckbox = document.getElementById('race-gold-splits') as HT
 const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-startup') as HTMLInputElement;
 const clickThroughOverlayCheckbox = document.getElementById('click-through-overlay') as HTMLInputElement;
 const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
+const showResetCounter = document.getElementById('show-reset-counters') as HTMLInputElement;
 
 // color picker stuff
 const enableBackgroundColorCheckbox = document.getElementById('enable-background-color') as HTMLInputElement;
@@ -37,6 +38,9 @@ export function setPreferenceTabValuesFromSettings() {
 
     onlyColorDiffCheckbox.checked = settings.onlyDiffsColored;
     onlyColorDiffCheckbox.dispatchEvent(new Event('change'));
+
+    showResetCounter.checked = settings.showResetCounters || true;
+    showResetCounter.dispatchEvent(new Event('change'));
 
     raceGoldSplitsCheckbox.checked = settings.raceGoldSplits;
     raceGoldSplitsCheckbox.dispatchEvent(new Event('change'));
@@ -69,6 +73,11 @@ function initListeners() {
         const checked = (e.target as HTMLInputElement).checked;
         updateFrontendSettings(await window.electronAPI.onOnlyDiffColoredChanged(checked))
     });
+
+    showResetCounter.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onShowResetCountersChanged(checked))
+    })
 
     raceGoldSplitsCheckbox.addEventListener('change', async (e) => {
         const checked = (e.target as HTMLInputElement).checked;

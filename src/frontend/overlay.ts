@@ -5,47 +5,59 @@ import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest } = pbRunInfo;
+    const { splits, pb, sumOfBest, settings } = pbRunInfo;
 
     // Clear splits
     const splitsDiv = document.getElementById('splits');
-    __electronLog.debug(`received splits: ${JSON.stringify(splits)}`);
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
-        splits.forEach((split: SplitInfo) => appendSplit(split, splitsDiv));
+        splits.forEach((split: SplitInfo) => {
+            appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters);
+        });
     }
     // Sum of Best und PB setzen
     resetPbAndSumOfBest(pb, sumOfBest)
-    __electronLog.debug(`mapAndModeChanged: ${JSON.stringify(pbRunInfo.customModeName)}`);
     toggleCustomModeDisplay(pbRunInfo.customModeName)
 
     document.getElementById('totals')!.style!.display = 'inline';
     document.getElementById('status-msg')!.style!.display = 'none';
 }
 
-function appendSplit(split: SplitInfo, splitsDiv: HTMLElement) {
-    const skippedClass = split.skipped ? 'skipped' : '';
+function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean) {
+    const skippedClass = split.skipped ? 'skipped' : null;
     const splitDiv = document.createElement('div');
     splitDiv.className = 'split';
     splitDiv.id = split.split.toString();
 
     const nameSpan = document.createElement('span');
-    nameSpan.className = 'split-name ' + skippedClass;
+
+    nameSpan.classList.add('split-name');
+    if (skippedClass) nameSpan.classList.add(skippedClass);
+
     nameSpan.textContent = split.name;
     splitDiv.appendChild(nameSpan);
-
     const resetsSpan = document.createElement('span');
-    resetsSpan.className = 'split-resets';
-    resetsSpan.textContent = `${split.resets}`;
+    resetsSpan.classList.add('split-resets');
+    if (skippedClass) resetsSpan.classList.add(skippedClass);
+    if (showResets) {
+        resetsSpan.textContent = `${split.resets}`;
+        resetsSpan.classList.remove('hidden')
+    }
+    else {
+        resetsSpan.textContent = "";
+        resetsSpan.classList.add('hidden')
+    }
     splitDiv.appendChild(resetsSpan);
 
     const diffSpan = document.createElement('span');
-    diffSpan.className = 'split-diff';
+    diffSpan.classList.add('split-diff');
     // Empty diff
     splitDiv.appendChild(diffSpan);
 
     const timeSpan = document.createElement('span');
-    timeSpan.className = 'split-time ' + skippedClass;
+    // timeSpan.className = 'split-time ' + skippedClass;
+    timeSpan.classList.add('split-time');
+    if (skippedClass) timeSpan.classList.add(skippedClass);
     timeSpan.textContent = formatPbTime(split.time)
     splitDiv.appendChild(timeSpan);
     if (split.hide) splitDiv.style.display = 'none';
@@ -117,6 +129,7 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
     currentSplits.forEach(splitDiv => {
+        const frontendSettings = pbRunInfoAndSoB.settings
         const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === parseInt(splitDiv.id))!;
         if (splitInfoForEl.hide)
             splitDiv.style.display = 'none';
@@ -139,15 +152,31 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
             }
         }
 
+        let resetSpan: HTMLSpanElement | null = splitDiv.querySelector('.split-resets');
+        if (!resetSpan) {
+            resetSpan = document.createElement('span');
+            resetSpan.className = 'split-resets';
+            splitDiv.appendChild(resetSpan);
+        }
+        if (frontendSettings.showResetCounters) {
+            resetSpan.textContent = `${splitInfoForEl.resets}`;
+            resetSpan.classList.remove('hidden')
+        } else {
+            resetSpan.textContent = '';
+            resetSpan.classList.add('hidden')
+        }
+
         if (splitInfoForEl.skipped) {
             splitDiv.classList.add("skipped");
             splitTime.classList.add('skipped');
             splitName.classList.add('skipped');
+            resetSpan.classList.add('skipped');
             if (pbRunInfoAndSoB.settings.raceGoldSplits) splitTime.textContent = formatPbTime(0)
         } else {
             splitDiv.classList.remove("skipped");
             splitTime.classList.remove('skipped');
             splitName.classList.remove('skipped');
+            resetSpan.classList.remove('skipped');
             if (pbRunInfoAndSoB.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
     })

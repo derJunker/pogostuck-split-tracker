@@ -3,9 +3,10 @@ export interface Settings {
     pogostuckConfigPath: string;
     steamPath: string;
     userFriendCode: string;
-    // Design
+    // Options
     hideSkippedSplits: boolean,
     onlyDiffsColored: boolean,
+    showResetCounters?: boolean,
     raceGoldSplits: boolean,
     showNewSplitNames: boolean,
     clickThroughOverlay: boolean,

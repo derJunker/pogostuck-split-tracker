@@ -39,7 +39,7 @@ export function setPreferenceTabValuesFromSettings() {
     onlyColorDiffCheckbox.checked = settings.onlyDiffsColored;
     onlyColorDiffCheckbox.dispatchEvent(new Event('change'));
 
-    showResetCounter.checked = settings.showResetCounters || true;
+    showResetCounter.checked = settings.showResetCounters === undefined ? true : settings.showResetCounters;
     showResetCounter.dispatchEvent(new Event('change'));
 
     raceGoldSplitsCheckbox.checked = settings.raceGoldSplits;

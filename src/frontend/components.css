@@ -264,7 +264,7 @@ input[type="color"] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.tooltip-trigger:hover .tooltip-content {
+.tooltip-icon:hover + .tooltip-content {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -277,7 +277,7 @@ input[type="color"] {
     transform: translateX(-50%) translateY(-5px);
 }
 
-.tooltip-trigger:hover .tooltip-content.tooltip-top {
+.tooltip-icon:hover + .tooltip-content.tooltip-top {
     transform: translateX(-50%) translateY(0);
 }
 
@@ -287,7 +287,7 @@ input[type="color"] {
     transform: translateX(-50%) translateY(5px);
 }
 
-.tooltip-trigger:hover .tooltip-content.tooltip-bottom {
+.tooltip-icon:hover + .tooltip-content.tooltip-bottom {
     transform: translateX(-50%) translateY(0);
 }
 
@@ -297,7 +297,7 @@ input[type="color"] {
     transform: translateY(-50%) translateX(-5px);
 }
 
-.tooltip-trigger:hover .tooltip-content.tooltip-left {
+.tooltip-icon:hover + .tooltip-content.tooltip-left {
     transform: translateY(-50%) translateX(0);
 }
 
@@ -308,7 +308,7 @@ input[type="color"] {
     position: absolute;
 }
 
-.tooltip-trigger:hover .tooltip-content.tooltip-right {
+.tooltip-icon:hover + .tooltip-content.tooltip-right {
     transform: translateY(-50%) translateX(0); /* Keep centered vertically, remove horizontal offset on hover */
 }
 

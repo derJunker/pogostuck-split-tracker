@@ -46,11 +46,9 @@ function setupTooltipListeners(trigger: HTMLElement, icon: HTMLElement, content:
         content.style.visibility = 'hidden';
     };
     
-    // Add event listeners to both trigger and icon
-    [trigger, icon].forEach(element => {
-        element.addEventListener('mouseenter', showTooltip);
-        element.addEventListener('mouseleave', hideTooltip);
-    });
+    // Add event listeners only to the icon
+    icon.addEventListener('mouseenter', showTooltip);
+    icon.addEventListener('mouseleave', hideTooltip);
     
     // Also hide tooltip when mouse leaves the content area
     content.addEventListener('mouseleave', hideTooltip);

@@ -207,7 +207,7 @@
                             オーバーレイの動作
                         </span>
                     </div>
-                    <div class="toggle-switch tooltip-trigger option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="click-through-overlay" class="toggle-label">
 <!--                            <div class="tooltip-trigger">                   -->
 <!--                                text                                        -->
@@ -222,25 +222,50 @@
                         <input type="checkbox" id="click-through-overlay" class="toggle-checkbox">
                         <button id="click-through-overlay-custom" class="custom-checkbox"></button>
                         <span class="tooltip-icon"></span>
-                        <span class="tooltip-content">When enabled, it makes the overlay clickthrough.
-                                                              This should be enabled after you set it up
-                                                              properly.</span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                                When enabled, it makes the overlay clickthrough. When playing borderless this should
+                                be enabled after you set it up properly.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                有効にするとオーバーレイをクリック不可にします。ボーダーレスモードでプレイする場合は、設定が完了した後に有効にしてください。
+                            </span>
+                        </span>
                     </div>
-                    <div class="toggle-switch option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="hide-when-pogo-not-active" class="toggle-label">
                             <span lang="en" style="display: none">Hide overlay when Pogostuck not active</span>
                             <span lang="ja" style="display: none">Pogostuckが非アクティブの時オーバーレイを非表示</span>:
                         </label>
                         <input type="checkbox" id="hide-when-pogo-not-active" class="toggle-checkbox">
                         <button id="hide-when-pogo-not-active-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                                When enabled, the overlay will hide when Pogostuck is not the active window.
+                                                      Disable this if you want to use the overlay while streaming.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                有効にするとPogostuckがアクティブでないときにオーバーレイを非表示にします。配信中にオーバーレイを使用したい場合は無効にしてください。
+                            </span>
+                        </span>
                     </div>
-                    <div class="toggle-switch option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="launch-pogo-on-startup" class="toggle-label">
                             <span lang="en" style="display: none">Launch Pogostuck on startup</span>
                             <span lang="ja" style="display: none">起動時にPogostuckを起動</span>:
                         </label>
                         <input type="checkbox" id="launch-pogo-on-startup" class="toggle-checkbox">
                         <button id="launch-pogo-on-startup-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                                When enabled, Pogostuck will be launched when you open this program.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                有効にすると、このプログラムを起動したときにPogostuckも起動します。
+                            </span>
+                        </span>
                     </div>
                     <div class="preference-separator option">
                         <span lang="en" style="display: none">
@@ -250,7 +275,7 @@
                             スプリット
                         </span>
                     </div>
-                    <div class="toggle-switch option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="race-gold-splits"
                                class="toggle-label">
                             <span lang="en" style="display: none">Compare Run to Gold Splits</span>
@@ -258,14 +283,32 @@
                         </label>
                         <input type="checkbox" id="race-gold-splits" class="toggle-checkbox">
                         <button id="race-gold-splits-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                                Changes the times in the split overlay to the pace your golden splits would have.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                スプリットオーバーレイのタイムをゴールドスプリットのペースに変更します。
+                            </span>
+                        </span>
                     </div>
-                    <div class="toggle-switch option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="ignore-skipped-splits" class="toggle-label">
                             <span  lang="en" style="display: none">Hide skipped splits</span>
                             <span lang="ja" style="display: none">スキップしたスプリットを非表示</span>:
                         </label>
                         <input type="checkbox" id="ignore-skipped-splits" class="toggle-checkbox">
                         <button id="ignore-skipped-splits-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                               Hide splits that selected to skip in a run. If disabled they are greyed out.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                走行中にスキップするよう選択したスプリットを非表示にします。無効にするとグレー表示されます。
+                            </span>
+                        </span>
                     </div>
                     <div class="option">
                         <label for="split-naming-select">
@@ -282,21 +325,39 @@
                         </span>
                         </div>
                     </div>
-                    <div class="toggle-switch option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="only-colored-diff"
                                class="toggle-label">
                             <span lang="en" style="display: none">Only color the time difference</span>
                             <span lang="ja" style="display: none">スプリットの差分だけ色表示</span>:</label>
                         <input type="checkbox" id="only-colored-diff" class="toggle-checkbox">
                         <button id="only-colored-diff-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                               When enabled, split names will remain white. Only the time differences will be colored.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                有効にすると、スプリット名は白のままになります。差分のタイムのみが色表示されます。
+                            </span>
+                        </span>
                     </div>
-                    <div class="toggle-switch">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="show-reset-counters" class="toggle-label">
                             <span lang="en" style="display: none">Show reset counters</span>
                             <span lang="ja" style="display: none">リセット回数を表示</span>:
                         </label>
                         <input type="checkbox" id="show-reset-counters" class="toggle-checkbox">
                         <button id="show-reset-counters-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                                Shows the amount of resets per split you did in the overlay.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                オーバーレイに各スプリットのリセット回数を表示します。
+                            </span>
+                        </span>
                     </div>
                     <div class="preference-separator">
                         <span lang="en" style="display: none">
@@ -306,13 +367,23 @@
                             デザイン
                         </span>
                     </div>
-                    <div class="toggle-switch option">
+                    <div class="toggle-switch option tooltip-trigger">
                         <label for="enable-background-color" class="toggle-label">
                             <span lang="en" style="display: none">Enable background color</span>
                             <span lang="ja" style="display: none">背景色を有効化</span>:
                         </label>
                         <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
                         <button id="enable-background-color-custom" class="custom-checkbox"></button>
+                        <span class="tooltip-icon"></span>
+                        <span class="tooltip-content">
+                            <span lang="en" style="display: none">
+                                Let's you set a background color. This is helpful if you have the overlay on a 2nd
+                                monitor instead of over Pogostuck.
+                            </span>
+                            <span lang="ja" style="display: none">
+                                背景色を設定できます。オーバーレイをPogostuckの上ではなく、2番目のモニターに表示する場合に便利です。
+                            </span>
+                        </span>
                     </div>
                     <div class="option">
                         <label for="set-background-color" class="input-label">

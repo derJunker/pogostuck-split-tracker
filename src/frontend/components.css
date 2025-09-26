@@ -232,7 +232,7 @@ input[type="color"] {
 
 .tooltip-icon::after {
     content: "?";
-    line-height: 1;
+    margin-top: 2px;
 }
 
 .tooltip-icon:hover {

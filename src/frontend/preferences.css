@@ -1,0 +1,23 @@
+@import "index.css";
+
+#preferences-content {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    gap: 0.5em 1em;
+}
+
+#preferences-content .option {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap:  0.5em;
+}
+
+.preference-separator {
+    text-align: center;
+    display: block!important;
+    grid-column: 1 / -1;
+    border-bottom: 2px dashed var(--color-border);
+    margin: 1rem 0;
+    font-size: 1.2rem;
+}

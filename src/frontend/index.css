@@ -202,7 +202,7 @@ input[type="text"] {
 
 #map-n-mode-split-selection > *,
 .menu-content > * {
-    padding-top: .3rem;
+    margin-top: .3rem;
 }
 
 #menu-content {
@@ -236,25 +236,6 @@ label {
     align-content: start;
     align-self: center;
     cursor:  pointer;
-}
-
-#preferences-content {
-    display: grid;
-    grid-template-columns: max-content max-content;
-    gap: 0.5em 1em;
-}
-
-#preferences-content > div {
-    display: contents;
-}
-
-.preference-separator {
-    text-align: center;
-    display: block!important;
-    grid-column: 1 / -1;
-    border-bottom: 2px dashed var(--color-border);
-    margin: 1rem 0;
-    font-size: 1.2rem;
 }
 
 #pbs-content {

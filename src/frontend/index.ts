@@ -2,6 +2,7 @@ import './index.css';
 import './loading-screen.css'
 import './menus.css'
 import './components.css';
+import './preferences.css'
 import './error-messages.css'
 
 import './config-window/update-handler.ts'
@@ -22,6 +23,7 @@ import {initPathsTabListeners} from "./config-window/paths-tab-handler";
 import {initLanguageListeners} from "./config-window/language-handler";
 import {initLaunchPogostuckButtonListeners} from "./config-window/launch-pogostuck-button-handler";
 import {initDebugButtonListeners} from "./config-window/debug-tab-handler";
+import {initTooltips} from "./config-window/tooltip-handler";
 import {initializeCustomModeTabHandler} from "./config-window/custom-mode-tab-handler";
 import {hideLoadingScreen} from "./config-window/loading-screen-handler";
 
@@ -50,8 +52,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     initDebugButtonListeners();
 
     initLanguageListeners();
+    initTooltips();
 
     hideLoadingScreen();
 
     document.getElementById('version')!.textContent = await window.electronAPI.getVersion();
 });
+

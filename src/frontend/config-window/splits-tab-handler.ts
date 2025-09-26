@@ -144,7 +144,6 @@ async function reloadGoldPaces() {
     const levelMappings = levels.find(level => level.mapIndex === map)!;
 
     const goldPaceTimes = await window.electronAPI.getGoldPaces(mode)
-    __electronLog.debug(`Got gold pace times: ${JSON.stringify(goldPaceTimes)}`);
     appendAllGoldPaces(goldPaceSelection, goldPaceTimes, levelMappings);
 
     setTimeout(() => {

@@ -179,6 +179,8 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
             resetSpan.classList.remove('skipped');
             if (pbRunInfoAndSoB.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
+
+        toggleCustomModeDisplay(pbRunInfoAndSoB.customModeName)
     })
 });
 

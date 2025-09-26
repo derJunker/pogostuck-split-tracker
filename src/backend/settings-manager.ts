@@ -278,7 +278,9 @@ export class SettingsManager {
         })
     }
 
-    public getSplitIndexPath( mode: number, splitAmount: number): Split[] {
+    public getSplitIndexPath( mode: number, splitAmount?: number): Split[] {
+        if (!splitAmount)
+            splitAmount = PbSplitTracker.getInstance().getSplitAmountForMode(mode);
         // some of the newer map 1 modes have a unused split for some reason :(
         if (hasUnusedExtraSplit(mode) && splitAmount === 10) {
             splitAmount = 9

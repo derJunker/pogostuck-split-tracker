@@ -197,10 +197,7 @@ function getPbRunInfoAndSoB(
     const userStatsForMode = userStats.getUserStatsForMode(mapNum, modeNum);
     return {
         splits: mapModeAndSplits.splits.map((splitName, i) => {
-            const underlyingMode = customMode ? customMode.underlyingMode : modeNum
-            const isUD = isUpsideDownMode(underlyingMode)
-            const resetSplitIndex = isUD ? i : i-1;
-            let resetInfo = userStatsForMode.resetsAfterSplit.find(rs => rs.split === resetSplitIndex);
+            let resetInfo = userStatsForMode.resetsAfterSplit.find(rs => rs.split === i);
             if (!resetInfo) {
                 resetInfo = { split: i-1, resets: 0};
             }

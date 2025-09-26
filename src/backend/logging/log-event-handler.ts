@@ -49,6 +49,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 return
             }
             const { checkpoint, time } = match.groups!;
+            stateTracker.startingRun();
 
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);
@@ -105,7 +106,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 let lastSplit = stateTracker.getLastSplitTime().split
                 lastSplit -= isUpsideDownMode(mode) ? 1 : 0;
                 stateTracker.resetRun();
-                userStatTracker.increaseResetsForSplit(map, mode, lastSplit)
+                userStatTracker.increaseResetsAfterSplit(map, mode, lastSplit)
             } else {
                 stateTracker.resetRun();
             }

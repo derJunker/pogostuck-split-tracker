@@ -4,7 +4,7 @@ import fs from "fs";
 import {PogoLevel} from "../../types/pogo-index-mapping";
 import {PogoNameMappings} from "./pogo-name-mappings";
 import {CurrentStateTracker} from "./current-state-tracker";
-import {resetOverlay} from "../split-overlay-window";
+import {redrawSplitDisplay, resetOverlay} from "../split-overlay-window";
 import log from "electron-log/main";
 import {GoldPaceTracker} from "./gold-pace-tracker";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
@@ -106,7 +106,11 @@ export class CustomModeHandler {
 
     private initCustomModeFrontendListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
         ipcMain.handle('create-custom-mode', async (_, map: number) => this.createCustomMode(map));
-        ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => this.saveCustomModeName(modeIndex, newName));
+        ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => {
+            this.saveCustomModeName(modeIndex, newName)
+            if (this.isPlayingCustomMode() && this.currentCustomMode === modeIndex)
+                redrawSplitDisplay(this.mapForCustomMode!, this.currentCustomMode!, overlayWindow);
+        });
         ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
         ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow));
         ipcMain.handle('custom-mode-is-ud-mode-changed', async (_, isUDMode: boolean, modeIndex: number) => this.changeCustomModeIsUDMode(isUDMode, modeIndex));

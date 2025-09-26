@@ -48,6 +48,7 @@ const backupGoldTracker = BackupGoldSplitTracker.getInstance()
 backupGoldTracker.loadBackups()
 
 const settingsManager = SettingsManager.getInstance()
+CurrentStateTracker.getInstance().updatePathsValidity()
 if (settingsManager.launchPogoOnStartup())
     launchPogostuckIfNotOpenYet().then(() => log.debug("PogoStuck launched on startup."));
 
@@ -104,7 +105,6 @@ app.on("ready", async () => {
     settingsManager.initListeners(overlayWindow, configWindow)
 
     addPogostuckOpenedListener(overlayWindow, configWindow)
-    CurrentStateTracker.getInstance().updatePathsValidity()
     initLaunchPogoListener();
 
     registerLogEventHandlers(overlayWindow, configWindow);

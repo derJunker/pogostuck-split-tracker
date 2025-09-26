@@ -191,6 +191,7 @@ function getPbRunInfoAndSoB(
     const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));
     const customMode = customModeHandler.getCustomMode()
     const customModeName = customMode ? nameMappings.getMapModeAndSplits(customMode.map!, customMode.customMode!).mode : undefined
+    log.debug(`Got custom mode name: ${customModeName} for custom mode: ${JSON.stringify(customMode)}`)
 
     const userStats = UserStatTracker.getInstance();
     const userStatsForMode = userStats.getUserStatsForMode(mapNum, modeNum);

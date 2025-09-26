@@ -33,7 +33,7 @@ export class CurrentStateTracker {
     }
 
     public updateMapAndMode(map: number, mode: number, configWindow: BrowserWindow): boolean {
-        mode = this.checkForCustomMode(mode, configWindow)
+        mode = this.checkForCustomMode(map, mode, configWindow)
         if (this.map !== map || this.mode !== mode) {
             this.map = map;
             this.mode = mode;
@@ -49,12 +49,16 @@ export class CurrentStateTracker {
      * clears the custom mode if you changed from custom mode to sth else
      * returns the now active mode (if you're playing custom mode it returns that)
      */
-    private checkForCustomMode(mode: number, configWindow: BrowserWindow): number {
+    private checkForCustomMode(map: number, mode: number, configWindow: BrowserWindow): number {
         const customModeHandler = CustomModeHandler.getInstance()
         const isPlayingCustomMode = customModeHandler.isPlayingCustomMode()
         const customModeInfo = customModeHandler.getCustomMode()
+        if (isPlayingCustomMode && customModeInfo?.map !== map) {
+            customModeHandler.clearCustomMode(configWindow)
+            return mode;
+        }
         if (isPlayingCustomMode && customModeInfo!.underlyingMode === -1) { // when you press play with no mode known
-            customModeHandler.setCustomMode(this.map, customModeInfo!.customMode!, mode, configWindow)
+            customModeHandler.setCustomMode(map, customModeInfo!.customMode!, mode, configWindow)
             customModeInfo!.underlyingMode = mode;
             console.log(`Setting underlying mode to ${mode} because it was -1`);
         }

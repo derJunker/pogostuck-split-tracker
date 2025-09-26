@@ -17,6 +17,7 @@ let stopButton: HTMLButtonElement;
 let buttonsContainer: HTMLDivElement;
 let nameContainer: HTMLDivElement;
 let isUDModeToggle: HTMLInputElement;
+let isUDContainer: HTMLDivElement;
 
 let currentCustomMode: number | null = null;
 
@@ -31,6 +32,7 @@ export function initializeCustomModeTabHandler() {
     buttonsContainer = document.getElementById("custom-mode-name-container") as HTMLDivElement;
     nameContainer = document.getElementById("custom-mode-btns") as HTMLDivElement;
     isUDModeToggle = document.getElementById("custom-mode-is-ud-toggle") as HTMLInputElement;
+    isUDContainer = document.getElementById("is-ud-container") as HTMLDivElement;
 
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (_) => {
@@ -139,6 +141,7 @@ function onModeChange() {
         customModeNameInput.value = "";
         buttonsContainer.style.display = 'none';
         nameContainer.style.display = 'none';
+        isUDContainer.style.display = 'none';
         return;
     }
     const selectedModeIndex = parseInt(modeSelect.value);
@@ -150,11 +153,13 @@ function onModeChange() {
         deleteButton.disabled = false;
         buttonsContainer.style.display = 'flex';
         nameContainer.style.display = 'flex';
+        isUDContainer.style.display = 'block';
         showPlayButton(customMode.modeIndex !== currentCustomMode)
     } else {
         customModeNameInput.value = "";
         buttonsContainer.style.display = 'none';
         nameContainer.style.display = 'none';
+        isUDContainer.style.display = 'none';
     }
 }
 

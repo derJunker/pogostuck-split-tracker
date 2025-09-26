@@ -24,6 +24,8 @@ window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, bo
             await window.electronAPI.onUpdateBtnClicked(releaseInfo.browser_download_url);
         })
 
+        const buyMeACoffeeButton = document.getElementById('buy-coffee') as HTMLButtonElement;
+        buyMeACoffeeButton.style.display = 'none';
         const updateButton = document.getElementById('update-btn')! as HTMLElement
         updateButton.style.display = 'block';
         updateButton.addEventListener('click', () => {

@@ -54,8 +54,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     initLanguageListeners();
     initTooltips();
 
-    hideLoadingScreen();
+    document.getElementById('buy-coffee')?.addEventListener('click', window.electronAPI.openBuyMeACoffee);
 
     document.getElementById('version')!.textContent = await window.electronAPI.getVersion();
+
+    hideLoadingScreen();
 });
 

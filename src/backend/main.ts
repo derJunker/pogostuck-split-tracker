@@ -160,4 +160,5 @@ app.on("ready", async () => {
     ipcMain.handle('get-selected-tab', () => settingsManager.lastOpenedTab())
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())
     ipcMain.handle("get-custom-modes", () => CustomModeHandler.getInstance().getCustomModeInfos())
+    ipcMain.handle('open-buy-me-a-coffee', () => shell.openExternal("https://buymeacoffee.com/derjunker"))
 });

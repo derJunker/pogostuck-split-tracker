@@ -90,22 +90,39 @@
     letter-spacing: 0.02em;
 }
 
-button.inverted {
+
+.button, button {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size);
+    font-family: var(--font-family) serif;
+    font-weight: var(--font-weight);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    padding: var(--padding-btn);
+    text-decoration: none;
+}
+
+.inverted {
     background: var(--color-fg);
     color: var(--color-bg);
     border: var(--border-width) solid var(--color-border);
 }
 
-button.inverted[disabled] {
-    background: darkgray;
-    color: dimgray;
+button[disabled] {
+    background: dimgray;
+    color: darkgray;
     border: var(--border-width) solid dimgray;
     cursor: not-allowed;
 }
 
-button[disabled] {
-    background: dimgray;
-    color: darkgray;
+.inverted[disabled] {
+    background: darkgray;
+    color: dimgray;
     border: var(--border-width) solid dimgray;
     cursor: not-allowed;
 }

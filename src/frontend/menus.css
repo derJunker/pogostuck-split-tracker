@@ -84,6 +84,7 @@ footer {
     margin-top: auto; /* Push footer to bottom */
 }
 
+#buy-coffee,
 #update-btn {
     position: absolute;
     left: 1rem;

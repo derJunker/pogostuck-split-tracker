@@ -8,7 +8,7 @@
     --color-placeholder: #888;
     --color-active-bg: #fff;
     --color-active-fg: #000;
-    --color-highlight: #46ffaa;;
+    --color-highlight: #32c14b;;
     --border-radius: 4px;
     --border-width: 2px;
     --font-family: 'Courier Prime', monospace;
@@ -158,21 +158,6 @@ input[type="checkbox"] {
     opacity: 1;
 }
 
-.button, button {
-    background: var(--color-bg);
-    color: var(--color-fg);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius);
-    font-size: var(--font-size);
-    font-family: var(--font-family) serif;
-    font-weight: var(--font-weight);
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    outline: none;
-    box-shadow: none;
-    padding: var(--padding-btn);
-    text-decoration: none;
-}
 
 .input-field, input[type="text"], input[type="password"], input[type="email"] {
     background: var(--color-fg);

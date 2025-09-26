@@ -14,7 +14,7 @@ Additionally to the basic features it also has:
 - Saving your best paces
 - Gold Splits as your ingame splits
 - reset counters
-- custom mode support (e.g. boostless, legend exam, etc)
+- custom mode support (e.g. boostless, no turn puzzle, etc)
 
 (Coming at some point)
 - custom map support

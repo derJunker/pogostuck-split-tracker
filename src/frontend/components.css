@@ -260,7 +260,7 @@ input[type="color"] {
 
 .tooltip-content {
     position: absolute;
-    background: var(--color-bg);
+    background: red;
     color: var(--color-fg);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
@@ -268,7 +268,7 @@ input[type="color"] {
     font-size: 0.85rem;
     font-weight: normal;
     line-height: 1.4;
-    max-width: 300px;
+    width:  400px;
     white-space: normal;
     font-family: var(--font-family);
     word-wrap: break-word;
@@ -287,46 +287,16 @@ input[type="color"] {
     transform: translateY(0);
 }
 
-/* Tooltip positioning variants */
-.tooltip-content.tooltip-top {
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%) translateY(-5px);
-}
-
-.tooltip-icon:hover + .tooltip-content.tooltip-top {
-    transform: translateX(-50%) translateY(0);
-}
-
-.tooltip-content.tooltip-bottom {
-    top: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%) translateY(5px);
-}
-
-.tooltip-icon:hover + .tooltip-content.tooltip-bottom {
-    transform: translateX(-50%) translateY(0);
-}
-
-.tooltip-content.tooltip-left {
-    right: calc(100% + 8px);
-    top: 50%;
-    transform: translateY(-50%) translateX(-5px);
-}
-
-.tooltip-icon:hover + .tooltip-content.tooltip-left {
-    transform: translateY(-50%) translateX(0);
-}
 
 .tooltip-content.tooltip-right {
     left: -8px; /* Right edge of icon (-24px + 16px) */
     top: 50%;
-    transform: translateY(-50%) translateX(8px); /* Center vertically relative to the trigger container */
+    transform: translateX(8px); /* Center vertically relative to the trigger container */
     position: absolute;
 }
 
 .tooltip-icon:hover + .tooltip-content.tooltip-right {
-    transform: translateY(-50%) translateX(0); /* Keep centered vertically, remove horizontal offset on hover */
+    transform: translateX(0); /* Keep centered vertically, remove horizontal offset on hover */
 }
 
 

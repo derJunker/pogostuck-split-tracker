@@ -315,8 +315,16 @@ label {
     gap: 0.5em 1em;
 }
 
-#paths-content > div {
-    display: contents;
+#paths-content > * {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+    text-align: start;
+}
+
+#paths-content label {
+    align-self: start;
 }
 
 #gold-pace-selection {

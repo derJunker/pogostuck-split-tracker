@@ -1,9 +1,7 @@
 # pogostuck-split-tracker
 A pogostuck split tracker improving on the basic ingame tracker :).
 
-<img alt="split timer with colored splits.png" src="img_1.png" width="500"/>
-
-<sup>(Average Ice Splits 🐸)</sup>
+<img alt="split timer with colored splits.png" src="pogostuck-tracker.jpg" width="1816"/>
 
 
 ## What it does
@@ -13,16 +11,14 @@ Additionally to the basic features it also has:
 - sum of bests
 - hiding splits that are skipped
 - old split names (very important)
-- best pace pbs
+- Saving your best paces
 - Gold Splits as your ingame splits
-
-(Coming at some point)
 - reset counters
 - custom mode support (e.g. boostless, legend exam, etc)
-- stats about performance (average pace etc)
-- custom map support
 
-This is a very early version of the app, so there are some bugs and layout issues. Ty for understanding 🐸.
+(Coming at some point)
+- custom map support
+- More Stats and Graphs to show you the stats :)
 
 ## Setup
 ### Installation

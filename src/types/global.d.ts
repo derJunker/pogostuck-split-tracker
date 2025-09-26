@@ -74,7 +74,7 @@ declare global { interface Window {
         getSelectedTab: () => Promise<string>;
         getPbs: () => Promise<{mode: number, time: number}[]>;
         getCustomModes: () => Promise<{map: number, modeIndex: number, modeTimes: number[]}[]>;
-        getValidRollbacks: (mode: number) => Promise<{from: number, to: number, valid: boolean}[]>
+        getValidRollbacks: (mode: number) => Promise<{from: number, to: number, valid: boolean, oldTime?: number}[]>
 
         // config window subscribing to backend events
         mapAndModeChanged: (callback: (event: Electron.IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => void;

@@ -61,7 +61,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSelectedTab: (): Promise<string> => ipcRenderer.invoke('get-selected-tab'),
     getPbs: (): Promise<{mode: number, time: number}[]> => ipcRenderer.invoke('get-pbs'),
     getCustomModes: (): Promise<CustomModeInfo[]> => ipcRenderer.invoke('get-custom-modes'),
-    getValidRollbacks: (mode: number): Promise<{from: number, to: number, valid: boolean}[]> => ipcRenderer.invoke('get-valid-rollbacks', mode),
+    getValidRollbacks: (mode: number): Promise<{from: number, to: number, valid: boolean, oldTime?: number}[]> => ipcRenderer.invoke('get-valid-rollbacks', mode),
 
     // config window subscribing to backend events
     mapAndModeChanged: (callback: (event: IpcRendererEvent, mapAndMode: {map: number, mode: number}) => void) => ipcRenderer.on('map-and-mode-changed', callback),

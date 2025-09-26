@@ -41,7 +41,8 @@ export class BackupGoldSplitTracker {
             return modeHistory.splitHistories.map(sh => ({
                 from: sh.split.from,
                 to: sh.split.to,
-                valid: sh.history.length > 0
+                valid: sh.history.length > 0,
+                oldTime: sh.history.length > 0 ? sh.history[sh.history.length -1] : undefined
             }))
         })
     }

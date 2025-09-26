@@ -407,8 +407,9 @@ async function updateRevertButtonValidity(mode: number) {
     validRollbacksPromise.forEach(vr => {
         const btn = document.getElementById(`rollback-${vr.from}-${vr.to}-btn`) as HTMLButtonElement | null;
         if (!btn || !vr.valid) return;
-        else
-            btn.disabled = false;
+
+        btn.disabled = false;
+        btn.title = `Revert to ${formatPbTime(vr.oldTime!)}`
     });
 }
 

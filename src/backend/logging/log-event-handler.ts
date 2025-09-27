@@ -97,7 +97,11 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     // player reset gets logged
     fileWatcher.registerListener(
         /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
-        () => {
+        (match) => {
+            // check if player died or sth similar where time is not reset
+            if (match.groups!.dontResetTime === "1") {
+                return;
+            }
             if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
                 log.debug(`player reset with invalid map or mode: ${stateTracker.getCurrentMap()}, ${stateTracker.getCurrentMode()}`);
             } else if (stateTracker.isCurrentlyRunning()){

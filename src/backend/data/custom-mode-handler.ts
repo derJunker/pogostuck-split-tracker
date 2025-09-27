@@ -158,6 +158,7 @@ export class CustomModeHandler {
 
     private playCustomMode(modeIndex: number, overlayWindow: BrowserWindow, configWindow: BrowserWindow): boolean {
         const stateTracker = CurrentStateTracker.getInstance();
+
         // -1 means stopping the current custom mode
         if (modeIndex === -1) {
             return this.stopCustomMode(configWindow, overlayWindow, stateTracker);
@@ -171,7 +172,12 @@ export class CustomModeHandler {
             log.error(`Custom mode with index ${modeIndex} is for map ${customMode.map}, but current map is ${stateTracker.getCurrentMap()}`);
             return false;
         }
-        const underlyingMode = stateTracker.getCurrentMode() // this can be -1, if that's the case then somewhere else it will be set to the then changed mode
+        let underlyingMode = stateTracker.getCurrentMode() // this can be -1, if that's the case then somewhere else
+        if (this.isPlayingCustomMode() && this.currentCustomMode === underlyingMode) { // basically if the current
+            // mode was a custom mode, get the underlying mode of that one
+            underlyingMode = this.underlyingMode!;
+        }
+
         this.setCustomMode(customMode.map, customMode.modeIndex, underlyingMode, overlayWindow);
         if (underlyingMode !== -1) stateTracker.updateMapAndMode(customMode.map, customMode.modeIndex, configWindow)
         return true;
@@ -202,17 +208,16 @@ export class CustomModeHandler {
 
         PogoNameMappings.getInstance().deleteMapping(modeIndex);
         GoldPaceTracker.getInstance().deleteMode(modeIndex);
-
         writeGoldPacesIfChanged(configWindow)
-        GoldSplitsTracker.getInstance().delteMode(modeIndex);
+
+        GoldSplitsTracker.getInstance().deleteMode(modeIndex);
+        writeGoldSplitsIfChanged(configWindow)
 
         SettingsManager.getInstance().deleteMode(modeIndex);
 
         BackupGoldSplitTracker.getInstance().deleteMode(modeIndex)
 
         UserStatTracker.getInstance().deleteMode(modeIndex)
-
-        writeGoldSplitsIfChanged(configWindow)
     }
 
     private changeModeIfCurrentlyPlayingDeletedMode(modeIndex: number, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {

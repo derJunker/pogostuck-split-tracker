@@ -147,7 +147,6 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         /OPEN menu at frame \d+|Close window at \d+(?:\.\d+)?/,
         () => {
             onTimeToFileWrite(configWindow);
-            stateTracker.resetRun();
         }
     );
 

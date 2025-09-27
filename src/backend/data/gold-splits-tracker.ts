@@ -15,7 +15,7 @@ import {CustomModeHandler} from "./custom-mode-handler";
 export class GoldSplitsTracker {
     private static instance: GoldSplitsTracker | null = null;
     private changed: boolean = false;
-    private readonly goldenSplits: GoldenSplitsForMode[];
+    private goldenSplits: GoldenSplitsForMode[];
 
     private constructor(goldenSplits: GoldenSplitsForMode[]) {
         this.goldenSplits = goldenSplits;
@@ -302,12 +302,8 @@ export class GoldSplitsTracker {
         this.changed = false;
     }
 
-    public delteMode(modeIndex: number) {
-        const modeIndexInGoldSplits = this.goldenSplits.findIndex(gs => gs.modeIndex === modeIndex);
-        if (modeIndexInGoldSplits !== -1) {
-            this.goldenSplits.splice(modeIndexInGoldSplits, 1);
-            this.changed = true;
-            log.info(`Deleted gold splits for mode ${modeIndex}`);
-        }
+    public deleteMode(modeIndex: number) {
+        this.goldenSplits = this.goldenSplits.filter(gs => gs.modeIndex !== modeIndex);
+        this.changed = true;
     }
 }

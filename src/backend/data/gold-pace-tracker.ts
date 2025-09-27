@@ -10,7 +10,7 @@ import {CustomModeHandler} from "./custom-mode-handler";
 export class GoldPaceTracker {
     private static instance: GoldPaceTracker;
     private changed: boolean = false;
-    private readonly goldPaces: GoldPaceForMode[] = [];
+    private goldPaces: GoldPaceForMode[] = [];
 
     private constructor(goldPaces: GoldPaceForMode[]) {
         this.goldPaces = goldPaces;
@@ -159,10 +159,7 @@ export class GoldPaceTracker {
     }
 
     public deleteMode(modeIndex: number) {
-        const index = this.goldPaces.findIndex(p => p.modeIndex === modeIndex);
-        if (index !== -1) {
-            this.goldPaces.splice(index, 1);
-            this.changed = true;
-        }
+        this.goldPaces = this.goldPaces.filter(p => p.modeIndex !== modeIndex);
+        this.changed = true;
     }
 }

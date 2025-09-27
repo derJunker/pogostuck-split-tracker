@@ -598,9 +598,21 @@
                 </div>
                 <div id="debug-content" class="menu-content">
                     <div style="display: flex; flex-direction: column; gap: 1rem">
-                        <button id="copy-logs-btn">
+                        <button id="copy-logs-btn" class="tooltip-trigger">
                             <span lang="en" style="display: none">Copy recent logs</span>
                             <span lang="ja" style="display: none">最近のログをコピー</span>
+                            <span class="tooltip-icon"></span>
+                            <span class="tooltip-content">
+                                <span lang="en" style="display: none">
+                                    When you have experienced an issue, this copies the recent logs to your
+                                    clipboard. Then you can send it to the developer to get it fixed (dm @derjunker
+                                    on discord).
+                                </span>
+                                <span lang="ja" style="display: none">
+                                    問題が発生した場合、これにより最近のログがクリップボードにコピーされます。
+                                    それから開発者に送って修正してもらうことができます（Discordの@derjunkerにDMを送ってください）。
+                                </span>
+                            </span>
                         </button>
                         <button id="open-appdata-dir-btn">
                             <span lang="en" style="display: none">Open AppData Directory</span>

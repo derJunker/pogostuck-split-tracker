@@ -141,12 +141,22 @@ export class CurrentStateTracker {
         this.finalTime = time;
         let pb = goldSplitsTracker.getPbForMode(this.mode)
         log.info(`Run finished with time: ${time} registered ingame pb time: ${igPbTime} programmed pb time: ${pb}`);
-        const lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
+
+        const isUD = isUpsideDownMode(this.mode);
+        let lastSplit = {
+            split: isUD ? pbTracker.getSplitAmountForMode(this.mode) : -1,
+            time: 0
+        };
+        if (this.recordedSplits.length > 0)
+            lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
         const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode)
         log.info(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
         log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
-        if (lastGoldSplit.time > lastDiff) {
+        if (lastGoldSplit.from !== lastSplit.split) {
+            log.warn(`Last gold split from ${lastGoldSplit.from} does not match last split ${lastSplit.split}, not updating gold split.`);
+        }
+        else if (lastGoldSplit.time > lastDiff) {
             goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             const backupGoldTracker = BackupGoldSplitTracker.getInstance()
             backupGoldTracker.addBackup(lastGoldSplit.time, {from: lastGoldSplit.from, to: lastGoldSplit.to}, this.mode)

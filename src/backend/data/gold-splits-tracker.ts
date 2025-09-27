@@ -83,7 +83,7 @@ export class GoldSplitsTracker {
 
     public getPbForMode(modeIndex: number): number {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
-        return modeSplits ? modeSplits.pb : Infinity;
+        return modeSplits ? (modeSplits.pb != null ? modeSplits.pb : Infinity) : Infinity;
     }
 
     public getPbs(): { mode: number, time: number }[] {

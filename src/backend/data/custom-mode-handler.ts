@@ -12,18 +12,10 @@ import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
 import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
-import {createIdResolver} from "vite";
 import {UserStatTracker} from "./user-stat-tracker";
+import {CustomModeInfo} from "../../types/CustomMode";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
-
-
-export interface CustomModeInfo {
-    map: number,
-    modeIndex: number,
-    modeTimes: number[],
-    isUD: boolean
-}
 
 export class CustomModeHandler {
     private static instance: CustomModeHandler | null = null;
@@ -188,7 +180,7 @@ export class CustomModeHandler {
     private stopCustomMode(configWindow: BrowserWindow, overlayWindow: BrowserWindow, stateTracker: CurrentStateTracker) {
         const newMode = this.underlyingMode;
         if (newMode === null) {
-            console.error("No underlying mode found to switch back to");
+            log.error("No underlying mode found to switch back to");
             return false;
         }
         this.clearCustomMode(configWindow)

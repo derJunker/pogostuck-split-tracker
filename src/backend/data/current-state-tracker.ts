@@ -54,6 +54,7 @@ export class CurrentStateTracker {
         const isPlayingCustomMode = customModeHandler.isPlayingCustomMode()
         const customModeInfo = customModeHandler.getCustomMode()
         if ((isPlayingCustomMode && customModeInfo?.map !== map) || forceCustomModeStop) {
+            log.info(`Clearing custom mode because map changed from ${customModeInfo?.map} to ${map} or force stop was requested`);
             customModeHandler.clearCustomMode(configWindow)
             return mode;
         }
@@ -62,9 +63,12 @@ export class CurrentStateTracker {
             customModeInfo!.underlyingMode = mode;
             console.log(`Setting underlying mode to ${mode} because it was -1`);
         }
-        const newModeIsNotCustom = !isPlayingCustomMode || (customModeInfo!.underlyingMode !== mode) || (mode === -1 && customModeInfo!.underlyingMode !== -1)
-        log.debug(`Checking for custom mode. Current mode: ${this.mode}, new mode: ${mode}, isPlayingCustomMode: ${isPlayingCustomMode}, customModeInfo: ${JSON.stringify(customModeInfo)}, newModeIsNotCustom: ${newModeIsNotCustom}`);
+        const newModeIsDifferentUnderlying = isPlayingCustomMode && customModeInfo!.customMode !== mode && customModeInfo!.underlyingMode !== mode
+        const changedToMenu = isPlayingCustomMode && mode === -1 && customModeInfo!.underlyingMode !== -1
+        const newModeIsNotCustom = !isPlayingCustomMode || newModeIsDifferentUnderlying || changedToMenu
+        log.debug(`Checking for custom mode. Current mode: ${this.mode}, new mode: ${mode}, isPlayingCustomMode: ${isPlayingCustomMode}, customModeInfo: ${JSON.stringify(customModeInfo)}`);
         if (newModeIsNotCustom) {
+            log.debug(`New mode is not custom (different underlying: ${newModeIsDifferentUnderlying}, changed to menu: ${changedToMenu}, not playing custom: ${!isPlayingCustomMode}), clearing custom mode`);
             customModeHandler.clearCustomMode(configWindow)
         }
         else {

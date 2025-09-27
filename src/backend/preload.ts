@@ -4,7 +4,7 @@ import {PbRunInfoAndSoB} from "../types/global";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import IpcRendererEvent = Electron.IpcRendererEvent;
 import {VERSION} from "../version";
-import {CustomModeInfo} from "./data/custom-mode-handler";
+import {CustomModeInfo} from "../types/CustomMode";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     // overlay subscribing to backend events
@@ -43,7 +43,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onDeleteCustomMode: (modeIndex: number): Promise<void> => ipcRenderer.invoke('delete-custom-mode', modeIndex),
     onUpdateBtnClicked: (downloadLink: string): Promise<void> => ipcRenderer.invoke('update-btn-clicked', downloadLink),
     onRevertGoldSplit: (from: number, to: number, mode: number): Promise<number> => ipcRenderer.invoke('revert-gold-split', from, to, mode),
-    onCustomModeIsUDModeChanged: (isUDMode: boolean, modeIndex: number): Promise<void> => ipcRenderer.invoke('custom-mode-is-ud-mode-changed', isUDMode),
+    onCustomModeIsUDModeChanged: (isUDMode: boolean, modeIndex: number): Promise<void> => ipcRenderer.invoke('custom-mode-is-ud-mode-changed', isUDMode, modeIndex),
     openBuyMeACoffee: (): Promise<void> => ipcRenderer.invoke('open-buy-me-a-coffee'),
 
 

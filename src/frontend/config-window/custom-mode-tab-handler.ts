@@ -96,7 +96,6 @@ function loadCustomModesForMap() {
     addCreateOption();
     const selectedMapIndex = parseInt(mapSelect.value);
     const customModesForMap = getFrontendCustomModes().filter(cm => cm.map === selectedMapIndex);
-    __electronLog.debug(`[Frontend] Loading ${customModesForMap.length} custom modes for map ${selectedMapIndex}`, JSON.stringify(getFrontendMappings()));
     customModesForMap.forEach(cm => {
         const modeName = getFrontendMappings().find(m => m.mapIndex === selectedMapIndex)?.modes.find(m => m.key === cm.modeIndex)?.name || `Mode ${cm.modeIndex}`;
         const modeOption = document.createElement('option');
@@ -137,7 +136,7 @@ async function onModeCreate() {
 }
 
 function onModeChange() {
-    __electronLog.info(`Mode changed to ${modeSelect.value}`);
+    __electronLog.info(`[Frontend] Custom Mode changed to ${modeSelect.value}`);
     if (modeSelect.value.length === 0) {
         customModeNameInput.value = "";
         buttonsContainer.style.display = 'none';
@@ -150,14 +149,23 @@ function onModeChange() {
     const customMode = getFrontendCustomModes().find(cm => cm.map === selectedMapIndex && cm.modeIndex === selectedModeIndex);
     if (customMode) {
         customModeNameInput.value = getFrontendMappings().find(m => m.mapIndex === selectedMapIndex)?.modes.find(m => m.key === customMode.modeIndex)?.name || `Mode ${customMode.modeIndex}`;
+        isUDModeToggle.checked = customMode.isUD;
+        isUDModeToggle.dispatchEvent(new Event('change'));
         playButton.disabled = false;
         deleteButton.disabled = false;
+        isUDContainer.style.display = 'block';
         buttonsContainer.style.display = 'flex';
         nameContainer.style.display = 'flex';
         isUDContainer.style.display = 'block';
         showPlayButton(customMode.modeIndex !== currentCustomMode)
     } else {
+        // not rly sure if i put everything in there, but this shouldnt happen anyways.
         customModeNameInput.value = "";
+        isUDModeToggle.checked = false;
+        playButton.disabled = true;
+        deleteButton.disabled = true;
+        showPlayButton(true)
+        isUDContainer.style.display = 'none';
         buttonsContainer.style.display = 'none';
         nameContainer.style.display = 'none';
         isUDContainer.style.display = 'none';

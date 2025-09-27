@@ -1,4 +1,5 @@
 import {CustomModeHandler} from "./custom-mode-handler";
+import log from "electron-log/main";
 
 export function isValidModeAndMap(map: number, mode: number): boolean {
     const invalidMaps = [110] // UD map
@@ -15,6 +16,7 @@ export function isUpsideDownMode(mode: number): boolean {
     const cm = customModeHandler.getCustomModeInfoByMode(mode)
     if (cm) return cm.isUD;
     const upsideDownModes = [6, 16, 23];
+
     return upsideDownModes.includes(mode);
 }
 

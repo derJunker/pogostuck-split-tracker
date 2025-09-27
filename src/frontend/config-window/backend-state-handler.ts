@@ -1,10 +1,11 @@
 import {PogoLevel} from "../../types/pogo-index-mapping";
 import {Settings} from "../../types/settings";
+import {CustomModeInfo} from "../../types/CustomMode";
 
 let settings: Settings;
 let mappings: PogoLevel[]
 let pbs: {mode: number, time: number}[] = [];
-let customModes : {map: number, modeIndex: number, modeTimes: number[]}[] = [];
+let customModes : CustomModeInfo[] = [];
 
 export async function loadSettingsAndMappingsFromBackend() {
     await Promise.all([loadBackendSettings(), loadBackendMappings()]);
@@ -47,7 +48,7 @@ export function getFrontendPbs(): {mode: number, time: number}[] {
     return pbs;
 }
 
-export function getFrontendCustomModes(): {map: number, modeIndex: number, modeTimes: number[]}[] {
+export function getFrontendCustomModes(): CustomModeInfo[] {
     if (!customModes) {
         throw new Error("Custom modes not loaded yet. Call loadCustomModes() first.");
     }

@@ -1,6 +1,6 @@
 import {Settings} from "./settings";
 import {PogoLevel} from "./pogo-index-mapping";
-import {ipcRenderer} from "electron";
+import {CustomModeInfo} from "./CustomMode";
 
 export interface SplitInfo {
     name: string; split: number; time: number; hide:boolean; skipped:boolean, resets: number
@@ -74,7 +74,7 @@ declare global { interface Window {
         getMappings: () => Promise<PogoLevel[]>;
         getSelectedTab: () => Promise<string>;
         getPbs: () => Promise<{mode: number, time: number}[]>;
-        getCustomModes: () => Promise<{map: number, modeIndex: number, modeTimes: number[]}[]>;
+        getCustomModes: () => Promise<CustomModeInfo[]>;
         getValidRollbacks: (mode: number) => Promise<{from: number, to: number, valid: boolean, oldTime?: number}[]>
 
         // config window subscribing to backend events

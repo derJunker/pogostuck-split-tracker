@@ -87,4 +87,11 @@ export class UserStatTracker {
     public getUserStats() {
         return this.userStats;
     }
+
+    public deleteMode(modeIndex: number) {
+        const modeIndexExists = this.userStats.some(b => b.mode === modeIndex)
+        this.userStats = this.userStats.filter(b => b.mode !== modeIndex)
+        this.changed = modeIndexExists;
+        writeUserStatsIfChanged()
+    }
 }

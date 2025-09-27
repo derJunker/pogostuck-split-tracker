@@ -49,7 +49,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 return
             }
             const { checkpoint, time } = match.groups!;
-            stateTracker.startingRun();
+            stateTracker.ensuresRunStarted();
 
             const split = parseInt(checkpoint);
             const timeAsFloat  = parseFloat(time);

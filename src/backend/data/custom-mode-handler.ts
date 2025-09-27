@@ -12,6 +12,8 @@ import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
 import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
+import {createIdResolver} from "vite";
+import {UserStatTracker} from "./user-stat-tracker";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
@@ -49,6 +51,7 @@ export class CustomModeHandler {
 
 
     public setCustomMode(map: number, customMode: number, underlyingMode: number, overlayWindow: BrowserWindow) {
+        log.info(`Setting custom mode ${customMode} for map ${map} with underlying mode ${underlyingMode}`);
         this.currentCustomMode = customMode;
         this.underlyingMode = underlyingMode;
         this.mapForCustomMode = map;
@@ -112,7 +115,7 @@ export class CustomModeHandler {
                 redrawSplitDisplay(this.mapForCustomMode!, this.currentCustomMode!, overlayWindow);
         });
         ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
-        ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow));
+        ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow, overlayWindow));
         ipcMain.handle('custom-mode-is-ud-mode-changed', async (_, isUDMode: boolean, modeIndex: number) => this.changeCustomModeIsUDMode(isUDMode, modeIndex));
     }
 
@@ -177,6 +180,7 @@ export class CustomModeHandler {
         }
         const underlyingMode = stateTracker.getCurrentMode() // this can be -1, if that's the case then somewhere else it will be set to the then changed mode
         this.setCustomMode(customMode.map, customMode.modeIndex, underlyingMode, overlayWindow);
+        if (underlyingMode !== -1) stateTracker.updateMapAndMode(customMode.map, customMode.modeIndex, configWindow)
         return true;
     }
 
@@ -192,7 +196,7 @@ export class CustomModeHandler {
         return true;
     }
 
-    private deleteCustomMode(modeIndex: number, configWindow: BrowserWindow): void {
+    private deleteCustomMode(modeIndex: number, configWindow: BrowserWindow, overlayWindow: BrowserWindow): void {
         const prevLength = this.customModes.length;
         this.customModes = this.customModes.filter(cm => cm.modeIndex !== modeIndex);
         if (this.customModes.length === prevLength) {
@@ -201,18 +205,38 @@ export class CustomModeHandler {
         }
         this.saveCustomModesToFile();
 
+        this.changeModeIfCurrentlyPlayingDeletedMode(modeIndex, configWindow, overlayWindow)
+
         PogoNameMappings.getInstance().deleteMapping(modeIndex);
-        GoldPaceTracker.getInstance().deleteModeIfExists(modeIndex);
+        GoldPaceTracker.getInstance().deleteMode(modeIndex);
 
         writeGoldPacesIfChanged(configWindow)
-        GoldSplitsTracker.getInstance().deleteModeIfExists(modeIndex);
+        GoldSplitsTracker.getInstance().delteMode(modeIndex);
 
         SettingsManager.getInstance().deleteMode(modeIndex);
 
         BackupGoldSplitTracker.getInstance().deleteMode(modeIndex)
 
-        writeGoldSplitsIfChanged(configWindow)
+        UserStatTracker.getInstance().deleteMode(modeIndex)
 
+        writeGoldSplitsIfChanged(configWindow)
+    }
+
+    private changeModeIfCurrentlyPlayingDeletedMode(modeIndex: number, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
+        if (this.currentCustomMode === modeIndex && modeIndex !== -1) {
+            log.info(`Currently playing custom mode ${modeIndex} which is now deleted, switching back to underlying mode if possible`);
+            const stateTracker = CurrentStateTracker.getInstance()
+            let map = -1
+            let underlyingMode = -1
+            if (this.underlyingMode != null && this.underlyingMode !== -1) {
+                map = stateTracker.getCurrentMap();
+                underlyingMode = this.underlyingMode;
+            }
+            log.debug(` map: ${map}, underlyingMode: ${underlyingMode}`);
+            this.clearCustomMode(configWindow);
+            stateTracker.updateMapAndMode(map, underlyingMode, configWindow, true)
+            resetOverlay(map, underlyingMode, overlayWindow);
+        }
     }
 
     private createDefaultCustomModesFile() {

@@ -32,8 +32,8 @@ export class CurrentStateTracker {
         return CurrentStateTracker.instance;
     }
 
-    public updateMapAndMode(map: number, mode: number, configWindow: BrowserWindow): boolean {
-        mode = this.checkForCustomMode(map, mode, configWindow)
+    public updateMapAndMode(map: number, mode: number, configWindow: BrowserWindow, forceCustomModeStop?: boolean): boolean {
+        mode = this.checkForCustomMode(map, mode, configWindow, forceCustomModeStop)
         if (this.map !== map || this.mode !== mode) {
             this.map = map;
             this.mode = mode;
@@ -49,11 +49,11 @@ export class CurrentStateTracker {
      * clears the custom mode if you changed from custom mode to sth else
      * returns the now active mode (if you're playing custom mode it returns that)
      */
-    private checkForCustomMode(map: number, mode: number, configWindow: BrowserWindow): number {
+    private checkForCustomMode(map: number, mode: number, configWindow: BrowserWindow, forceCustomModeStop: boolean | undefined): number {
         const customModeHandler = CustomModeHandler.getInstance()
         const isPlayingCustomMode = customModeHandler.isPlayingCustomMode()
         const customModeInfo = customModeHandler.getCustomMode()
-        if (isPlayingCustomMode && customModeInfo?.map !== map) {
+        if ((isPlayingCustomMode && customModeInfo?.map !== map) || forceCustomModeStop) {
             customModeHandler.clearCustomMode(configWindow)
             return mode;
         }
@@ -193,6 +193,15 @@ export class CurrentStateTracker {
 
     public startingRun() {
         this.currentlyRunning = true;
+        log.info(`Starting run for mode: ${this.mode}, map: ${this.map}`);
+    }
+
+    // Basically the same func as above but i just want to know when this happens
+    public ensuresRunStarted() {
+        if (!this.currentlyRunning) {
+            this.currentlyRunning = true;
+            log.info("Ensured run was started because a split or finish was detected while not running");
+        }
     }
 
     public stoppingRun() {

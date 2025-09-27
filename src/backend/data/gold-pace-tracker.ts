@@ -158,7 +158,7 @@ export class GoldPaceTracker {
         return this.changed;
     }
 
-    public deleteModeIfExists(modeIndex: number) {
+    public deleteMode(modeIndex: number) {
         const index = this.goldPaces.findIndex(p => p.modeIndex === modeIndex);
         if (index !== -1) {
             this.goldPaces.splice(index, 1);

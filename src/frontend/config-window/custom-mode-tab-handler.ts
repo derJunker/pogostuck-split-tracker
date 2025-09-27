@@ -4,7 +4,12 @@ import {
     loadBackendCustomModes, loadBackendPbs, loadSettingsAndMappingsFromBackend, updateFrontendMappings
 } from "./backend-state-handler";
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./pb-tab-handler";
-import {loadLevelsFromMappingSplitTab, updateModesForLevel, updateSplitsAndGolds} from "./splits-tab-handler";
+import {
+    changeSelectionTo,
+    loadLevelsFromMappingSplitTab,
+    updateModesForLevel,
+    updateSplitsAndGolds
+} from "./splits-tab-handler";
 import {addError, removeError} from "../form-error-handler";
 
 let mapSelect: HTMLSelectElement;
@@ -189,10 +194,11 @@ async function onSaveName(name: string) {
 }
 
 function onPlayCustomMode(mode: number) {
-    window.electronAPI.onPlayCustomMode(mode).then(validChange => {
+    window.electronAPI.onPlayCustomMode(mode).then(async (validChange) => {
         if (validChange) {
             showPlayButton(false)
             currentCustomMode = mode;
+            await changeSelectionTo(parseInt(mapSelect.value), mode)
         }
     });
 }

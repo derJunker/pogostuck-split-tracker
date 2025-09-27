@@ -20,6 +20,7 @@ export async function launchPogostuckIfNotOpenYet(): Promise<boolean> {
     try {
         const tasklist = execSync('tasklist', { encoding: 'utf8' });
         if (tasklist.toLowerCase().includes('pogostuck.exe')) {
+
             log.info('Trying to launch Pogostuck is already running. Not launching again.');
             return false;
         }

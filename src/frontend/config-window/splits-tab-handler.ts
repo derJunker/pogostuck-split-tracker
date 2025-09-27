@@ -417,14 +417,18 @@ window.electronAPI.mapAndModeChanged(async (_event: Electron.IpcRendererEvent,
                                                 map: number,
                                                 mode: number
                                             }) => {
+    await changeSelectionTo(mapAndMode.map, mapAndMode.mode)
+});
+
+export async function changeSelectionTo(map: number, mode: number) {
     // select the map in mapSelect to the value
     if (mapSelect && modeSelect) {
-        mapSelect.value = mapAndMode.map.toString();
+        mapSelect.value = map.toString();
         updateModesForLevel();
-        modeSelect.value = mapAndMode.mode.toString();
+        modeSelect.value = mode.toString();
         await updateSplitsAndGolds()
     }
-});
+}
 
 window.electronAPI.onGoldenSplitsImproved(async () => {
     await reloadGoldSplits();

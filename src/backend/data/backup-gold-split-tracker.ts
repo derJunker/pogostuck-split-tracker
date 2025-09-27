@@ -1,10 +1,12 @@
 import log from "electron-log/main";
 import fs from "fs";
 import path from "path";
-import {app, ipcMain} from "electron";
+import {app, BrowserWindow, ipcMain} from "electron";
 import { PogoNameMappings } from "./pogo-name-mappings";
 import {GoldSplitHistory} from "../../types/gold-split-history";
 import {Split} from "../../types/mode-splits";
+import {GoldSplitsTracker} from "./gold-splits-tracker";
+import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 
 const backupGoldsPath = path.join(app.getPath("userData"), "gold-split-backups.json");
 
@@ -22,11 +24,14 @@ export class BackupGoldSplitTracker {
 
     private backups: GoldSplitHistory[] = []
 
-    public initListeners() {
+    public initListeners(configWindow: BrowserWindow) {
         ipcMain.handle("revert-gold-split", (_event, from: number, to: number, mode:number) => {
             const restored = this.restoreBackup({from, to}, mode)
             if (restored !== null) {
                 log.info(`Restored backup gold split for mode ${mode}, split from ${from} to ${to}: ${restored}`);
+                const goldSplitTracker = GoldSplitsTracker.getInstance();
+                goldSplitTracker.updateGoldSplit(mode, from, to, restored)
+                writeGoldSplitsIfChanged(configWindow)
                 this.saveBackupsIfChanged()
                 return restored
             }
@@ -41,8 +46,10 @@ export class BackupGoldSplitTracker {
             return modeHistory.splitHistories.map(sh => ({
                 from: sh.split.from,
                 to: sh.split.to,
-                valid: sh.history.length > 0,
-                oldTime: sh.history.length > 0 ? sh.history[sh.history.length -1] : undefined
+                valid: sh.history.filter(num => num !== null).length > 0, // for some reason sometimes null is put
+                // in there, but i cant reproduce it, so just filter it out. Just a quick fix of the issue not a
+                // solution, sorry T_T
+                oldTime: sh.history.filter(num => num !== null).length > 0 ? sh.history[sh.history.length -1] : undefined
             }))
         })
     }
@@ -81,9 +88,6 @@ export class BackupGoldSplitTracker {
     public addBackup(time:number, split: Split, mode: number): void {
         let splitBackups = this.getHistoryForSplit(mode, split)
         log.info(`adding backup for mode ${mode}, split ${JSON.stringify(split)}: ${time}, existing: ${JSON.stringify(splitBackups)}`);
-        if (splitBackups.length >= 5) {
-            splitBackups.splice(0, 1)
-        }
         splitBackups.push(time)
         this.backupsChanged = true;
     }

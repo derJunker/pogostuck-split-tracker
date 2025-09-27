@@ -218,8 +218,10 @@ function appendAllGoldSplits(
         to: number;
     }, isUD?: boolean, useOldNames?: boolean) {
     if (isUD) {
-        appendSplit(levelMappings.endSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes, mode);
+        const lastSplitName = useOldNames ? "Start" : levelMappings.endSplitName;
+        appendSplit(lastSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes, mode);
     }
+    __electronLog.debug(`mapSplits: ${JSON.stringify(mapSplits)}, splitPath: ${JSON.stringify(splitPath)}`);
     splitPath.forEach((splitPathEl) => {
         let name = mapSplits.find((_name, index) => {
             if (useOldNames || isUD)

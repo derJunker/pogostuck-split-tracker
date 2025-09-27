@@ -96,6 +96,7 @@ function loadCustomModesForMap() {
     addCreateOption();
     const selectedMapIndex = parseInt(mapSelect.value);
     const customModesForMap = getFrontendCustomModes().filter(cm => cm.map === selectedMapIndex);
+    __electronLog.debug(`[Frontend] Loading ${customModesForMap.length} custom modes for map ${selectedMapIndex}`, JSON.stringify(getFrontendMappings()));
     customModesForMap.forEach(cm => {
         const modeName = getFrontendMappings().find(m => m.mapIndex === selectedMapIndex)?.modes.find(m => m.key === cm.modeIndex)?.name || `Mode ${cm.modeIndex}`;
         const modeOption = document.createElement('option');

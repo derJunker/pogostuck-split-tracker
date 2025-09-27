@@ -110,9 +110,10 @@ export class CustomModeHandler {
     private initCustomModeFrontendListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
         ipcMain.handle('create-custom-mode', async (_, map: number) => this.createCustomMode(map));
         ipcMain.handle('save-custom-mode-name', async (_, modeIndex: number, newName: string) => {
-            this.saveCustomModeName(modeIndex, newName)
+            const newMappings = this.saveCustomModeName(modeIndex, newName)
             if (this.isPlayingCustomMode() && this.currentCustomMode === modeIndex)
                 redrawSplitDisplay(this.mapForCustomMode!, this.currentCustomMode!, overlayWindow);
+            return newMappings
         });
         ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
         ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow, overlayWindow));

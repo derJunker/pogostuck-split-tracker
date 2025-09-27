@@ -28,7 +28,8 @@
     "electron-log": "^5.4.3",
     "marked": "^16.3.0",
     "node-fetch": "^3.3.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "node-abi": "^4.14.0"
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",

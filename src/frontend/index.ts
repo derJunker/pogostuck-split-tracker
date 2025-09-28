@@ -54,7 +54,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     initLanguageListeners();
     initTooltips();
 
-    document.getElementById('buy-coffee')?.addEventListener('click', window.electronAPI.openBuyMeACoffee);
+    document.getElementById('buy-coffee')?.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://buymeacoffee.com/derjunker"));
+    document.getElementById('yt-vid')?.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://www.youtube.com/watch?v=TiV_zLOi0zc"));
 
     document.getElementById('version')!.textContent = await window.electronAPI.getVersion();
 

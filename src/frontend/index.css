@@ -122,41 +122,6 @@ input[type="checkbox"] {
     display: none;
 }
 
-.custom-checkbox {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background: var(--color-checkbox-bg);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: 6px;
-    position: relative;
-    vertical-align: middle;
-    cursor: pointer;
-    transition: background var(--transition-fast), border var(--transition-fast);
-    padding: 0;
-}
-.custom-checkbox::after {
-    content: '';
-    display: block;
-    width: 5px;
-    height: 5px;
-    background: var(--color-checkbox-dot);
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-}
-.custom-checkbox.checked {
-    background: var(--color-border);
-    border: var(--border-width) solid var(--color-border);
-}
-.custom-checkbox.checked::after {
-    opacity: 1;
-}
-
 
 .input-field, input[type="text"], input[type="password"], input[type="email"] {
     background: var(--color-fg);

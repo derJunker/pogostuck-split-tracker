@@ -41,7 +41,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
     // split gets logged
     fileWatcher.registerListener(
-        /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\), old\((?<old>-?\d+)\) runTimeCurrent\((?<time>\d+\.\d+)\), cpTime\((?<overwrittenTime>\d+\.\d+)\)/,
+        /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\).*old\((?<old>-?\d+)\)(, map3RouteCurrent(.*))?.*runTimeCurrent\((?<time>\d+\.?\d*)\)/,
         (match) => {
             const map = stateTracker.getCurrentMap();
             const mode = stateTracker.getCurrentMode();

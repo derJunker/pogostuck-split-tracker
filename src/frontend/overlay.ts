@@ -252,6 +252,18 @@ window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBa
     }
 })
 
+window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: string) => {
+    const overlayMessageContainer = document.getElementById("overlay-messages")
+    if(!overlayMessageContainer) return;
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "overlay-message";
+    messageDiv.innerText = message;
+    overlayMessageContainer.appendChild(messageDiv);
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000)
+})
+
 function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean, logsDetected: boolean, showLogDetectMessage: boolean): string {
     let msg = "Config Status\n"
     if (pogoPathValid && steamPathValid && friendCodeValid && logsDetected) {

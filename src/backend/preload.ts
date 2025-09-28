@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => ipcRenderer.on('golden-split-passed', callback),
     onStatusChanged: (callback: (event: IpcRendererEvent, statusMsg: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => void) => ipcRenderer.on('status-changed', callback),
     onLastSplitGolden: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('last-split-gold', callback),
+    showMessage: (callback: (event: Electron.IpcRendererEvent, message: string) => void) => ipcRenderer.on('show-overlay-message', callback),
 
     // config window sending events to backend
     onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => ipcRenderer.invoke('option-hide-skipped-splits-changed', hideSkippedSplits),

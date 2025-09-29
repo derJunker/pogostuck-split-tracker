@@ -121,6 +121,17 @@ window.electronAPI.resetOverlay((_event: Electron.IpcRendererEvent,
     loadMapMode(pbRunInfo);
 });
 
+window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notClickThrough: boolean) => {
+    const body = document.querySelector("body")!
+    if (notClickThrough) {
+        body.style.border = "1px solid transparent"
+        body.style.borderRadius = "6px"
+    } else {
+        body.style.border = "1px solid white"
+        body.style.borderRadius = "6px"
+    }
+})
+
 window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);

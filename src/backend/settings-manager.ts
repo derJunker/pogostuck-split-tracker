@@ -143,11 +143,10 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle("option-click-through-overlay-changed", (_event, clickThroughOverlay: boolean) => {
-            if (this.currentSettings.clickThroughOverlay === clickThroughOverlay)
-                return this.currentSettings;
             log.info(`[Setting] 'Click through overlay' changed to: ${clickThroughOverlay}`);
             this.currentSettings.clickThroughOverlay = clickThroughOverlay;
             overlayWindow.setIgnoreMouseEvents(clickThroughOverlay);
+            overlayWindow.webContents.send('click-through-changed', clickThroughOverlay);
             this.saveSettings()
             return this.currentSettings
         });

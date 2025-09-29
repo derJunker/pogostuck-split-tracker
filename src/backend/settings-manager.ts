@@ -25,6 +25,7 @@ export class SettingsManager {
     private static instance: SettingsManager | null = null;
     private readonly settingsPath: string;
     public currentSettings: Settings;
+    public noSettingsFileOnStartup: boolean = false;
 
     private constructor() {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
@@ -338,6 +339,7 @@ export class SettingsManager {
                 log.debug(`After migration loaded settings: ${JSON.stringify(loadedSettings, null, 2)}`);
             return loadedSettings;
         } else {
+            this.noSettingsFileOnStartup = true;
             return {
                 pogostuckConfigPath: "",
                 steamPath: "",

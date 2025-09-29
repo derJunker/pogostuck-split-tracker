@@ -29,8 +29,14 @@ export function openOverlayWindow() {
         defaultHeight: overlayHeight,
     })
 
-    const x = overlayState.x !== undefined ? overlayState.x : screen.getPrimaryDisplay().workArea.width - overlayWidth;
-    const y = overlayState.y !== undefined ? overlayState.y : 0;
+    const settingsManager = SettingsManager.getInstance();
+    const openedForFirstTime = settingsManager.noSettingsFileOnStartup; // Because of the completely outdated
+    // electron state lib i had to change to, i cannot set a default x and y, it just automatically initializes to
+    // the middle. So i just check if it is the first time opening the overlay and if so, set it to the right side of the screen
+
+    const x = !openedForFirstTime ? overlayState.x : screen.getPrimaryDisplay().workArea.width - overlayWidth;
+    const y = !openedForFirstTime ? overlayState.y : 0;
+
 
     if (overlayState.x === undefined)
         log.info(`No saved x pos, setting it to: ${x} (Primary display width: ${screen.getPrimaryDisplay().workArea.width})`);

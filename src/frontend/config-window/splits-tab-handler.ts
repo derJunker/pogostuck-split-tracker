@@ -100,6 +100,7 @@ async function reloadGoldSplits() {
     const splitPath = await window.electronAPI.getSplitPath(mode)
     __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
     if (splitPath.length === 0) {
+        goldSplitSelection.style.width = "100px";
         return
     }
     const mappings = getFrontendMappings();

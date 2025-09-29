@@ -67,6 +67,9 @@ export function openOverlayWindow() {
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
     overlayWindow.setAlwaysOnTop(true, "screen-saver")
 
+    if (openedForFirstTime)
+        overlayState.saveState(overlayWindow)
+
     overlayWindow.on("ready-to-show", () => {
         if (correctWindowForOverlayInFocus || !SettingsManager.getInstance().hideWindowWhenPogoNotActive())
             overlayWindow.showInactive();

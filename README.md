@@ -21,6 +21,7 @@ Additionally to the basic features it also has:
 - More Stats and Graphs to show you the stats :)
 
 ## Setup
+[Setup Video](https://www.youtube.com/watch?v=TiV_zLOi0zc)
 ### Installation
 So i personally would recommend using the newest release in the GitHub `Releases` tab on the right. For that just go to the lastest release and download the .exe installer!
 

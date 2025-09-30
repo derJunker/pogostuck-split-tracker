@@ -60,6 +60,7 @@ declare global { interface Window {
         onUpdateBtnClicked: (downloadLink: string) => Promise<void>;
         onRevertGoldSplit: (from: number, to: number, mode: number) => Promise<number>,
         onCustomModeIsUDModeChanged: (isUDMode: boolean, modeIndex: number) => Promise<void>
+        onCustomModeIsRBModeChanged: (isRBMode: boolean, modeIndex: number) => Promise<void>
         openLinkInBrowser: (link: string) => Promise<void>;
 
 

@@ -4,6 +4,7 @@ import './menus.css'
 import './components.css';
 import './preferences.css'
 import './error-messages.css'
+import './custom-modes.css'
 
 import './config-window/update-handler.ts'
 import './config-window/special-circumstances-handler' // explicit import to make sure the code runs, maybe i should

@@ -86,6 +86,9 @@ export class CustomModeHandler {
             try {
                 const data = fs.readFileSync(customModesPath, 'utf-8');
                 const customModes: CustomModeInfo[] = JSON.parse(data);
+                customModes.forEach(cm => {
+                    if (cm.isRB === undefined) cm.isRB = false;
+                })
                 if (customModes.length === 0) {
                     this.createDefaultCustomModesFile();
                 }
@@ -110,6 +113,7 @@ export class CustomModeHandler {
         ipcMain.handle('play-custom-mode', async (_, modeIndex: number) => this.playCustomMode(modeIndex, overlayWindow, configWindow));
         ipcMain.handle('delete-custom-mode', async (_, modeIndex: number) => this.deleteCustomMode(modeIndex, configWindow, overlayWindow));
         ipcMain.handle('custom-mode-is-ud-mode-changed', async (_, isUDMode: boolean, modeIndex: number) => this.changeCustomModeIsUDMode(isUDMode, modeIndex));
+        ipcMain.handle('custom-mode-is-rb-mode-changed', async (_, isRBMode: boolean, modeIndex: number) => this.changeCustomModeIsRBMode(isRBMode, modeIndex));
     }
 
     private changeCustomModeIsUDMode(isUDMode: boolean, modeIndex: number) {
@@ -119,6 +123,15 @@ export class CustomModeHandler {
             return;
         }
         mode.isUD = isUDMode;
+        this.saveCustomModesToFile();
+    }
+    private changeCustomModeIsRBMode(isRBMode: boolean, modeIndex: number) {
+        const mode = this.customModes.find(cm => cm.modeIndex === modeIndex);
+        if (!mode) {
+            log.error(`Custom mode with index ${modeIndex} not found, cannot change UD mode`);
+            return;
+        }
+        mode.isRB = isRBMode;
         this.saveCustomModesToFile();
     }
 
@@ -136,7 +149,8 @@ export class CustomModeHandler {
             map,
             modeIndex: newModeIndex,
             modeTimes: [],
-            isUD: false
+            isUD: false,
+            isRB: false,
         };
         this.customModes.push(newCustomMode);
         this.saveCustomModesToFile()

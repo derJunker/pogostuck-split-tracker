@@ -23,6 +23,8 @@ let buttonsContainer: HTMLDivElement;
 let nameContainer: HTMLDivElement;
 let isUDModeToggle: HTMLInputElement;
 let isUDContainer: HTMLDivElement;
+let isRBToggle: HTMLInputElement;
+let isRBContainer: HTMLDivElement;
 
 let currentCustomMode: number | null = null;
 
@@ -38,6 +40,8 @@ export function initializeCustomModeTabHandler() {
     nameContainer = document.getElementById("custom-mode-btns") as HTMLDivElement;
     isUDModeToggle = document.getElementById("custom-mode-is-ud-toggle") as HTMLInputElement;
     isUDContainer = document.getElementById("is-ud-container") as HTMLDivElement;
+    isRBToggle = document.getElementById("custom-mode-is-rb-toggle") as HTMLInputElement;
+    isRBContainer = document.getElementById("is-rb-container") as HTMLDivElement;
 
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (_) => {
@@ -57,6 +61,10 @@ export function initializeCustomModeTabHandler() {
     isUDModeToggle.addEventListener("change", async (e) => {
         const checked = (e.target as HTMLInputElement).checked;
         await window.electronAPI.onCustomModeIsUDModeChanged(checked, parseInt(modeSelect.value));
+    });
+    isRBToggle.addEventListener("change", async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        await window.electronAPI.onCustomModeIsRBModeChanged(checked, parseInt(modeSelect.value));
     });
     playButton.addEventListener("click", () => onPlayCustomMode(parseInt(modeSelect.value)));
     deleteButton.addEventListener("click", () => onDeleteCustomMode(parseInt(modeSelect.value)));
@@ -147,6 +155,7 @@ function onModeChange() {
         buttonsContainer.style.display = 'none';
         nameContainer.style.display = 'none';
         isUDContainer.style.display = 'none';
+        isRBContainer.style.display = 'none';
         return;
     }
     const selectedModeIndex = parseInt(modeSelect.value);
@@ -156,24 +165,27 @@ function onModeChange() {
         customModeNameInput.value = getFrontendMappings().find(m => m.mapIndex === selectedMapIndex)?.modes.find(m => m.key === customMode.modeIndex)?.name || `Mode ${customMode.modeIndex}`;
         isUDModeToggle.checked = customMode.isUD;
         isUDModeToggle.dispatchEvent(new Event('change'));
+        isRBToggle.checked = customMode.isRB;
+        isRBToggle.dispatchEvent(new Event('change'));
         playButton.disabled = false;
         deleteButton.disabled = false;
-        isUDContainer.style.display = 'block';
         buttonsContainer.style.display = 'flex';
         nameContainer.style.display = 'flex';
-        isUDContainer.style.display = 'block';
+        isUDContainer.style.display = 'flex';
+        isRBContainer.style.display = 'flex';
         showPlayButton(customMode.modeIndex !== currentCustomMode)
     } else {
         // not rly sure if i put everything in there, but this shouldnt happen anyways.
         customModeNameInput.value = "";
         isUDModeToggle.checked = false;
+        isRBToggle.checked = false;
         playButton.disabled = true;
         deleteButton.disabled = true;
         showPlayButton(true)
-        isUDContainer.style.display = 'none';
         buttonsContainer.style.display = 'none';
         nameContainer.style.display = 'none';
         isUDContainer.style.display = 'none';
+        isRBContainer.style.display = 'none';
     }
 }
 

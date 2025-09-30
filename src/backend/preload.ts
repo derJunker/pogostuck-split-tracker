@@ -47,6 +47,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onUpdateBtnClicked: (downloadLink: string): Promise<void> => ipcRenderer.invoke('update-btn-clicked', downloadLink),
     onRevertGoldSplit: (from: number, to: number, mode: number): Promise<number> => ipcRenderer.invoke('revert-gold-split', from, to, mode),
     onCustomModeIsUDModeChanged: (isUDMode: boolean, modeIndex: number): Promise<void> => ipcRenderer.invoke('custom-mode-is-ud-mode-changed', isUDMode, modeIndex),
+    onCustomModeIsRBModeChanged: (isRBMode: boolean, modeIndex: number): Promise<void> => ipcRenderer.invoke('custom-mode-is-rb-mode-changed', isRBMode, modeIndex),
     openLinkInBrowser: (link: string): Promise<void> => ipcRenderer.invoke('open-link-in-browser', link),
 
 

@@ -2,5 +2,6 @@ export interface CustomModeInfo {
     map: number,
     modeIndex: number,
     modeTimes: number[],
-    isUD: boolean
+    isUD: boolean,
+    isRB: boolean,
 }

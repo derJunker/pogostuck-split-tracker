@@ -1,0 +1,29 @@
+#custom-mode-name-container {
+    display: flex;
+    gap: .4rem;
+    justify-content:  space-between;
+}
+
+#custom-mode-name {
+    width: 75%;
+}
+
+#custom-mode-btns {
+    display: flex;
+    gap: .4rem;
+    justify-content:  space-between;
+    margin-top: 1rem;
+}
+
+#custom-mode-btns > * {
+    flex: 1 1 33%;
+    max-width: 33%;
+    padding-block: .5rem;
+}
+
+#custom-modes-content .toggle-switch {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+}

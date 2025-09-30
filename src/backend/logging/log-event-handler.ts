@@ -12,6 +12,7 @@ import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
 import {writeUserStatsIfChanged} from "../file-reading/read-user-stats";
 import {UserStatTracker} from "../data/user-stat-tracker";
+import fs from "fs";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     // The holy mother of singleton-definitions
@@ -169,6 +170,15 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             overlayWindow.webContents.send('main-menu-opened') //should probably add another event for that, but currently this just displays the "Pogostuck-Splits Active"
             stateTracker.updateMapAndMode(-1, -1, configWindow)
             stateTracker.resetRun();
+        }
+    )
+
+    // dungeonSetInitialSeed(1) at frame 2144 -> lvl(0) seed(10737)
+    fileWatcher.registerListener(
+        /dungeonSetInitialSeed\((?<setInitialSeed>-?\d+)\) at frame \d+ -> lvl\((?<lvl>0)\) seed\((?<seed>\d+)\)/,
+        (match) => {
+            const { setInitialSeed, lvl, seed } = match.groups!;
+            overlayWindow.webContents.send('loot-started', seed);
         }
     )
 }

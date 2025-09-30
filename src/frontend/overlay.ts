@@ -7,6 +7,7 @@ import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const { splits, pb, sumOfBest, settings } = pbRunInfo;
 
+    setLootDisplay("")
     // Clear splits
     const splitsDiv = document.getElementById('splits');
     if (splitsDiv) {
@@ -212,6 +213,7 @@ window.electronAPI.mainMenuOpened(() => {
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
     }
+    setLootDisplay("")
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         sumOfBestSpan.textContent = '';
@@ -251,6 +253,7 @@ window.electronAPI.onStatusChanged((_event: Electron.IpcRendererEvent, status: {
         div.textContent = line;
         statusElement.appendChild(div);
     });
+    setLootDisplay("")
 })
 
 
@@ -263,6 +266,19 @@ window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBa
     }
 })
 
+window.electronAPI.lootStarted((_event: Electron.IpcRendererEvent, seed: string) => setLootDisplay(seed))
+
+function setLootDisplay(seed: string) {
+    const lootDisplayDiv = document.getElementById('loot-display')!
+    if (seed === "") {
+        lootDisplayDiv.style.display = 'none';
+        return;
+    }
+    document.getElementById('status-msg')!.style!.display = 'none';
+    lootDisplayDiv.style.display = 'block';
+    lootDisplayDiv.innerText = "Seed: " + seed;
+}
+
 window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: string) => {
     const overlayMessageContainer = document.getElementById("overlay-messages")
     if(!overlayMessageContainer) return;
@@ -270,9 +286,10 @@ window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: stri
     messageDiv.className = "overlay-message";
     messageDiv.innerText = message;
     overlayMessageContainer.appendChild(messageDiv);
+    __electronLog.debug(`Showing overlay message: '${message}'`);
     setTimeout(() => {
         messageDiv.remove();
-    }, 3000)
+    }, 6000)
 })
 
 function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean, logsDetected: boolean, showLogDetectMessage: boolean): string {

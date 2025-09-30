@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onLastSplitGolden: (callback: (event: IpcRendererEvent) => void) => ipcRenderer.on('last-split-gold', callback),
     showMessage: (callback: (event: Electron.IpcRendererEvent, message: string) => void) => ipcRenderer.on('show-overlay-message', callback),
     clickThroughChanged: (callback: (event: IpcRendererEvent, clickThrough: boolean) => void) => ipcRenderer.on('click-through-changed', callback),
+    lootStarted: (callback: (event: IpcRendererEvent, seed:string) => void) => ipcRenderer.on('loot-started', callback),
 
     // config window sending events to backend
     onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => ipcRenderer.invoke('option-hide-skipped-splits-changed', hideSkippedSplits),

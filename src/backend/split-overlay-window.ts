@@ -103,7 +103,6 @@ function onActiveWindowChanged(overlayWindow: BrowserWindow, configWindow: Brows
     const pogostuckWasActive = correctWindowForOverlayInFocus;
     const { pogoIsActive, configIsActive } = pogostuckIsActive(windowInfo, overlayWindow, configWindow);
     correctWindowForOverlayInFocus = pogoIsActive || configIsActive;
-    log.info(`Active window changed to: ${windowInfo?.title} (${windowInfo?.application}). Pogo active: ${pogoIsActive}, config active: ${configIsActive}, correctWindowForOverlayInFocus: ${correctWindowForOverlayInFocus}, showWindowEvenWhenNotActive: ${showWindowEvenWhenNotActive}`);
     if (pogoIsActive) {
         pogostuckHasBeenOpenedOnce = true;
         const logsWatcher = FileWatcher.getInstance();

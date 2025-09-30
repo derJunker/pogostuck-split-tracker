@@ -157,7 +157,6 @@ export function redrawSplitDisplay(
 ) {
     const stateTracker = CurrentStateTracker.getInstance();
     if (!isValidModeAndMap(mapNum, modeNum) || !stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
-        log.warn(`Cannot redraw overlay for map ${mapNum}, mode ${modeNum} because either map or mode is invalid or steam path/friend code is not valid.`);
         return;
     }
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum);
@@ -177,13 +176,13 @@ function getPbRunInfoAndSoB(
 
     const mapModeAndSplits = nameMappings.getMapModeAndSplits(mapNum, modeNum);
     let pbSplitTimes = pbSplitTracker.getPbSplitsForMode(modeNum);
+    const isUD = isUpsideDownMode(modeNum)
 
     if (settingsManager.raceGoldSplits()) {
         const splitAmount = mapModeAndSplits.splits.length;
         const splitPath = settingsManager.getSplitIndexPath(modeNum, splitAmount);
         pbSplitTimes = []
         let sum = 0;
-        const isUD = isUpsideDownMode(modeNum)
         if (isUD) {
             for (let i = splitAmount; i >= -1; i--) {
                 sum = sumUpGoldSegments(modeNum, splitPath, pbSplitTimes, goldenSplitTracker, sum, i, isUD)
@@ -226,6 +225,7 @@ function getPbRunInfoAndSoB(
         pb: pbTime === Infinity ? -1 : pbTime,
         sumOfBest: sumOfBest,
         settings: settingsManager.currentSettings,
+        isUDMode: isUD,
         // only add custom mode name if it is not undefined
         customModeName: customModeName
     };

@@ -100,15 +100,24 @@ export class SettingsManager {
             this.saveSettings();
             return this.currentSettings;
         });
-        ipcMain.handle('show-reset-counters-changed', (event, showResetCounters: boolean) => {
-            if (this.currentSettings.showResetCounters === showResetCounters)
-                return this.currentSettings;
+        ipcMain.handle('show-reset-counters-changed', (_event, showResetCounters: boolean) => {
+            const settingsChanged = this.currentSettings.showResetCounters !== showResetCounters
             log.info(`[Setting] 'Show reset counters' changed to: ${showResetCounters}`);
             this.currentSettings.showResetCounters = showResetCounters;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
-            this.saveSettings();
+            if (settingsChanged) this.saveSettings();
+            return this.currentSettings;
+        });
+        ipcMain.handle('reverse-ud-splits', (_event, reverseUDModes: boolean) => {
+            const settingsChanged = this.currentSettings.reverseUDModes !== reverseUDModes
+            log.info(`[Setting] 'Reverse UD Splits' changed to: ${reverseUDModes}`);
+            this.currentSettings.reverseUDModes = reverseUDModes;
+            if(settingsChanged) this.saveSettings();
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
             return this.currentSettings;
         });
         ipcMain.handle('race-golds-changed', (_event, raceGoldSplits: boolean) => {
@@ -319,6 +328,10 @@ export class SettingsManager {
                 loadedSettings.steamPath = loadedSettings.pogostuckSteamUserDataPath;
             if (typeof loadedSettings.userFriendCode === "undefined")
                 loadedSettings.userFriendCode = "";
+            if (typeof loadedSettings.reverseUDModes === "undefined")
+                loadedSettings.reverseUDModes = false;
+            if (typeof loadedSettings.showResetCounters === "undefined")
+                loadedSettings.showResetCounters = true;
             if (loadedSettings.steamPath) {
                 if (loadedSettings.steamPath.includes("688130") && loadedSettings.steamPath.includes("remote")) {
                     loadedSettings.steamPath = loadedSettings.steamPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/, "");
@@ -348,6 +361,8 @@ export class SettingsManager {
                 onlyDiffsColored: false,
                 raceGoldSplits: false,
                 showNewSplitNames: true,
+                showResetCounters: true,
+                reverseUDModes: false,
                 clickThroughOverlay: false,
 
                 enableBackgroundColor: false,

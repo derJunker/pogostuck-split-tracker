@@ -16,6 +16,7 @@ const launchPogoOnStartupCheckbox = document.getElementById('launch-pogo-on-star
 const clickThroughOverlayCheckbox = document.getElementById('click-through-overlay') as HTMLInputElement;
 const splitNamingSelect = document.getElementById('split-naming-select') as HTMLSelectElement;
 const showResetCounter = document.getElementById('show-reset-counters') as HTMLInputElement;
+const reverseUDSplits = document.getElementById('reverse-ud-splits') as HTMLInputElement;
 
 // color picker stuff
 const enableBackgroundColorCheckbox = document.getElementById('enable-background-color') as HTMLInputElement;
@@ -41,6 +42,9 @@ export function setPreferenceTabValuesFromSettings() {
 
     showResetCounter.checked = settings.showResetCounters === undefined ? true : settings.showResetCounters;
     showResetCounter.dispatchEvent(new Event('change'));
+
+    reverseUDSplits.checked = settings.reverseUDModes;
+    reverseUDSplits.dispatchEvent(new Event('change'));
 
     raceGoldSplitsCheckbox.checked = settings.raceGoldSplits;
     raceGoldSplitsCheckbox.dispatchEvent(new Event('change'));
@@ -78,6 +82,12 @@ function initListeners() {
         const checked = (e.target as HTMLInputElement).checked;
         updateFrontendSettings(await window.electronAPI.onShowResetCountersChanged(checked))
     })
+
+    reverseUDSplits.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        updateFrontendSettings(await window.electronAPI.onReverseUDSplits(checked))
+    })
+
 
     raceGoldSplitsCheckbox.addEventListener('change', async (e) => {
         const checked = (e.target as HTMLInputElement).checked;

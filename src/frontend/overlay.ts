@@ -5,13 +5,17 @@ import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest, settings } = pbRunInfo;
+    const { splits, pb, sumOfBest, settings, isUDMode } = pbRunInfo;
 
     setLootDisplay("")
     // Clear splits
     const splitsDiv = document.getElementById('splits');
     if (splitsDiv) {
         splitsDiv.innerHTML = '';
+        const reverseUDSplits = settings.reverseUDModes;
+        if (reverseUDSplits && isUDMode) {
+            splits.reverse();
+        }
         splits.forEach((split: SplitInfo) => {
             appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters);
         });

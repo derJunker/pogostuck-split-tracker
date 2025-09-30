@@ -11,6 +11,7 @@ export interface PbRunInfoAndSoB {
     pb: number,
     sumOfBest: number,
     settings: Settings,
+    isUDMode: boolean,
     customModeName?: string
 }
 
@@ -43,6 +44,7 @@ declare global { interface Window {
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;
         onOnlyDiffColoredChanged: (onlyDiffColored: boolean) => Promise<Settings>;
         onShowResetCountersChanged: (showResetCounters: boolean) => Promise<Settings>;
+        onReverseUDSplits: (reverseUDSplits: boolean) => Promise<Settings>;
         onRaceGoldsChanged: (raceGolds: boolean) => Promise<Settings>;
         onPbEntered: (modeAndTime: {mode: number, time: number}) => Promise<void>;
         openPogostuck: () => Promise<boolean>;

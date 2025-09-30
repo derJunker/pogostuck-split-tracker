@@ -20,6 +20,13 @@ export function isUpsideDownMode(mode: number): boolean {
     return upsideDownModes.includes(mode);
 }
 
+export function isRBMode(mode: number): boolean {
+    const customModeHandler = CustomModeHandler.getInstance()
+    const cm = customModeHandler.getCustomModeInfoByMode(mode)
+    if (cm) return cm.isRB;
+    return false;
+}
+
 export function hasUnusedExtraSplit(mode: number): boolean {
     // some of the newer map 1 modes have a unused split for some reason :(
     return [4, 7, 30, 31].includes(mode);

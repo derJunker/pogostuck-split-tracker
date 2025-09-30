@@ -5,7 +5,7 @@ import {PbSplitTracker} from "../data/pb-split-tracker";
 import {GoldSplitsTracker} from "../data/gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
-import {isUpsideDownMode, isValidModeAndMap} from "../data/valid-modes";
+import {isRBMode, isUpsideDownMode, isValidModeAndMap} from "../data/valid-modes";
 import {resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import log from "electron-log/main";
@@ -53,7 +53,9 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             stateTracker.ensuresRunStarted();
 
             const split = parseInt(checkpoint);
-            const timeAsFloat  = parseFloat(time);
+            let timeAsFloat  = parseFloat(time);
+            if (isRBMode(mode) && timeAsFloat > 60*60)
+                timeAsFloat -= 60*60; // subtract rb penalty
             const shouldSkip = settingsManager.splitShouldBeSkipped(mode, split)
             let pbTime;
             if (settingsManager.raceGoldSplits()) {
@@ -137,7 +139,9 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             }
             stateTracker.stoppingRun();
             const { time, pbTime } = match.groups!;
-            const timeInMS = parseFloat(time)
+            let timeInMS = parseFloat(time)
+            if (isRBMode(stateTracker.getCurrentMode()) && timeInMS > 60*60*1000)
+                timeInMS -= 60*60*1000; // subtract rb penalty
             const pbTimeInMS = parseFloat(pbTime);
             stateTracker.finishedRun(timeInMS/1000, pbTimeInMS/1000, configWindow, overlayWindow)
             onTimeToFileWrite(configWindow);

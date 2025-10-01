@@ -9,7 +9,7 @@ import log from "electron-log/main";
 import {PogoNameMappings} from "./pogo-name-mappings";
 import {UserDataReader} from "./user-data-reader";
 import {CurrentStateTracker} from "./current-state-tracker";
-import {Split} from "../../types/mode-splits";
+import {ModeSplits, Split} from "../../types/mode-splits";
 import {CustomModeHandler} from "./custom-mode-handler";
 
 export class GoldSplitsTracker {
@@ -228,30 +228,41 @@ export class GoldSplitsTracker {
         log.info("updating gold splits based on pb splits");
         const pbSplitTracker = PbSplitTracker.getInstance();
         const modeSplits = pbSplitTracker.getAllPbSplits();
-        modeSplits.forEach(modeSplit => {
-            let {mode, times} = modeSplit;
-            const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(mode, times.length)
+        modeSplits.forEach(modeSplit => this.updateGoldSplitIfInPbSplitsWithModeSplit(modeSplit))
+    }
 
-            const isUD = isUpsideDownMode(mode)
-            splitIndexPath.forEach(({from, to}) => {
-                const isStartFrom = (!isUD && from === -1) || (isUD && from === pbSplitTracker.getSplitAmountForMode(mode))
-                const fromTime =  isStartFrom ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
-                let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
-                if (toTime === -1) { // If the "to" is the pb split
-                    toTime = this.getPbForMode(mode);
-                    // if (mode === 7)
-                    //     console.log("Using pb time: " + toTime);
-                    if (toTime < 0 || toTime === Infinity) {
-                        return;
-                    }
-                }
-                const splitTime = Math.round((toTime - fromTime) * 1000) / 1000;
-                const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
-                if ((!previousGoldSplit || previousGoldSplit > splitTime) && splitTime > 0) {
-                    this.updateGoldSplit(mode, from, to, splitTime);
-                }
+    public updateGoldSplitsIfInPbSplitsForMode(mode: number) {
+        log.info(`updating gold splits based on pb splits for mode ${mode}`);
+        const pbSplitTracker = PbSplitTracker.getInstance();
+        const modeSplit = pbSplitTracker.getPbSplitsForMode(mode);
+        if (!modeSplit) return;
+        this.updateGoldSplitIfInPbSplitsWithModeSplit(modeSplit)
+    }
 
-            })
+    private updateGoldSplitIfInPbSplitsWithModeSplit(modeSplit: ModeSplits) {
+        const pbSplitTracker = PbSplitTracker.getInstance();
+        let {mode, times} = modeSplit;
+        const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(mode, times.length)
+
+        const isUD = isUpsideDownMode(mode)
+        splitIndexPath.forEach(({from, to}) => {
+            const isStartFrom = (!isUD && from === -1) || (isUD && from === pbSplitTracker.getSplitAmountForMode(mode))
+            const fromTime =  isStartFrom ? 0 : pbSplitTracker.getPbTimeForSplit(mode, from);
+            let toTime = pbSplitTracker.getPbTimeForSplit(mode, to);
+            if (toTime === -1) { // If the "to" is the pb split
+                toTime = this.getPbForMode(mode);
+                // if (mode === 7)
+                //     console.log("Using pb time: " + toTime);
+                if (toTime < 0 || toTime === Infinity) {
+                    return;
+                }
+            }
+            const splitTime = Math.round((toTime - fromTime) * 1000) / 1000;
+            const previousGoldSplit = this.getGoldSplitForModeAndSplit(mode, from, to);
+            if ((!previousGoldSplit || previousGoldSplit > splitTime) && splitTime > 0) {
+                this.updateGoldSplit(mode, from, to, splitTime);
+            }
+
         })
     }
 

@@ -28,13 +28,13 @@ export class PbSplitTracker {
         return map.splits.length
     }
 
-    public getPbSplitsForMode(mode: number): { split: number, time: number }[] {
+    public getPbSplitsForMode(mode: number): ModeSplits | null {
         const modeSplits = this.modeTimes.find(m => m.mode === mode);
         if (!modeSplits) {
             log.warn(`No splits found, when getting splits for mode ${mode}`);
-            return [];
+            return null;
         }
-        return modeSplits.times;
+        return modeSplits;
     }
 
     public getPbTimeForSplit(mode: number, split: number) {

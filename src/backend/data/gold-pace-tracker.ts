@@ -69,11 +69,12 @@ export class GoldPaceTracker {
             return true; // you can set your time to 0
         const pbSplitTracker = PbSplitTracker.getInstance();
         const pbSplits = pbSplitTracker.getPbSplitsForMode(mode);
-        if (!pbSplits || pbSplits.length === 0) {
+        const pbTimes = pbSplits?.times;
+        if (!pbSplits || pbTimes?.length === 0) {
             log.warn(`No PB splits found for mode ${mode}, treating gold pace as valid.`);
             return true; // no PB splits, so any gold pace is valid
         }
-        const pbSplit = pbSplits.find(splitInfo => splitInfo.split === splitIndex);
+        const pbSplit = pbTimes!.find(splitInfo => splitInfo.split === splitIndex);
         if (!pbSplit) {
             log.warn(`No PB split found for mode ${mode} and split index ${splitIndex}, treating gold pace as valid.`);
             return true; // no PB split for this index, so any gold pace is valid

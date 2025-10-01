@@ -175,7 +175,8 @@ export function getPbRunInfoAndSoB(
     const customModeHandler = CustomModeHandler.getInstance();
 
     const mapModeAndSplits = nameMappings.getMapModeAndSplits(mapNum, modeNum);
-    let pbSplitTimes = pbSplitTracker.getPbSplitsForMode(modeNum);
+    let pbSplits = pbSplitTracker.getPbSplitsForMode(modeNum);
+    let pbSplitTimes = pbSplits?.times || [];
     const isUD = isUpsideDownMode(modeNum)
 
     if (settingsManager.raceGoldSplits()) {

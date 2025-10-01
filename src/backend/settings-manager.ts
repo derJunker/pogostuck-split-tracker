@@ -27,6 +27,8 @@ export class SettingsManager {
     public currentSettings: Settings;
     public noSettingsFileOnStartup: boolean = false;
 
+    private cachedSplitPath: {mode: number, splitIndexPath: Split[]} | null = null;
+
     private constructor() {
         this.settingsPath = path.join(app.getPath("userData"), "settings.json");
         this.currentSettings = this.loadSettings();
@@ -226,7 +228,8 @@ export class SettingsManager {
                 log.info("putting new skipped splits", JSON.stringify(skippedSplits));
                 oldSkippedSplits.push(skippedSplits);
             }
-            goldenSplitsTracker.updateGoldSplitsIfInPbSplits()
+            this.clearCachedSplitPath(skippedSplits.mode)
+            goldenSplitsTracker.updateGoldSplitsIfInPbSplitsForMode(skippedSplits.mode)
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
@@ -263,8 +266,7 @@ export class SettingsManager {
                 log.warn(`Querying split path, but steam user data path is not valid; steam path valid:${steamPathValid} friend code valid: ${friendCodeValid}`);
                 return []
             }
-            const splitAmount =  pbSplitTracker.getSplitAmountForMode(mode)
-            return this.getSplitIndexPath(mode, splitAmount);
+            return this.getSplitIndexPath(mode);
         });
 
         ipcMain.handle('language-changed', (_event, language: string) => {
@@ -287,7 +289,23 @@ export class SettingsManager {
         })
     }
 
-    public getSplitIndexPath( mode: number, splitAmount?: number): Split[] {
+    public clearCachedSplitPath(intendedMode?: number) {
+        log.info(`clearing split path if mode is: ${intendedMode ?? "any"}`);
+        if (intendedMode !== undefined && this.cachedSplitPath?.mode !== intendedMode) {
+            log.info(`not clearing cached split path, mode does not match intendedMode ${intendedMode}`);
+            return;
+        }
+        log.info(`cleared cached split path`);
+        this.cachedSplitPath = null;
+    }
+
+    public getSplitIndexPath( mode: number, splitAmount?: number, forceCalc: boolean = false): Split[] {
+        log.info(`calculating split index path for mode ${mode}`);
+        if (this.cachedSplitPath && this.cachedSplitPath.mode === mode && !forceCalc) {
+            log.info(`cached`);
+            return this.cachedSplitPath.splitIndexPath;
+        }
+        log.info(`not cached`)
         if (!splitAmount)
             splitAmount = PbSplitTracker.getInstance().getSplitAmountForMode(mode);
         // some of the newer map 1 modes have a unused split for some reason :(
@@ -313,6 +331,7 @@ export class SettingsManager {
                     return {from: splitStep.to, to: splitStep.from}
                 }).reverse()
         }
+        this.cachedSplitPath = {mode, splitIndexPath};
         return splitIndexPath;
     }
 

@@ -3,9 +3,10 @@ import './components.css';
 
 import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
+import {redrawSplitDisplay} from "../backend/split-overlay-window";
 
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest, settings, isUDMode } = pbRunInfo;
+    const { splits, pb, sumOfBest, pace, settings, isUDMode } = pbRunInfo;
 
     setLootDisplay("")
     // Clear splits
@@ -21,10 +22,10 @@ function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
         });
     }
     // Sum of Best und PB setzen
-    resetPbAndSumOfBest(pb, sumOfBest)
+    resetStats(pb, sumOfBest, pace)
     toggleCustomModeDisplay(pbRunInfo.customModeName)
 
-    document.getElementById('totals')!.style!.display = 'inline';
+    document.getElementById('totals')!.style!.display = 'grid';
     document.getElementById('status-msg')!.style!.display = 'none';
 }
 
@@ -140,7 +141,7 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
 window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
-    resetPbAndSumOfBest(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest);
+    resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace);
 
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
@@ -201,7 +202,7 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
 });
 
 
-function resetPbAndSumOfBest(pb: number, sumOfBest: number) {
+function resetStats(pb: number, sumOfBest: number, pace: number) {
     const sumOfBestSpan = document.getElementById('sum-of-best');
     if (sumOfBestSpan) {
         __electronLog.info(`Setting sum of best to ${sumOfBest}`);
@@ -210,6 +211,11 @@ function resetPbAndSumOfBest(pb: number, sumOfBest: number) {
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {
         pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
+    }
+
+    const paceSpan = document.getElementById('pace');
+    if (paceSpan) {
+        paceSpan.textContent = pace > 0 ? formatPbTime(pace) : '?';
     }
 }
 window.electronAPI.mainMenuOpened(() => {
@@ -225,6 +231,10 @@ window.electronAPI.mainMenuOpened(() => {
     const pbTimeSpan = document.getElementById('pb-time');
     if (pbTimeSpan) {
         pbTimeSpan.textContent = '';
+    }
+    const paceSpan = document.getElementById('pace');
+    if (paceSpan) {
+        paceSpan.textContent = '';
     }
     document.getElementById('totals')!.style!.display = 'None';
     document.getElementById('custom-mode-display')!.style!.display = 'None';

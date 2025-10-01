@@ -130,6 +130,15 @@ button {
 
 #totals {
     display: none;
+    grid-template-columns: 1fr 1fr;
+    column-gap: .5em;
+
+}
+
+#totals > * {
+    display: flex;
+    justify-content:  end;
+    gap:  0.2em;
 }
 
 #custom-mode-display {

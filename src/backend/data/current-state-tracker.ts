@@ -85,7 +85,6 @@ export class CurrentStateTracker {
         const settingsManager = SettingsManager.getInstance();
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
         const goldPaceTracker = GoldPaceTracker.getInstance();
-        const pbTracker = PbSplitTracker.getInstance();
 
         const lastSplit = this.getLastSplitTime();
         const from = lastSplit.split;
@@ -272,5 +271,9 @@ export class CurrentStateTracker {
 
     public steamFriendCodeIsValid(): boolean {
         return this.steamFriendCodeValid;
+    }
+
+    public getPassedSplits() {
+        return this.recordedSplits;
     }
 }

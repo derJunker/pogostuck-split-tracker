@@ -37,12 +37,17 @@ export class GoldSplitsTracker {
     }
 
     public getGoldSplitForModeAndSplit(modeIndex: number, from: number, to: number): number | null {
-        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
-        if (modeSplits) {
-            const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to)
-            if (index !== -1) {
-                return modeSplits.goldenSplits[index].time;
-            }
+        const modeSplits = this.getGoldSplitsForMode(modeIndex);
+        if (!modeSplits) {
+            return null;
+        }
+        return this.getGoldSplitForModeAndSplitWithModeSplits(modeSplits, from, to);
+    }
+
+    private getGoldSplitForModeAndSplitWithModeSplits(modeSplits: GoldenSplitsForMode, from: number, to: number): number | null {
+        const index = this.findIndexOfGoldSplitWithModeSplits(modeSplits, from, to)
+        if (index !== -1) {
+            return modeSplits.goldenSplits[index].time;
         }
         return null;
     }
@@ -94,16 +99,7 @@ export class GoldSplitsTracker {
     }
 
     public calcSumOfBest(modeNum: number, splitAmount: number) {
-        const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeNum);
-        if (modeSplits) {
-            const splitPath = SettingsManager.getInstance().getSplitIndexPath(modeNum, splitAmount)
-            const sumOfBest = splitPath.map(({from, to}) => {
-                const goldSplit = this.getGoldSplitForModeAndSplit(modeNum, from, to);
-                return (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
-            }).reduce((sum, time) => sum + time, 0);
-            return sumOfBest === Infinity ? -1 : sumOfBest;
-        }
-        return -1;
+        return this.calculatePaceAndSoB(modeNum, [], splitAmount).soB
     }
 
     public updateGoldSplit(modeIndex: number, from: number, to: number, newTime: number): void {
@@ -179,6 +175,53 @@ export class GoldSplitsTracker {
 
     public getGoldenSplits() {
         return this.goldenSplits;
+    }
+
+    public calculatePaceAndSoB(mode: number, passedSplits: { split: number; time: number; }[], splitAmount?: number): {
+        soB: number,
+        pace: number
+    } {
+        const settingsManager = SettingsManager.getInstance();
+        const pbSplitTracker = PbSplitTracker.getInstance();
+        if (!splitAmount) {
+            splitAmount = pbSplitTracker.getSplitAmountForMode(mode);
+        }
+        const splitPath = settingsManager.getSplitIndexPath(mode, splitAmount);
+        const isUDMode = isUpsideDownMode(mode)
+
+        let lastValidPassedSplit = isUDMode ? splitAmount : -1;
+        let lastKnownTime = 0;
+        if (passedSplits.length > 0) {
+            const hitPathSplits = passedSplits
+                .map(ps => ps.split)
+                .filter(split => splitPath.some(sp => sp.to === split))
+            if (hitPathSplits.length > 0) {
+                lastValidPassedSplit = isUDMode ? Math.min(...hitPathSplits)
+                    : Math.max(...hitPathSplits);
+                lastKnownTime = passedSplits.find(ps => ps.split === lastValidPassedSplit)!.time;
+            }
+        }
+
+        log.debug(`passed splits: ${JSON.stringify(passedSplits)}, last valid passed split: ${lastValidPassedSplit}`);
+        const goldSplitsForMode = this.getGoldSplitsForMode(mode);
+        log.debug(`Gold splits for mode: ${JSON.stringify(goldSplitsForMode)}`);
+        if (goldSplitsForMode) {
+            let sumOfBest = 0;
+            let pace = lastKnownTime ;
+            for (const {from, to} of splitPath) {
+                const goldSplit = this.getGoldSplitForModeAndSplitWithModeSplits(goldSplitsForMode!, from, to);
+                const splitTime = (goldSplit !== null && goldSplit > 0) ? goldSplit : Infinity;
+                sumOfBest += splitTime;
+                if ((!isUDMode && to > lastValidPassedSplit) || (isUDMode && to < lastValidPassedSplit)) {
+                    pace += splitTime;
+                }
+            }
+            return {
+                soB: sumOfBest === Infinity ? -1 : sumOfBest,
+                pace: pace === Infinity ? -1 : pace
+            }
+        }
+        return { soB: -1, pace: -1 };
     }
 
     public updateGoldSplitsIfInPbSplits() {

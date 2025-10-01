@@ -164,7 +164,7 @@ export function redrawSplitDisplay(
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
 }
 
-function getPbRunInfoAndSoB(
+export function getPbRunInfoAndSoB(
     mapNum: number,
     modeNum: number,
 ): PbRunInfoAndSoB {
@@ -196,7 +196,7 @@ function getPbRunInfoAndSoB(
     }
 
     const pbTime = goldenSplitTracker.getPbForMode(modeNum);
-    const sumOfBest = goldenSplitTracker.calcSumOfBest(modeNum, pbSplitTracker.getSplitAmountForMode(modeNum));
+    const {soB, pace} = goldenSplitTracker.calculatePaceAndSoB(modeNum, CurrentStateTracker.getInstance().getPassedSplits());
     const customMode = customModeHandler.getCustomMode()
     const customModeName = customMode ? nameMappings.getMapModeAndSplits(customMode.map!, customMode.customMode!).mode : undefined
     log.debug(`Got custom mode name: ${customModeName} for custom mode: ${JSON.stringify(customMode)}`)
@@ -223,7 +223,8 @@ function getPbRunInfoAndSoB(
             })
         }),
         pb: pbTime === Infinity ? -1 : pbTime,
-        sumOfBest: sumOfBest,
+        sumOfBest: soB,
+        pace: pace,
         settings: settingsManager.currentSettings,
         isUDMode: isUD,
         // only add custom mode name if it is not undefined

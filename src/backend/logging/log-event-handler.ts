@@ -6,7 +6,7 @@ import {GoldSplitsTracker} from "../data/gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {SettingsManager} from "../settings-manager";
 import {isRBMode, isUpsideDownMode, isValidModeAndMap} from "../data/valid-modes";
-import {resetOverlay} from "../split-overlay-window";
+import {getPbRunInfoAndSoB, resetOverlay} from "../split-overlay-window";
 import {writeGoldPacesIfChanged} from "../file-reading/read-golden-paces";
 import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
@@ -90,6 +90,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             }
             log.info(`Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime}`);
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored()});
+            overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode));
             if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),
                     pbSplitTracker.getSplitAmountForMode(stateTracker.getCurrentMode())));

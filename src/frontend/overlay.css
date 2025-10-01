@@ -5,7 +5,7 @@
 body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
-    font-size: min(max(min(5vw,7.5vh),10px),48px);
+    font-size: min(max(min(4.5vw,7.5vh),10px),48px);
     font-weight: bold;
     -webkit-app-region: drag;
     -webkit-text-stroke-width: 1px;

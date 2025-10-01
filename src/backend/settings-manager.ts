@@ -293,6 +293,7 @@ export class SettingsManager {
         if (intendedMode !== undefined && this.cachedSplitPath?.mode !== intendedMode) {
             return;
         }
+        log.info(`cleared cached split path`);
         this.cachedSplitPath = null;
     }
 
@@ -300,7 +301,6 @@ export class SettingsManager {
         if (this.cachedSplitPath && this.cachedSplitPath.mode === mode && !forceCalc) {
             return this.cachedSplitPath.splitIndexPath;
         }
-        if (mode === 0) log.debug(`splitAmount passed in: ${splitAmount}`);
         if (!splitAmount)
             splitAmount = PbSplitTracker.getInstance().getSplitAmountForMode(mode);
         // some of the newer map 1 modes have a unused split for some reason :(

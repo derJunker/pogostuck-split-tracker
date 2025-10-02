@@ -9,6 +9,8 @@ import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
 import {CurrentStateTracker} from "./current-state-tracker";
 import {redrawSplitDisplay} from "../split-overlay-window";
+import {PbSplitTracker} from "./pb-split-tracker";
+import {isUpsideDownMode} from "./valid-modes";
 
 const backupGoldsPath = path.join(app.getPath("userData"), "gold-split-backups.json");
 
@@ -46,14 +48,17 @@ export class BackupGoldSplitTracker {
             log.debug(`Getting valid rollbacks for mode ${mode}, history: ${JSON.stringify(modeHistory)}`);
             if (!modeHistory)
                 return [];
-            return modeHistory.splitHistories.map(sh => ({
-                from: sh.split.from,
-                to: sh.split.to,
-                valid: sh.history.filter(num => num !== null).length > 0, // for some reason sometimes null is put
-                // in there, but i cant reproduce it, so just filter it out. Just a quick fix of the issue not a
-                // solution, sorry T_T
-                oldTime: sh.history.filter(num => num !== null).length > 0 ? sh.history[sh.history.length -1] : undefined
-            }))
+            return modeHistory.splitHistories.map(sh => {
+                let history = sh.history.filter(num => num !== null)
+                return {
+                    from: sh.split.from,
+                    to: sh.split.to,
+                    valid: history.length > 0, // for some reason sometimes null is put
+                    // in there, but i cant reproduce it, so just filter it out. Just a quick fix of the issue not a
+                    // solution, sorry T_T
+                    oldTime: history.length > 0 ? sh.history[sh.history.length -1] : undefined
+                }
+            })
         })
     }
 

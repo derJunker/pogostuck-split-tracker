@@ -1,10 +1,10 @@
-import './index.css';
-import './loading-screen.css'
-import './menus.css'
-import './components.css';
-import './preferences.css'
-import './error-messages.css'
-import './custom-modes.css'
+import './styles/index.css';
+import './styles/loading-screen.css'
+import './styles/menus.css'
+import './styles/components.css';
+import './styles/preferences.css'
+import './styles/error-messages.css'
+import './styles/custom-modes.css'
 
 import './config-window/update-handler.ts'
 import './config-window/special-circumstances-handler' // explicit import to make sure the code runs, maybe i should

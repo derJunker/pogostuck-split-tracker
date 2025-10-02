@@ -1,9 +1,8 @@
-import './overlay.css';
-import './components.css';
+import './styles/overlay.css';
+import './styles/components.css';
 
 import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
-import {redrawSplitDisplay} from "../backend/split-overlay-window";
 
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const { splits, pb, sumOfBest, pace, settings, isUDMode } = pbRunInfo;

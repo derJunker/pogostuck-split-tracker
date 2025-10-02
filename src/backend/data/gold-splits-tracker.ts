@@ -242,7 +242,7 @@ export class GoldSplitsTracker {
     private updateGoldSplitIfInPbSplitsWithModeSplit(modeSplit: ModeSplits) {
         const pbSplitTracker = PbSplitTracker.getInstance();
         let {mode, times} = modeSplit;
-        const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(mode, times.length)
+        const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(mode)
 
         const isUD = isUpsideDownMode(mode)
         splitIndexPath.forEach(({from, to}) => {

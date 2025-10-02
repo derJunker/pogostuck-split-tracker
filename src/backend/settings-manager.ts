@@ -290,22 +290,17 @@ export class SettingsManager {
     }
 
     public clearCachedSplitPath(intendedMode?: number) {
-        log.info(`clearing split path if mode is: ${intendedMode ?? "any"}`);
         if (intendedMode !== undefined && this.cachedSplitPath?.mode !== intendedMode) {
-            log.info(`not clearing cached split path, mode does not match intendedMode ${intendedMode}`);
             return;
         }
-        log.info(`cleared cached split path`);
         this.cachedSplitPath = null;
     }
 
     public getSplitIndexPath( mode: number, splitAmount?: number, forceCalc: boolean = false): Split[] {
-        log.info(`calculating split index path for mode ${mode}`);
         if (this.cachedSplitPath && this.cachedSplitPath.mode === mode && !forceCalc) {
-            log.info(`cached`);
             return this.cachedSplitPath.splitIndexPath;
         }
-        log.info(`not cached`)
+        if (mode === 0) log.debug(`splitAmount passed in: ${splitAmount}`);
         if (!splitAmount)
             splitAmount = PbSplitTracker.getInstance().getSplitAmountForMode(mode);
         // some of the newer map 1 modes have a unused split for some reason :(
@@ -316,9 +311,11 @@ export class SettingsManager {
         let splitIndexPath: Split[] = [];
         let lastTo = -1;
         let index = -1
+        if (mode === 0) log.debug(`Calculating split path for mode 0, which is map 1 normal. splitAmount: ${splitAmount}`);
         while (index < splitAmount) {
             const from = lastTo;
             index++;
+            if (mode === 0) log.debug(`considering index ${index} from ${from} to ${index}, shouldSkip: ${this.splitShouldBeSkipped(mode, index)}`);
             if (this.splitShouldBeSkipped(mode, index))
                 continue;
             const to = index;

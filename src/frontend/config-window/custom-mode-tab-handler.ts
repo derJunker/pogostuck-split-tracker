@@ -196,9 +196,13 @@ async function onSaveName(name: string) {
     if (name.trim().length === 0) {
         addError(customModeNameInput, "Name cannot be empty");
         return;
+    } else if (name.trim().length > 15) {
+        addError(customModeNameInput, "Name cannot be longer than 15 characters");
+        customModeNameInput.value = name.trim().substring(0, 15);
+        return;
     }
     __electronLog.debug(`[Frontend] previous index: ${previousIndex}, value: ${modeSelect.value}`);
-    updateFrontendMappings(await window.electronAPI.onCustomModeSave(parseInt(modeSelect.value), name))
+    updateFrontendMappings(await window.electronAPI.onCustomModeSave(parseInt(modeSelect.value), name.trim()))
     await updateOtherTabs();
     loadCustomModesForMap()
     modeSelect.selectedIndex = previousIndex;

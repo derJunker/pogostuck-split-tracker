@@ -7,6 +7,8 @@ import {GoldSplitHistory} from "../../types/gold-split-history";
 import {Split} from "../../types/mode-splits";
 import {GoldSplitsTracker} from "./gold-splits-tracker";
 import {writeGoldSplitsIfChanged} from "../file-reading/read-golden-splits";
+import {CurrentStateTracker} from "./current-state-tracker";
+import {redrawSplitDisplay} from "../split-overlay-window";
 
 const backupGoldsPath = path.join(app.getPath("userData"), "gold-split-backups.json");
 
@@ -24,7 +26,7 @@ export class BackupGoldSplitTracker {
 
     private backups: GoldSplitHistory[] = []
 
-    public initListeners(configWindow: BrowserWindow) {
+    public initListeners(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
         ipcMain.handle("revert-gold-split", (_event, from: number, to: number, mode:number) => {
             const restored = this.restoreBackup({from, to}, mode)
             if (restored !== null) {
@@ -33,6 +35,7 @@ export class BackupGoldSplitTracker {
                 goldSplitTracker.updateGoldSplit(mode, from, to, restored)
                 writeGoldSplitsIfChanged(configWindow)
                 this.saveBackupsIfChanged()
+                this.redrawSplitsIfCurrentMode(mode, overlayWindow)
                 return restored
             }
             return -1
@@ -137,6 +140,16 @@ export class BackupGoldSplitTracker {
         }
         return history
 
+    }
+
+    private redrawSplitsIfCurrentMode(mode: number, overlayWindow: BrowserWindow) {
+        const stateTracker = CurrentStateTracker.getInstance()
+        const curMode = stateTracker.getCurrentMode()
+        if (curMode === mode) {
+            log.info(`Redrawing splits on overlay, because current mode ${curMode} matches modified mode ${mode}`);
+            const map = stateTracker.getCurrentMap()
+            redrawSplitDisplay(map, mode, overlayWindow)
+        }
     }
 
     public deleteMode(modeIndex: number) {

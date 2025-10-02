@@ -117,7 +117,7 @@ app.on("ready", async () => {
     goldSplitsTracker.initListeners(overlayWindow, indexToNamesMappings);
     goldPaceTracker.initListeners();
     userDataReader.initListeners();
-    backupGoldTracker.initListeners(configWindow)
+    backupGoldTracker.initListeners(configWindow, overlayWindow)
     initWindows11Listeners();
 
     // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth

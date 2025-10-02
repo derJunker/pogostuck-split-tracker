@@ -1,0 +1,32 @@
+#pbs-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+    width: 100%;
+    margin-inline: 10%;
+    gap: 2rem 5rem;
+    align-items: start;
+}
+
+.map-section {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    gap: .3rem;
+    max-width: 23rem;
+    width: 100%;
+    margin: 0 auto;
+}
+
+
+.map-section h3 {
+    grid-column: 1 / -1;
+    margin-bottom: 0.5rem;
+    background: lightgray;
+    text-align: center;
+    width: 100%;
+    padding: 0.5rem;
+}
+
+.map-section input {
+    max-width: 10rem;
+    justify-self: end;
+}

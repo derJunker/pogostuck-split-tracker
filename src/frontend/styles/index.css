@@ -188,12 +188,6 @@ label {
     cursor:  pointer;
 }
 
-#pbs-content {
-    display: grid;
-    grid-template-columns: max-content 1fr max-content;
-    gap: .3rem;
-}
-
 #skip-selection {
     display: flex;
     flex-direction: row;
@@ -255,23 +249,6 @@ label {
     max-height: 2rem;
     user-select: none;
     transform: rotate(260deg) scaleX(-1) scale(1.25);
-}
-
-#pbs-content h3 {
-    grid-column: 1 / -1;
-    margin-bottom: 0.5rem;
-    background: lightgray;
-    text-align: center;
-    width: 100%;
-    padding: 0.5rem;
-}
-
-#pbs-content input {
-    max-width: 10rem;
-}
-
-#pbs-content > div {
-    display: contents;
 }
 
 #paths-content {

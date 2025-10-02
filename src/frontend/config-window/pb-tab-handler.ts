@@ -10,9 +10,13 @@ export function addEmptyPbInputFields() {
     const mappings = getFrontendMappings();
     pbContentDiv.innerHTML = ''; // Clear existing content
     mappings.forEach(map => {
+        const mapSectionDiv = document.createElement('div');
+        mapSectionDiv.classList.add('map-section');
+        mapSectionDiv.id = `map-pb-section-${map.mapIndex}`
+
         const mapHeader = document.createElement('h3');
         mapHeader.textContent = map.levelName;
-        pbContentDiv.appendChild(mapHeader);
+        mapSectionDiv.appendChild(mapHeader);
 
         map.modes.forEach(mode => {
             const label = document.createElement('label');
@@ -38,10 +42,11 @@ export function addEmptyPbInputFields() {
             });
 
 
-            pbContentDiv.appendChild(label);
-            pbContentDiv.appendChild(input);
-            pbContentDiv.appendChild(button);
+            mapSectionDiv.appendChild(label);
+            mapSectionDiv.appendChild(input);
+            mapSectionDiv.appendChild(button);
         });
+        pbContentDiv.appendChild(mapSectionDiv);
     });
 
 }

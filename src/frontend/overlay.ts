@@ -3,6 +3,7 @@ import './styles/components.css';
 
 import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
+import {Stopwatch} from "./util/stopwatch";
 
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const { splits, pb, sumOfBest, pace, settings, isUDMode } = pbRunInfo;
@@ -271,13 +272,16 @@ window.electronAPI.onStatusChanged((_event: Electron.IpcRendererEvent, status: {
     __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}, showLogDetectMessage: ${status.showLogDetectMessage}, logsDetected: ${status.logsDetected}`);
     const statusElement = document.getElementById('status-msg')!;
     statusElement.innerHTML = '';
-    const statusMsg = createStatusMessage(status.pogoPathValid, status.steamPathValid, status.friendCodeValid, status.logsDetected, status.showLogDetectMessage)
+    const { pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage } = status;
+    const statusMsg = createStatusMessage(pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage)
     statusMsg.split('\n').forEach(line => {
         const div = document.createElement('div');
         div.textContent = line;
         statusElement.appendChild(div);
     });
-    setLootDisplay("")
+    if (!(pogoPathValid && steamPathValid && friendCodeValid && logsDetected)) {
+        setLootDisplay("")
+    }
 })
 
 
@@ -290,17 +294,38 @@ window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBa
     }
 })
 
-window.electronAPI.lootStarted((_event: Electron.IpcRendererEvent, seed: string) => setLootDisplay(seed))
+window.electronAPI.lootStarted((_event: Electron.IpcRendererEvent, seed: string, isSpeedrun: boolean) => setLootDisplay(seed, isSpeedrun))
 
-function setLootDisplay(seed: string) {
+let stopwatch: Stopwatch | null = null;
+
+function setLootDisplay(seed: string, isSpeedrun: boolean = false) {
     const lootDisplayDiv = document.getElementById('loot-display')!
+    const lootSeedDiv = document.getElementById('loot-seed')!
+    const lootTimerDiv = document.getElementById('loot-timer')!
+    __electronLog.debug(`setting loot display: '${seed}', isSpeedrun: ${isSpeedrun}`);
     if (seed === "") {
+        stopwatch?.reset()
         lootDisplayDiv.style.display = 'none';
+        lootTimerDiv.style.display = 'none';
         return;
+    }
+    if (isSpeedrun) {
+        lootTimerDiv.style.display = '';
+        if (!stopwatch) {
+            stopwatch = new Stopwatch((elapsed) => {
+                lootTimerDiv.innerText = formatPbTime(elapsed/1000, true);
+            });
+            stopwatch.start()
+        } else {
+            stopwatch.reset();
+            stopwatch.start();
+        }
+    } else {
+        lootTimerDiv.style.display = 'none';
     }
     document.getElementById('status-msg')!.style!.display = 'none';
     lootDisplayDiv.style.display = 'block';
-    lootDisplayDiv.innerText = "Seed: " + seed;
+    lootSeedDiv.innerText = "Seed: " + seed;
 }
 
 window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: string) => {

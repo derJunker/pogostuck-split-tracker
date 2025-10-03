@@ -31,7 +31,7 @@ declare global { interface Window {
         onLastSplitGolden: (callback: (event: Electron.IpcRendererEvent) => void) => void;
         showMessage: (callback: (event: Electron.IpcRendererEvent, message: string) => void) => void;
         clickThroughChanged: (callback: (event: Electron.IpcRendererEvent, notClickThrough: boolean) => void) => void;
-        lootStarted: (callback: (event: Electron.IpcRendererEvent, seed:string) => void) => void;
+        lootStarted: (callback: (event: Electron.IpcRendererEvent, seed:string, isSpeedrunning: boolean) => void) => void;
 
         // config window sending events to backend
         onOptionHideSkippedSplitsChanged: (hideSkippedSplits: boolean) => Promise<Settings>;

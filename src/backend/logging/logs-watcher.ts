@@ -13,8 +13,13 @@ export class FileWatcher {
 
     private listeners: { regex: RegExp, callback: (match: RegExpMatchArray) => void }[] = [];
 
-    private logsDetected = false;
+    // Listeners that need to wait for multiple things to be logged before they can act
+    private multiLineListeners: { regexes: {
+            regex: RegExp,
+            match: RegExpMatchArray | null
+        }[], callback: (matches: RegExpMatchArray[]) => void }[] = [];
 
+    private logsDetected = false;
     private constructor() {}
 
     public static getInstance(): FileWatcher {
@@ -57,6 +62,14 @@ export class FileWatcher {
         this.listeners.push({ regex, callback });
     }
 
+    registerMultiLineListener(regexes: RegExp[], callback: (matches: RegExpMatchArray[]) => void) {
+        if (regexes.length === 0 || regexes.length === 1) {
+            throw new Error("MultiLineListener requires at least two regexes");
+        }
+        const regexObjs = regexes.map(r => ({ regex: r, match: null }));
+        this.multiLineListeners.push({ regexes: regexObjs, callback });
+    }
+
     private watchFile(filePath: string) {
         this.stopFileWatcher();
         this.logsDetected = false;
@@ -92,6 +105,20 @@ export class FileWatcher {
                                     const match = line.match(listener.regex);
                                     if (match) {
                                         listener.callback(match);
+                                    }
+                                });
+                                this.multiLineListeners.forEach(multiListener => {
+                                    multiListener.regexes.forEach((regexObj, index) => {
+                                        const match = line.match(regexObj.regex);
+                                        if (match) {
+                                            regexObj.match = match;
+                                        }
+                                    });
+                                    const allMatched = multiListener.regexes.every(r => r.match);
+                                    if (allMatched) {
+                                        const matches = multiListener.regexes.map(r => r.match!);
+                                        multiListener.regexes.forEach(reg => reg.match = null);
+                                        multiListener.callback(matches!)
                                     }
                                 });
                             });

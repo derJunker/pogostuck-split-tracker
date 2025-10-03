@@ -179,11 +179,14 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     )
 
     // dungeonSetInitialSeed(1) at frame 2144 -> lvl(0) seed(10737)
-    fileWatcher.registerListener(
+    fileWatcher.registerMultiLineListener([
         /dungeonSetInitialSeed\((?<setInitialSeed>-?\d+)\) at frame \d+ -> lvl\((?<lvl>0)\) seed\((?<seed>\d+)\)/,
-        (match) => {
-            const { setInitialSeed, lvl, seed } = match.groups!;
-            overlayWindow.webContents.send('loot-started', seed);
+        /dungeon generation at frame \d+: lvl\(\d+\) coop\(\d\) isSpeedrun\((?<isSpeedrun>\d)\)/
+        ],
+        (matches) => {
+            const { seed } = matches[0].groups!;
+            const { isSpeedrun } = matches[1].groups!;
+            overlayWindow.webContents.send('loot-started', seed, isSpeedrun === "1");
         }
     )
 }

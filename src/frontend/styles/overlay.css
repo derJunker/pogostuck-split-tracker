@@ -181,3 +181,7 @@ button {
     font-weight: normal;
     font-size: .7rem;
 }
+
+#loot-timer {
+    text-align: end;
+}

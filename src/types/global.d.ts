@@ -52,6 +52,8 @@ declare global { interface Window {
         onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }) => Promise<boolean>;
         onGoldenPaceEntered: (goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }) => Promise<boolean>;
         onEnableBackgroundColorChanged: (enable: boolean) => Promise<Settings>;
+        onShowSoBChanged: (showSoB: boolean) => Promise<Settings>;
+        onShowPaceChanged: (showPace: boolean) => Promise<Settings>;
         onBackgroundColorChanged: (color: string) => Promise<Settings>;
         onLanguageChanged: (language: string) => Promise<Settings>;
         tabChanged: (tabId: string) => Promise<void>; // Dont have to return settings, because the frontend doesnt

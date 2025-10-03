@@ -38,6 +38,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onGoldenSplitsEntered: (goldSplitInfo: { map: number, mode: number, from: number, to: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-split-entered', goldSplitInfo),
     onGoldenPaceEntered: (goldPaceInfo: { map: number, mode: number, splitIndex: number, time: number }): Promise<boolean> => ipcRenderer.invoke('gold-pace-entered', goldPaceInfo),
     onEnableBackgroundColorChanged: (enable: boolean) => ipcRenderer.invoke('enable-background-color-changed', enable),
+    onShowSoBChanged: (showSoB: boolean): Promise<Settings> => ipcRenderer.invoke('show-sob-changed', showSoB),
+    onShowPaceChanged: (showPace: boolean): Promise<Settings> => ipcRenderer.invoke('show-pace-changed', showPace),
     onBackgroundColorChanged: (color: string) => ipcRenderer.invoke('background-color-changed', color),
     onLanguageChanged: (language: string): Promise<Settings> => ipcRenderer.invoke('language-changed', language),
     tabChanged: (tabId: string): Promise<void> =>  ipcRenderer.invoke('tab-changed', tabId),

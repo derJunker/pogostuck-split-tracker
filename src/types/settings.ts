@@ -6,11 +6,13 @@ export interface Settings {
     // Options
     hideSkippedSplits: boolean,
     onlyDiffsColored: boolean,
-    showResetCounters?: boolean,
+    showResetCounters: boolean,
     reverseUDModes: boolean,
     raceGoldSplits: boolean,
     showNewSplitNames: boolean,
     clickThroughOverlay: boolean,
+    showSoB: boolean,
+    showPace: boolean
 
     enableBackgroundColor: boolean,
     backgroundColor: string,

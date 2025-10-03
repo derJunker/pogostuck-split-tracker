@@ -132,7 +132,18 @@ button {
     display: none;
     grid-template-columns: 1fr 1fr;
     column-gap: .5em;
+}
 
+#totals > span:has(#pb-time) {
+    grid-column: 2;
+}
+
+#totals > span:has(#pace) {
+    grid-row: 2;
+}
+
+#totals > span:has(#sum-of-best) {
+    grid-row: 2;
 }
 
 #totals > * {

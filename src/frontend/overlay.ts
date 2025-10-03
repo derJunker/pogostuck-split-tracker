@@ -21,7 +21,7 @@ function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
         });
     }
     // Sum of Best und PB setzen
-    resetStats(pb, sumOfBest, pace)
+    resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace);
     toggleCustomModeDisplay(pbRunInfo.customModeName)
 
     document.getElementById('totals')!.style!.display = 'grid';
@@ -140,7 +140,7 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
 window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
-    resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace);
+    resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace);
 
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
@@ -201,20 +201,31 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
 });
 
 
-function resetStats(pb: number, sumOfBest: number, pace: number) {
-    const sumOfBestSpan = document.getElementById('sum-of-best');
-    if (sumOfBestSpan) {
-        __electronLog.info(`Setting sum of best to ${sumOfBest}`);
-        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
+function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean) {
+    const sumOfBestSpan = document.getElementById('sum-of-best')!;
+    sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
+
+    const pbTimeSpan = document.getElementById('pb-time')!;
+    pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
+
+    const paceSpan = document.getElementById('pace')!;
+    paceSpan.textContent = pace > 0 ? formatPbTime(pace) : '?';
+
+    if (!showPace) {
+        paceSpan.parentElement!.style.display = 'none';
+    } else {
+        paceSpan.parentElement!.style.display = '';
     }
-    const pbTimeSpan = document.getElementById('pb-time');
-    if (pbTimeSpan) {
-        pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
+    if (!showSoB) {
+        sumOfBestSpan.parentElement!.style.display = 'none';
+    } else {
+        sumOfBestSpan.parentElement!.style.display = '';
     }
 
-    const paceSpan = document.getElementById('pace');
-    if (paceSpan) {
-        paceSpan.textContent = pace > 0 ? formatPbTime(pace) : '?';
+    if (showPace && !showSoB) {
+        paceSpan.parentElement!.style.gridColumn = "2";
+    } else {
+        paceSpan.parentElement!.style.gridColumn = ""
     }
 }
 window.electronAPI.mainMenuOpened(() => {

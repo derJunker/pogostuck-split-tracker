@@ -92,14 +92,14 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle('only-diff-colored-changed', (_event, colorOnlyDiffs: boolean) => {
-            if (this.currentSettings.onlyDiffsColored === colorOnlyDiffs)
-                return this.currentSettings;
+            if (this.currentSettings.onlyDiffsColored !== colorOnlyDiffs) {
+                this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
+                this.saveSettings()
+            }
             log.info(`[Setting] 'Only diffs colored' changed to: ${colorOnlyDiffs}`);
-            this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
-            this.saveSettings();
             return this.currentSettings;
         });
         ipcMain.handle('show-reset-counters-changed', (_event, showResetCounters: boolean) => {
@@ -247,6 +247,30 @@ export class SettingsManager {
             return this.currentSettings;
         });
 
+        ipcMain.handle('show-sob-changed', (_event, showSoB: boolean) => {
+            if (this.currentSettings.showSoB !== showSoB) {
+                this.currentSettings.showSoB = showSoB;
+                this.saveSettings();
+            }
+            log.info(`[Setting] 'Show SoB' changed to: ${showSoB}`);
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
+            return this.currentSettings;
+        });
+
+        ipcMain.handle('show-pace-changed', (_event, showPace: boolean) => {
+            if (this.currentSettings.showPace !== showPace) {
+                this.currentSettings.showPace = showPace;
+                this.saveSettings();
+            }
+            log.info(`[Setting] 'Show Pace' changed to: ${showPace}`);
+            const modeNum = stateTracker.getCurrentMode();
+            const mapNum = stateTracker.getCurrentMap()
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
+            return this.currentSettings;
+        });
+
         ipcMain.handle('background-color-changed', (_event, bgCol: string) => {
             if (this.currentSettings.backgroundColor === bgCol)
                 return this.currentSettings;
@@ -348,6 +372,10 @@ export class SettingsManager {
                 loadedSettings.reverseUDModes = false;
             if (typeof loadedSettings.showResetCounters === "undefined")
                 loadedSettings.showResetCounters = true;
+            if (typeof loadedSettings.showSoB === "undefined")
+                loadedSettings.showSoB = true;
+            if (typeof loadedSettings.showPace === "undefined")
+                loadedSettings.showPace = true;
             if (loadedSettings.steamPath) {
                 if (loadedSettings.steamPath.includes("688130") && loadedSettings.steamPath.includes("remote")) {
                     loadedSettings.steamPath = loadedSettings.steamPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/, "");
@@ -380,6 +408,8 @@ export class SettingsManager {
                 showResetCounters: true,
                 reverseUDModes: false,
                 clickThroughOverlay: false,
+                showSoB: true,
+                showPace: true,
 
                 enableBackgroundColor: false,
                 backgroundColor: "#000000",

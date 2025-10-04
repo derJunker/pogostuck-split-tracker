@@ -20,7 +20,7 @@
 .map-section h3 {
     grid-column: 1 / -1;
     margin-bottom: 0.5rem;
-    background: lightgray;
+    border-bottom: 2px dashed var(--color-border);
     text-align: center;
     width: 100%;
     padding: 0.5rem;

@@ -54,7 +54,7 @@ export function updateModesForLevel() {
     updateCheckpoints();
 }
 
-function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, idx: number, skippedIndices: number[]) {
+function addSplitToSkippedSplits(skipsDiv: HTMLElement, split: string, idx: number, skippedIndices: number[]) {
     const div = document.createElement('div');
     div.className = 'toggle-switch';
     const {label, checkbox, customCheckbox} = createCustomLabledCheckbox(`checkpoint-${idx}`, split,
@@ -63,7 +63,7 @@ function addSplitToSkippedSplits(splitSelectionDiv: HTMLElement, split: string, 
     div.appendChild(label);
     div.appendChild(checkbox);
     div.appendChild(customCheckbox);
-    splitSelectionDiv.appendChild(div);
+    skipsDiv.appendChild(div);
 }
 
 export function loadLevelsFromMappingSplitTab() {
@@ -143,11 +143,16 @@ async function reloadGoldPaces() {
     title.textContent = 'Best Paces'
     goldPaceSelection.appendChild(title)
 
+    const paceInputs = document.createElement('div')
+    paceInputs.id = 'pace-inputs-container'
+
     const levels = getFrontendMappings();
     const levelMappings = levels.find(level => level.mapIndex === map)!;
 
     const goldPaceTimes = await window.electronAPI.getGoldPaces(mode)
-    appendAllGoldPaces(goldPaceSelection, goldPaceTimes, levelMappings);
+    appendAllGoldPaces(paceInputs, goldPaceTimes, levelMappings);
+
+    goldPaceSelection.appendChild(paceInputs)
 
     setTimeout(() => {
         goldPaceSelection.style.width = '';
@@ -304,6 +309,9 @@ function updateCheckpoints() {
     title.textContent = `Split Skips`;
     splitSelectionDiv.appendChild(title);
 
+    const skipsDiv = document.createElement('div');
+    skipsDiv.id = "split-skips-container"
+
     let skippedIndices: number[] = [];
     const skipObj = getFrontendSettings().skippedSplits.find(s => s.mode === modeObj.key);
     if (skipObj) {
@@ -311,8 +319,10 @@ function updateCheckpoints() {
     }
 
     mapObj.splits.forEach((split, idx) => {
-        addSplitToSkippedSplits(splitSelectionDiv, split, idx, skippedIndices);
+        addSplitToSkippedSplits(skipsDiv, split, idx, skippedIndices);
     });
+
+    splitSelectionDiv.appendChild(skipsDiv)
 
     setTimeout(() => {
         splitSelectionDiv.style.width = '';

@@ -135,14 +135,14 @@ input[type="checkbox"] {
 input[type="color"] {
     border:  var(--border-width) solid var(--color-border);
     border-radius:  var(--border-radius);
-    background:  var(--color-fg);
+    background:  rgba(255, 255, 255, 0.75);;
 }
 
 .custom-checkbox {
     display: inline-block;
     width: 20px;
     height: 20px;
-    background: var(--color-checkbox-bg);
+    background: rgba(255, 255, 255, 0.75);;
     border: var(--border-width) solid var(--color-border);
     border-radius: 6px;
     position: relative;

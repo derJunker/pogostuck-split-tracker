@@ -335,11 +335,9 @@ export class SettingsManager {
         let splitIndexPath: Split[] = [];
         let lastTo = -1;
         let index = -1
-        if (mode === 0) log.debug(`Calculating split path for mode 0, which is map 1 normal. splitAmount: ${splitAmount}`);
         while (index < splitAmount) {
             const from = lastTo;
             index++;
-            if (mode === 0) log.debug(`considering index ${index} from ${from} to ${index}, shouldSkip: ${this.splitShouldBeSkipped(mode, index)}`);
             if (this.splitShouldBeSkipped(mode, index))
                 continue;
             const to = index;

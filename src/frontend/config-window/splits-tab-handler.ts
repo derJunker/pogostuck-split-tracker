@@ -103,9 +103,7 @@ async function reloadGoldSplits() {
     const mappings = getFrontendMappings();
     const levelMappings = mappings.find(mapInfo => mapInfo.mapIndex === map)!
     const mapSplits = levelMappings.splits
-    __electronLog.debug(`checking for ud start in split path: ${JSON.stringify(splitPath)} mapSplits.length=${mapSplits.length}`);
     const udStartIndex = splitPath.findIndex(splitPathEl => splitPathEl.from === mapSplits.length);
-    __electronLog.debug(`start of ud found at index ${udStartIndex}`);
     const udStart = splitPath[udStartIndex]
     const isUD: boolean = udStartIndex !== -1
     if (isUD) {

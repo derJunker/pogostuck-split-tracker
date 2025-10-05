@@ -26,7 +26,6 @@ import {initPathsTabListeners} from "./config-window/paths-tab-handler";
 import {initLanguageListeners} from "./config-window/language-handler";
 import {initLaunchPogostuckButtonListeners} from "./config-window/launch-pogostuck-button-handler";
 import {initDebugButtonListeners} from "./config-window/debug-tab-handler";
-import {initTooltips} from "./config-window/tooltip-handler";
 import {initializeCustomModeTabHandler} from "./config-window/custom-mode-tab-handler";
 import {hideLoadingScreen} from "./config-window/loading-screen-handler";
 
@@ -55,7 +54,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     initDebugButtonListeners();
 
     initLanguageListeners();
-    initTooltips();
 
     document.getElementById('buy-coffee')?.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://buymeacoffee.com/derjunker"));
     document.querySelectorAll('.yt-vid').forEach(anchor => anchor.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://www.youtube.com/watch?v=TiV_zLOi0zc")))

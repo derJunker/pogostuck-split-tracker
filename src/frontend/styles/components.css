@@ -25,6 +25,10 @@
     font-style: italic;
 }
 
+:root {
+    --tooltip-icon-size: 16px;
+}
+
 /* Dropdown Styles */
 .dropdown {
     background: var(--color-bg);
@@ -226,8 +230,8 @@ input[type="color"] {
     top: 50%;
     left: -24px; /* Position to the left of the trigger */
     transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
+    width: var(--tooltip-icon-size);
+    height: var(--tooltip-icon-size);
     background: var(--color-accent);
     border: 1px solid var(--color-fg);
     border-radius: 50%;
@@ -270,7 +274,7 @@ input[type="color"] {
     font-size: 0.85rem;
     font-weight: normal;
     line-height: 1.4;
-    width:  400px;
+    width:  300px;
     white-space: normal;
     font-family: var(--font-family);
     word-wrap: break-word;
@@ -287,19 +291,15 @@ input[type="color"] {
 .tooltip-icon:hover + .tooltip-content {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translate(0);
 }
 
 
-.tooltip-content.tooltip-right {
-    left: -8px; /* Right edge of icon (-24px + 16px) */
+.tooltip-content {
+    left: calc(var(--tooltip-icon-size)/-2);
     top: 50%;
-    transform: translateX(8px); /* Center vertically relative to the trigger container */
+    transform: translateX(8px);
     position: absolute;
-}
-
-.tooltip-icon:hover + .tooltip-content.tooltip-right {
-    transform: translateX(0); /* Keep centered vertically, remove horizontal offset on hover */
 }
 
 

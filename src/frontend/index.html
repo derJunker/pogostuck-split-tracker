@@ -485,72 +485,58 @@
                     </div>
                     <div id="skip-selection">
                         <div id="gold-split-selection">
-                            <!--                            <h3>Gold Splits</h3>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-0-1-input">Bones</label>-->
-                            <!--                                <input type="text" id="gold-0-1-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-1-2-input">Wind</label>-->
-                            <!--                                <input type="text" id="gold-1-2-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-2-3-input">Grapes</label>-->
-                            <!--                                <input type="text" id="gold-2-3-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-3-5-input">Trees</label>-->
-                            <!--                                <input type="text" id="gold-3-5-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-5-7-input">Palms</label>-->
-                            <!--                                <input type="text" id="gold-5-7-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-7-8-input">Flowers</label>-->
-                            <!--                                <input type="text" id="gold-7-8-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-8-9-input">Ice</label>-->
-                            <!--                                <input type="text" id="gold-8-9-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div>-->
-                            <!--                                <img src="assets/curved-arrow.svg" alt="curved arrow pointing down"/>-->
-                            <!--                                <label for="gold-9-10-input">Egg</label>-->
-                            <!--                                <input type="text" id="gold-9-10-input" class="input-field" placeholder="00:00.000">-->
-                            <!--                            </div>-->
-                            <!--                            <div id="final">Finish</div>-->
+                            <h3 class="tooltip-trigger">
+                                <span lang="en" style="display: none">Gold Splits</span>
+                                <span lang="ja" style="display: none">ベストスプリット</span>
+                                <span class="tooltip-icon"></span>
+                                <span class="tooltip-content">
+                                    <span lang="en" style="display: none">
+                                        This shows your gold splits for your selected run. This path changes when you
+                                        select to skip a split.
+                                    </span>
+                                    <span lang="ja" style="display: none">
+                                        これは選択した走行のベストスプリットを表示します。スプリットをスキップするよう選択すると、このパスが変わります。
+                                    </span>
+                                </span>
+                            </h3>
+                            <div id="gold-split-path"></div>
                         </div>
                         <div id="splits-displays">
                             <div id="gold-pace-selection">
-                                <!--                            <h3>Best Paces</h3>-->
-                                <!--                        <label for="pace-0-input">Bones</label>-->
-                                <!--                        <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-1-input">Wind</label>-->
-                                <!--                        <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-2-input">Grapes</label>-->
-                                <!--                        <input type="text" id="pace-2-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-3-input">Trees</label>-->
-                                <!--                        <input type="text" id="pace-3-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-4-input">Pineapples</label>-->
-                                <!--                        <input type="text" id="pace-4-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-5-input">Palms</label>-->
-                                <!--                        <input type="text" id="pace-5-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-6-input">Mushrooms</label>-->
-                                <!--                        <input type="text" id="pace-6-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-7-input">Flowers</label>-->
-                                <!--                        <input type="text" id="pace-7-input" class="input-field" placeholder="00:00.000">-->
-                                <!--                        <label for="pace-8-input">Ice</label>-->
-                                <!--                        <input type="text" id="pace-8-input" class="input-field" placeholder="00:00.000">-->
+                                <h3 class="tooltip-trigger">
+                                    <span lang="en" style="display: none">Best Split-Paces</span>
+                                    <span lang="ja" style="display: none">ベストスプリットペース</span>
+                                    <span class="tooltip-icon"></span>
+                                    <span class="tooltip-content">
+                                        <span lang="en" style="display: none">
+                                            This shows the best times you reached each split. In a run the split in
+                                            the overlay will be blue, if you improve that time.
+                                        </span>
+                                        <span lang="ja" style="display: none">
+                                            これは各スプリットで達成したベストタイムを表示します。走行中にオーバーレイのスプリットが青くなると、そのタイムを更新したことになります。
+                                        </span>
+                                    </span>
+                                </h3>
+                                <div id="pace-inputs-container"></div>
                             </div>
-                            <div id="map-n-mode-split-selection"></div>
+                            <div id="map-n-mode-split-selection">
+                                <h3 class="tooltip-trigger">
+                                    <span lang="en" style="display: none">Split Skips</span>
+                                    <span lang="ja" style="display: none">スプリットスキップ</span>
+                                    <span class="tooltip-icon"></span>
+                                    <span class="tooltip-content">
+                                        <span lang="en" style="display: none">
+                                            Here you need to select which splits you are going to skip in a run.
+                                            Otherwise the sum of best, pace and gold split calculations won't work.
+                                        </span>
+                                        <span lang="ja" style="display: none">
+                                            ここで、走行中にスキップするスプリットを選択する必要があります。
+                                            そうしないと、Sum of Best、Pace、Gold Splitの計算が正しく機能しません。
+                                        </span>
+                                    </span>
+                                </h3>
+                                <div id="split-skips-container"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

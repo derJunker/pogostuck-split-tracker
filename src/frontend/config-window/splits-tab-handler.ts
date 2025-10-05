@@ -91,11 +91,8 @@ async function reloadGoldSplits() {
     const currentWidth = goldSplitSelection.offsetWidth;
     goldSplitSelection.style.width = currentWidth + 'px';
 
-    goldSplitSelection.innerHTML = '';
-
-    const title = document.createElement('h3')
-    title.textContent = 'Gold Splits'
-    goldSplitSelection.appendChild(title)
+    const goldSplitPath = document.getElementById('gold-split-path');
+    if (!goldSplitPath) return;
 
     const splitPath = await window.electronAPI.getSplitPath(mode)
     __electronLog.info(`split path: ${JSON.stringify(splitPath)}`);
@@ -118,7 +115,7 @@ async function reloadGoldSplits() {
     const useOldNames = (mapSelect.value === "0" || mapSelect.value === "99") && !settings.showNewSplitNames;
 
     const goldSplitTimes = await window.electronAPI.getGoldSplits(mode)
-    appendAllGoldSplits(goldSplitSelection, goldSplitTimes, splitPath, mapSplits, levelMappings, mode, udStart, isUD, useOldNames);
+    appendAllGoldSplits(goldSplitPath, goldSplitTimes, splitPath, mapSplits, levelMappings, mode, udStart, isUD, useOldNames);
     await updateRevertButtonValidity(mode)
 
     setTimeout(() => {
@@ -136,23 +133,17 @@ async function reloadGoldPaces() {
     const currentWidth = goldPaceSelection.offsetWidth;
     goldPaceSelection.style.width = currentWidth + 'px';
 
-    goldPaceSelection.innerHTML = '';
     __electronLog.debug('Cleared gold pace selection div', goldPaceSelection.innerHTML);
 
-    const title = document.createElement('h3')
-    title.textContent = 'Best Paces'
-    goldPaceSelection.appendChild(title)
-
-    const paceInputs = document.createElement('div')
-    paceInputs.id = 'pace-inputs-container'
+    const paceInputs = document.getElementById('pace-inputs-container')
+    if (!paceInputs) return;
+    paceInputs.innerHTML = '';
 
     const levels = getFrontendMappings();
     const levelMappings = levels.find(level => level.mapIndex === map)!;
 
     const goldPaceTimes = await window.electronAPI.getGoldPaces(mode)
     appendAllGoldPaces(paceInputs, goldPaceTimes, levelMappings);
-
-    goldPaceSelection.appendChild(paceInputs)
 
     setTimeout(() => {
         goldPaceSelection.style.width = '';
@@ -225,9 +216,10 @@ function appendAllGoldSplits(
         from: number;
         to: number;
     }, isUD?: boolean, useOldNames?: boolean) {
+    const divsToAppend: Node[] = []
     if (isUD) {
         const lastSplitName = useOldNames ? "Start" : levelMappings.endSplitName;
-        appendSplit(lastSplitName, udStart!.from, udStart!.to, goldSplitSelection, goldSplitTimes, mode);
+        appendSplit(lastSplitName, udStart!.from, udStart!.to, divsToAppend, goldSplitTimes, mode);
     }
     splitPath.forEach((splitPathEl) => {
         let name = mapSplits.find((_name, index) => {
@@ -243,13 +235,15 @@ function appendAllGoldSplits(
                 else name = levelMappings.endSplitName
             }
         }
-        appendSplit(name, splitPathEl.from,  splitPathEl.to, goldSplitSelection, goldSplitTimes, mode);
+        appendSplit(name, splitPathEl.from,  splitPathEl.to, divsToAppend, goldSplitTimes, mode);
     })
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
     finishDiv.textContent = 'Finish';
 
-    goldSplitSelection.appendChild(finishDiv);
+    divsToAppend.push(finishDiv);
+    goldSplitSelection.innerHTML = '';
+    goldSplitSelection.append(...divsToAppend)
 }
 
 async function updateSkippedSplits() {
@@ -303,14 +297,9 @@ function updateCheckpoints() {
     const currentWidth = splitSelectionDiv.offsetWidth;
     splitSelectionDiv.style.width = currentWidth + 'px';
 
-    splitSelectionDiv.innerHTML = '';
-
-    const title = document.createElement('h3');
-    title.textContent = `Split Skips`;
-    splitSelectionDiv.appendChild(title);
-
-    const skipsDiv = document.createElement('div');
-    skipsDiv.id = "split-skips-container"
+    const skipsDiv = document.getElementById('split-skips-container');
+    if (!skipsDiv) return;
+    skipsDiv.innerHTML = ''
 
     let skippedIndices: number[] = [];
     const skipObj = getFrontendSettings().skippedSplits.find(s => s.mode === modeObj.key);
@@ -322,8 +311,6 @@ function updateCheckpoints() {
         addSplitToSkippedSplits(skipsDiv, split, idx, skippedIndices);
     });
 
-    splitSelectionDiv.appendChild(skipsDiv)
-
     setTimeout(() => {
         splitSelectionDiv.style.width = '';
     }, 0);
@@ -331,7 +318,7 @@ function updateCheckpoints() {
 
 
 
-function appendSplit(name: string, from: number, to: number, goldSplitSelection: HTMLElement, goldSplitTimes: {
+function appendSplit(name: string, from: number, to: number, nodes: Node[], goldSplitTimes: {
     from: number;
     to: number;
     time: number;
@@ -370,7 +357,7 @@ function appendSplit(name: string, from: number, to: number, goldSplitSelection:
     inputRollbackWrapper.appendChild(input);
     inputRollbackWrapper.appendChild(rollbackButton);
     div.appendChild(inputRollbackWrapper);
-    goldSplitSelection.appendChild(div);
+    nodes.push(div);
 }
 
 async function validateGoldSplit(value: string, from: number, to: number) {

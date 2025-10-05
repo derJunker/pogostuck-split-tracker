@@ -157,6 +157,7 @@ input[type="text"] {
     display: flex;
     justify-content:  center;
     padding: 1rem 0.5rem;
+    height: fit-content;
 }
 
 #splits-displays {
@@ -178,59 +179,6 @@ label {
     cursor:  pointer;
 }
 
-#skip-selection {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 3rem;
-    margin-top: 2rem;
-}
-
-#skip-selection h3 {
-    margin-bottom: 1rem;
-}
-
-#map-n-mode-selection {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-#gold-pace-selection > h3,
-#map-n-mode-split-selection > h3,
-#gold-split-selection > h3 {
-    border-bottom: 2px dashed var(--color-border);
-    text-align: center;
-}
-
-#gold-split-selection > div {
-    position: relative;
-    margin-left: 30px;
-    margin-right: 10px;
-}
-
-#gold-split-selection label {
-    display: block;
-}
-
-
-#gold-pace-selection input,
-#gold-split-selection input {
-    text-align: end;
-    max-width: 8rem;
-    max-height: fit-content;
-}
-
-#gold-split-selection > div > img {
-    position: absolute;
-    left: -30px;
-    bottom: -2px;
-    max-height: 2rem;
-    user-select: none;
-    transform: rotate(260deg) scaleX(-1) scale(1.25);
-}
 
 #paths-content {
     display: grid;
@@ -248,30 +196,6 @@ label {
 
 #paths-content label {
     align-self: start;
-}
-
-#pace-inputs-container {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    align-items: center;
-}
-
-#split-skips-container {
-    display: grid;
-}
-
-#split-skips-container > div {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#split-skips-container,
-#pace-inputs-container {
-    gap: .5rem 1rem;
-    height: 100%;
-    align-content: stretch;
 }
 
 .menu-content {

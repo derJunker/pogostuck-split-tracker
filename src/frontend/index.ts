@@ -6,6 +6,7 @@ import './styles/preferences.css'
 import './styles/error-messages.css'
 import './styles/custom-modes.css'
 import './styles/pbs-tab.css'
+import './styles/splits-tab.css'
 
 import './config-window/update-handler.ts'
 import './config-window/special-circumstances-handler' // explicit import to make sure the code runs, maybe i should

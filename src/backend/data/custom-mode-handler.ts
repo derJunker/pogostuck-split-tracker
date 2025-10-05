@@ -122,8 +122,9 @@ export class CustomModeHandler {
             log.error(`Custom mode with index ${modeIndex} not found, cannot change UD mode`);
             return;
         }
+        const hasChanged = mode.isUD !== isUDMode;
         mode.isUD = isUDMode;
-        this.saveCustomModesToFile();
+        if(hasChanged) this.saveCustomModesToFile();
     }
     private changeCustomModeIsRBMode(isRBMode: boolean, modeIndex: number) {
         const mode = this.customModes.find(cm => cm.modeIndex === modeIndex);
@@ -131,8 +132,9 @@ export class CustomModeHandler {
             log.error(`Custom mode with index ${modeIndex} not found, cannot change UD mode`);
             return;
         }
+        const hasChanged = mode.isRB !== isRBMode;
         mode.isRB = isRBMode;
-        this.saveCustomModesToFile();
+        if (hasChanged) this.saveCustomModesToFile();
     }
 
     private createCustomMode(map: number): { index: number, name: string } {

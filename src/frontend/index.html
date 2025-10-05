@@ -711,6 +711,33 @@
             </button>
             <button id="toggle-lang-btn" class="inverted">日本語 / English</button>
         </footer>
+        <div id="delete-confirm-modal" class="modal" style="">
+            <div class="modal-content">
+                <span id="delete-close-release-modal" class="close">&times;</span>
+                <div lang="en" style="display: none">
+                    <h2>Are you sure you want to delete?</h2>
+                    <p>This will all data on this mode, including gold splits, gold paces, skips, resets etc.</p>
+                </div>
+                <div lang="ja" style="display: none">
+                    <h2>本当に削除しますか？</h2>
+                    <p>これにより、ゴールドスプリット、ゴールドペース、スキップ、リセットなど、このモードのすべてのデータが削除されます。</p>
+                </div>
+                <div id="delete-confirm-btns">
+                    <button id="delete-confirm-no" class="inverted">
+                        <span lang="en" style="display: none">Cancel</span>
+                        <span lang="ja" style="display: none">
+                            キャンセル
+                        </span>
+                    </button>
+                    <button id="delete-confirm-yes">
+                        <span lang="en" style="display: none">Delete</span>
+                        <span lang="ja" style="display: none">
+                            削除
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div id="new-release-modal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span id="close-release-modal" class="close">&times;</span>

@@ -70,3 +70,17 @@
     height: 100%;
     align-content: stretch;
 }
+
+#input-rollback-wrapper {
+    display: flex;
+    gap: .4rem;
+    justify-content:  space-between;
+    align-items: center;
+}
+
+#input-rollback-wrapper button {
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    padding: 0;
+}

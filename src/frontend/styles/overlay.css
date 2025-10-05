@@ -5,7 +5,7 @@
 body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
-    font-size: min(max(min(4.5vw,7.5vh),10px),48px);
+    font-size: min(max(min(4.1vw, 7.5vh), 10px), 48px);
     font-weight: bold;
     -webkit-app-region: drag;
     -webkit-text-stroke-width: 1px;
@@ -70,7 +70,16 @@ button {
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
+    text-wrap: nowrap
 }
+/*Split names should be the one shrinking*/
+.split-name {
+    text-overflow: ellipsis;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .split > span {
     text-align: right;
 }
@@ -86,6 +95,7 @@ button {
     gap: 0.3ch;
     justify-self: stretch;
 }
+
 .late {
     color: #f66;
 }

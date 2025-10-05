@@ -28,6 +28,12 @@ let isRBContainer: HTMLDivElement;
 
 let currentCustomMode: number | null = null;
 
+let deleteModeModal: HTMLElement;
+let deleteModeContent: HTMLElement;
+let deleteModeConfirmButton: HTMLButtonElement;
+let deleteModeCancelButton: HTMLButtonElement;
+let deleteModeCloseButton: HTMLSpanElement;
+
 export function initializeCustomModeTabHandler() {
     mapSelect = document.getElementById("regular-map-select") as HTMLSelectElement;
     modeSelect = document.getElementById("custom-mode-select") as HTMLSelectElement;
@@ -42,6 +48,21 @@ export function initializeCustomModeTabHandler() {
     isUDContainer = document.getElementById("is-ud-container") as HTMLDivElement;
     isRBToggle = document.getElementById("custom-mode-is-rb-toggle") as HTMLInputElement;
     isRBContainer = document.getElementById("is-rb-container") as HTMLDivElement;
+
+    deleteModeModal = document.getElementById('delete-confirm-modal') as HTMLElement;
+    deleteModeContent = document.querySelector('#delete-confirm-modal .modal-content') as HTMLElement;
+    deleteModeConfirmButton = document.getElementById('delete-confirm-yes') as HTMLButtonElement;
+    deleteModeCancelButton = document.getElementById('delete-confirm-no') as HTMLButtonElement;
+    deleteModeCloseButton = document.getElementById('delete-close-release-modal') as HTMLSpanElement;
+
+    deleteModeCloseButton.addEventListener('click', (_event) => {
+        deleteModeModal.style.display = 'none';
+    })
+
+    deleteModeCancelButton.addEventListener('click', (_event) => {
+        deleteModeModal.style.display = 'none';
+    })
+
 
     mapSelect.addEventListener("change", onMapChange);
     modeSelect.addEventListener("change", (_) => {
@@ -68,7 +89,7 @@ export function initializeCustomModeTabHandler() {
         await window.electronAPI.onCustomModeIsRBModeChanged(checked, parseInt(modeSelect.value));
     });
     playButton.addEventListener("click", () => onPlayCustomMode(parseInt(modeSelect.value)));
-    deleteButton.addEventListener("click", () => onDeleteCustomMode(parseInt(modeSelect.value)));
+    deleteButton.addEventListener("click", () => openDeleteModal(parseInt(modeSelect.value)));
     stopButton.addEventListener("click", () => onStopCustomMode());
 
     window.electronAPI.onCustomModeStopped(() => {
@@ -229,6 +250,18 @@ function onStopCustomMode() {
         }
     })
 }
+
+function openDeleteModal(mode: number) {
+    deleteModeModal.style.display = 'block';
+
+    const newConfirmHandler = async () => {
+        await onDeleteCustomMode(mode)
+        deleteModeModal.style.display = 'none';
+        deleteModeConfirmButton.removeEventListener('click', newConfirmHandler);
+    };
+    deleteModeConfirmButton.addEventListener('click', newConfirmHandler);
+}
+
 async function onDeleteCustomMode(mode: number) {
     __electronLog.debug("[Frontend] Delete custom mode", mode);
     const previousIndex = modeSelect.selectedIndex;

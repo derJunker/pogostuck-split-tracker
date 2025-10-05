@@ -58,7 +58,7 @@
 }
 
 #config-body {
-    background: radial-gradient(circle at 50% 350%, var(--color-accent) 0%, var(--color-fg) 90%);
+    background: var(--color-fg);
     font-family: var(--font-family), serif;
     font-size: var(--font-size);
     font-weight: var(--font-weight);

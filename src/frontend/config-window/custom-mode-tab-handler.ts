@@ -193,11 +193,12 @@ async function onSaveName(name: string) {
     __electronLog.debug("[Frontend] Save name", name);
     const previousIndex = modeSelect.selectedIndex;
     removeError(customModeNameInput)
+    const maxNameLength = 15;
     if (name.trim().length === 0) {
-        addError(customModeNameInput, "Name cannot be empty");
+        addError(customModeNameInput, "NAME_NOT_EMPTY");
         return;
-    } else if (name.trim().length > 15) {
-        addError(customModeNameInput, "Name cannot be longer than 15 characters");
+    } else if (name.trim().length > maxNameLength) {
+        addError(customModeNameInput, "NAME_TOO_LONG", `${maxNameLength}`);
         customModeNameInput.value = name.trim().substring(0, 15);
         return;
     }

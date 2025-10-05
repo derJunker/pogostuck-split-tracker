@@ -62,7 +62,7 @@ window.electronAPI.onPbImproved((event, data) => {
 async function onPbEntered(input: HTMLInputElement, modeKey: number): Promise<boolean> {
     const time = parsePbTime((input as HTMLInputElement).value);
     if (time < 0) {
-        addError(input, "Time is not in a valid format; Try sticking to '00:00.000' 🐸");
+        addError(input, "INVALID_FORMAT");
         return false;
     } else if (time === 0) {
         return false;

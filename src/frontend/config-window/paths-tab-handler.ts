@@ -79,8 +79,8 @@ export function initPathsTabListeners() {
 function addSettingsErrorValidator(inputElement: HTMLInputElement, fieldName: string,
                                backendUpdater: (value:string) => Promise<Settings>,
                                settingsField: (settings:Settings) => string) {
-    addEnterAndWaitValidator(inputElement, `The provided ${fieldName} could not be found ☹️`, async (value) => {
+    addEnterAndWaitValidator(inputElement, async (value) => {
         const settings = updateFrontendSettings(await backendUpdater(value))
         return settingsField(settings) === value;
-    });
+    }, 'FIELD_NOT_FOUND', fieldName);
 }

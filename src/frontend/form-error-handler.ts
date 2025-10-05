@@ -7,7 +7,9 @@
 // then add another hidden field
 
 import {Settings} from "../types/settings";
-import {updateFrontendSettings} from "./config-window/backend-state-handler";
+import {getFrontendSettings, updateFrontendSettings} from "./config-window/backend-state-handler";
+import {getErrorMessage} from "./error-messages";
+import {error} from "electron-log";
 
 let errorContainer: HTMLDivElement | null = null;
 let hiddenErrorElement: HTMLDivElement | null = null;
@@ -17,9 +19,10 @@ window.addEventListener('DOMContentLoaded', () => {
     createHiddenErrorElement()
 });
 
-export function addError(inputElement: HTMLInputElement, errorMessage?:string): void {
+export function addError(inputElement: HTMLInputElement, errorCode?: string, ...args:string[]): void {
+    const settings = getFrontendSettings()
     inputElement.classList.add('invalid')
-    if (!errorMessage) return;
+    if (!errorCode) return;
 
     if (!errorContainer) {
         __electronLog.error('Tried to add an error but errorContainer is null');
@@ -29,7 +32,7 @@ export function addError(inputElement: HTMLInputElement, errorMessage?:string): 
         __electronLog.error('Tried to add an error but hiddenErrorElement is null');
         return
     }
-    hiddenErrorElement.innerText = errorMessage;
+    hiddenErrorElement.innerText = getErrorMessage(errorCode, settings.language, ...args);
     hiddenErrorElement.classList.remove('hidden');
     const errorElement = hiddenErrorElement;
     setTimeout(() => {
@@ -59,7 +62,7 @@ export function removeError(inputElement: HTMLInputElement): void {
     inputElement.classList.remove('invalid')
 }
 
-export function addEnterAndWaitValidator(inputElement: HTMLInputElement, message: string, validator: (value: string) => Promise<boolean>) {
+export function addEnterAndWaitValidator(inputElement: HTMLInputElement, validator: (value: string) => Promise<boolean>, errorCode: string, ...args: string[]) {
     let debounceTimeout: NodeJS.Timeout | null = null;
     let errorTriggered = false;
     let currentDelay = 1000;
@@ -72,7 +75,7 @@ export function addEnterAndWaitValidator(inputElement: HTMLInputElement, message
         debounceTimeout = setTimeout(async () => {
             const valid = await validator(inputElement.value);
             if (!valid) {
-                addError(inputElement, message);
+                addError(inputElement, errorCode, ...args);
                 errorTriggered = true;
                 currentDelay = 3000; // Increase delay after error
             } else {
@@ -86,7 +89,7 @@ export function addEnterAndWaitValidator(inputElement: HTMLInputElement, message
     inputElement.addEventListener('keydown', async (event) => {
         if (event.key === "Enter") {
             const valid = await validator(inputElement.value)
-            if (!valid) addError(inputElement, message)
+            if (!valid) addError(inputElement, errorCode, ...args)
             else removeError(inputElement)
             if (debounceTimeout) {
                 clearTimeout(debounceTimeout);

@@ -71,94 +71,99 @@ export class SettingsManager {
         });
 
         ipcMain.handle("option-hide-skipped-splits-changed", (_event, hideSplits: boolean) => {
-            if (this.currentSettings.hideSkippedSplits === hideSplits)
-                return this.currentSettings;
-            log.info(`[Setting] 'Hide skipped splits' changed to: ${hideSplits}`);
-            this.currentSettings.hideSkippedSplits = hideSplits;
+            if (this.currentSettings.hideSkippedSplits !== hideSplits) {
+                log.info(`[Setting] 'Hide skipped splits' changed to: ${hideSplits}`);
+                this.currentSettings.hideSkippedSplits = hideSplits;
+                this.saveSettings()
+            }
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
-            this.saveSettings()
             return this.currentSettings
         });
 
         ipcMain.handle("option-hide-overlay-when-not-active-changed", (_event, hideWindow: boolean) => {
-            if (this.currentSettings.hideWindowWhenPogoNotActive === hideWindow)
-                return this.currentSettings;
-            log.info(`[Setting] 'Hide window when PogoStuck is not active' changed to: ${hideWindow}`);
-            this.currentSettings.hideWindowWhenPogoNotActive = hideWindow;
+            if (this.currentSettings.hideWindowWhenPogoNotActive !== hideWindow) {
+                log.info(`[Setting] 'Hide window when PogoStuck is not active' changed to: ${hideWindow}`);
+                this.currentSettings.hideWindowWhenPogoNotActive = hideWindow;
+                this.saveSettings()
+            }
+
             if (!hideWindow) overlayWindow.showInactive();
-            this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle('only-diff-colored-changed', (_event, colorOnlyDiffs: boolean) => {
             if (this.currentSettings.onlyDiffsColored !== colorOnlyDiffs) {
                 this.currentSettings.onlyDiffsColored = colorOnlyDiffs;
+                log.info(`[Setting] 'Only diffs colored' changed to: ${colorOnlyDiffs}`);
                 this.saveSettings()
             }
-            log.info(`[Setting] 'Only diffs colored' changed to: ${colorOnlyDiffs}`);
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
             return this.currentSettings;
         });
         ipcMain.handle('show-reset-counters-changed', (_event, showResetCounters: boolean) => {
-            const settingsChanged = this.currentSettings.showResetCounters !== showResetCounters
-            log.info(`[Setting] 'Show reset counters' changed to: ${showResetCounters}`);
-            this.currentSettings.showResetCounters = showResetCounters;
+            if (this.currentSettings.showResetCounters !== showResetCounters) {
+                log.info(`[Setting] 'Show reset counters' changed to: ${showResetCounters}`);
+                this.currentSettings.showResetCounters = showResetCounters;
+                this.saveSettings()
+            }
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
-            if (settingsChanged) this.saveSettings();
             return this.currentSettings;
         });
         ipcMain.handle('reverse-ud-splits', (_event, reverseUDModes: boolean) => {
-            const settingsChanged = this.currentSettings.reverseUDModes !== reverseUDModes
-            log.info(`[Setting] 'Reverse UD Splits' changed to: ${reverseUDModes}`);
-            this.currentSettings.reverseUDModes = reverseUDModes;
-            if(settingsChanged) this.saveSettings();
+            if (this.currentSettings.reverseUDModes !== reverseUDModes) {
+                log.info(`[Setting] 'Reverse UD Splits' changed to: ${reverseUDModes}`);
+                this.currentSettings.reverseUDModes = reverseUDModes;
+                this.saveSettings();
+            }
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
             return this.currentSettings;
         });
         ipcMain.handle('race-golds-changed', (_event, raceGoldSplits: boolean) => {
-            if (this.currentSettings.raceGoldSplits === raceGoldSplits)
-                return this.currentSettings;
-            log.info(`[Setting] 'Race gold splits' changed to: ${raceGoldSplits}`);
-            this.currentSettings.raceGoldSplits = raceGoldSplits;
+            if (this.currentSettings.raceGoldSplits !== raceGoldSplits) {
+                log.info(`[Setting] 'Race gold splits' changed to: ${raceGoldSplits}`);
+                this.currentSettings.raceGoldSplits = raceGoldSplits;
+                this.saveSettings()
+            }
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             resetOverlay(mapNum, modeNum, overlayWindow)
-            this.saveSettings()
             return this.currentSettings;
         });
         ipcMain.handle("option-launch-pogo-on-startup", (_event, launchPogoOnStartup: boolean) => {
-            if (this.currentSettings.launchPogoOnStartup === launchPogoOnStartup)
-                return this.currentSettings;
-            log.info(`[Setting] 'Launch PogoStuck on startup' changed to: ${launchPogoOnStartup}`);
-            this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
-            this.saveSettings()
+            if (this.currentSettings.launchPogoOnStartup !== launchPogoOnStartup) {
+                log.info(`[Setting] 'Launch PogoStuck on startup' changed to: ${launchPogoOnStartup}`);
+                this.currentSettings.launchPogoOnStartup = launchPogoOnStartup;
+                this.saveSettings()
+            }
             return this.currentSettings
         });
         ipcMain.handle("option-show-new-split-names-changed", (_event, showNewSplits: boolean) => {
-            if (this.currentSettings.showNewSplitNames === showNewSplits)
-                return this.currentSettings;
-            log.info(`[Setting] 'Show new split names' changed to: ${showNewSplits}`);
-            this.currentSettings.showNewSplitNames = showNewSplits;
+            if (this.currentSettings.showNewSplitNames !== showNewSplits) {
+                log.info(`[Setting] 'Show new split names' changed to: ${showNewSplits}`);
+                this.currentSettings.showNewSplitNames = showNewSplits;
+                this.saveSettings()
+            }
             indexToNamesMappings.switchMap1SplitNames(showNewSplits)
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
-            this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("option-click-through-overlay-changed", (_event, clickThroughOverlay: boolean) => {
-            log.info(`[Setting] 'Click through overlay' changed to: ${clickThroughOverlay}`);
-            this.currentSettings.clickThroughOverlay = clickThroughOverlay;
+            if (this.currentSettings.clickThroughOverlay !== clickThroughOverlay) {
+                log.info(`[Setting] 'Click through overlay' changed to: ${clickThroughOverlay}`);
+                this.currentSettings.clickThroughOverlay = clickThroughOverlay;
+                this.saveSettings()
+            }
             overlayWindow.setIgnoreMouseEvents(clickThroughOverlay);
             overlayWindow.webContents.send('click-through-changed', clickThroughOverlay);
-            this.saveSettings()
             return this.currentSettings
         });
         ipcMain.handle("steam-path-changed", (_event, steamUserDataPath: string) => {
@@ -239,9 +244,9 @@ export class SettingsManager {
         ipcMain.handle('enable-background-color-changed', (_event, enableBackgroundColor: boolean) => {
             if (this.currentSettings.enableBackgroundColor !== enableBackgroundColor) {
                 this.currentSettings.enableBackgroundColor = enableBackgroundColor;
+                log.info(`[Setting] 'Enable background color' changed to: ${enableBackgroundColor}`);
                 this.saveSettings();
             }
-            log.info(`[Setting] 'Enable background color' changed to: ${enableBackgroundColor}`);
             overlayWindow.webContents.send('change-background', enableBackgroundColor ? this.currentSettings.backgroundColor : null);
 
             return this.currentSettings;
@@ -250,9 +255,9 @@ export class SettingsManager {
         ipcMain.handle('show-sob-changed', (_event, showSoB: boolean) => {
             if (this.currentSettings.showSoB !== showSoB) {
                 this.currentSettings.showSoB = showSoB;
+                log.info(`[Setting] 'Show SoB' changed to: ${showSoB}`);
                 this.saveSettings();
             }
-            log.info(`[Setting] 'Show SoB' changed to: ${showSoB}`);
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
@@ -262,9 +267,9 @@ export class SettingsManager {
         ipcMain.handle('show-pace-changed', (_event, showPace: boolean) => {
             if (this.currentSettings.showPace !== showPace) {
                 this.currentSettings.showPace = showPace;
+                log.info(`[Setting] 'Show Pace' changed to: ${showPace}`);
                 this.saveSettings();
             }
-            log.info(`[Setting] 'Show Pace' changed to: ${showPace}`);
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
             redrawSplitDisplay(mapNum, modeNum, overlayWindow)
@@ -272,13 +277,13 @@ export class SettingsManager {
         });
 
         ipcMain.handle('background-color-changed', (_event, bgCol: string) => {
-            if (this.currentSettings.backgroundColor === bgCol)
-                return this.currentSettings;
-            log.info(`[Setting] 'Background color' changed to: ${bgCol}`);
-            this.currentSettings.backgroundColor = bgCol;
+            if (this.currentSettings.backgroundColor !== bgCol) {
+                this.currentSettings.backgroundColor = bgCol;
+                log.info(`[Setting] 'Background color' changed to: ${bgCol}`);
+                this.saveSettings();
+            }
             if (this.currentSettings.enableBackgroundColor)
                 overlayWindow.webContents.send('change-background', bgCol);
-            this.saveSettings();
             return this.currentSettings;
         });
 
@@ -294,20 +299,20 @@ export class SettingsManager {
         });
 
         ipcMain.handle('language-changed', (_event, language: string) => {
-            if (this.currentSettings.lang === language)
-                return this.currentSettings;
-            log.info(`[Setting] 'Language' changed to: ${language}`);
             if (language !== 'en' && language !== 'ja') {
                 log.error(`Language "${language}" not found!`);
                 return;
             }
-            this.currentSettings.lang = language;
-            this.saveSettings()
+            if (this.currentSettings.lang === language) {
+                this.currentSettings.lang = language;
+                log.info(`[Setting] 'Language' changed to: ${language}`);
+                this.saveSettings()
+            }
             return this.currentSettings;
         });
 
         ipcMain.handle('tab-changed', (_event, tabId: string) => {
-            log.debug(`Tab Changed to ${tabId}`);
+            log.debug(`Tab set to ${tabId}`);
             this.currentSettings.lastOpenedTab = tabId;
             this.saveSettings();
         })

@@ -54,7 +54,7 @@ export function updateModesForLevel() {
     updateCheckpoints();
 }
 
-function addSplitToSkippedSplits(skipsDiv: HTMLElement, split: string, idx: number, skippedIndices: number[]) {
+function addSplitToSkippedSplits(skips: Node[], split: string, idx: number, skippedIndices: number[]) {
     const div = document.createElement('div');
     div.className = 'toggle-switch';
     const {label, checkbox, customCheckbox} = createCustomLabledCheckbox(`checkpoint-${idx}`, split,
@@ -63,7 +63,7 @@ function addSplitToSkippedSplits(skipsDiv: HTMLElement, split: string, idx: numb
     div.appendChild(label);
     div.appendChild(checkbox);
     div.appendChild(customCheckbox);
-    skipsDiv.appendChild(div);
+    skips.push(div)
 }
 
 export function loadLevelsFromMappingSplitTab() {
@@ -133,11 +133,8 @@ async function reloadGoldPaces() {
     const currentWidth = goldPaceSelection.offsetWidth;
     goldPaceSelection.style.width = currentWidth + 'px';
 
-    __electronLog.debug('Cleared gold pace selection div', goldPaceSelection.innerHTML);
-
     const paceInputs = document.getElementById('pace-inputs-container')
     if (!paceInputs) return;
-    paceInputs.innerHTML = '';
 
     const levels = getFrontendMappings();
     const levelMappings = levels.find(level => level.mapIndex === map)!;
@@ -155,6 +152,7 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
     //                         <input type="text" id="pace-0-input" class="input-field" placeholder="00:00.000">
     //                         <label for="pace-1-input">Wind</label>
     //                         <input type="text" id="pace-1-input" class="input-field" placeholder="00:00.000">
+    const pacesToAppend: Node[] = []
     levelMappings.splits.forEach((split, index) => {
         const splitTime  = goldPaceTimes.find(gp => gp.splitIndex === index);
         const label = document.createElement('label');
@@ -178,16 +176,15 @@ function appendAllGoldPaces(goldPaceSelection: HTMLElement, goldPaceTimes: { spl
         })
         addEnterAndWaitValidator(input, `'${split}' either had invalid format or was slower than your splits in your pb.`, async (value) => await validateGoldenPace(value, index));
 
-        goldPaceSelection.appendChild(label);
-        goldPaceSelection.appendChild(input);
+        // goldPaceSelection.appendChild(label);
+        // goldPaceSelection.appendChild(input);
+        pacesToAppend.push(label);
+        pacesToAppend.push(input);
     })
+    goldPaceSelection.innerHTML = '';
+    goldPaceSelection.append(...pacesToAppend);
 
 }
-
-// addEnterAndWaitValidator(input, split, async (value) => {
-//
-//
-//                 });
 
 async function validateGoldenPace(value: string, index: number) {
     const map = parseInt(mapSelect.value)
@@ -299,7 +296,8 @@ function updateCheckpoints() {
 
     const skipsDiv = document.getElementById('split-skips-container');
     if (!skipsDiv) return;
-    skipsDiv.innerHTML = ''
+
+    const skips: Node[] = [];
 
     let skippedIndices: number[] = [];
     const skipObj = getFrontendSettings().skippedSplits.find(s => s.mode === modeObj.key);
@@ -308,8 +306,10 @@ function updateCheckpoints() {
     }
 
     mapObj.splits.forEach((split, idx) => {
-        addSplitToSkippedSplits(skipsDiv, split, idx, skippedIndices);
+        addSplitToSkippedSplits(skips, split, idx, skippedIndices);
     });
+    skipsDiv.innerHTML = ''
+    skipsDiv.append(...skips)
 
     setTimeout(() => {
         splitSelectionDiv.style.width = '';

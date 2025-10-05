@@ -303,7 +303,7 @@ export class SettingsManager {
                 log.error(`Language "${language}" not found!`);
                 return;
             }
-            if (this.currentSettings.lang === language) {
+            if (this.currentSettings.lang !== language) {
                 this.currentSettings.lang = language;
                 log.info(`[Setting] 'Language' changed to: ${language}`);
                 this.saveSettings()

@@ -6,13 +6,13 @@ export function initLanguageListeners() {
     if (toggleLangBtn) {
         toggleLangBtn.addEventListener("click", async () => {
             const frontEndSettings = getFrontendSettings();
-            __electronLog.debug(`Current language: ${frontEndSettings.language}`);
-            const newLang = switchLangueTexts(frontEndSettings.language)
+            __electronLog.debug(`Current language: ${frontEndSettings.lang}`);
+            const newLang = switchLangueTexts(frontEndSettings.lang === "en" ? "ja" : "en");
             updateFrontendSettings(await window.electronAPI.onLanguageChanged(newLang));
             __electronLog.debug(`Language changed to ${newLang}`);
         });
-        const lang = getFrontendSettings().language;
-        switchLangueTexts(lang === "en" ? "ja" : "en");
+        const lang = getFrontendSettings().lang;
+        switchLangueTexts(lang);
     } else {
         __electronLog.error(`Language toggle button or setup text elements not found.`);
     }
@@ -29,7 +29,7 @@ export function switchLangueTexts(language: string): string {
         jaTexts.forEach(jaText => {
             jaText.style.display = "none";
         });
-        return "ja"
+        return "en"
     } else {
         enTexts.forEach(enText => {
             enText.style.display = "none";
@@ -37,7 +37,7 @@ export function switchLangueTexts(language: string): string {
         jaTexts.forEach(jaText => {
             jaText.style.display = "";
         });
-        return "en"
+        return "ja"
     }
 
 }

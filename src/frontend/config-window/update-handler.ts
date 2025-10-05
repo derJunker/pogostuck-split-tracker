@@ -11,7 +11,7 @@ window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, bo
             <p>Version: <strong>${releaseInfo.tag_name}</strong></p>
             <p>${releaseInfo.body}</p>
         `
-        const lang = getFrontendSettings().language;
+        const lang = getFrontendSettings().lang;
         switchLangueTexts(lang === "en" ? "ja" : "en");
 
         modal.style.display = 'block';

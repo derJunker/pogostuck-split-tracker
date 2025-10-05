@@ -24,7 +24,7 @@ export interface Settings {
 
     launchPogoOnStartup: boolean;
 
-    language: string;
+    lang: string;
 
     lastOpenedTab?: string
 }

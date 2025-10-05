@@ -32,7 +32,7 @@ export function addError(inputElement: HTMLInputElement, errorCode?: string, ...
         __electronLog.error('Tried to add an error but hiddenErrorElement is null');
         return
     }
-    hiddenErrorElement.innerText = getErrorMessage(errorCode, settings.language, ...args);
+    hiddenErrorElement.innerText = getErrorMessage(errorCode, settings.lang, ...args);
     hiddenErrorElement.classList.remove('hidden');
     const errorElement = hiddenErrorElement;
     setTimeout(() => {

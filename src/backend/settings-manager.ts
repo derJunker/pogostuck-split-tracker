@@ -294,14 +294,14 @@ export class SettingsManager {
         });
 
         ipcMain.handle('language-changed', (_event, language: string) => {
-            if (this.currentSettings.language === language)
+            if (this.currentSettings.lang === language)
                 return this.currentSettings;
             log.info(`[Setting] 'Language' changed to: ${language}`);
             if (language !== 'en' && language !== 'ja') {
                 log.error(`Language "${language}" not found!`);
                 return;
             }
-            this.currentSettings.language = language;
+            this.currentSettings.lang = language;
             this.saveSettings()
             return this.currentSettings;
         });
@@ -366,6 +366,8 @@ export class SettingsManager {
                 loadedSettings.hideWindowWhenPogoNotActive = true;
             if (typeof loadedSettings.steamPath === "undefined" && typeof loadedSettings.pogostuckSteamUserDataPath !== "undefined")
                 loadedSettings.steamPath = loadedSettings.pogostuckSteamUserDataPath;
+            if (typeof loadedSettings.pogostuckSteamUserDataPath !== "undefined")
+                loadedSettings.pogostuckSteamUserDataPath = undefined;
             if (typeof loadedSettings.userFriendCode === "undefined")
                 loadedSettings.userFriendCode = "";
             if (typeof loadedSettings.reverseUDModes === "undefined")
@@ -376,6 +378,15 @@ export class SettingsManager {
                 loadedSettings.showSoB = true;
             if (typeof loadedSettings.showPace === "undefined")
                 loadedSettings.showPace = true;
+            // Renamed language to lang, because my stupid ass, saved it the wrong way, so in settings "ja" means it
+            // showed it as "en". this is my fix :)
+            if (typeof loadedSettings.lang === "undefined") {
+                loadedSettings.lang = "en";
+                if (typeof loadedSettings.language !== "undefined") {
+                    loadedSettings.lang = loadedSettings.language === "en" ? "ja" : "en";
+                    loadedSettings.language = undefined;
+                }
+            }
             if (loadedSettings.steamPath) {
                 if (loadedSettings.steamPath.includes("688130") && loadedSettings.steamPath.includes("remote")) {
                     loadedSettings.steamPath = loadedSettings.steamPath.trim().replace(/([\\/])?688130[\\/]+remote([\\/])?$/, "");
@@ -420,7 +431,7 @@ export class SettingsManager {
                 skippedSplits: [],
 
                 launchPogoOnStartup: false,
-                language: "ja",
+                lang: "ja",
             };
         }
     }

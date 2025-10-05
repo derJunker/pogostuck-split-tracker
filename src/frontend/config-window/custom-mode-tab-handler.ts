@@ -6,7 +6,7 @@ import {
 import {addEmptyPbInputFields, setPbValuesToInputs} from "./pb-tab-handler";
 import {
     changeSelectionTo,
-    loadLevelsFromMappingSplitTab,
+    loadLevelsFromMappingSplitTab, reloadGoldSplits,
     updateModesForLevel,
     updateSplitsAndGolds
 } from "./splits-tab-handler";
@@ -61,6 +61,7 @@ export function initializeCustomModeTabHandler() {
     isUDModeToggle.addEventListener("change", async (e) => {
         const checked = (e.target as HTMLInputElement).checked;
         await window.electronAPI.onCustomModeIsUDModeChanged(checked, parseInt(modeSelect.value));
+        await reloadGoldSplits()
     });
     isRBToggle.addEventListener("change", async (e) => {
         const checked = (e.target as HTMLInputElement).checked;

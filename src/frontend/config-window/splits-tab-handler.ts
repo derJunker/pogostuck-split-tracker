@@ -83,7 +83,7 @@ export function loadLevelsFromMappingSplitTab() {
 
 
 
-async function reloadGoldSplits() {
+export async function reloadGoldSplits() {
     const mode = parseInt(modeSelect.value, 10);
     const map = parseInt(mapSelect.value, 10);
     const goldSplitSelection = document.getElementById('gold-split-selection')!
@@ -216,22 +216,27 @@ function appendAllGoldSplits(
         const lastSplitName = useOldNames ? "Start" : levelMappings.endSplitName;
         appendSplit(lastSplitName, udStart!.from, udStart!.to, divsToAppend, goldSplitTimes, mode);
     }
-    splitPath.forEach((splitPathEl) => {
-        let name = mapSplits.find((_name, index) => {
-            if (useOldNames || isUD)
-                return splitPathEl.from === index
-            return splitPathEl.to === index
-        })
-        if (!name) {
-            if (useOldNames) {
-                name = "Start"
-            } else {
-                if (isUD) return
-                else name = levelMappings.endSplitName
+    if (!isUD && splitPath.length === 1) {
+        const startSplitName = "Start";
+        appendSplit(startSplitName, splitPath[0].from, splitPath[0].to, divsToAppend, goldSplitTimes, mode);
+    } else {
+        splitPath.forEach((splitPathEl) => {
+            let name = mapSplits.find((_name, index) => {
+                if (useOldNames || isUD)
+                    return splitPathEl.from === index
+                return splitPathEl.to === index
+            })
+            if (!name) {
+                if (useOldNames) {
+                    name = "Start"
+                } else {
+                    if (isUD) return
+                    else name = levelMappings.endSplitName
+                }
             }
-        }
-        appendSplit(name, splitPathEl.from,  splitPathEl.to, divsToAppend, goldSplitTimes, mode);
-    })
+            appendSplit(name, splitPathEl.from, splitPathEl.to, divsToAppend, goldSplitTimes, mode);
+        })
+    }
     const finishDiv = document.createElement('div');
     finishDiv.id = 'final';
     finishDiv.textContent = 'Finish';

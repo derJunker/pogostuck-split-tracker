@@ -124,7 +124,11 @@ export class CustomModeHandler {
         }
         const hasChanged = mode.isUD !== isUDMode;
         mode.isUD = isUDMode;
-        if(hasChanged) this.saveCustomModesToFile();
+        if(hasChanged) {
+            const settingsManager = SettingsManager.getInstance();
+            settingsManager.clearCachedSplitPath(modeIndex)
+            this.saveCustomModesToFile()
+        }
     }
     private changeCustomModeIsRBMode(isRBMode: boolean, modeIndex: number) {
         const mode = this.customModes.find(cm => cm.modeIndex === modeIndex);

@@ -3,7 +3,7 @@ import * as path from 'path';
 import chokidar, { FSWatcher } from 'chokidar';
 import log from "electron-log/main";
 
-const DEBUG_PRINT_MESSAGES = false;
+const DEBUG_PRINT_MESSAGES = true;
 
 export class FileWatcher {
     private static instance: FileWatcher | null = null;
@@ -14,10 +14,14 @@ export class FileWatcher {
     private listeners: { regex: RegExp, callback: (match: RegExpMatchArray) => void }[] = [];
 
     // Listeners that need to wait for multiple things to be logged before they can act
-    private multiLineListeners: { regexes: {
+    private multiLineListeners: {
+        regexes: {
             regex: RegExp,
             match: RegExpMatchArray | null
-        }[], callback: (matches: RegExpMatchArray[]) => void }[] = [];
+        }[],
+        callback: (matches: RegExpMatchArray[]) => void
+        matchedIndex: number
+    }[] = [];
 
     private logsDetected = false;
     private constructor() {}
@@ -67,7 +71,7 @@ export class FileWatcher {
             throw new Error("MultiLineListener requires at least two regexes");
         }
         const regexObjs = regexes.map(r => ({ regex: r, match: null }));
-        this.multiLineListeners.push({ regexes: regexObjs, callback });
+        this.multiLineListeners.push({ regexes: regexObjs, callback, matchedIndex: -1 });
     }
 
     private watchFile(filePath: string) {
@@ -108,16 +112,17 @@ export class FileWatcher {
                                     }
                                 });
                                 this.multiLineListeners.forEach(multiListener => {
-                                    multiListener.regexes.forEach((regexObj, index) => {
-                                        const match = line.match(regexObj.regex);
-                                        if (match) {
-                                            regexObj.match = match;
-                                        }
-                                    });
-                                    const allMatched = multiListener.regexes.every(r => r.match);
+                                    const regexObj = multiListener.regexes[multiListener.matchedIndex+1]
+                                    const match = line.match(regexObj.regex);
+                                    if (match) {
+                                        regexObj.match = match;
+                                        multiListener.matchedIndex++;
+                                    }
+                                    const allMatched = multiListener.matchedIndex === multiListener.regexes.length - 1;
                                     if (allMatched) {
                                         const matches = multiListener.regexes.map(r => r.match!);
                                         multiListener.regexes.forEach(reg => reg.match = null);
+                                        multiListener.matchedIndex = -1;
                                         multiListener.callback(matches!)
                                     }
                                 });

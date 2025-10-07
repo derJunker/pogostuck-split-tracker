@@ -23,33 +23,48 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     const goldenSplitsTracker = GoldSplitsTracker.getInstance();
     const userStatTracker = UserStatTracker.getInstance();
 
+    const updateSplitsReg = /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/;
+    const playerPassSplitReg = /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\).*old\((?<old>-?\d+)\)(, map3RouteCurrent(.*))?.*runTimeCurrent\((?<time>\d+\.?\d*)\)/;
+
     // map or mode gets logged
     fileWatcher.registerListener(
-        /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/,
+        updateSplitsReg,
         (match) => {
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
             let modeNum = parseInt(mode);
+            const runInt = parseInt(run)
             log.info(`Map or mode logged; map: ${mapNum}, mode: ${modeNum} with run: ${run}`);
-            const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
-            if (changed) {
-                modeNum = stateTracker.getCurrentMode();
-                resetOverlay(mapNum, modeNum, overlayWindow);
-                settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
+            if (runInt === -1) {
+                const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
+                if (changed) {
+                    modeNum = stateTracker.getCurrentMode();
+                    resetOverlay(mapNum, modeNum, overlayWindow);
+                    settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
+                }
             }
         }
     );
 
     // split gets logged
-    fileWatcher.registerListener(
-        /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\).*old\((?<old>-?\d+)\)(, map3RouteCurrent(.*))?.*runTimeCurrent\((?<time>\d+\.?\d*)\)/,
-        (match) => {
-            const map = stateTracker.getCurrentMap();
-            const mode = stateTracker.getCurrentMode();
+    fileWatcher.registerMultiLineListener(
+        [playerPassSplitReg, updateSplitsReg],
+        (matches) => {
+            const splitPassMatch = matches[0];
+            const updateSplitsMatch = matches[1];
+            const { map: loggedMap, mode: loggedMode, run } = updateSplitsMatch.groups!;
+            let map = stateTracker.getCurrentMap();
+            let mode = stateTracker.getCurrentMode();
+            if (map === -1 || mode === -1) {
+                map = parseInt(loggedMap);
+                mode = parseInt(loggedMode);
+                stateTracker.updateMapAndMode(map, mode, configWindow)
+                resetOverlay(map, mode, overlayWindow)
+            }
             if (!isValidModeAndMap(map, mode)) {
                 return
             }
-            const { checkpoint, time } = match.groups!;
+            const { checkpoint, time } = splitPassMatch.groups!;
             stateTracker.ensuresRunStarted();
 
             const split = parseInt(checkpoint);
@@ -179,16 +194,16 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     )
 
     // dungeonSetInitialSeed(1) at frame 2144 -> lvl(0) seed(10737)
-    fileWatcher.registerMultiLineListener([
-        /dungeonSetInitialSeed\((?<setInitialSeed>-?\d+)\) at frame \d+ -> lvl\((?<lvl>0)\) seed\((?<seed>\d+)\)/,
-        /dungeon generation at frame \d+: lvl\(\d+\) coop\(\d\) isSpeedrun\((?<isSpeedrun>\d)\)/
-        ],
-        (matches) => {
-            const { seed } = matches[0].groups!;
-            const { isSpeedrun } = matches[1].groups!;
-            overlayWindow.webContents.send('loot-started', seed, isSpeedrun === "1");
-        }
-    )
+    // fileWatcher.registerMultiLineListener([
+    //     /dungeonSetInitialSeed\((?<setInitialSeed>-?\d+)\) at frame \d+ -> lvl\((?<lvl>0)\) seed\((?<seed>\d+)\)/,
+    //     /dungeon generation at frame \d+: lvl\(\d+\) coop\(\d\) isSpeedrun\((?<isSpeedrun>\d)\)/
+    //     ],
+    //     (matches) => {
+    //         const { seed } = matches[0].groups!;
+    //         const { isSpeedrun } = matches[1].groups!;
+    //         overlayWindow.webContents.send('loot-started', seed, isSpeedrun === "1");
+    //     }
+    // )
 }
 
 function onTimeToFileWrite(configWindow: BrowserWindow) {

@@ -33,15 +33,12 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
             let modeNum = parseInt(mode);
-            const runInt = parseInt(run)
             log.info(`Map or mode logged; map: ${mapNum}, mode: ${modeNum} with run: ${run}`);
-            if (runInt === -1) {
-                const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
-                if (changed) {
-                    modeNum = stateTracker.getCurrentMode();
-                    resetOverlay(mapNum, modeNum, overlayWindow);
-                    settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
-                }
+            const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
+            if (changed) {
+                modeNum = stateTracker.getCurrentMode();
+                resetOverlay(mapNum, modeNum, overlayWindow);
+                settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
             }
         }
     );

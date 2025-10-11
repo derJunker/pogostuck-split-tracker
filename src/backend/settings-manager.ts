@@ -434,7 +434,7 @@ export class SettingsManager {
                 skippedSplits: [],
 
                 launchPogoOnStartup: false,
-                lang: "ja",
+                lang: "en",
             };
         }
     }
@@ -567,7 +567,6 @@ export class SettingsManager {
 
     public attemptToFindUserDataPath(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
         log.info(`attempting to find userdata path for PogoStuck`);
-        let userDataPathWithNoFile = [...userDataPathEnd].slice(0, -1);
         const pogostuckPath = this.pogostuckSteamPath();
         const userdataRoot = path.join(pogostuckPath, "..", "..", "..", "userdata");
 
@@ -580,29 +579,48 @@ export class SettingsManager {
             .filter(dirent => dirent.isDirectory() && /^\d{5,12}$/.test(dirent.name))
             .map(dirent => dirent.name);
 
-        for (const folder of folders) {
-            const potentialPath = path.join(userdataRoot, folder, ...userDataPathWithNoFile);
-            if (existsSync(potentialPath)) {
-                log.info(`Found userdata path at ${potentialPath}, updating settings.`);
-                this.currentSettings.steamPath = path.join(userdataRoot, "..");
-                this.currentSettings.userFriendCode = folder;
-                CurrentStateTracker.getInstance().updatePathsValidity();
-                this.saveSettings();
-                configWindow.webContents.send("steam-user-data-path-found", path.join(userdataRoot, folder));
-                configWindow.webContents.send("steam-friend-code-found", path.join(userdataRoot, folder));
-                this.updateFrontendStatus(overlayWindow, configWindow);
-                const pbSplitTracker = PbSplitTracker.getInstance();
-                pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow)
-                GoldSplitsTracker.getInstance().updateGoldSplitsIfInPbSplits();
-                GoldPaceTracker.getInstance().updateGoldPacesIfInPbSplits()
-                writeGoldSplitsIfChanged(configWindow)
-                writeGoldPacesIfChanged(configWindow)
-
-                return;
-            }
+        log.info(`found these folders in userdataRoot: ${JSON.stringify(folders)}`);
+        const potentialFolders = folders.filter(folder => existsSync(path.join(userdataRoot, folder, ...userDataPathEnd)));
+        if (potentialFolders.length === 0) {
+            log.error(`No potential userdata folders found in ${userdataRoot}`);
         }
+        else if (potentialFolders.length > 1) {
+            log.warn(`Multiple potential userdata folders found in ${userdataRoot}, not setting steam friend code as a result; potential folders: ${JSON.stringify(potentialFolders)}`);
 
-        log.error(`Could not find valid userdata path in ${userdataRoot}`);
+            this.currentSettings.steamPath = path.join(userdataRoot, "..");
+            log.info(`set steam path to ${this.currentSettings.steamPath}`);
+
+            configWindow.webContents.send("steam-user-data-path-found", this.currentSettings.steamPath);
+            const stateTracker = CurrentStateTracker.getInstance();
+            stateTracker.updatePathsValidity();
+            this.updateFrontendStatus(overlayWindow, configWindow);
+            if (stateTracker.steamFriendCodeIsValid()) this.updateAllFriendCodeDependentData(configWindow, overlayWindow)
+        }
+        else if (potentialFolders.length === 1) {
+            log.info(`Found valid userdata folder: ${potentialFolders[0]} in ${userdataRoot}, setting steam friend code to it.`);
+            this.onCorrectUserDataDirAndFriendCodeFound(userdataRoot, potentialFolders[0], configWindow, overlayWindow)
+        }
+    }
+
+    private onCorrectUserDataDirAndFriendCodeFound(userdataRoot: string, folder: string, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
+        this.currentSettings.steamPath = path.join(userdataRoot, "..");
+        configWindow.webContents.send("steam-user-data-path-found", this.currentSettings.steamPath);
+        this.currentSettings.userFriendCode = folder;
+        configWindow.webContents.send("steam-friend-code-found", folder);
+        log.info(`set steam path to ${this.currentSettings.steamPath} and friend code to ${this.currentSettings.userFriendCode}`);
+        CurrentStateTracker.getInstance().updatePathsValidity();
+        this.saveSettings();
+        this.updateFrontendStatus(overlayWindow, configWindow);
+        this.updateAllFriendCodeDependentData(configWindow, overlayWindow)
+    }
+
+    private updateAllFriendCodeDependentData(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
+        const pbSplitTracker = PbSplitTracker.getInstance();
+        pbSplitTracker.updatePbSplitsFromFile(configWindow, overlayWindow)
+        GoldSplitsTracker.getInstance().updateGoldSplitsIfInPbSplits();
+        GoldPaceTracker.getInstance().updateGoldPacesIfInPbSplits()
+        writeGoldSplitsIfChanged(configWindow)
+        writeGoldPacesIfChanged(configWindow)
     }
 
     public deleteMode(modeIndex: number) {

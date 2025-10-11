@@ -106,9 +106,6 @@ function onActiveWindowChanged(overlayWindow: BrowserWindow, configWindow: Brows
     if (pogoIsActive) {
         pogostuckHasBeenOpenedOnce = true;
         const logsWatcher = FileWatcher.getInstance();
-        if (!logsWatcher.logsHaveBeenDetected()) {
-            log.warn("Pogostuck window detected but no logs detected yet. Most likely pogostuck is not run with '-diag'");
-        }
         const settingsManager = SettingsManager.getInstance();
         settingsManager.updateFrontendStatus(overlayWindow, configWindow)
     }

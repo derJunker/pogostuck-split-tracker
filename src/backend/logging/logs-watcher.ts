@@ -3,7 +3,7 @@ import * as path from 'path';
 import chokidar, { FSWatcher } from 'chokidar';
 import log from "electron-log/main";
 
-const DEBUG_PRINT_MESSAGES = true;
+const DEBUG_PRINT_MESSAGES = false;
 
 export class FileWatcher {
     private static instance: FileWatcher | null = null;
@@ -105,12 +105,6 @@ export class FileWatcher {
                                 if (DEBUG_PRINT_MESSAGES) {
                                     log.debug(`[LogWatcher]: ${line}`);
                                 }
-                                this.listeners.forEach(listener => {
-                                    const match = line.match(listener.regex);
-                                    if (match) {
-                                        listener.callback(match);
-                                    }
-                                });
                                 this.multiLineListeners.forEach(multiListener => {
                                     const regexObj = multiListener.regexes[multiListener.matchedIndex+1]
                                     const match = line.match(regexObj.regex);
@@ -124,6 +118,12 @@ export class FileWatcher {
                                         multiListener.regexes.forEach(reg => reg.match = null);
                                         multiListener.matchedIndex = -1;
                                         multiListener.callback(matches!)
+                                    }
+                                });
+                                this.listeners.forEach(listener => {
+                                    const match = line.match(listener.regex);
+                                    if (match) {
+                                        listener.callback(match);
                                     }
                                 });
                             });

@@ -250,7 +250,7 @@ window.electronAPI.mainMenuOpened(() => {
     document.getElementById('totals')!.style!.display = 'None';
     document.getElementById('custom-mode-display')!.style!.display = 'None';
 
-    document.getElementById('status-msg')!.style!.display = 'inline';
+    document.getElementById('status-msg')!.style!.display = '';
 });
 
 window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {

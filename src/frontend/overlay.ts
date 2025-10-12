@@ -296,18 +296,22 @@ window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBa
 
 window.electronAPI.changeGoldSplitColor((_event: Electron.IpcRendererEvent, goldSplitColor: string) => {
     __electronLog.info('[Frontend]: on changeGoldSplitColor: ', goldSplitColor)
+    document.documentElement.style.setProperty('--golden-split-col', goldSplitColor)
 })
 
 window.electronAPI.changeGoldPaceColor((_event: Electron.IpcRendererEvent, goldPaceColor: string) => {
     __electronLog.info('[Frontend]: on changeGoldPaceColor: ', goldPaceColor)
+    document.documentElement.style.setProperty('--golden-pace-col', goldPaceColor)
 })
 
 window.electronAPI.changeFastSplitColor((_event: Electron.IpcRendererEvent, fastSplitColor: string) => {
     __electronLog.info('[Frontend]: on changeFastSplitColor: ', fastSplitColor)
+    document.documentElement.style.setProperty('--early-col', fastSplitColor)
 })
 
 window.electronAPI.changeSlowSplitColor((_event: Electron.IpcRendererEvent, slowSplitColor: string) => {
     __electronLog.info('[Frontend]: on changeSlowSplitColor: ', slowSplitColor)
+    document.documentElement.style.setProperty('--late-col', slowSplitColor)
 })
 
 

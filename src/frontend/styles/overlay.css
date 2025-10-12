@@ -1,3 +1,11 @@
+:root {
+    /*Doing this with properties so i can easily change these with js*/
+    --golden-split-col: #ffd700;
+    --golden-pace-col: #64d4ff;
+    --early-col: #6f6;
+    --late-col: #f66;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -91,13 +99,13 @@ body {
 }
 
 .late {
-    color: #f66;
+    color: var(--late-col);
 }
 .early {
-    color: #6f6;
+    color: var(--early-col);
 }
 .golden {
-    color: #ffd700;
+    color: var(--golden-split-col);
 }
 
 .skipped {
@@ -105,7 +113,7 @@ body {
 }
 
 .gold-pace {
-    color: #64d4ff;
+    color: var(--golden-pace-col);
 }
 
 .split > span.split-diff .sign {

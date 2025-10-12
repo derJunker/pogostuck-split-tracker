@@ -404,6 +404,14 @@ export class SettingsManager {
                 loadedSettings.showSoB = true;
             if (typeof loadedSettings.showPace === "undefined")
                 loadedSettings.showPace = true;
+            if (typeof loadedSettings.goldSplitColor === "undefined")
+                loadedSettings.goldSplitColor = "#ffd700"
+            if (typeof loadedSettings.goldPaceColor === "undefined")
+                loadedSettings.goldPaceColor = "#64d4ff"
+            if (typeof loadedSettings.fastSplitColor === "undefined")
+                loadedSettings.fastSplitColor = "#66ff66"
+            if (typeof loadedSettings.slowSplitColor === "undefined")
+                loadedSettings.slowSplitColor = "#ff6666"
             // Renamed language to lang, because my stupid ass, saved it the wrong way, so in settings "ja" means it
             // showed it as "en". this is my fix :)
             if (typeof loadedSettings.lang === "undefined") {
@@ -450,10 +458,10 @@ export class SettingsManager {
 
                 enableBackgroundColor: false,
                 backgroundColor: "#000000",
-                goldSplitColor: "", // TOOD actually set these
-                goldPaceColor: "",
-                fastSplitColor: "",
-                slowSplitColor: "",
+                goldSplitColor: "#ffd700",
+                goldPaceColor: "#64d4ff",
+                fastSplitColor: "#66ff66",
+                slowSplitColor: "#ff6666",
 
                 hideWindowWhenPogoNotActive: true,
 

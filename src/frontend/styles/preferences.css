@@ -32,3 +32,11 @@
     margin: 1rem 0;
     font-size: 1.2rem;
 }
+
+#bg-col-inputs {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+}

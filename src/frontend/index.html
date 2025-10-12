@@ -437,30 +437,70 @@
                             デザイン
                         </span>
                         </div>
-                        <div class="toggle-switch option tooltip-trigger">
-                            <label for="enable-background-color" class="toggle-label">
-                                <span lang="en" style="display: none">Enable background color:</span>
-                                <span lang="ja" style="display: none">背景色を有効化:</span>
-                            </label>
-                            <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
-                            <button id="enable-background-color-custom" class="custom-checkbox"></button>
-                            <span class="tooltip-icon"></span>
-                            <span class="tooltip-content">
-                            <span lang="en" style="display: none">
-                                Let's you set a background color. This is helpful if you have the overlay on a 2nd
-                                monitor instead of over Pogostuck.
-                            </span>
-                            <span lang="ja" style="display: none">
-                                背景色を設定できます。オーバーレイをPogostuckの上ではなく、2番目のモニターに表示する場合に便利です。
-                            </span>
-                        </span>
-                        </div>
-                        <div class="option">
+                        <div class="option tooltip-trigger toggle-switch">
                             <label for="set-background-color" class="input-label">
-                                <span lang="en" style="display: none">Set background color:</span>
+                                <span lang="en" style="display: none">Background Color:</span>
                                 <span lang="ja" style="display: none">背景色を設定:</span>
                             </label>
-                            <input type="color" id="set-background-color" value="#000000">
+                            <span id="bg-col-inputs">
+                                <input type="checkbox" id="enable-background-color" class="toggle-checkbox">
+                                <button id="enable-background-color-custom" class="custom-checkbox"></button>
+                                <input type="color" id="set-background-color" value="#000000">
+                            </span>
+                            <span class="tooltip-icon"></span>
+                            <span class="tooltip-content">
+                                <span lang="en" style="display: none">
+                                    Let's you set a background color. This is helpful if you have the overlay on a 2nd
+                                    monitor instead of over Pogostuck.
+                                </span>
+                                <span lang="ja" style="display: none">
+                                背景色を設定できます。オーバーレイをPogostuckの上ではなく、2番目のモニターに表示する場合に便利です。
+                            </span>
+                            </span>
+                        </div>
+                        <div class="option">
+                            <label for="set-gold-split-color" class="input-label">
+                                <span lang="en" style="display: none">
+                                    Gold Split Color:
+                                </span>
+                                <span lang="ja" style="display: none">
+
+                                </span>
+                            </label>
+                            <input type="color" id="set-gold-split-color" value="#000000">
+                        </div>
+                        <div class="option">
+                            <label for="set-gold-pace-color" class="input-label">
+                                <span lang="en" style="display: none">
+                                    Best Pace Color:
+                                </span>
+                                <span lang="ja" style="display: none">
+
+                                </span>
+                            </label>
+                            <input type="color" id="set-gold-pace-color" value="#000000">
+                        </div>
+                        <div class="option">
+                            <label for="set-fast-split-color" class="input-label">
+                                <span lang="en" style="display: none">
+                                    Fast Split Difference Color:
+                                </span>
+                                <span lang="ja" style="display: none">
+
+                                </span>
+                            </label>
+                            <input type="color" id="set-fast-split-color" value="#000000">
+                        </div>
+                        <div class="option">
+                            <label for="set-slow-split-color" class="input-label">
+                                <span lang="en" style="display: none">
+                                    Slow Split Difference Color:
+                                </span>
+                                <span lang="ja" style="display: none">
+
+                                </span>
+                            </label>
+                            <input type="color" id="set-slow-split-color" value="#000000">
                         </div>
                     </div>
                 </div>

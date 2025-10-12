@@ -7,22 +7,26 @@ import {Settings} from "../../types/settings";
 export function initPathsTabListeners() {
     // Steam Path
     const steamPathInput = document.getElementById('steam-path-text') as HTMLInputElement;
+    const steamFriendCode = document.getElementById('steam-friend-code') as HTMLInputElement;
+
     steamPathInput.addEventListener('input', async () => {
         const value = steamPathInput.value;
-        const settings = updateFrontendSettings(await window.electronAPI.onSteamUserDataPathChanged(value))
+        const settings = updateFrontendSettings(await window.electronAPI.onSteamUserDataPathChanged(value, steamFriendCode.value))
         const wasValidPath = settings.steamPath === value;
+        const wasValidCode = settings.userFriendCode === steamFriendCode.value;
         if (wasValidPath) {
             removeError(steamPathInput);
-            await updateSplitsAndGolds()
-        }
-        else {
+            if (wasValidCode) {
+                removeError(steamFriendCode)
+                await updateSplitsAndGolds()
+            }
+        } else {
             addError(steamPathInput)
         }
     });
     addSettingsErrorValidator(steamPathInput, "Steam Path",
-        window.electronAPI.onSteamUserDataPathChanged, (settings) => settings.steamPath);
+        (steamPath: string) => window.electronAPI.onSteamUserDataPathChanged(steamPath, steamFriendCode.value), (settings) => settings.steamPath);
 
-    const steamFriendCode = document.getElementById('steam-friend-code') as HTMLInputElement;
     steamFriendCode.addEventListener('input', async (event) => {
         const value = steamFriendCode.value;
         const settings = updateFrontendSettings(await window.electronAPI.onSteamFriendCodeChanged(value))

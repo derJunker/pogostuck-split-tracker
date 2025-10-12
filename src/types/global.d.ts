@@ -39,7 +39,7 @@ declare global { interface Window {
         onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => Promise<Settings>;
         onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => Promise<Settings>;
         onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => Promise<Settings>;
-        onSteamUserDataPathChanged: (steamUserDataPath: string) => Promise<Settings>;
+        onSteamUserDataPathChanged: (steamUserDataPath: string, steamFriendCode: string) => Promise<Settings>;
         onSteamFriendCodeChanged: (steamFriendCode: string) => Promise<Settings>;
         onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => Promise<Settings>;
         onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => Promise<Settings>;

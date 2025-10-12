@@ -25,7 +25,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onLaunchPogoOnStartupChanged: (launchPogoOnStartup: boolean) => ipcRenderer.invoke('option-launch-pogo-on-startup', launchPogoOnStartup),
     onOptionShowNewSplitNamesChanged: (showNewSplitNames: boolean) => ipcRenderer.invoke('option-show-new-split-names-changed', showNewSplitNames),
     onOptionClickThroughOverlayChanged: (clickThroughOverlay: boolean) => ipcRenderer.invoke('option-click-through-overlay-changed', clickThroughOverlay),
-    onSteamUserDataPathChanged: (steamUserDataPath: string) => ipcRenderer.invoke('steam-path-changed', steamUserDataPath),
+    onSteamUserDataPathChanged: (steamUserDataPath: string, steamFriendCode: string) => ipcRenderer.invoke('steam-path-changed', steamUserDataPath, steamFriendCode),
     onSteamFriendCodeChanged: (steamFriendCode: string) => ipcRenderer.invoke('steam-friend-code-changed', steamFriendCode),
     onPogostuckConfigPathChanged: (pogostuckConfigPath: string) => ipcRenderer.invoke('pogostuck-config-path-changed', pogostuckConfigPath),
     onSkipSplitsChanged: (skippedSplits: {mode:number, skippedSplitIndices: number[]}) => ipcRenderer.invoke('skip-splits-changed', skippedSplits),

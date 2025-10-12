@@ -20,6 +20,8 @@ import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {execSync} from "child_process";
 import {Split} from "../types/mode-splits";
+import {Tokens} from "marked";
+import Br = Tokens.Br;
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -166,7 +168,7 @@ export class SettingsManager {
             overlayWindow.webContents.send('click-through-changed', clickThroughOverlay);
             return this.currentSettings
         });
-        ipcMain.handle("steam-path-changed", (_event, steamUserDataPath: string) => {
+        ipcMain.handle("steam-path-changed", (_event, steamUserDataPath: string, steamFriendCode: string) => {
             const settingsTxtPath = path.join(steamUserDataPath, "userdata")
             if (!existsSync(settingsTxtPath)) {
                 log.info(`Steam path does not exist: settingsPath calculated: ${settingsTxtPath} for steamUserDataPath: ${steamUserDataPath}`);
@@ -178,6 +180,10 @@ export class SettingsManager {
             this.currentSettings.steamPath = steamUserDataPath;
             stateTracker.updatePathsValidity()
             this.updateFrontendStatus(overlayWindow, configWindow)
+            // if the user treid to change the steam friend code before the steam path, revalidate the steam friend code
+            if (stateTracker.steamPathIsValid() && !stateTracker.steamFriendCodeIsValid() && steamFriendCode !== this.steamFriendCode()) {
+                this.onSteamFriendCodeChanged(steamFriendCode, configWindow, overlayWindow)
+            }
             if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
                 return this.currentSettings;
             }
@@ -186,21 +192,7 @@ export class SettingsManager {
             return this.currentSettings
         });
         ipcMain.handle('steam-friend-code-changed', (_event, steamFriendCode: string) => {
-            const steamPath = this.currentSettings.steamPath;
-            if (steamPath && fs.existsSync(path.join(steamPath, "userdata", steamFriendCode, ...userDataPathEnd))) {
-                log.info(`[Setting] 'Steam friend code' changed to: ${steamFriendCode}`);
-                this.currentSettings.userFriendCode = steamFriendCode;
-                this.saveSettings()
-            } else {
-                log.error(`Steam friend code ${steamFriendCode} does not exist in steam path: ${steamPath}`);
-            }
-            stateTracker.updatePathsValidity();
-            this.updateFrontendStatus(overlayWindow, configWindow)
-            if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
-                return this.currentSettings;
-            }
-            this.loadSteamUserdataInfoIntoApplication(stateTracker, pbSplitTracker, goldenSplitsTracker, goldenPaceTracker, configWindow, overlayWindow)
-            return this.currentSettings;
+            return this.onSteamFriendCodeChanged(steamFriendCode, configWindow, overlayWindow);
         });
         ipcMain.handle("pogostuck-config-path-changed", (_event, pogostuckConfPath: string) => {
             const exists = existsSync(pogostuckConfPath);
@@ -627,5 +619,33 @@ export class SettingsManager {
         // remove the mode from skippedsplits
         this.currentSettings.skippedSplits = this.currentSettings.skippedSplits.filter(s => s.mode !== modeIndex);
         this.saveSettings();
+    }
+
+    private onSteamFriendCodeChanged(steamFriendCode: string, configWindow: BrowserWindow, overlayWindow: BrowserWindow): Settings {
+        const stateTracker = CurrentStateTracker.getInstance();
+        const pbSplitTracker = PbSplitTracker.getInstance();
+        const goldenSplitsTracker = GoldSplitsTracker.getInstance();
+        const goldenPaceTracker = GoldPaceTracker.getInstance();
+
+        const steamPathValid = stateTracker.steamPathIsValid();
+        if (!steamPathValid) {
+            log.error(`Tried to change steam friend code, but steam path is not valid yet.`);
+            return this.currentSettings;
+        }
+        const steamPath = this.currentSettings.steamPath;
+        if (steamPath && fs.existsSync(path.join(steamPath, "userdata", steamFriendCode, ...userDataPathEnd))) {
+            log.info(`[Setting] 'Steam friend code' changed to: ${steamFriendCode}`);
+            this.currentSettings.userFriendCode = steamFriendCode;
+            this.saveSettings()
+        } else {
+            log.error(`Steam friend code ${steamFriendCode} does not exist in steam path: ${steamPath}`);
+        }
+        stateTracker.updatePathsValidity();
+        this.updateFrontendStatus(overlayWindow, configWindow)
+        if (!stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
+            return this.currentSettings;
+        }
+        this.loadSteamUserdataInfoIntoApplication(stateTracker, pbSplitTracker, goldenSplitsTracker, goldenPaceTracker, configWindow, overlayWindow)
+        return this.currentSettings;
     }
 }

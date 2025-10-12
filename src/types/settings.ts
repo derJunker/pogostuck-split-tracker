@@ -16,6 +16,10 @@ export interface Settings {
 
     enableBackgroundColor: boolean,
     backgroundColor: string,
+    goldSplitColor: string,
+    goldPaceColor: string,
+    fastSplitColor: string,
+    slowSplitColor: string,
 
     hideWindowWhenPogoNotActive: boolean,
 

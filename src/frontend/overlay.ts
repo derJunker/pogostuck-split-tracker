@@ -294,6 +294,24 @@ window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBa
     }
 })
 
+window.electronAPI.changeGoldSplitColor((_event: Electron.IpcRendererEvent, goldSplitColor: string) => {
+    __electronLog.info('[Frontend]: on changeGoldSplitColor: ', goldSplitColor)
+})
+
+window.electronAPI.changeGoldPaceColor((_event: Electron.IpcRendererEvent, goldPaceColor: string) => {
+    __electronLog.info('[Frontend]: on changeGoldPaceColor: ', goldPaceColor)
+})
+
+window.electronAPI.changeFastSplitColor((_event: Electron.IpcRendererEvent, fastSplitColor: string) => {
+    __electronLog.info('[Frontend]: on changeFastSplitColor: ', fastSplitColor)
+})
+
+window.electronAPI.changeSlowSplitColor((_event: Electron.IpcRendererEvent, slowSplitColor: string) => {
+    __electronLog.info('[Frontend]: on changeSlowSplitColor: ', slowSplitColor)
+})
+
+
+
 window.electronAPI.lootStarted((_event: Electron.IpcRendererEvent, seed: string, isSpeedrun: boolean) => setLootDisplay(seed, isSpeedrun))
 
 let stopwatch: Stopwatch | null = null;

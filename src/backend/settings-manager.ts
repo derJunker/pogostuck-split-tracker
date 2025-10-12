@@ -276,7 +276,38 @@ export class SettingsManager {
             }
             if (this.currentSettings.enableBackgroundColor)
                 overlayWindow.webContents.send('change-background', bgCol);
-            return this.currentSettings;
+        });
+        ipcMain.handle('gold-split-color-changed', (_event, bgCol: string) => {
+            if (this.currentSettings.goldSplitColor !== bgCol) {
+                this.currentSettings.goldSplitColor = bgCol;
+                log.info(`[Setting] 'Gold Split Color' changed to: ${bgCol}`);
+                this.saveSettings();
+            }
+            overlayWindow.webContents.send('change-gold-split-color', bgCol);
+        });
+        ipcMain.handle('gold-pace-color-changed', (_event, bgCol: string) => {
+            if (this.currentSettings.goldPaceColor !== bgCol) {
+                this.currentSettings.goldPaceColor = bgCol;
+                log.info(`[Setting] 'Gold Pace Color' changed to: ${bgCol}`);
+                this.saveSettings();
+            }
+            overlayWindow.webContents.send('change-gold-pace-color', bgCol);
+        });
+        ipcMain.handle('fast-split-color-changed', (_event, bgCol: string) => {
+            if (this.currentSettings.fastSplitColor !== bgCol) {
+                this.currentSettings.fastSplitColor = bgCol;
+                log.info(`[Setting] 'Fast Split Color' changed to: ${bgCol}`);
+                this.saveSettings();
+            }
+            overlayWindow.webContents.send('change-fast-split-color', bgCol);
+        });
+        ipcMain.handle('slow-split-color-changed', (_event, bgCol: string) => {
+            if (this.currentSettings.slowSplitColor !== bgCol) {
+                this.currentSettings.slowSplitColor = bgCol;
+                log.info(`[Setting] 'Slow Split Color' changed to: ${bgCol}`);
+                this.saveSettings();
+            }
+            overlayWindow.webContents.send('change-slow-split-color', bgCol);
         });
 
         ipcMain.handle('get-split-path', (_event, mode: number) => {
@@ -419,6 +450,10 @@ export class SettingsManager {
 
                 enableBackgroundColor: false,
                 backgroundColor: "#000000",
+                goldSplitColor: "", // TOOD actually set these
+                goldPaceColor: "",
+                fastSplitColor: "",
+                slowSplitColor: "",
 
                 hideWindowWhenPogoNotActive: true,
 

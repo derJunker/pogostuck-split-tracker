@@ -54,7 +54,11 @@ declare global { interface Window {
         onEnableBackgroundColorChanged: (enable: boolean) => Promise<Settings>;
         onShowSoBChanged: (showSoB: boolean) => Promise<Settings>;
         onShowPaceChanged: (showPace: boolean) => Promise<Settings>;
-        onBackgroundColorChanged: (color: string) => Promise<Settings>;
+        onBackgroundColorChanged: (color: string) => Promise<void>;
+        onGoldSplitColorColorChanged: (color: string) => Promise<void>;
+        onGoldPaceColorColorChanged: (color: string) => Promise<void>;
+        onFastSplitColorColorChanged: (color: string) => Promise<void>;
+        onSlowSplitColorColorChanged: (color: string) => Promise<void>;
         onLanguageChanged: (language: string) => Promise<Settings>;
         tabChanged: (tabId: string) => Promise<void>; // Dont have to return settings, because the frontend doesnt
         // need to save this, its only needed for the startup
@@ -100,6 +104,10 @@ declare global { interface Window {
 
         // Hintergrundfarbe ändern (Overlay)
         changeBackground: (callback: (event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => void) => void;
+        changeGoldSplitColor: (callback: (event: Electron.IpcRendererEvent, goldSplitColor: string) => void) => void;
+        changeGoldPaceColor: (callback: (event: Electron.IpcRendererEvent, goldPaceColor: string) => void) => void;
+        changeFastSplitColor: (callback: (event: Electron.IpcRendererEvent, fastSplitColor: string) => void) => void;
+        changeSlowSplitColor: (callback: (event: Electron.IpcRendererEvent, slowSplitColor: string) => void) => void;
     };
 } }
 

@@ -203,6 +203,13 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
 
 
 function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean) {
+    const totalsDiv =  document.getElementById('totals')!;
+    // changing the grid layout positions if there at most 1 of the sob or pace stats
+    if(!showSoB || !showPace) {
+        totalsDiv.classList?.add("two-children")
+    } else {
+        totalsDiv.classList?.remove("two-children")
+    }
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
     sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
 

@@ -164,6 +164,13 @@ body {
     gap:  0.2em;
 }
 
+#totals.two-children {
+    span:has(#sum-of-best),
+    span:has(#pace) {
+        grid-column: 2;
+    }
+}
+
 #custom-mode-display {
     padding-top: .2em;
     padding-right:  .2em;

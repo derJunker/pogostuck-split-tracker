@@ -25,7 +25,7 @@ declare global { interface Window {
         redrawOverlay: (callback: (event: Electron.IpcRendererEvent,
                                    pbRunInfoAndSoB: PbRunInfoAndSoB) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
-                                   splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean}) => void) => void;
+                                   splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route?: number}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
         onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => void) => void;
         onLastSplitGolden: (callback: (event: Electron.IpcRendererEvent) => void) => void;

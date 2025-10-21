@@ -5,6 +5,42 @@ import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 import {Stopwatch} from "./util/stopwatch";
 
+const map3Routes: { [key: number]: string[] } = {
+    0: [
+        "test",
+        "something",
+        "wow",
+        "test",
+        "something",
+        "wow",
+        "something",
+        "wow",
+    ],
+
+    1: [
+        "1test",
+        "1something",
+        "1wow",
+        "1test",
+        "1something",
+        "1wow",
+        "1something",
+        "1wow",
+    ],
+
+    2: [
+        "2test",
+        "2something",
+        "2wow",
+        "2test",
+        "2something",
+        "2wow",
+        "2something",
+        "2wow",
+    ],
+
+};
+
 function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const { splits, pb, sumOfBest, pace, settings, isUDMode } = pbRunInfo;
 
@@ -83,8 +119,8 @@ function toggleCustomModeDisplay(customModeName?: string) {
     }
 }
 
-function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean) {
-    __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace}`);
+function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route: number | undefined) {
+    __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace} map3Route: ${map3Route}`);
     const splitDiv = document.getElementById(splitKey.toString());
     if (splitDiv) {
         if (goldPace) {
@@ -118,6 +154,13 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             numSpan.textContent = formatPbTime(absDiff, true);
             diffSpan.appendChild(numSpan);
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
+        }
+
+        if (map3Route) {
+            const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
+            if (splitNameSpan) {
+                splitNameSpan.innerText = map3Routes[map3Route][splitKey];
+            }
         }
     }
 }
@@ -261,7 +304,7 @@ window.electronAPI.mainMenuOpened(() => {
 });
 
 window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {
-    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored);
+    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored, splitInfo.map3Route);
 });
 
 window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOfBest: number) => {

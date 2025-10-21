@@ -12,7 +12,6 @@ import log from "electron-log/main";
 import {BackupGoldSplitTracker} from "../data/backup-gold-split-tracker";
 import {writeUserStatsIfChanged} from "../file-reading/read-user-stats";
 import {UserStatTracker} from "../data/user-stat-tracker";
-import fs from "fs";
 
 export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     // The holy mother of singleton-definitions
@@ -100,8 +99,13 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 isGoldSplit = false;
                 diff = - timeAsFloat;
             }
+            let map3Route: number | undefined = undefined
+            if (map === 9) {
+                // TODO after pogostuck update, add the map3 route from regex
+                map3Route = 0;
+            }
             log.info(`Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime}`);
-            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored()});
+            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored(), map3Route: map3Route});
             overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode));
             if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),

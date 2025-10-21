@@ -226,6 +226,7 @@ export function getPbRunInfoAndSoB(
         pace: pace,
         settings: settingsManager.currentSettings,
         isUDMode: isUD,
+        map: mapNum,
         // only add custom mode name if it is not undefined
         customModeName: customModeName
     };

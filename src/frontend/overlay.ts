@@ -7,36 +7,36 @@ import {Stopwatch} from "./util/stopwatch";
 
 const map3Routes: { [key: number]: string[] } = {
     0: [
-        "test",
-        "something",
-        "wow",
-        "test",
-        "something",
-        "wow",
-        "something",
-        "wow",
+        "Bridge",
+        "Anvil Skip",
+        "Strawberries",
+        "Pirate Ship",
+        "Pelican",
+        "Bob's Corner",
+        "Roots",
+        "Rings Left",
     ],
 
     1: [
-        "1test",
-        "1something",
-        "1wow",
-        "1test",
-        "1something",
-        "1wow",
-        "1something",
-        "1wow",
+        "Bridge",
+        "Turtles Skip",
+        "Water",
+        "Caterpillars",
+        "Columns",
+        "Main Hall",
+        "Roots", // Maybe? this seems always to be Route A
+        "Rings Mid",
     ],
 
     2: [
-        "2test",
-        "2something",
-        "2wow",
-        "2test",
-        "2something",
-        "2wow",
-        "2something",
-        "2wow",
+        "Bridge",
+        "Turtles",
+        "Eggplants",
+        "Moais",
+        "Pears",
+        "Main Hall",
+        "Roots",
+        "Rings Right",
     ],
 
 };
@@ -61,7 +61,7 @@ function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace);
     toggleCustomModeDisplay(pbRunInfo.customModeName)
 
-    document.getElementById('totals')!.style!.display = 'grid';
+    document.getElementById('totals')!.style!.display = '';
     document.getElementById('status-msg')!.style!.display = 'none';
 }
 
@@ -156,7 +156,7 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
 
-        if (map3Route) {
+        if (map3Route !== undefined) {
             const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
             if (splitNameSpan) {
                 splitNameSpan.innerText = map3Routes[map3Route][splitKey];
@@ -194,13 +194,15 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
         if (splitInfoForEl.hide)
             splitDiv.style.display = 'none';
         else
-            splitDiv.style.display = 'grid';
+            splitDiv.style.display = '';
 
         const splitTime: HTMLElement = splitDiv.querySelector('.split-time')!;
         const splitName: HTMLElement = splitDiv.querySelector('.split-name')!;
         const splitDiff: HTMLElement = splitDiv.querySelector('.split-diff')!;
 
-        splitName.innerText = splitInfoForEl.name
+        if (pbRunInfoAndSoB.map !== 9) { // #9 is map3, dont redraw the split names, because they are route dependent
+            splitName.innerText = splitInfoForEl.name
+        }
 
         const potentialClassesFromDiff = splitDiff.className.match(/(early|late|golden)/g);
         splitTime.classList.remove("early", "late", "golden");
@@ -297,8 +299,8 @@ window.electronAPI.mainMenuOpened(() => {
     if (paceSpan) {
         paceSpan.textContent = '';
     }
-    document.getElementById('totals')!.style!.display = 'None';
-    document.getElementById('custom-mode-display')!.style!.display = 'None';
+    document.getElementById('totals')!.style!.display = 'none';
+    document.getElementById('custom-mode-display')!.style!.display = 'none';
 
     document.getElementById('status-msg')!.style!.display = '';
 });
@@ -345,22 +347,18 @@ window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBa
 })
 
 window.electronAPI.changeGoldSplitColor((_event: Electron.IpcRendererEvent, goldSplitColor: string) => {
-    __electronLog.info('[Frontend]: on changeGoldSplitColor: ', goldSplitColor)
     document.documentElement.style.setProperty('--golden-split-col', goldSplitColor)
 })
 
 window.electronAPI.changeGoldPaceColor((_event: Electron.IpcRendererEvent, goldPaceColor: string) => {
-    __electronLog.info('[Frontend]: on changeGoldPaceColor: ', goldPaceColor)
     document.documentElement.style.setProperty('--golden-pace-col', goldPaceColor)
 })
 
 window.electronAPI.changeFastSplitColor((_event: Electron.IpcRendererEvent, fastSplitColor: string) => {
-    __electronLog.info('[Frontend]: on changeFastSplitColor: ', fastSplitColor)
     document.documentElement.style.setProperty('--early-col', fastSplitColor)
 })
 
 window.electronAPI.changeSlowSplitColor((_event: Electron.IpcRendererEvent, slowSplitColor: string) => {
-    __electronLog.info('[Frontend]: on changeSlowSplitColor: ', slowSplitColor)
     document.documentElement.style.setProperty('--late-col', slowSplitColor)
 })
 

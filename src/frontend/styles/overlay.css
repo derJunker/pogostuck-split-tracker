@@ -63,7 +63,7 @@ body {
 #status-msg > div {
     padding-left: 1rem;
 }
-#status-msg >div:first-child {
+#status-msg > div:first-child {
     padding-left: 0;
 }
 
@@ -141,7 +141,7 @@ body {
 }
 
 #totals {
-    display: none;
+    display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: .5em;
 }

@@ -13,6 +13,7 @@ export interface PbRunInfoAndSoB {
     pace: number
     settings: Settings,
     isUDMode: boolean,
+    map: number,
     customModeName?: string
 }
 

@@ -9,10 +9,11 @@ const mappingsPath = path.join(app.getPath("userData"), "mappings.json");
 
 export class PogoNameMappings {
     private static instance: PogoNameMappings | null = null;
-    private nameMappings: PogoLevel[];
+    private readonly nameMappings: PogoLevel[];
 
     private constructor() {
         this.nameMappings = this.readMappingsFromFile();
+        this.migrateMap3MapNames()
     }
 
     public static getInstance(): PogoNameMappings {
@@ -113,5 +114,43 @@ export class PogoNameMappings {
             this.saveMappingsToFile();
             log.info(`Deleted mode ${modeIndex} from mappings`);
         }
+    }
+
+    private migrateMap3MapNames() {
+        const map3Mappings = this.nameMappings.find(map => map.mapIndex === 9)
+        log.info("checking if map 3 mappings should be migrated")
+        if (!map3Mappings) {
+            log.error(`idk how but map 3 splits are not existent!?`)
+            return;
+        }
+        const newSplitNames = [
+            "CHKP 1",
+            "CHKP 2",
+            "CHKP 3",
+            "CHKP 4",
+            "CHKP 5",
+            "CHKP 6",
+            "CHKP 7",
+            "CHKP 8"
+        ]
+        if (newSplitNames.length !== map3Mappings.splits.length) {
+            throw new Error("New map3 mappings are the wrong length!")
+        }
+        let allMatch = true;
+        for (let i  = 0; i < newSplitNames.length; i++) {
+            const currentSplitName = map3Mappings.splits[i];
+            const newSplitName = newSplitNames[i];
+            if (newSplitName !==  currentSplitName) {
+                log.info(`difference in split detected: ${currentSplitName} -> ${newSplitName}; migrating now`);
+                allMatch = false;
+                break;
+            }
+        }
+        if (allMatch) {
+            log.info("mappings already migrated")
+            return;
+        }
+        map3Mappings.splits = newSplitNames;
+        this.saveMappingsToFile();
     }
 }

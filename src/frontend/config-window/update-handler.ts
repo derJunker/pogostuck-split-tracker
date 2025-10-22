@@ -1,6 +1,7 @@
 import {switchLangueTexts} from "./language-handler";
 import {getFrontendSettings} from "./backend-state-handler";
 import {showDownloadingScreen} from "./loading-screen-handler";
+import DOMPurify from 'dompurify';
 
 window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, body: string, browser_download_url: string }) => {
     const modal = document.getElementById('new-release-modal') as HTMLElement;
@@ -9,7 +10,7 @@ window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, bo
     if (modal && content) {
         content.innerHTML = `
             <p>Version: <strong>${releaseInfo.tag_name}</strong></p>
-            <p>${releaseInfo.body}</p>
+            <p>${sanitizeHtml(releaseInfo.body)}</p>
         `
         const lang = getFrontendSettings().lang;
         switchLangueTexts(lang === "en" ? "ja" : "en");
@@ -33,6 +34,10 @@ window.electronAPI.onNewReleaseAvailable((_, releaseInfo: { tag_name: string, bo
         });
     }
 });
+
+function sanitizeHtml(html: string) {
+    return DOMPurify.sanitize(html)
+}
 
 window.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('new-release-modal');

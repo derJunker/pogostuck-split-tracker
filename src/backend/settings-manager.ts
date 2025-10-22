@@ -135,7 +135,7 @@ export class SettingsManager {
             }
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
-            resetOverlay(mapNum, modeNum, overlayWindow)
+            resetOverlay(mapNum, modeNum, overlayWindow, false)
             return this.currentSettings;
         });
         ipcMain.handle("option-launch-pogo-on-startup", (_event, launchPogoOnStartup: boolean) => {
@@ -536,7 +536,7 @@ export class SettingsManager {
         writeGoldPacesIfChanged(configWindow)
         const mapNum = stateTracker.getCurrentMap()
         const modeNum = stateTracker.getCurrentMode();
-        resetOverlay(mapNum, modeNum, overlayWindow);
+        resetOverlay(mapNum, modeNum, overlayWindow, true);
         this.saveSettings()
     }
 

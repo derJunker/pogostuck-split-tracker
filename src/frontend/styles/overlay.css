@@ -204,3 +204,19 @@ body {
 #loot-timer {
     text-align: end;
 }
+
+.animate-hidden.hidden {
+    transform: translateX(100%);
+}
+.animate-hidden:not(.hidden) {
+    transform: translate(0);
+}
+
+.animate-hidden {
+    opacity: 1;
+    transition: all 50ms ease-in-out;
+}
+
+.hidden {
+    opacity: 0!important;
+}

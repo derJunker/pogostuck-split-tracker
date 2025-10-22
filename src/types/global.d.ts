@@ -15,6 +15,7 @@ export interface PbRunInfoAndSoB {
     isUDMode: boolean,
     map: number,
     customModeName?: string
+    playAnimation: boolean,
 }
 
 declare global { interface Window {

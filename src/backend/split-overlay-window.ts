@@ -136,7 +136,7 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
     return {pogoIsActive: isPogostuck, configIsActive: isThisWindow};
 }
 
-export function resetOverlay(mapNum: number, modeNum: number, overlayWindow: BrowserWindow) {
+export function resetOverlay(mapNum: number, modeNum: number, overlayWindow: BrowserWindow, mapChanged: boolean) {
     log.info(`Resetting Overlay for map ${mapNum}, mode ${modeNum}`);
     const stateTracker = CurrentStateTracker.getInstance();
     if (!isValidModeAndMap(mapNum, modeNum) || !stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
@@ -144,7 +144,7 @@ export function resetOverlay(mapNum: number, modeNum: number, overlayWindow: Bro
         return;
     }
 
-    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum)
+    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, mapChanged)
     overlayWindow.webContents.send('reset-overlay', pbRunInfoAndSoB);
 }
 
@@ -157,14 +157,13 @@ export function redrawSplitDisplay(
     if (!isValidModeAndMap(mapNum, modeNum) || !stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
         return;
     }
-    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum);
+    const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, false);
     log.info(`[Backend] Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
 }
 
 export function getPbRunInfoAndSoB(
-    mapNum: number,
-    modeNum: number,
+    mapNum: number, modeNum: number, playAnimation: boolean,
 ): PbRunInfoAndSoB {
     const pbSplitTracker = PbSplitTracker.getInstance();
     const settingsManager = SettingsManager.getInstance();
@@ -228,7 +227,9 @@ export function getPbRunInfoAndSoB(
         isUDMode: isUD,
         map: mapNum,
         // only add custom mode name if it is not undefined
-        customModeName: customModeName
+        customModeName: customModeName,
+        // if the mode changed, used to animated the thing. if this is false no animation is played
+        playAnimation: playAnimation,
     };
 }
 

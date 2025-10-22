@@ -24,6 +24,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
 
     const updateSplitsReg = /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/;
     const playerPassSplitReg = /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\).*old\((?<old>-?\d+)\)(, map3RouteCurrent(.*))?.*runTimeCurrent\((?<time>\d+\.?\d*)\)/;
+    const playerReset = /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/
 
     // map or mode gets logged
     fileWatcher.registerListener(
@@ -31,14 +32,9 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
         (match) => {
             const { map, mode, run } = match.groups!;
             const mapNum = parseInt(map);
-            let modeNum = parseInt(mode);
-            log.info(`Map or mode logged; map: ${mapNum}, mode: ${modeNum} with run: ${run}`);
-            const changed = stateTracker.updateMapAndMode(mapNum, modeNum, configWindow);
-            if (changed) {
-                modeNum = stateTracker.getCurrentMode();
-                resetOverlay(mapNum, modeNum, overlayWindow);
-                settingsManager.updateMapAndModeInConfig(mapNum, modeNum, configWindow)
-            }
+            const modeNum = parseInt(mode);
+            const runNum = parseInt(run)
+            onMapOrModeChanged(mapNum, modeNum, runNum, overlayWindow, configWindow)
         }
     );
 
@@ -49,14 +45,10 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const splitPassMatch = matches[0];
             const updateSplitsMatch = matches[1];
             const { map: loggedMap, mode: loggedMode, run } = updateSplitsMatch.groups!;
-            let map = stateTracker.getCurrentMap();
-            let mode = stateTracker.getCurrentMode();
-            if (map === -1 || mode === -1) {
-                map = parseInt(loggedMap);
-                mode = parseInt(loggedMode);
-                stateTracker.updateMapAndMode(map, mode, configWindow)
-                resetOverlay(map, mode, overlayWindow)
-            }
+            const map = parseInt(loggedMap);
+            const mode = parseInt(loggedMode);
+            const runNum = parseInt(run)
+            onMapOrModeChanged(map, mode, runNum, overlayWindow, configWindow)
             if (!isValidModeAndMap(map, mode)) {
                 return
             }
@@ -106,7 +98,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             }
             log.info(`Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime}`);
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored(), map3Route: map3Route});
-            overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode));
+            overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode, false));
             if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),
                     pbSplitTracker.getSplitAmountForMode(stateTracker.getCurrentMode())));
@@ -115,11 +107,20 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     )
 
     // player reset gets logged
-    fileWatcher.registerListener(
-        /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/,
-        (match) => {
+    fileWatcher.registerMultiLineListener(
+        [playerReset, updateSplitsReg],
+        (matches) => {
+            const playerPassSplitMatch = matches[0]
+            const updateSplitsMatch = matches[1]
+            const {dontResetTime} = playerPassSplitMatch.groups!
+            const { map, mode, run } = updateSplitsMatch.groups!;
+            const mapNum = parseInt(map);
+            const modeNum = parseInt(mode);
+            const runNum = parseInt(run)
+            onMapOrModeChanged(mapNum, modeNum, runNum, overlayWindow, configWindow)
+
             // check if player died or sth similar where time is not reset
-            if (match.groups!.dontResetTime === "1") {
+            if (dontResetTime === "1") {
                 return;
             }
             if (!isValidModeAndMap(stateTracker.getCurrentMap(), stateTracker.getCurrentMode())) {
@@ -134,7 +135,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             } else {
                 stateTracker.resetRun();
             }
-            resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow);
+            resetOverlay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlayWindow, false);
             onTimeToFileWrite(configWindow);
         }
     )
@@ -212,5 +213,18 @@ function onTimeToFileWrite(configWindow: BrowserWindow) {
     writeGoldPacesIfChanged(configWindow)
     writeUserStatsIfChanged()
     BackupGoldSplitTracker.getInstance().saveBackupsIfChanged();
+}
+
+function onMapOrModeChanged(map: number, mode: number, run: number, overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+    const stateTracker = CurrentStateTracker.getInstance();
+    const settingsManager = SettingsManager.getInstance();
+    log.info(`Map or mode logged; map: ${map}, mode: ${mode} with run: ${run}`);
+    const {mapChanged, modeChanged} = stateTracker.updateMapAndMode(map, mode, configWindow);
+    if (mapChanged || modeChanged) {
+        log.debug(`Map changed ${modeChanged}; modeChanged: ${modeChanged}`);
+        mode = stateTracker.getCurrentMode();
+        resetOverlay(map, mode, overlayWindow, mapChanged);
+        settingsManager.updateMapAndModeInConfig(map, mode, configWindow)
+    }
 }
 

@@ -32,17 +32,21 @@ export class CurrentStateTracker {
         return CurrentStateTracker.instance;
     }
 
-    public updateMapAndMode(map: number, mode: number, configWindow: BrowserWindow, forceCustomModeStop?: boolean): boolean {
+    public updateMapAndMode(map: number, mode: number, configWindow: BrowserWindow, forceCustomModeStop?: boolean): {
+        mapChanged: boolean, modeChanged: boolean
+    } {
         mode = this.checkForCustomMode(map, mode, configWindow, forceCustomModeStop)
+        const mapChanged = this.map !== map;
+        const modeChanged = this.mode !== mode;
         if (this.map !== map || this.mode !== mode) {
             this.map = map;
             this.mode = mode;
             this.recordedSplits = [];
             this.finalTime = -1;
             log.info(`Map changed to ${map}, mode changed to ${mode}`);
-            return true;
+            return {mapChanged, modeChanged};
         }
-        return false;
+        return {mapChanged: false, modeChanged: false};
     }
 
     /**

@@ -5,6 +5,8 @@ import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 import {Stopwatch} from "./util/stopwatch";
 
+const animationDuration = 50;
+
 const map3Routes: { [key: number]: string[] } = {
     0: [
         "Bridge",
@@ -41,34 +43,53 @@ const map3Routes: { [key: number]: string[] } = {
 
 };
 
-function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest, pace, settings, isUDMode } = pbRunInfo;
+async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
+    const { splits, pb, sumOfBest, pace, settings, isUDMode, playAnimation } = pbRunInfo;
 
     setLootDisplay("")
     // Clear splits
     const splitsDiv = document.getElementById('splits');
-    if (splitsDiv) {
-        splitsDiv.innerHTML = '';
-        const reverseUDSplits = settings.reverseUDModes;
-        if (reverseUDSplits && isUDMode) {
-            splits.reverse();
-        }
-        splits.forEach((split: SplitInfo) => {
-            appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters);
-        });
+    if (!splitsDiv) return;
+    if (playAnimation) {
+        await playAnimations([
+            {animation: hideAnimation, id: 'status-msg'},
+        ])
+        hide('splits')
+    } else {
+        hide('status-msg')
+        hide('splits')
+        hide('totals')
     }
+    splitsDiv.innerHTML = '';
+    const reverseUDSplits = settings.reverseUDModes;
+    if (reverseUDSplits && isUDMode) {
+        splits.reverse();
+    }
+    splits.forEach((split: SplitInfo) => {
+        appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation);
+    });
+    if (playAnimation) await new Promise(resolve => setTimeout(resolve, animationDuration));
     // Sum of Best und PB setzen
     resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace);
     toggleCustomModeDisplay(pbRunInfo.customModeName)
-
-    document.getElementById('totals')!.style!.display = '';
-    document.getElementById('status-msg')!.style!.display = 'none';
+    if (playAnimation) {
+        playAnimations([
+            {animation: showSplits, id: 'splits'},
+            {animation: showAnimation, id: 'totals'},
+        ]).then(() => {/*doin nothing*/})
+    } else {
+        show('splits')
+        show('totals')
+    }
 }
 
-function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean) {
+function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean, animate: boolean) {
     const skippedClass = split.skipped ? 'skipped' : null;
     const splitDiv = document.createElement('div');
     splitDiv.className = 'split';
+    if (animate) {
+        splitDiv.classList.add('animate-hidden', 'hidden')
+    }
     splitDiv.id = split.split.toString();
 
     const nameSpan = document.createElement('span');
@@ -165,9 +186,9 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
     }
 }
 
-window.electronAPI.resetOverlay((_event: Electron.IpcRendererEvent,
+window.electronAPI.resetOverlay(async (_event: Electron.IpcRendererEvent,
                                        pbRunInfo: PbRunInfoAndSoB) => {
-    loadMapMode(pbRunInfo);
+    await loadMapMode(pbRunInfo);
 });
 
 window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notClickThrough: boolean) => {
@@ -440,4 +461,75 @@ function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, fr
         }
     }
     return msg;
+}
+
+async function playAnimations(animations: { animation: (element: HTMLElement) => Promise<void>; id: string; }[]) {
+    if (animations.length === 0) return;
+    const first = animations.shift()!;
+    const element = document.getElementById(first.id)
+    if (!element) {
+        __electronLog.error(`could not find element by id: '${first.id}' when animating`)
+        await playAnimations(animations); // just play the rest of the animations regardless of this error.
+        return;
+    }
+
+    // recursively play rest of animations
+    await first.animation(element)
+    await playAnimations(animations);
+}
+
+function hide(id: string) {
+    const element = document.getElementById(id);
+    if (!element) {
+        __electronLog.error(`when hiding couldn't find element with id ${id}`)
+        return;
+    }
+    element.style.display = "none";
+}
+
+function show(id: string) {
+    const element = document.getElementById(id);
+    if (!element) {
+        __electronLog.error(`when showing couldn't find element with id ${id}`)
+        return;
+    }
+    element.style.display = "";
+}
+
+
+async function hideAnimation(element: HTMLElement) {
+    element.classList.add("hidden")
+    return new Promise<void>(function (resolve, reject) {
+        setTimeout(() => {
+            element.classList.remove("hidden")
+            element.style.display = "none";
+            requestAnimationFrame(() => resolve())
+        }, animationDuration)
+    })
+}
+
+async function showAnimation(element: HTMLElement) {
+    element.style.display = "";
+    element.classList.add("hidden")
+
+    return new Promise<void>(function (resolve, reject) {
+        setTimeout(() => {
+            element.classList.remove("hidden")
+            requestAnimationFrame(() => resolve())
+        }, animationDuration/2)
+    })
+}
+
+async function showSplits(splitsDiv: HTMLElement) {
+    const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
+    splitsDiv.style.display = "";
+    const animations = splits.filter((split) => !split.querySelector(".skipped")).map((split) => ({animation: showAnimation, id: split.id}))
+    await playAnimations(animations);
+}
+
+async function hideSplits(splitsDiv: HTMLElement) {
+    const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
+    const animations = splits.filter((split) => !split.querySelector(".skipped")).map((split) => ({animation: hideAnimation, id: split.id}))
+    await playAnimations(animations);
+    splitsDiv.style.display = "none";
 }

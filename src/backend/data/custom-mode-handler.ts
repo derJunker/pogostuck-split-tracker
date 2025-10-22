@@ -48,7 +48,7 @@ export class CustomModeHandler {
         this.underlyingMode = underlyingMode;
         this.mapForCustomMode = map;
         if (underlyingMode !== -1)
-            resetOverlay(map, customMode, overlayWindow);
+            resetOverlay(map, customMode, overlayWindow, false);
     }
 
     public isCustomMode(map: number, mode: number): boolean {
@@ -211,7 +211,7 @@ export class CustomModeHandler {
         }
         this.clearCustomMode(configWindow)
         stateTracker.updateMapAndMode(stateTracker.getCurrentMap(), newMode, configWindow)
-        resetOverlay(stateTracker.getCurrentMap(), newMode, overlayWindow);
+        resetOverlay(stateTracker.getCurrentMap(), newMode, overlayWindow, false);
         return true;
     }
 
@@ -253,7 +253,7 @@ export class CustomModeHandler {
             log.debug(` map: ${map}, underlyingMode: ${underlyingMode}`);
             this.clearCustomMode(configWindow);
             stateTracker.updateMapAndMode(map, underlyingMode, configWindow, true)
-            resetOverlay(map, underlyingMode, overlayWindow);
+            resetOverlay(map, underlyingMode, overlayWindow, false);
         }
     }
 

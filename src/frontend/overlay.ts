@@ -45,22 +45,20 @@ const map3Routes: { [key: number]: string[] } = {
 
 async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const { splits, pb, sumOfBest, pace, settings, isUDMode, playAnimation } = pbRunInfo;
-
+    __electronLog.debug(`loading map and mode with animation: ${playAnimation}`);
     setLootDisplay("")
     // Clear splits
     const splitsDiv = document.getElementById('splits');
     if (!splitsDiv) return;
+    splitsDiv.innerHTML = '';
     if (playAnimation) {
-        await playAnimations([
-            {animation: hideAnimation, id: 'status-msg'},
-        ])
+        await playAnimations({animation: hideAnimation, id: 'status-msg'})
         hide('splits')
     } else {
         hide('status-msg')
         hide('splits')
         hide('totals')
     }
-    splitsDiv.innerHTML = '';
     const reverseUDSplits = settings.reverseUDModes;
     if (reverseUDSplits && isUDMode) {
         splits.reverse();
@@ -68,27 +66,30 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     splits.forEach((split: SplitInfo) => {
         appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation);
     });
-    if (playAnimation) await new Promise(resolve => setTimeout(resolve, animationDuration));
     // Sum of Best und PB setzen
     resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace);
     toggleCustomModeDisplay(pbRunInfo.customModeName)
     if (playAnimation) {
-        playAnimations([
-            {animation: showSplits, id: 'splits'},
+        show('splits')
+        await playAnimations(
+            {animation: (splitDiv: HTMLElement) => showSplits(splitDiv, pbRunInfo), element: splitsDiv},
             {animation: showAnimation, id: 'totals'},
-        ]).then(() => {/*doin nothing*/})
+        ).then(() => {/*doin nothing*/})
     } else {
         show('splits')
         show('totals')
     }
+
+    __electronLog.debug(`finished loading map and mode animate: ${playAnimation}`);
 }
 
 function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean, animate: boolean) {
     const skippedClass = split.skipped ? 'skipped' : null;
     const splitDiv = document.createElement('div');
     splitDiv.className = 'split';
+    splitDiv.classList.add('animate-hidden')
     if (animate) {
-        splitDiv.classList.add('animate-hidden', 'hidden')
+        splitDiv.classList.add('hidden')
     }
     splitDiv.id = split.split.toString();
 
@@ -186,10 +187,41 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
     }
 }
 
+const awaitingResets: PbRunInfoAndSoB[] = [];
+let isProcessingResets = false;
+
 window.electronAPI.resetOverlay(async (_event: Electron.IpcRendererEvent,
                                        pbRunInfo: PbRunInfoAndSoB) => {
-    await loadMapMode(pbRunInfo);
+    addToResetOverlayQueue(pbRunInfo)
 });
+
+async function processResetQueue() {
+    if (isProcessingResets) return;
+    isProcessingResets = true;
+    while (awaitingResets.length > 0) {
+        const nextItem = awaitingResets.shift()!;
+        __electronLog.debug(`[Queue] processing next item. queue length now: ${awaitingResets.length}`);
+        try {
+            await loadMapMode(nextItem);
+            __electronLog.debug(`[Queue] finished loadingMapMode`);
+        } catch (err) {
+            __electronLog.error(`[Queue] error while loadingMapMode: ${err}`);
+        }
+    }
+    isProcessingResets = false;
+    __electronLog.debug("[Queue] done");
+}
+
+function addToResetOverlayQueue(pbRunInfo: PbRunInfoAndSoB, next: boolean = false) {
+    if (!next) {
+        awaitingResets.push(pbRunInfo);
+        __electronLog.debug(`[Queue] adding to request queue. queue length now: ${awaitingResets.length}`)
+    } else {
+        // ensure the provided item is processed next
+        awaitingResets.unshift(pbRunInfo);
+    }
+    void processResetQueue();
+}
 
 window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notClickThrough: boolean) => {
     const body = document.querySelector("body")!
@@ -463,19 +495,26 @@ function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, fr
     return msg;
 }
 
-async function playAnimations(animations: { animation: (element: HTMLElement) => Promise<void>; id: string; }[]) {
-    if (animations.length === 0) return;
+async function playAnimations(...animations: { animation: (element: HTMLElement) => Promise<void>; id?: string; element?: HTMLElement }[]) {
+    if (animations.length === 0) {
+        await new Promise<void>((resolve) => setTimeout(() => resolve(), animationDuration));
+        return;
+    }
     const first = animations.shift()!;
-    const element = document.getElementById(first.id)
+    if (!first.id && !first.element) {
+        throw new Error('Invalid animation, either id or element must be provided');
+    }
+    const element = first.element || document.getElementById(first.id!)
     if (!element) {
         __electronLog.error(`could not find element by id: '${first.id}' when animating`)
-        await playAnimations(animations); // just play the rest of the animations regardless of this error.
+        __electronLog.error(`children of splitdiv: ${Array.from(document.getElementById("splits")!.children)}`)
+        await playAnimations(...animations); // just play the rest of the animations regardless of this error.
         return;
     }
 
     // recursively play rest of animations
     await first.animation(element)
-    await playAnimations(animations);
+    await playAnimations(...animations);
 }
 
 function hide(id: string) {
@@ -520,16 +559,25 @@ async function showAnimation(element: HTMLElement) {
     })
 }
 
-async function showSplits(splitsDiv: HTMLElement) {
+async function showSplits(splitsDiv: HTMLElement, pbRunInfo: PbRunInfoAndSoB) {
     const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
     splitsDiv.style.display = "";
-    const animations = splits.filter((split) => !split.querySelector(".skipped")).map((split) => ({animation: showAnimation, id: split.id}))
-    await playAnimations(animations);
+    const animations = splits
+        .filter((splitEl) => {
+            const splitInfo = pbRunInfo.splits.find((s) => s.split === parseInt(splitEl.id));
+            if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
+            return !splitInfo.skipped || (!splitInfo.hide)
+        })
+        .map((split) => ({animation: showAnimation, element: split}))
+    return new Promise<void>((resolve) => requestAnimationFrame(async () => {
+        await playAnimations(...animations);
+        resolve()
+    }))
 }
 
 async function hideSplits(splitsDiv: HTMLElement) {
     const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
     const animations = splits.filter((split) => !split.querySelector(".skipped")).map((split) => ({animation: hideAnimation, id: split.id}))
-    await playAnimations(animations);
+    await playAnimations(...animations);
     splitsDiv.style.display = "none";
 }

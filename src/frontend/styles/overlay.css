@@ -14,10 +14,8 @@ body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
     font-size: min(max(min(4.1vw, 7.5vh), 10px), 48px);
-    font-weight: bold;
     -webkit-app-region: drag;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-stroke-color: black;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
     user-select: none;
     display: flex;
     flex-direction: column;
@@ -25,7 +23,7 @@ body {
     justify-content: flex-start;
     height: 100vh;
     margin: 0;
-    line-height: 0.8;
+    line-height: .8;
     overflow: hidden;
     position: relative;
 }
@@ -78,7 +76,9 @@ body {
 .split-name {
     text-overflow: ellipsis;
     min-width: 0;
-    overflow: hidden;
+    overflow-x: clip;;
+    overflow-y: visible;
+
     white-space: nowrap;
 }
 
@@ -206,7 +206,7 @@ body {
 }
 
 .animate-hidden.hidden {
-    transform: translateX(100%);
+    /*transform: translateX(100%);*/
 }
 .animate-hidden:not(.hidden) {
     transform: translate(0);

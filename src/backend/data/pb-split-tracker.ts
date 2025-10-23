@@ -72,6 +72,10 @@ export class PbSplitTracker {
         }
     }
 
+    public deleteMode(mode: number) {
+        this.modeTimes = this.modeTimes.filter(m => m.mode !== mode);
+    }
+
     public updatePbSplitsFromFile(configWindow: BrowserWindow, overlayWindow: BrowserWindow) {
         const userDataReader = UserDataReader.getInstance()
         const customModeHandler = CustomModeHandler.getInstance();

@@ -54,7 +54,7 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     if (playAnimation) {
         await playAnimations(
             {animation: hideAnimation, id: 'status-msg'},
-            {animation: (splitDiv: HTMLElement) => hideSplits(splitDiv, pbRunInfo), element: splitsDiv},
+            {animation: hideAnimation, element: splitsDiv},
             {animation: hideAnimation, id: 'totals'},
         )
     } else {
@@ -155,9 +155,9 @@ async function toggleCustomModeDisplay(customModeName: string | undefined, anima
     }
 }
 
-function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route: number | undefined) {
+function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route: number | undefined) {
     __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace} map3Route: ${map3Route}`);
-    const splitDiv = document.getElementById(splitKey.toString());
+    const splitDiv = document.getElementById(splitKey);
     if (splitDiv) {
         if (goldPace) {
             const nameSpan = splitDiv.querySelector('.split-name')!;
@@ -192,10 +192,10 @@ function addSplitTimeAndDiff(splitKey: number, splitTime: number, diff: number, 
             diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
         }
 
-        if (map3Route !== undefined) {
+        if (map3Route !== undefined && splitKey !== "pb") {
             const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
             if (splitNameSpan) {
-                splitNameSpan.innerText = map3Routes[map3Route][splitKey];
+                splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
             }
         }
     }
@@ -357,7 +357,7 @@ async function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: 
 window.electronAPI.mainMenuOpened(async () => {
     const splitsDiv = document.getElementById('splits');
     if (splitsDiv) {
-        await hideSplits(splitsDiv)
+        await hideAnimation(splitsDiv)
         splitsDiv.innerHTML = '';
     }
     await setLootDisplay("")
@@ -373,7 +373,7 @@ window.electronAPI.mainMenuOpened(async () => {
 });
 
 window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {
-    addSplitTimeAndDiff(splitInfo.splitIndex, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored, splitInfo.map3Route);
+    addSplitTimeAndDiff(splitInfo.splitId, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored, splitInfo.map3Route);
 });
 
 window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOfBest: number) => {
@@ -381,10 +381,6 @@ window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOf
     if (sumOfBestSpan) {
         sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
     }
-});
-
-window.electronAPI.onLastSplitGolden(() => {
-// Maybe sth? currently empty
 });
 
 window.electronAPI.onStatusChanged(async (_event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
@@ -626,16 +622,16 @@ async function showSplits(splitsDiv: HTMLElement, pbRunInfo: PbRunInfoAndSoB) {
     }))
 }
 
-async function hideSplits(splitsDiv: HTMLElement, pbRunInfo?: PbRunInfoAndSoB) {
-    const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
-    const animations = splits
-        .filter((splitEl) => {
-            if (!pbRunInfo) return true;
-            const splitInfo = pbRunInfo.splits.find((s) => s.split === splitEl.id);
-            if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
-            return !splitInfo.skipped || (!splitInfo.hide)
-        })
-        .map((split) => ({animation: hideAnimation, id: split.id}))
-    await playAnimations(...animations);
-    splitsDiv.style.display = "none";
-}
+// async function hideSplits(splitsDiv: HTMLElement, pbRunInfo?: PbRunInfoAndSoB) {
+//     const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
+//     const animations = splits
+//         .filter((splitEl) => {
+//             if (!pbRunInfo) return true;
+//             const splitInfo = pbRunInfo.splits.find((s) => s.split === splitEl.id);
+//             if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
+//             return !splitInfo.skipped || (!splitInfo.hide)
+//         })
+//         .map((split) => ({animation: hideAnimation, id: split.id}))
+//     await playAnimations(...animations);
+//     splitsDiv.style.display = "none";
+// }

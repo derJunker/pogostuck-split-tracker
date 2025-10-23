@@ -46,12 +46,13 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             const updateSplitsMatch = matches[1];
             const { map: loggedMap, mode: loggedMode, run } = updateSplitsMatch.groups!;
             const map = parseInt(loggedMap);
-            const mode = parseInt(loggedMode);
+            let mode = parseInt(loggedMode);
             const runNum = parseInt(run)
             onMapOrModeChanged(map, mode, runNum, overlayWindow, configWindow)
             if (!isValidModeAndMap(map, mode)) {
                 return
             }
+            mode = stateTracker.getCurrentMode(); // in case mode was changed due custom modes
             const { checkpoint, time } = splitPassMatch.groups!;
             stateTracker.ensuresRunStarted();
 
@@ -76,7 +77,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                     log.debug(`calculated pbTime ${pbTime} goldSplitTime: ${goldSplitTime}, goldSplitPace: ${goldSplitPace} from ${JSON.stringify(goldSplitsForMode.goldenSplits)}`);
                 }
             } else {
-                pbTime = pbSplitTracker.getPbTimeForSplit(stateTracker.getCurrentMode(), split);
+                pbTime = pbSplitTracker.getPbTimeForSplit(mode, split);
             }
             const firstTimePass = pbTime === Infinity || pbTime <= 0
             let diff;
@@ -96,12 +97,12 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 // TODO after pogostuck update, add the map3 route from regex
                 map3Route = 0;
             }
-            log.info(`Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime}`);
-            overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored(), map3Route: map3Route});
+            log.info(`mode: ${mode} Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime} firstTimePass: ${firstTimePass} isGoldSplit: ${isGoldSplit}, isGoldPace: ${isGoldPace}`);
+            overlayWindow.webContents.send('split-passed', { splitId: split.toString(), splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored(), map3Route: map3Route});
             overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode, false), false);
             if (isGoldSplit) {
-                overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),
-                    pbSplitTracker.getSplitAmountForMode(stateTracker.getCurrentMode())));
+                overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(mode,
+                    pbSplitTracker.getSplitAmountForMode(mode)));
             }
         }
     )

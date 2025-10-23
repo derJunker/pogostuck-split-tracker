@@ -126,7 +126,7 @@ export class CurrentStateTracker {
 
         let isGoldPace = false;
         const goldPace = goldPaceTracker.getGoldPaceForSplit(this.mode, split);
-        if (!goldPace || goldPace.time > time || goldPace.time === 0) {
+        if (!goldPace || goldPace.time > time || goldPace.time === 0 || goldPace?.time == null) {
             goldPaceTracker.updateGoldPace(this.mode, split, time);
             log.info(`New gold pace for mode ${this.mode} at split ${split} with time ${time}, old was ${goldPace?.time}`);
             isGoldPace = true;
@@ -137,10 +137,13 @@ export class CurrentStateTracker {
     }
 
     public finishedRun(time: number, igPbTime: number, configWindow: BrowserWindow, overlay: BrowserWindow): void {
+        const settingsManager = SettingsManager.getInstance();
         const goldSplitsTracker = GoldSplitsTracker.getInstance();
         const pbTracker = PbSplitTracker.getInstance();
         const customModeHandler = CustomModeHandler.getInstance()
         const pogoMappings = PogoNameMappings.getInstance()
+        const stateTracker = CurrentStateTracker.getInstance();
+
         this.finalTime = time;
         let pb = goldSplitsTracker.getPbForMode(this.mode)
         log.info(`Run finished with time: ${time} registered ingame pb time: ${igPbTime} programmed pb time: ${pb}`);
@@ -156,6 +159,7 @@ export class CurrentStateTracker {
         const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode)
         log.info(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
         log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
+        let lastSplitIsGold = false;
         if (lastGoldSplit.from !== lastSplit.split) {
             log.warn(`Last gold split from ${lastGoldSplit.from} does not match last split ${lastSplit.split}, not updating gold split.`);
         }
@@ -163,7 +167,9 @@ export class CurrentStateTracker {
             goldSplitsTracker.updateGoldSplit(this.mode, lastGoldSplit.from, lastGoldSplit.to, lastDiff);
             const backupGoldTracker = BackupGoldSplitTracker.getInstance()
             backupGoldTracker.addBackup(lastGoldSplit.time, {from: lastGoldSplit.from, to: lastGoldSplit.to}, this.mode)
-            overlay.webContents.send("last-split-gold");
+            lastSplitIsGold = true;
+            overlay.webContents.send("golden-split-passed", goldSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),
+                pbTracker.getSplitAmountForMode(stateTracker.getCurrentMode())));
             log.info(`New best split for ${lastGoldSplit.from} to ${lastGoldSplit.to} with diff: ${lastDiff}`);
         }
         if (igPbTime < 0)
@@ -171,13 +177,13 @@ export class CurrentStateTracker {
 
         const isCustom = customModeHandler.isCustomMode(this.map, this.mode);
         const pbTimeMismatch = pb !== igPbTime;
-        const stateTracker = CurrentStateTracker.getInstance();
-
+        let isPbImproved = false;
         if (pbTimeMismatch && !isCustom) { // kinda redundant, but reads better
             log.warn(`PB time mismatch: entered:vs actual: ${igPbTime}. This might have caused a faulty last Goldsplit. Not my fault tho:)`);
             pb = igPbTime;
         }
         if (this.finalTime < pb) {
+            isPbImproved = true;
             log.info(`New personal best: ${this.finalTime}`);
             pbTracker.setSplitsForMode(this.mode, this.recordedSplits);
             goldSplitsTracker.updatePbForMode(this.mode, this.finalTime)
@@ -200,6 +206,15 @@ export class CurrentStateTracker {
             redrawSplitDisplay(stateTracker.getCurrentMap(), stateTracker.getCurrentMode(), overlay);
             configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: pb})
         }
+
+        overlay.webContents.send('split-passed', {
+            splitId: "pb",
+            splitTime: time,
+            splitDiff: this.finalTime - pb,
+            golden: lastSplitIsGold,
+            goldPace: isPbImproved,
+            onlyDiffColored: settingsManager.onlyDiffColored(),
+        });
     }
 
     public resetRun() {

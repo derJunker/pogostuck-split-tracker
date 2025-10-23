@@ -14,6 +14,7 @@ import {SettingsManager} from "../settings-manager";
 import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
 import {UserStatTracker} from "./user-stat-tracker";
 import {CustomModeInfo} from "../../types/CustomMode";
+import {PbSplitTracker} from "./pb-split-tracker";
 
 const customModesPath = path.join(app.getPath("userData"), "custom-modes.json");
 
@@ -238,6 +239,8 @@ export class CustomModeHandler {
         BackupGoldSplitTracker.getInstance().deleteMode(modeIndex)
 
         UserStatTracker.getInstance().deleteMode(modeIndex)
+
+        PbSplitTracker.getInstance().deleteMode(modeIndex);
     }
 
     private changeModeIfCurrentlyPlayingDeletedMode(modeIndex: number, configWindow: BrowserWindow, overlayWindow: BrowserWindow) {

@@ -152,6 +152,7 @@ export function redrawSplitDisplay(
     mapNum: number,
     modeNum: number,
     overlayWindow: BrowserWindow,
+    reverseSplits: boolean = false
 ) {
     const stateTracker = CurrentStateTracker.getInstance();
     if (!isValidModeAndMap(mapNum, modeNum) || !stateTracker.steamFriendCodeIsValid() || !stateTracker.steamPathIsValid()) {
@@ -159,7 +160,7 @@ export function redrawSplitDisplay(
     }
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, false);
     log.info(`[Backend] Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
-    overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB);
+    overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB, reverseSplits);
 }
 
 export function getPbRunInfoAndSoB(
@@ -201,25 +202,40 @@ export function getPbRunInfoAndSoB(
 
     const userStats = UserStatTracker.getInstance();
     const userStatsForMode = userStats.getUserStatsForMode(mapNum, modeNum);
+    const splits = mapModeAndSplits.splits.map((splitName, i) => {
+        let resetInfo = userStatsForMode.resetsAfterSplit.find(rs => rs.split === i);
+        if (!resetInfo) {
+            resetInfo = { split: i-1, resets: 0};
+        }
+        let splitInfo = pbSplitTimes.find(infos => infos.split === i)
+        if (!splitInfo) {
+            splitInfo = { split: i, time: Infinity}
+        }
+        return ({
+            name: splitName,
+            split: splitInfo.split.toString(),
+            time: splitInfo.time,
+            hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
+            skipped: settingsManager.splitShouldBeSkipped(modeNum, i),
+            resets: resetInfo.resets
+        })
+    });
+    const pbSplitIndex = isUD ? -1 : splits.length;
+    let lastSplitResets = userStatsForMode.resetsAfterSplit.find(rs => rs.split === pbSplitIndex);
+    if (!lastSplitResets) {
+        lastSplitResets = { split: pbSplitIndex-1, resets: 0 };
+    }
+    splits.push({
+        name: "PB",
+        split: "pb",
+        time: pbTime,
+        hide: false,
+        skipped: false,
+        resets: lastSplitResets.resets
+    })
+
     return {
-        splits: mapModeAndSplits.splits.map((splitName, i) => {
-            let resetInfo = userStatsForMode.resetsAfterSplit.find(rs => rs.split === i);
-            if (!resetInfo) {
-                resetInfo = { split: i-1, resets: 0};
-            }
-            let splitInfo = pbSplitTimes.find(infos => infos.split === i)
-            if (!splitInfo) {
-                splitInfo = { split: i, time: Infinity}
-            }
-            return ({
-                name: splitName,
-                split: splitInfo.split,
-                time: splitInfo.time,
-                hide: settingsManager.splitShouldBeSkipped(modeNum, i) && settingsManager.hideSkippedSplits(),
-                skipped: settingsManager.splitShouldBeSkipped(modeNum, i),
-                resets: resetInfo.resets
-            })
-        }),
+        splits: splits,
         pb: pbTime === Infinity ? -1 : pbTime,
         sumOfBest: soB,
         pace: pace,

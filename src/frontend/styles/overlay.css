@@ -48,7 +48,6 @@ body {
 #totals,
 #status-msg {
     padding-top: .2rem;
-    padding-right:  .2rem;
 }
 
 #status-msg {
@@ -56,7 +55,6 @@ body {
     flex-direction: column;
     gap: .8rem;
     padding-right: .8rem;
-
 }
 #status-msg > div {
     padding-left: 1rem;
@@ -71,6 +69,10 @@ body {
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
     text-wrap: nowrap
+}
+
+#totals {
+    margin-top: .5ch;
 }
 /*Split names should be the one shrinking*/
 .split-name {
@@ -141,27 +143,13 @@ body {
 }
 
 #totals {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: .5em;
-}
-
-#totals > span:has(#pb-time) {
-    grid-column: 2;
-}
-
-#totals > span:has(#pace) {
-    grid-row: 2;
-}
-
-#totals > span:has(#sum-of-best) {
-    grid-row: 2;
+    display: flex;
+    gap: .5rem;
 }
 
 #totals > * {
     display: flex;
     justify-content:  end;
-    gap:  0.2em;
 }
 
 #totals.two-children {
@@ -174,7 +162,6 @@ body {
 #custom-mode-display {
     display: inline;
     padding-top: .2em;
-    padding-right:  .2em;
 }
 
 #overlay-messages {

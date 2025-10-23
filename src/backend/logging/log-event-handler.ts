@@ -98,7 +98,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             }
             log.info(`Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime}`);
             overlayWindow.webContents.send('split-passed', { splitIndex: split, splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored(), map3Route: map3Route});
-            overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode, false));
+            overlayWindow.webContents.send('redraw-split-display', getPbRunInfoAndSoB(map, mode, false), false);
             if (isGoldSplit) {
                 overlayWindow.webContents.send("golden-split-passed", goldenSplitsTracker.calcSumOfBest(stateTracker.getCurrentMode(),
                     pbSplitTracker.getSplitAmountForMode(stateTracker.getCurrentMode())));

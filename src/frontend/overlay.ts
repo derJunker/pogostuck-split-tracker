@@ -4,6 +4,8 @@ import './styles/components.css';
 import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 import {Stopwatch} from "./util/stopwatch";
+import {Split} from "../types/mode-splits";
+import { Settings } from '../types/settings';
 
 const animationDuration = 100;
 
@@ -44,7 +46,7 @@ const map3Routes: { [key: number]: string[] } = {
 };
 
 async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
-    const { splits, pb, sumOfBest, pace, settings, isUDMode, playAnimation } = pbRunInfo;
+    const {splits, pb, sumOfBest, pace, settings, isUDMode, playAnimation} = pbRunInfo;
     __electronLog.debug(`loading map and mode with animation: ${playAnimation}`);
     setLootDisplay("")
     // Clear splits
@@ -63,9 +65,8 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
         hide('totals')
     }
     const reverseUDSplits = settings.reverseUDModes;
-    if (reverseUDSplits && isUDMode) {
-        splits.reverse();
-    }
+    if (reverseUDSplits && isUDMode) reverseSplitList(splits)
+
     splits.forEach((split: SplitInfo) => {
         appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation);
     });
@@ -84,6 +85,12 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     await toggleCustomModeDisplay(pbRunInfo.customModeName, playAnimation)
 
     __electronLog.debug(`finished loading map and mode animate: ${playAnimation}`);
+}
+
+function reverseSplitList(splits: any[]) {
+    splits.reverse();
+    const pbSplit = splits.shift()!
+    splits.push(pbSplit)
 }
 
 function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean, animate: boolean) {
@@ -237,15 +244,20 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
 })
 
 window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
-                                  pbRunInfoAndSoB: PbRunInfoAndSoB) => {
+                                  pbRunInfoAndSoB: PbRunInfoAndSoB, reverseSplits: boolean) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     await resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace, false);
 
     const splitsDiv = document.getElementById('splits')!;
-    const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
+    const currentSplits: HTMLElement[] =  Array.from(splitsDiv.querySelectorAll('.split'));
+    if (reverseSplits) {
+        reverseSplitList(currentSplits);
+        splitsDiv.innerHTML = '';
+        currentSplits.forEach(split => splitsDiv.appendChild(split))
+    }
     for (const splitDiv of currentSplits) {
         const frontendSettings = pbRunInfoAndSoB.settings
-        const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === parseInt(splitDiv.id))!;
+        const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === splitDiv.id)!;
         if (splitInfoForEl.hide) hideElement(splitDiv)
         else showElement(splitDiv)
 
@@ -305,9 +317,6 @@ async function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: 
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
     sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
 
-    const pbTimeSpan = document.getElementById('pb-time')!;
-    pbTimeSpan.textContent = pb > 0 ? formatPbTime(pb) : '?';
-
     const paceSpan = document.getElementById('pace')!;
     paceSpan.textContent = pace > 0 ? formatPbTime(pace) : '?';
 
@@ -340,13 +349,10 @@ window.electronAPI.mainMenuOpened(async () => {
         await hideSplits(splitsDiv)
         splitsDiv.innerHTML = '';
     }
-    setLootDisplay("")
+    await setLootDisplay("")
     await hideAnimation(document.getElementById('totals')!)
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
     sumOfBestSpan.textContent = '';
-
-    const pbTimeSpan = document.getElementById('pb-time')!;
-    pbTimeSpan.textContent = '';
 
     const paceSpan = document.getElementById('pace')!;
     paceSpan.textContent = '';
@@ -598,7 +604,7 @@ async function showSplits(splitsDiv: HTMLElement, pbRunInfo: PbRunInfoAndSoB) {
     splitsDiv.style.display = "";
     const animations = splits
         .filter((splitEl) => {
-            const splitInfo = pbRunInfo.splits.find((s) => s.split === parseInt(splitEl.id));
+            const splitInfo = pbRunInfo.splits.find((s) => s.split === splitEl.id);
             if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
             return !splitInfo.skipped || (!splitInfo.hide)
         })
@@ -614,7 +620,7 @@ async function hideSplits(splitsDiv: HTMLElement, pbRunInfo?: PbRunInfoAndSoB) {
     const animations = splits
         .filter((splitEl) => {
             if (!pbRunInfo) return true;
-            const splitInfo = pbRunInfo.splits.find((s) => s.split === parseInt(splitEl.id));
+            const splitInfo = pbRunInfo.splits.find((s) => s.split === splitEl.id);
             if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
             return !splitInfo.skipped || (!splitInfo.hide)
         })

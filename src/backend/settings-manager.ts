@@ -124,7 +124,7 @@ export class SettingsManager {
             }
             const modeNum = stateTracker.getCurrentMode();
             const mapNum = stateTracker.getCurrentMap()
-            redrawSplitDisplay(mapNum, modeNum, overlayWindow)
+            redrawSplitDisplay(mapNum, modeNum, overlayWindow, true)
             return this.currentSettings;
         });
         ipcMain.handle('race-golds-changed', (_event, raceGoldSplits: boolean) => {

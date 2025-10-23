@@ -3,7 +3,7 @@ import {PogoLevel} from "./pogo-index-mapping";
 import {CustomModeInfo} from "./CustomMode";
 
 export interface SplitInfo {
-    name: string; split: number; time: number; hide:boolean; skipped:boolean, resets: number
+    name: string; split: string; time: number; hide:boolean; skipped:boolean, resets: number
 }
 
 export interface PbRunInfoAndSoB {
@@ -25,7 +25,7 @@ declare global { interface Window {
         resetOverlay: (callback: (event: Electron.IpcRendererEvent,
                                         mapAndMode: PbRunInfoAndSoB) => void) => void;
         redrawOverlay: (callback: (event: Electron.IpcRendererEvent,
-                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => void) => void;
+                                   pbRunInfoAndSoB: PbRunInfoAndSoB, reverseSplits: boolean) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
                                    splitInfo: { splitIndex: number, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route?: number}) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;

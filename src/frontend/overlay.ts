@@ -4,10 +4,8 @@ import './styles/components.css';
 import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 import {Stopwatch} from "./util/stopwatch";
-import {Split} from "../types/mode-splits";
-import { Settings } from '../types/settings';
 
-const animationDuration = 100;
+const animationDuration = 50;
 
 const map3Routes: { [key: number]: string[] } = {
     0: [
@@ -48,7 +46,7 @@ const map3Routes: { [key: number]: string[] } = {
 async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const {splits, pb, sumOfBest, pace, settings, isUDMode, playAnimation} = pbRunInfo;
     __electronLog.debug(`loading map and mode with animation: ${playAnimation}`);
-    setLootDisplay("")
+    await setLootDisplay("")
     // Clear splits
     const splitsDiv = document.getElementById('splits');
     if (!splitsDiv) return;
@@ -67,8 +65,9 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const reverseUDSplits = settings.reverseUDModes;
     if (reverseUDSplits && isUDMode) reverseSplitList(splits)
 
+    let highestResetCountDigits = 3;
     splits.forEach((split: SplitInfo) => {
-        appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation);
+        highestResetCountDigits = appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation, highestResetCountDigits);
     });
     // Sum of Best und PB setzen
     await resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, playAnimation);
@@ -93,7 +92,7 @@ function reverseSplitList(splits: any[]) {
     splits.push(pbSplit)
 }
 
-function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean, animate: boolean) {
+function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boolean, animate: boolean, highestResetCountDigits: number) {
     const skippedClass = split.skipped ? 'skipped' : null;
     const splitDiv = document.createElement('div');
     splitDiv.className = 'split';
@@ -111,11 +110,16 @@ function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boole
     nameSpan.textContent = split.name;
     splitDiv.appendChild(nameSpan);
     const resetsSpan = document.createElement('span');
-    resetsSpan.classList.add('split-resets');
+    resetsSpan.classList.add('split-resets', 'animate-hidden');
     if (skippedClass) resetsSpan.classList.add(skippedClass);
     if (showResets) {
         resetsSpan.textContent = `${split.resets}`;
-        resetsSpan.classList.remove('hidden')
+        resetsSpan.classList.remove('hidden') // don't add the normal animation route, dont display none
+        const resetCountDigitsAndBrackets = split.resets.toString().length + 2;
+        if (highestResetCountDigits < resetCountDigitsAndBrackets) {
+            splitsDiv.style.setProperty("--reset-count-width", `${resetCountDigitsAndBrackets}ch`)
+            highestResetCountDigits = resetCountDigitsAndBrackets;
+        }
     }
     else {
         resetsSpan.textContent = "";
@@ -137,6 +141,7 @@ function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boole
     if (split.hide) hideElement(splitDiv)
 
     splitsDiv.appendChild(splitDiv);
+    return highestResetCountDigits;
 }
 
 async function toggleCustomModeDisplay(customModeName: string | undefined, animate: boolean) {
@@ -255,6 +260,7 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
         splitsDiv.innerHTML = '';
         currentSplits.forEach(split => splitsDiv.appendChild(split))
     }
+    let highestResetCountDigits = 3;
     for (const splitDiv of currentSplits) {
         const frontendSettings = pbRunInfoAndSoB.settings
         const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === splitDiv.id)!;
@@ -288,6 +294,11 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
         if (frontendSettings.showResetCounters) {
             resetSpan.textContent = `${splitInfoForEl.resets}`;
             resetSpan.classList.remove('hidden')
+            const resetCountDigitsAndBrackets = splitInfoForEl.resets.toString().length + 2;
+            if (highestResetCountDigits < resetCountDigitsAndBrackets) {
+                splitsDiv.style.setProperty("--reset-count-width", `${resetCountDigitsAndBrackets}ch`)
+                highestResetCountDigits = resetCountDigitsAndBrackets;
+            }
         } else {
             resetSpan.textContent = '';
             resetSpan.classList.add('hidden')
@@ -376,7 +387,7 @@ window.electronAPI.onLastSplitGolden(() => {
 // Maybe sth? currently empty
 });
 
-window.electronAPI.onStatusChanged((_event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
+window.electronAPI.onStatusChanged(async (_event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
     __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}, showLogDetectMessage: ${status.showLogDetectMessage}, logsDetected: ${status.logsDetected}`);
     const statusElement = document.getElementById('status-msg')!;
     statusElement.innerHTML = '';
@@ -388,7 +399,7 @@ window.electronAPI.onStatusChanged((_event: Electron.IpcRendererEvent, status: {
         statusElement.appendChild(div);
     });
     if (!(pogoPathValid && steamPathValid && friendCodeValid && logsDetected)) {
-        setLootDisplay("")
+        await setLootDisplay("")
     }
 })
 

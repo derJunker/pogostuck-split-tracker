@@ -36,13 +36,19 @@ body {
 }
 
 #splits {
+    --reset-count-width: 3ch;
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: auto var(--reset-count-width) auto auto;
     gap: 0.2em 0.2em;
     width: max-content;
     max-width: 100vw;
     justify-items: end;
     padding-top: .2rem;
+    transition: grid-template-columns 300ms;
+}
+
+#splits:has(.split .split-resets.hidden) {
+    grid-template-columns: auto 0 auto auto;
 }
 
 #totals,
@@ -54,7 +60,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: .8rem;
-    padding-right: .8rem;
 }
 #status-msg > div {
     padding-left: 1rem;
@@ -144,7 +149,7 @@ body {
 
 #totals {
     display: flex;
-    gap: .5rem;
+    gap: 2rem;
 }
 
 #totals > * {
@@ -194,7 +199,7 @@ body {
 }
 
 .animate-hidden.hidden {
-    /*transform: translateX(100%);*/
+    transform: translateY(-50%);
 }
 .animate-hidden:not(.hidden) {
     transform: translate(0);
@@ -202,7 +207,7 @@ body {
 
 .animate-hidden {
     opacity: 1;
-    transition: transform 100ms ease-in-out, opacity 100ms ease-in-out;
+    transition: transform 50ms ease-in-out, opacity 50ms ease-in-out;
 }
 
 .hidden {

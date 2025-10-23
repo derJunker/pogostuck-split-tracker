@@ -5,7 +5,7 @@ import { formatPbTime } from './util/time-formating';
 import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
 import {Stopwatch} from "./util/stopwatch";
 
-const animationDuration = 50;
+const animationDuration = 100;
 
 const map3Routes: { [key: number]: string[] } = {
     0: [
@@ -52,8 +52,11 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     if (!splitsDiv) return;
     splitsDiv.innerHTML = '';
     if (playAnimation) {
-        await playAnimations({animation: hideAnimation, id: 'status-msg'})
-        hide('splits')
+        await playAnimations(
+            {animation: hideAnimation, id: 'status-msg'},
+            {animation: (splitDiv: HTMLElement) => hideSplits(splitDiv, pbRunInfo), element: splitsDiv},
+            {animation: hideAnimation, id: 'totals'},
+        )
     } else {
         hide('status-msg')
         hide('splits')
@@ -67,18 +70,18 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
         appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation);
     });
     // Sum of Best und PB setzen
-    resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace);
-    toggleCustomModeDisplay(pbRunInfo.customModeName)
+    await resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, playAnimation);
     if (playAnimation) {
         show('splits')
         await playAnimations(
             {animation: (splitDiv: HTMLElement) => showSplits(splitDiv, pbRunInfo), element: splitsDiv},
             {animation: showAnimation, id: 'totals'},
-        ).then(() => {/*doin nothing*/})
+        )
     } else {
         show('splits')
         show('totals')
     }
+    await toggleCustomModeDisplay(pbRunInfo.customModeName, playAnimation)
 
     __electronLog.debug(`finished loading map and mode animate: ${playAnimation}`);
 }
@@ -124,19 +127,18 @@ function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boole
     if (skippedClass) timeSpan.classList.add(skippedClass);
     timeSpan.textContent = formatPbTime(split.time)
     splitDiv.appendChild(timeSpan);
-    if (split.hide) splitDiv.style.display = 'none';
+    if (split.hide) hideElement(splitDiv)
 
     splitsDiv.appendChild(splitDiv);
 }
 
-function toggleCustomModeDisplay(customModeName?: string) {
-    const customModeDisplay = document.getElementById('custom-mode-display');
+async function toggleCustomModeDisplay(customModeName: string | undefined, animate: boolean) {
     const customModeNameSpan = document.getElementById('custom-mode-name')!;
     if (customModeName) {
         customModeNameSpan.innerText = customModeName;
-        customModeDisplay!.style.display = 'inline';
+        await showByIdWithAnimationFlag('custom-mode-display', animate);
     } else {
-        customModeDisplay!.style.display = 'none';
+        await hideByIdWithAnimationFlag('custom-mode-display', true)
         customModeNameSpan.innerText = '';
     }
 }
@@ -234,20 +236,18 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
     }
 })
 
-window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
+window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: PbRunInfoAndSoB) => {
     __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
-    resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace);
+    await resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace, false);
 
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits:NodeListOf<HTMLElement> = splitsDiv.querySelectorAll('.split');
-    currentSplits.forEach(splitDiv => {
+    for (const splitDiv of currentSplits) {
         const frontendSettings = pbRunInfoAndSoB.settings
         const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === parseInt(splitDiv.id))!;
-        if (splitInfoForEl.hide)
-            splitDiv.style.display = 'none';
-        else
-            splitDiv.style.display = '';
+        if (splitInfoForEl.hide) hideElement(splitDiv)
+        else showElement(splitDiv)
 
         const splitTime: HTMLElement = splitDiv.querySelector('.split-time')!;
         const splitName: HTMLElement = splitDiv.querySelector('.split-name')!;
@@ -294,20 +294,14 @@ window.electronAPI.redrawOverlay((_event: Electron.IpcRendererEvent,
             resetSpan.classList.remove('skipped');
             if (pbRunInfoAndSoB.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
-
-        toggleCustomModeDisplay(pbRunInfoAndSoB.customModeName)
-    })
+    }
+    await toggleCustomModeDisplay(pbRunInfoAndSoB.customModeName, false)
 });
 
 
-function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean) {
+async function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean, animate: boolean) {
     const totalsDiv =  document.getElementById('totals')!;
-    // changing the grid layout positions if there at most 1 of the sob or pace stats
-    if(!showSoB || !showPace) {
-        totalsDiv.classList?.add("two-children")
-    } else {
-        totalsDiv.classList?.remove("two-children")
-    }
+
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
     sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
 
@@ -318,14 +312,20 @@ function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolea
     paceSpan.textContent = pace > 0 ? formatPbTime(pace) : '?';
 
     if (!showPace) {
-        paceSpan.parentElement!.style.display = 'none';
+        await hideAnimation(paceSpan.parentElement!)
     } else {
-        paceSpan.parentElement!.style.display = '';
+        await showElementWithAnimationFlag(paceSpan.parentElement!, animate)
     }
     if (!showSoB) {
-        sumOfBestSpan.parentElement!.style.display = 'none';
+        await hideAnimation(sumOfBestSpan.parentElement!)
     } else {
-        sumOfBestSpan.parentElement!.style.display = '';
+        await showElementWithAnimationFlag(sumOfBestSpan.parentElement!, animate)
+    }
+
+    if(!showSoB || !showPace) {
+        totalsDiv.classList?.add("two-children")
+    } else {
+        totalsDiv.classList?.remove("two-children")
     }
 
     if (showPace && !showSoB) {
@@ -334,28 +334,25 @@ function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolea
         paceSpan.parentElement!.style.gridColumn = ""
     }
 }
-window.electronAPI.mainMenuOpened(() => {
+window.electronAPI.mainMenuOpened(async () => {
     const splitsDiv = document.getElementById('splits');
     if (splitsDiv) {
+        await hideSplits(splitsDiv)
         splitsDiv.innerHTML = '';
     }
     setLootDisplay("")
-    const sumOfBestSpan = document.getElementById('sum-of-best');
-    if (sumOfBestSpan) {
-        sumOfBestSpan.textContent = '';
-    }
-    const pbTimeSpan = document.getElementById('pb-time');
-    if (pbTimeSpan) {
-        pbTimeSpan.textContent = '';
-    }
-    const paceSpan = document.getElementById('pace');
-    if (paceSpan) {
-        paceSpan.textContent = '';
-    }
-    document.getElementById('totals')!.style!.display = 'none';
-    document.getElementById('custom-mode-display')!.style!.display = 'none';
+    await hideAnimation(document.getElementById('totals')!)
+    const sumOfBestSpan = document.getElementById('sum-of-best')!;
+    sumOfBestSpan.textContent = '';
 
-    document.getElementById('status-msg')!.style!.display = '';
+    const pbTimeSpan = document.getElementById('pb-time')!;
+    pbTimeSpan.textContent = '';
+
+    const paceSpan = document.getElementById('pace')!;
+    paceSpan.textContent = '';
+
+    await hideAnimation(document.getElementById('custom-mode-display')!);
+    await showAnimation(document.getElementById('status-msg')!)
 });
 
 window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {
@@ -417,23 +414,22 @@ window.electronAPI.changeSlowSplitColor((_event: Electron.IpcRendererEvent, slow
 
 
 
-window.electronAPI.lootStarted((_event: Electron.IpcRendererEvent, seed: string, isSpeedrun: boolean) => setLootDisplay(seed, isSpeedrun))
+window.electronAPI.lootStarted(async (_event: Electron.IpcRendererEvent, seed: string, isSpeedrun: boolean) => await setLootDisplay(seed, isSpeedrun))
 
 let stopwatch: Stopwatch | null = null;
 
-function setLootDisplay(seed: string, isSpeedrun: boolean = false) {
+async function setLootDisplay(seed: string, isSpeedrun: boolean = false) {
     const lootDisplayDiv = document.getElementById('loot-display')!
     const lootSeedDiv = document.getElementById('loot-seed')!
     const lootTimerDiv = document.getElementById('loot-timer')!
     __electronLog.debug(`setting loot display: '${seed}', isSpeedrun: ${isSpeedrun}`);
     if (seed === "") {
         stopwatch?.reset()
-        lootDisplayDiv.style.display = 'none';
-        lootTimerDiv.style.display = 'none';
-        return;
+        return hideAnimation(lootDisplayDiv)
     }
+    await hideAnimation(document.getElementById('status-msg')!)
     if (isSpeedrun) {
-        lootTimerDiv.style.display = '';
+        await showAnimation(lootTimerDiv)
         if (!stopwatch) {
             stopwatch = new Stopwatch((elapsed) => {
                 lootTimerDiv.innerText = formatPbTime(elapsed/1000, true);
@@ -444,11 +440,10 @@ function setLootDisplay(seed: string, isSpeedrun: boolean = false) {
             stopwatch.start();
         }
     } else {
-        lootTimerDiv.style.display = 'none';
+        hideElement(lootTimerDiv);
     }
-    document.getElementById('status-msg')!.style!.display = 'none';
-    lootDisplayDiv.style.display = 'block';
     lootSeedDiv.innerText = "Seed: " + seed;
+    await showAnimation(lootDisplayDiv)
 }
 
 window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: string) => {
@@ -517,32 +512,71 @@ async function playAnimations(...animations: { animation: (element: HTMLElement)
     await playAnimations(...animations);
 }
 
+function hideElement(element: HTMLElement) {
+    element.style.display = "none";
+}
+
 function hide(id: string) {
     const element = document.getElementById(id);
     if (!element) {
         __electronLog.error(`when hiding couldn't find element with id ${id}`)
         return;
     }
-    element.style.display = "none";
+    hideElement(element)
+}
+
+function showElement(element: HTMLElement) {
+    element.style.display = "";
 }
 
 function show(id: string) {
     const element = document.getElementById(id);
     if (!element) {
-        __electronLog.error(`when showing couldn't find element with id ${id}`)
+        __electronLog.error(`when hiding couldn't find element with id ${id}`)
         return;
     }
-    element.style.display = "";
+    showElement(element)
+}
+
+async function hideByIdWithAnimationFlag(id: string, animate: boolean) {
+    const element = document.getElementById(id);
+    if (!element) {
+        __electronLog.error(`when hiding couldn't find element with id ${id}`)
+        return;
+    }
+    await hideElementWithAnimationFlag(element, animate);
+}
+
+async function showByIdWithAnimationFlag(id: string, animate: boolean) {
+    const element = document.getElementById(id)
+    if (!element) {
+        __electronLog.error(`when hiding couldn't find element with id ${id}`)
+        return;
+    }
+    await showElementWithAnimationFlag(element, animate)
+}
+
+async function showElementWithAnimationFlag(element: HTMLElement, animate: boolean) {
+    if (animate) await showAnimation(element)
+    else showElement(element);
+}
+
+async function hideElementWithAnimationFlag(element: HTMLElement, animate: boolean) {
+    if (animate) await hideAnimation(element)
+    else hideElement(element);
 }
 
 
 async function hideAnimation(element: HTMLElement) {
+    if (element.style.display === "none") return;
     element.classList.add("hidden")
     return new Promise<void>(function (resolve, reject) {
         setTimeout(() => {
             element.classList.remove("hidden")
             element.style.display = "none";
-            requestAnimationFrame(() => resolve())
+            requestAnimationFrame(() => {
+                resolve()
+            })
         }, animationDuration)
     })
 }
@@ -555,7 +589,7 @@ async function showAnimation(element: HTMLElement) {
         setTimeout(() => {
             element.classList.remove("hidden")
             requestAnimationFrame(() => resolve())
-        }, animationDuration/2)
+        }, animationDuration/4)
     })
 }
 
@@ -575,9 +609,16 @@ async function showSplits(splitsDiv: HTMLElement, pbRunInfo: PbRunInfoAndSoB) {
     }))
 }
 
-async function hideSplits(splitsDiv: HTMLElement) {
+async function hideSplits(splitsDiv: HTMLElement, pbRunInfo?: PbRunInfoAndSoB) {
     const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
-    const animations = splits.filter((split) => !split.querySelector(".skipped")).map((split) => ({animation: hideAnimation, id: split.id}))
+    const animations = splits
+        .filter((splitEl) => {
+            if (!pbRunInfo) return true;
+            const splitInfo = pbRunInfo.splits.find((s) => s.split === parseInt(splitEl.id));
+            if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
+            return !splitInfo.skipped || (!splitInfo.hide)
+        })
+        .map((split) => ({animation: hideAnimation, id: split.id}))
     await playAnimations(...animations);
     splitsDiv.style.display = "none";
 }

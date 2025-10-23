@@ -69,6 +69,7 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     splits.forEach((split: SplitInfo) => {
         highestResetCountDigits = appendSplit(split, splitsDiv, settings.showResetCounters === undefined ? true : settings.showResetCounters, playAnimation, highestResetCountDigits);
     });
+    splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
     // Sum of Best und PB setzen
     await resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, playAnimation);
     if (playAnimation) {
@@ -117,7 +118,6 @@ function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boole
         resetsSpan.classList.remove('hidden') // don't add the normal animation route, dont display none
         const resetCountDigitsAndBrackets = split.resets.toString().length + 2;
         if (highestResetCountDigits < resetCountDigitsAndBrackets) {
-            splitsDiv.style.setProperty("--reset-count-width", `${resetCountDigitsAndBrackets}ch`)
             highestResetCountDigits = resetCountDigitsAndBrackets;
         }
     }
@@ -296,7 +296,6 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
             resetSpan.classList.remove('hidden')
             const resetCountDigitsAndBrackets = splitInfoForEl.resets.toString().length + 2;
             if (highestResetCountDigits < resetCountDigitsAndBrackets) {
-                splitsDiv.style.setProperty("--reset-count-width", `${resetCountDigitsAndBrackets}ch`)
                 highestResetCountDigits = resetCountDigitsAndBrackets;
             }
         } else {
@@ -318,6 +317,7 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
             if (pbRunInfoAndSoB.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
     }
+    splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
     await toggleCustomModeDisplay(pbRunInfoAndSoB.customModeName, false)
 });
 

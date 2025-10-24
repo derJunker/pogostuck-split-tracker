@@ -72,8 +72,9 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
     // Sum of Best und PB setzen
     await resetStats(sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, playAnimation, settings.raceGoldSplits);
+    adjustSplitsGridRowLayout(pbRunInfo, splitsDiv)
     if (playAnimation) {
-        show('splits')
+        show('splits') // showing the whole diff (currently all splits are hidden tho.
         await playAnimations(
             {animation: (splitDiv: HTMLElement) => showSplits(splitDiv, pbRunInfo), element: splitsDiv},
             {animation: showAnimation, id: 'totals'},
@@ -85,6 +86,18 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     await toggleCustomModeDisplay(pbRunInfo.customModeName, playAnimation)
 
     __electronLog.debug(`finished loading map and mode animate: ${playAnimation}`);
+}
+
+function adjustSplitsGridRowLayout(pbRunInfo: PbRunInfoAndSoB, splitsDiv: HTMLElement, currentSplits?: HTMLElement[]) {
+    let splits = pbRunInfo.splits
+    if (currentSplits) {
+        splits = currentSplits.map(split => pbRunInfo.splits.find(s => s.split === split.id)!)
+    }
+    const gridRows = pbRunInfo.splits
+        .map(splitInfo => splitInfo.hide ? "0" : "var(--grid-row-height)")
+        .join(" ");
+    __electronLog.debug(`[DEBUG] gridRows: ${gridRows}`);
+    splitsDiv.style.setProperty("--splits-rows", `${gridRows}`)
 }
 
 function reverseSplitList(splits: any[]) {
@@ -138,7 +151,7 @@ function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boole
     if (skippedClass) timeSpan.classList.add(skippedClass);
     timeSpan.textContent = formatPbTime(split.time)
     splitDiv.appendChild(timeSpan);
-    if (split.hide) hideElement(splitDiv)
+    if (split.hide) splitDiv.classList.add('hidden')
 
     splitsDiv.appendChild(splitDiv);
     return highestResetCountDigits;
@@ -158,45 +171,53 @@ async function toggleCustomModeDisplay(customModeName: string | undefined, anima
 function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route: number | undefined) {
     __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace} map3Route: ${map3Route}`);
     const splitDiv = document.getElementById(splitKey);
-    if (splitDiv) {
-        if (goldPace) {
-            const nameSpan = splitDiv.querySelector('.split-name')!;
-            nameSpan.classList.add("gold-pace");
+    if (!splitDiv) {
+        __electronLog.error(`couldn't find the splitDiv, when adding time and diff`)
+        return
+    }
+    if (goldPace) {
+        const nameSpan = splitDiv.querySelector('.split-name')!;
+        nameSpan.classList.add("gold-pace");
+    }
+    const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
+    const timeSpan = splitDiv.querySelector('.split-time');
+    if (timeSpan) {
+        timeSpan.textContent = formatPbTime(splitTime);
+        timeSpan.className = "split-time";
+        if (!onlyDiffColored) {
+            timeSpan.className += " " + type;
         }
-        const type =  golden ? "golden" : diff > 0 ? "late" : diff < 0 ? "early" : "";
-        const timeSpan = splitDiv.querySelector('.split-time');
-        if (timeSpan) {
-            timeSpan.textContent = formatPbTime(splitTime);
-            timeSpan.className = "split-time";
-            if (!onlyDiffColored) {
-                timeSpan.className += " " + type;
-            }
-        }
+    }
 
-        const diffSpan = splitDiv.querySelector('.split-diff');
-        if (diffSpan) {
-            diffSpan.innerHTML = '';
-            let sign = '';
-            if (diff > 0) sign = '+';
-            else if (diff < 0) sign = '-';
-            const absDiff = Math.abs(diff);
-            const signSpan = document.createElement('span');
-            signSpan.className = 'sign';
-            signSpan.textContent = sign;
-            diffSpan.appendChild(signSpan);
-            const numSpan = document.createElement('span');
-            numSpan.className = 'num';
-            __electronLog.info(`Adding split diff: ${absDiff} (golden: ${golden})`);
-            numSpan.textContent = formatPbTime(absDiff, true);
-            diffSpan.appendChild(numSpan);
-            diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
-        }
+    const diffSpan = splitDiv.querySelector('.split-diff');
+    if (diffSpan) {
+        diffSpan.innerHTML = '';
+        let sign = '';
+        if (diff > 0) sign = '+';
+        else if (diff < 0) sign = '-';
+        const absDiff = Math.abs(diff);
+        const signSpan = document.createElement('span');
+        signSpan.className = 'sign';
+        signSpan.textContent = sign;
+        diffSpan.appendChild(signSpan);
+        const numSpan = document.createElement('span');
+        numSpan.className = 'num';
+        __electronLog.info(`Adding split diff: ${absDiff} (golden: ${golden})`);
+        numSpan.textContent = formatPbTime(absDiff, true);
+        diffSpan.appendChild(numSpan);
+        diffSpan.className = 'split-diff' + (type ? ' ' + type : '');
+    }
 
-        if (map3Route !== undefined && splitKey !== "pb") {
-            const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
-            if (splitNameSpan) {
-                splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
-            }
+    if (splitKey === "pb") {
+        const nameSpan = splitDiv.querySelector('.split-name');
+        if (!nameSpan) return;
+        if (diff > 0) nameSpan.textContent = "Finish"
+    }
+
+    if (map3Route !== undefined && splitKey !== "pb") {
+        const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
+        if (splitNameSpan) {
+            splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
         }
     }
 }
@@ -244,9 +265,9 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
 })
 
 window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
-                                  pbRunInfoAndSoB: PbRunInfoAndSoB, reverseSplits: boolean) => {
+                                  pbRunInfo: PbRunInfoAndSoB, reverseSplits: boolean) => {
     __electronLog.info(`[Frontend] Redrawing overlay`);
-    await resetStats(pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace, false, pbRunInfoAndSoB.settings.raceGoldSplits);
+    await resetStats(pbRunInfo.sumOfBest, pbRunInfo.pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, false, pbRunInfo.settings.raceGoldSplits);
 
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits: HTMLElement[] =  Array.from(splitsDiv.querySelectorAll('.split'));
@@ -255,25 +276,27 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
         splitsDiv.innerHTML = '';
         currentSplits.forEach(split => splitsDiv.appendChild(split))
     }
+    if(pbRunInfo.isUDMode && pbRunInfo.settings.reverseUDModes) reverseSplitList(pbRunInfo.splits)
     let highestResetCountDigits = 3;
+    adjustSplitsGridRowLayout(pbRunInfo, splitsDiv)
     for (const splitDiv of currentSplits) {
-        const frontendSettings = pbRunInfoAndSoB.settings
-        const splitInfoForEl = pbRunInfoAndSoB.splits.find(splitInfo => splitInfo.split === splitDiv.id)!;
-        if (splitInfoForEl.hide) hideElement(splitDiv)
-        else showElement(splitDiv)
+        const frontendSettings = pbRunInfo.settings
+        const splitInfoForEl = pbRunInfo.splits.find(splitInfo => splitInfo.split === splitDiv.id)!;
+        if (splitInfoForEl.hide) splitDiv.classList.add('hidden');
+        else await showAnimation(splitDiv)
 
         const splitTime: HTMLElement = splitDiv.querySelector('.split-time')!;
         const splitName: HTMLElement = splitDiv.querySelector('.split-name')!;
         const splitDiff: HTMLElement = splitDiv.querySelector('.split-diff')!;
 
-        if (pbRunInfoAndSoB.map !== 9) { // #9 is map3, dont redraw the split names, because they are route dependent
+        if (pbRunInfo.map !== 9) { // #9 is map3, dont redraw the split names, because they are route dependent
             splitName.innerText = splitInfoForEl.name
         }
 
         const potentialClassesFromDiff = splitDiff.className.match(/(early|late|golden)/g);
         splitTime.classList.remove("early", "late", "golden");
         // if you want to not only color the diffs, then make sure the splitTime has the color class
-        if (potentialClassesFromDiff && potentialClassesFromDiff.length > 0 && !pbRunInfoAndSoB.settings.onlyDiffsColored) {
+        if (potentialClassesFromDiff && potentialClassesFromDiff.length > 0 && !pbRunInfo.settings.onlyDiffsColored) {
             const classToAdd = potentialClassesFromDiff[0];
             if (!splitTime.classList.contains(classToAdd)) {
                 splitTime.classList.add(classToAdd);
@@ -303,28 +326,26 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
             splitTime.classList.add('skipped');
             splitName.classList.add('skipped');
             resetSpan.classList.add('skipped');
-            if (pbRunInfoAndSoB.settings.raceGoldSplits) splitTime.textContent = formatPbTime(0)
+            if (pbRunInfo.settings.raceGoldSplits) splitTime.textContent = formatPbTime(0)
         } else {
             splitDiv.classList.remove("skipped");
             splitTime.classList.remove('skipped');
             splitName.classList.remove('skipped');
             resetSpan.classList.remove('skipped');
-            if (pbRunInfoAndSoB.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
+            if (pbRunInfo.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
     }
     splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
-    await toggleCustomModeDisplay(pbRunInfoAndSoB.customModeName, false)
+    await toggleCustomModeDisplay(pbRunInfo.customModeName, false)
 });
 
 
 async function resetStats(sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean, animate: boolean, raceGoldSplits: boolean) {
-    const totalsDiv =  document.getElementById('totals')!;
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
     sumOfBestSpan.innerText = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
     const soBLabel = document.getElementById("sob-label")!
     if (raceGoldSplits) soBLabel.innerText = 'PB: '
     else soBLabel.innerText = "SoB: "
-
 
     const paceSpan = document.getElementById('pace')!;
     paceSpan.innerText = pace > 0 ? formatPbTime(pace) : '?';
@@ -340,11 +361,6 @@ async function resetStats(sumOfBest: number, pace: number, showSoB: boolean, sho
         await showElementWithAnimationFlag(sumOfBestSpan.parentElement!, animate)
     }
 
-    if(!showSoB || !showPace) {
-        totalsDiv.classList?.add("two-children")
-    } else {
-        totalsDiv.classList?.remove("two-children")
-    }
 
     if (showPace && !showSoB) {
         paceSpan.parentElement!.style.gridColumn = "2";
@@ -353,11 +369,6 @@ async function resetStats(sumOfBest: number, pace: number, showSoB: boolean, sho
     }
 }
 window.electronAPI.mainMenuOpened(async () => {
-    const splitsDiv = document.getElementById('splits');
-    if (splitsDiv) {
-        await hideAnimation(splitsDiv)
-        splitsDiv.innerHTML = '';
-    }
     await setLootDisplay("")
     await hideAnimation(document.getElementById('totals')!)
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
@@ -365,9 +376,16 @@ window.electronAPI.mainMenuOpened(async () => {
 
     const paceSpan = document.getElementById('pace')!;
     paceSpan.textContent = '';
-
-    await hideAnimation(document.getElementById('custom-mode-display')!);
-    await showAnimation(document.getElementById('status-msg')!)
+    const splitsDiv = document.getElementById('splits');
+    if (splitsDiv) {
+        await hideAnimation(splitsDiv)
+        splitsDiv.innerHTML = '';
+    }
+    await playParallelAnimations(
+        {animation: hideAnimation, id: 'splits'},
+        {animation: hideAnimation, id: 'custom-mode-display'},
+        {animation: showAnimation, id: 'status-msg'},
+    )
 });
 
 window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {
@@ -389,7 +407,7 @@ window.electronAPI.onStatusChanged(async (_event: Electron.IpcRendererEvent, sta
     const statusMsg = createStatusMessage(pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage)
     statusMsg.split('\n').forEach(line => {
         const div = document.createElement('div');
-        div.textContent = line;
+        div.innerHTML = line;
         statusElement.appendChild(div);
     });
     if (!(pogoPathValid && steamPathValid && friendCodeValid && logsDetected)) {
@@ -473,7 +491,7 @@ window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: stri
 function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean, logsDetected: boolean, showLogDetectMessage: boolean): string {
     let msg = "Config Status\n"
     if (pogoPathValid && steamPathValid && friendCodeValid && logsDetected) {
-        return "Pogostuck-Splits - Active"
+        return `<img src="assets/clipboard.ico" alt="frog-icon" id="active-img"/>`
     }
     if (!pogoPathValid) {
         msg += `Pogostuck Steam Path: ❌\n`;
@@ -501,6 +519,24 @@ function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, fr
     return msg;
 }
 
+async function playParallelAnimations(...animations: { animation: (element: HTMLElement) => Promise<void>; id?: string; element?: HTMLElement }[]) {
+    if (animations.length === 0) {
+        await new Promise<void>((resolve) => setTimeout(() => resolve(), animationDuration));
+        return;
+    }
+    return Promise.all(animations.map(async (animationData) => {
+        if (!animationData.id && !animationData.element) {
+            throw new Error('Invalid animation, either id or element must be provided');
+        }
+        const element = animationData.element || document.getElementById(animationData.id!)
+        if (!element) {
+            __electronLog.error(`could not find element by id: '${animationData.id}' when animating`)
+            return;
+        }
+        await animationData.animation(element);
+    }))
+}
+
 async function playAnimations(...animations: { animation: (element: HTMLElement) => Promise<void>; id?: string; element?: HTMLElement }[]) {
     if (animations.length === 0) {
         await new Promise<void>((resolve) => setTimeout(() => resolve(), animationDuration));
@@ -513,7 +549,6 @@ async function playAnimations(...animations: { animation: (element: HTMLElement)
     const element = first.element || document.getElementById(first.id!)
     if (!element) {
         __electronLog.error(`could not find element by id: '${first.id}' when animating`)
-        __electronLog.error(`children of splitdiv: ${Array.from(document.getElementById("splits")!.children)}`)
         await playAnimations(...animations); // just play the rest of the animations regardless of this error.
         return;
     }
@@ -611,7 +646,7 @@ async function showSplits(splitsDiv: HTMLElement, pbRunInfo: PbRunInfoAndSoB) {
         .filter((splitEl) => {
             const splitInfo = pbRunInfo.splits.find((s) => s.split === splitEl.id);
             if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
-            return !splitInfo.skipped || (!splitInfo.hide)
+            return !splitInfo.hide
         })
         .map((split) => ({animation: showAnimation, element: split}))
     return new Promise<void>((resolve) => requestAnimationFrame(async () => {

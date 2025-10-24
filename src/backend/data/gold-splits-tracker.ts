@@ -98,7 +98,7 @@ export class GoldSplitsTracker {
         }));
     }
 
-    public calcSumOfBest(modeNum: number, splitAmount: number) {
+    public calcSumOfBest(modeNum: number, splitAmount?: number) {
         return this.calculatePaceAndSoB(modeNum, [], splitAmount).soB
     }
 

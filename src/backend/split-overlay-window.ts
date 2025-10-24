@@ -159,7 +159,6 @@ export function redrawSplitDisplay(
         return;
     }
     const pbRunInfoAndSoB: PbRunInfoAndSoB = getPbRunInfoAndSoB(mapNum, modeNum, false);
-    log.info(`[Backend] Redrawing split display for map ${mapNum}, mode ${modeNum} with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
     overlayWindow.webContents.send('redraw-split-display', pbRunInfoAndSoB, reverseSplits);
 }
 
@@ -176,8 +175,8 @@ export function getPbRunInfoAndSoB(
     let pbSplits = pbSplitTracker.getPbSplitsForMode(modeNum);
     let pbSplitTimes = pbSplits?.times || [];
     const isUD = isUpsideDownMode(modeNum)
-
-    if (settingsManager.raceGoldSplits()) {
+    const raceGoldSplits = settingsManager.raceGoldSplits();
+    if (raceGoldSplits) {
         const splitAmount = mapModeAndSplits.splits.length;
         const splitPath = settingsManager.getSplitIndexPath(modeNum, splitAmount);
         pbSplitTimes = []
@@ -225,10 +224,18 @@ export function getPbRunInfoAndSoB(
     if (!lastSplitResets) {
         lastSplitResets = { split: pbSplitIndex-1, resets: 0 };
     }
+    const pb = pbTime === Infinity ? -1 : pbTime;
+    let name = "PB";
+    let time = pb;
+    if (raceGoldSplits) {
+        name = "SoB";
+        time = soB;
+    }
+
     splits.push({
-        name: "PB",
+        name: name,
         split: "pb",
-        time: pbTime,
+        time: time,
         hide: false,
         skipped: false,
         resets: lastSplitResets.resets
@@ -236,8 +243,7 @@ export function getPbRunInfoAndSoB(
 
     return {
         splits: splits,
-        pb: pbTime === Infinity ? -1 : pbTime,
-        sumOfBest: soB,
+        sumOfBest: !raceGoldSplits ? soB : pb, // swapping pb and sob if you're racing vs gold splits
         pace: pace,
         settings: settingsManager.currentSettings,
         isUDMode: isUD,

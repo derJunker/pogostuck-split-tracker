@@ -8,7 +8,6 @@ export interface SplitInfo {
 
 export interface PbRunInfoAndSoB {
     splits: SplitInfo[],
-    pb: number,
     sumOfBest: number,
     pace: number
     settings: Settings,

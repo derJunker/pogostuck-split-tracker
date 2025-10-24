@@ -44,7 +44,7 @@ const map3Routes: { [key: number]: string[] } = {
 };
 
 async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
-    const {splits, pb, sumOfBest, pace, settings, isUDMode, playAnimation} = pbRunInfo;
+    const {splits, sumOfBest, pace, settings, isUDMode, playAnimation} = pbRunInfo;
     __electronLog.debug(`loading map and mode with animation: ${playAnimation}`);
     await setLootDisplay("")
     // Clear splits
@@ -71,7 +71,7 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     });
     splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
     // Sum of Best und PB setzen
-    await resetStats(pb, sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, playAnimation);
+    await resetStats(sumOfBest, pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, playAnimation, settings.raceGoldSplits);
     if (playAnimation) {
         show('splits')
         await playAnimations(
@@ -245,8 +245,8 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
 
 window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
                                   pbRunInfoAndSoB: PbRunInfoAndSoB, reverseSplits: boolean) => {
-    __electronLog.info(`Frontend: Redrawing overlay with PB: ${pbRunInfoAndSoB.pb}, sum of best: ${pbRunInfoAndSoB.sumOfBest}`);
-    await resetStats(pbRunInfoAndSoB.pb, pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace, false);
+    __electronLog.info(`[Frontend] Redrawing overlay`);
+    await resetStats(pbRunInfoAndSoB.sumOfBest, pbRunInfoAndSoB.pace, pbRunInfoAndSoB.settings.showSoB, pbRunInfoAndSoB.settings.showPace, false, pbRunInfoAndSoB.settings.raceGoldSplits);
 
     const splitsDiv = document.getElementById('splits')!;
     const currentSplits: HTMLElement[] =  Array.from(splitsDiv.querySelectorAll('.split'));
@@ -317,14 +317,17 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
 });
 
 
-async function resetStats(pb: number, sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean, animate: boolean) {
+async function resetStats(sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean, animate: boolean, raceGoldSplits: boolean) {
     const totalsDiv =  document.getElementById('totals')!;
-
     const sumOfBestSpan = document.getElementById('sum-of-best')!;
-    sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
+    sumOfBestSpan.innerText = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
+    const soBLabel = document.getElementById("sob-label")!
+    if (raceGoldSplits) soBLabel.innerText = 'PB: '
+    else soBLabel.innerText = "SoB: "
+
 
     const paceSpan = document.getElementById('pace')!;
-    paceSpan.textContent = pace > 0 ? formatPbTime(pace) : '?';
+    paceSpan.innerText = pace > 0 ? formatPbTime(pace) : '?';
 
     if (!showPace) {
         await hideAnimation(paceSpan.parentElement!)

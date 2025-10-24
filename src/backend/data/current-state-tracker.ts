@@ -207,10 +207,16 @@ export class CurrentStateTracker {
             configWindow.webContents.send('pb-improved', {mode: this.mode, pbTime: pb})
         }
 
+        let splitDiff = this.finalTime - pb;
+        if (settingsManager.raceGoldSplits()) {
+            const sob = goldSplitsTracker.calcSumOfBest(this.mode)
+            splitDiff = this.finalTime - sob;
+        }
+
         overlay.webContents.send('split-passed', {
             splitId: "pb",
             splitTime: time,
-            splitDiff: this.finalTime - pb,
+            splitDiff: splitDiff,
             golden: lastSplitIsGold,
             goldPace: isPbImproved,
             onlyDiffColored: settingsManager.onlyDiffColored(),

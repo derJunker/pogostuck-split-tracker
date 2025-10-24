@@ -214,22 +214,17 @@ async function processResetQueue() {
     isProcessingResets = true;
     while (awaitingResets.length > 0) {
         const nextItem = awaitingResets.shift()!;
-        __electronLog.debug(`[Queue] processing next item. queue length now: ${awaitingResets.length}`);
         try {
             await loadMapMode(nextItem);
-            __electronLog.debug(`[Queue] finished loadingMapMode`);
         } catch (err) {
-            __electronLog.error(`[Queue] error while loadingMapMode: ${err}`);
         }
     }
     isProcessingResets = false;
-    __electronLog.debug("[Queue] done");
 }
 
 function addToResetOverlayQueue(pbRunInfo: PbRunInfoAndSoB, next: boolean = false) {
     if (!next) {
         awaitingResets.push(pbRunInfo);
-        __electronLog.debug(`[Queue] adding to request queue. queue length now: ${awaitingResets.length}`)
     } else {
         // ensure the provided item is processed next
         awaitingResets.unshift(pbRunInfo);

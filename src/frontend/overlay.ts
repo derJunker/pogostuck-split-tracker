@@ -204,8 +204,11 @@ function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, 
 
     if (splitKey === "pb") {
         const nameSpan = splitDiv.querySelector('.split-name');
-        if (!nameSpan) return;
-        if (diff > 0) nameSpan.textContent = "Finish"
+        if (nameSpan && diff > 0) nameSpan.textContent = "Finish";
+        else __electronLog.error(`couldn't find name span when adding finish name to pb split`);
+
+        const paceSpan = document.getElementById('pace')
+        if (paceSpan) paceSpan.textContent = formatPbTime(splitTime)
     }
 // TODO use this after pogo update, when route is logged
     // if (map3Route !== undefined && splitKey !== "pb") {

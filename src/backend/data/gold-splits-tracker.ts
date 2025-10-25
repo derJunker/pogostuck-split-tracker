@@ -122,14 +122,14 @@ export class GoldSplitsTracker {
         }
     }
 
-    public getLastGoldSplitForMode(modeIndex: number): {
+    public getLastGoldSplitForMode(modeIndex: number, isUD: boolean): {
         time: number,
         from: number,
         to: number
     } {
         const modeSplits = this.goldenSplits.find(gs => gs.modeIndex === modeIndex);
         if (modeSplits && modeSplits.goldenSplits.length > 0) {
-            const to = PbSplitTracker.getInstance().getSplitAmountForMode(modeIndex);
+            const to = !isUD ? PbSplitTracker.getInstance().getSplitAmountForMode(modeIndex) : -1;
             const splitIndexPath = SettingsManager.getInstance().getSplitIndexPath(modeIndex, to);
             const from = splitIndexPath.length > 0 ? splitIndexPath[splitIndexPath.length - 1].from : 0;
             const lastGoldSplit = this.getGoldSplitForModeAndSplit(modeIndex, from, to)

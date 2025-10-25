@@ -35,7 +35,6 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             let modeNum = parseInt(mode);
             const runNum = parseInt(run)
             // bug in the logs, this happens in the legend exam. mode is for some reason still 0  the first time logging
-            // TODO check if its the same for map 2 -> map 3
             if (modeNum === 0 && mapNum === 8) modeNum = 12;
             onMapOrModeChanged(mapNum, modeNum, runNum, overlayWindow, configWindow)
         }

@@ -45,7 +45,6 @@ const map3Routes: { [key: number]: string[] } = {
 
 async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     const {splits, sumOfBest, pace, settings, isUDMode, playAnimation} = pbRunInfo;
-    __electronLog.debug(`loading map and mode with animation: ${playAnimation}`);
     await setLootDisplay("")
     // Clear splits
     const splitsDiv = document.getElementById('splits');
@@ -144,7 +143,7 @@ function appendSplit(split: SplitInfo, splitsDiv: HTMLElement, showResets: boole
     // timeSpan.className = 'split-time ' + skippedClass;
     timeSpan.classList.add('split-time');
     if (skippedClass) timeSpan.classList.add(skippedClass);
-    timeSpan.textContent = formatPbTime(split.time)
+    timeSpan.textContent = split.time >= 0 ? formatPbTime(split.time) : '?'
     splitDiv.appendChild(timeSpan);
     if (split.hide) splitDiv.classList.add('hidden')
 

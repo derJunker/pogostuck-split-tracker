@@ -156,7 +156,7 @@ export class CurrentStateTracker {
         if (this.recordedSplits.length > 0)
             lastSplit = this.recordedSplits[this.recordedSplits.length - 1]
         const lastDiff = time - lastSplit.time
-        const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode)
+        const lastGoldSplit = goldSplitsTracker.getLastGoldSplitForMode(this.mode, isUD)
         log.info(`Last split: ${lastSplit.split}, time: ${lastSplit.time}, last diff: ${lastDiff}`);
         log.info(`last gold split: from ${lastGoldSplit.from}, to ${lastGoldSplit.to}, time: ${lastGoldSplit.time}`);
         let lastSplitIsGold = false;

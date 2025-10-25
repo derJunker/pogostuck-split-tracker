@@ -12,6 +12,7 @@ import path from "path";
 import {BackupGoldSplitTracker} from "./backup-gold-split-tracker";
 import {CustomModeHandler} from "./custom-mode-handler";
 import {PogoNameMappings} from "./pogo-name-mappings";
+import { Split } from "../../types/mode-splits";
 
 export class CurrentStateTracker {
     private static instance: CurrentStateTracker | null = null;
@@ -74,8 +75,7 @@ export class CurrentStateTracker {
         if (newModeIsNotCustom) {
             log.debug(`New mode is not custom (different underlying: ${newModeIsDifferentUnderlying}, changed to menu: ${changedToMenu}, not playing custom: ${!isPlayingCustomMode}), clearing custom mode`);
             customModeHandler.clearCustomMode(configWindow)
-        }
-        else {
+        } else {
             log.info(`Detected custom mode! ${JSON.stringify(customModeInfo)}`);
             return customModeInfo!.customMode
         }
@@ -114,11 +114,17 @@ export class CurrentStateTracker {
             goldSplitsTracker.updateGoldSplit(this.mode, from, split, splitTime)
             log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitTime} gold split was ${goldSplit}`);
             isGoldSplit = true;
-            log.debug(`attempting to backup old goldSplit: ${goldSplit}`);
             if (goldSplit) {
                 const backupGoldTracker = BackupGoldSplitTracker.getInstance()
                 backupGoldTracker.addBackup(goldSplit, {from, to: split}, this.mode)
             }
+        } else if (!fromAndToAreInPlannedPath && !shouldSkip) { // if from and to were not in split path, check the
+            // possibility that somebody accidentally triggered a split in betweeen the correct path. in this case,
+            // ignore the accidentally triggered split(s) for gold split purposes
+            log.debug(`[INTERUPTION CHECK] from and to are not in planned path, checking for split path interuption to ${split}`);
+            isGoldSplit = this.checkForSplitPathInteruption(splitPath, split, time)
+            log.debug(`[INTERUPTION CHECK] isGoldSplit result: ${isGoldSplit}`);
+
         } else {
             log.info(`No gold split for mode ${this.mode} from ${from} to ${split}, current gold split is ${goldSplit}`);
             log.info(`"goldSplit": ${goldSplit}, "splitTime": ${splitTime}, "goldSplitIsInSplitPath": ${fromAndToAreInPlannedPath}`);
@@ -134,6 +140,62 @@ export class CurrentStateTracker {
             log.info(`No new gold pace for mode ${this.mode} at split ${split}, with time ${time}, current gold pace is ${goldPace?.time}`);
         }
         return {isGoldSplit, isGoldPace};
+    }
+
+    // if from and to were not in split path, check the
+    // possibility that somebody accidentally triggered a split in betweeen the correct path. in this case,
+    // ignore the accidentally triggered split(s) for gold split purposes
+    private checkForSplitPathInteruption(splitPath: Split[], split: number, splitPassTime: number): boolean {
+        const settingsManager = SettingsManager.getInstance();
+        const goldSplitsTracker = GoldSplitsTracker.getInstance();
+
+        const expectedSplit = splitPath.find((splitSeg) => splitSeg.to === split)
+        log.debug(`[INTERRUPTION CHECK] Expected split segment for split ${split} is ${JSON.stringify(expectedSplit)}`);
+        if(!expectedSplit) return false;
+        const reversedRecordedSplits = [...this.recordedSplits].reverse();
+        reversedRecordedSplits.shift(); // remove the split that was just passed
+        let passedSplit: {split: number, time: number};
+        let validLastSplit: {split: number, time: number} | null = null;
+        // go through the recorded splits until you find the expected from split, if you cant find it, return
+        // (happens when you skip a split which is not supposed to be skipped)
+        do {
+            passedSplit = reversedRecordedSplits.shift()!;
+            log.debug(`[INTERRUPTION CHECK] Checking passed split ${JSON.stringify(passedSplit)} against expected from ${expectedSplit.from}`);
+            // break condition
+            if (passedSplit.split === expectedSplit.from) {
+                validLastSplit = passedSplit;
+                break;
+            }
+            const passedSplitWasSkipped = settingsManager.splitShouldBeSkipped(this.mode, passedSplit.split)
+            log.debug(`[INTERRUPTION CHECK] Passed split ${passedSplit.split} was skipped: ${passedSplitWasSkipped}`);
+            if (!passedSplitWasSkipped) return false; // if the player crossed a different split that was not
+            // selected as a skipped split, return, not even sure if this can happen, maybe with f5 splits?, just
+            // making sure
+
+        } while (reversedRecordedSplits.length > 0);
+        log.debug(`[INTERRUPTION CHECK] Valid last split found: ${JSON.stringify(validLastSplit)}`);
+        if (!validLastSplit) return false;
+        // by now we have found the path that the player should've been on, but maybe accidentally triggered splits
+        // in between. so now i just need to check if it is a gold split.
+        const splitDiff = splitPassTime - validLastSplit.time
+        let goldSplit = goldSplitsTracker.getGoldSplitForModeAndSplit(this.mode, expectedSplit.from, expectedSplit.to)
+
+        log.debug(`[INTERRUPTION CHECK] Calculated split diff: ${splitDiff}, existing gold split: ${goldSplit}`);
+
+        if (!goldSplit || goldSplit && goldSplit > splitDiff) {
+            const from = expectedSplit.from;
+            const to = expectedSplit.to;
+            goldSplitsTracker.updateGoldSplit(this.mode, from, to, splitDiff)
+            log.info(`New gold split for mode ${this.mode} from ${from} to ${split} with time ${splitDiff} gold split was ${goldSplit}; despite path being interrupted`);
+            if (goldSplit) {
+                const backupGoldTracker = BackupGoldSplitTracker.getInstance()
+                backupGoldTracker.addBackup(goldSplit, {from, to: split}, this.mode)
+            }
+            return true;
+        }
+        log.debug(`[INTERRUPTION CHECK] No new gold split despite path being interrupted`);
+        return false;
+
     }
 
     public finishedRun(time: number, igPbTime: number, configWindow: BrowserWindow, overlay: BrowserWindow): void {

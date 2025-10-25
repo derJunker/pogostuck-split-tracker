@@ -207,13 +207,13 @@ function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, 
         if (!nameSpan) return;
         if (diff > 0) nameSpan.textContent = "Finish"
     }
-
-    if (map3Route !== undefined && splitKey !== "pb") {
-        const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
-        if (splitNameSpan) {
-            splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
-        }
-    }
+// TODO use this after pogo update, when route is logged
+    // if (map3Route !== undefined && splitKey !== "pb") {
+    //     const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
+    //     if (splitNameSpan) {
+    //         splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
+    //     }
+    // }
 }
 
 const awaitingResets: PbRunInfoAndSoB[] = [];

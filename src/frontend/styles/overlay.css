@@ -37,7 +37,7 @@ body {
 
 #splits {
     --reset-count-width: 3ch;
-    --grid-row-height: 1.5ch;
+    --grid-row-height: 1.75ch;
     --splits-rows: repeat(10, var(--grid-row-height));
     display: grid;
     grid-template-columns: auto var(--reset-count-width) auto auto;

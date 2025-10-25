@@ -88,15 +88,10 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     __electronLog.debug(`finished loading map and mode animate: ${playAnimation}`);
 }
 
-function adjustSplitsGridRowLayout(pbRunInfo: PbRunInfoAndSoB, splitsDiv: HTMLElement, currentSplits?: HTMLElement[]) {
-    let splits = pbRunInfo.splits
-    if (currentSplits) {
-        splits = currentSplits.map(split => pbRunInfo.splits.find(s => s.split === split.id)!)
-    }
+function adjustSplitsGridRowLayout(pbRunInfo: PbRunInfoAndSoB, splitsDiv: HTMLElement) {
     const gridRows = pbRunInfo.splits
         .map(splitInfo => splitInfo.hide ? "0" : "var(--grid-row-height)")
         .join(" ");
-    __electronLog.debug(`[DEBUG] gridRows: ${gridRows}`);
     splitsDiv.style.setProperty("--splits-rows", `${gridRows}`)
 }
 
@@ -183,9 +178,9 @@ function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, 
     const timeSpan = splitDiv.querySelector('.split-time');
     if (timeSpan) {
         timeSpan.textContent = formatPbTime(splitTime);
-        timeSpan.className = "split-time";
+        timeSpan.classList.add("split-time");
         if (!onlyDiffColored) {
-            timeSpan.className += " " + type;
+            timeSpan.classList.add(type);
         }
     }
 
@@ -278,12 +273,18 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
     }
     if(pbRunInfo.isUDMode && pbRunInfo.settings.reverseUDModes) reverseSplitList(pbRunInfo.splits)
     let highestResetCountDigits = 3;
-    adjustSplitsGridRowLayout(pbRunInfo, splitsDiv)
+    let splitGridRow = "";
     for (const splitDiv of currentSplits) {
         const frontendSettings = pbRunInfo.settings
         const splitInfoForEl = pbRunInfo.splits.find(splitInfo => splitInfo.split === splitDiv.id)!;
-        if (splitInfoForEl.hide) splitDiv.classList.add('hidden');
-        else await showAnimation(splitDiv)
+        if (splitInfoForEl.hide) {
+            splitDiv.classList.add('hidden');
+            splitGridRow += "0 "
+        }
+        else {
+            if (splitDiv.classList.contains("hidden")) await showAnimation(splitDiv)
+            splitGridRow += "var(--grid-row-height) "
+        }
 
         const splitTime: HTMLElement = splitDiv.querySelector('.split-time')!;
         const splitName: HTMLElement = splitDiv.querySelector('.split-name')!;
@@ -322,19 +323,18 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
         }
 
         if (splitInfoForEl.skipped) {
-            splitDiv.classList.add("skipped");
             splitTime.classList.add('skipped');
             splitName.classList.add('skipped');
             resetSpan.classList.add('skipped');
             if (pbRunInfo.settings.raceGoldSplits) splitTime.textContent = formatPbTime(0)
         } else {
-            splitDiv.classList.remove("skipped");
             splitTime.classList.remove('skipped');
             splitName.classList.remove('skipped');
             resetSpan.classList.remove('skipped');
             if (pbRunInfo.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
     }
+    splitsDiv.style.setProperty("--splits-rows", `${splitGridRow.trim()}`)
     splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
     await toggleCustomModeDisplay(pbRunInfo.customModeName, false)
 });

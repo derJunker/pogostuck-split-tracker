@@ -271,6 +271,11 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
         currentSplits.forEach(split => splitsDiv.appendChild(split))
     }
     if(pbRunInfo.isUDMode && pbRunInfo.settings.reverseUDModes) reverseSplitList(pbRunInfo.splits)
+    await redrawSplits(currentSplits, pbRunInfo, splitsDiv)
+    await toggleCustomModeDisplay(pbRunInfo.customModeName, false)
+});
+
+async function redrawSplits(currentSplits: HTMLElement[], pbRunInfo: PbRunInfoAndSoB, splitsDiv: HTMLElement) {
     let highestResetCountDigits = 3;
     let splitGridRow = "";
     for (const splitDiv of currentSplits) {
@@ -332,12 +337,12 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
             resetSpan.classList.remove('skipped');
             if (pbRunInfo.settings.raceGoldSplits)  splitTime.textContent = formatPbTime(splitInfoForEl.time);
         }
+
+        if (splitDiv.id === "pb") splitTime.textContent = splitInfoForEl.time >= 0 ? formatPbTime(splitInfoForEl.time) : '?';
     }
     splitsDiv.style.setProperty("--splits-rows", `${splitGridRow.trim()}`)
     splitsDiv.style.setProperty("--reset-count-width", `${highestResetCountDigits}ch`)
-    await toggleCustomModeDisplay(pbRunInfo.customModeName, false)
-});
-
+}
 
 async function resetStats(sumOfBest: number, pace: number, showSoB: boolean, showPace: boolean, animate: boolean, raceGoldSplits: boolean) {
     const sumOfBestSpan = document.getElementById('sum-of-best')!;

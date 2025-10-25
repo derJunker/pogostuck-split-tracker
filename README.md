@@ -38,7 +38,8 @@ If you want to get the newest changes (and maybe bugs) you can setup the project
 
 ### Usage
 When starting it for the first time, you need to set up some stuff. You will (hopefully) find all information in the ``Setup`` tab in the app.
-If there are any questions just dm me on discord (@derjunker). I'd love to help out and receive feedback!
+If there are any questions just dm me on discord (@derjunker). I'd love to help out and receive feedback!\
+Alternatively you can also leave me feedback in this [google form](https://docs.google.com/forms/d/e/1FAIpQLSeXa6HiFg7rdbIEup3HRJPcMTwQiwQxi5fOc5Fe1AJEw4nPmQ/viewform?usp=publish-editor).
 
 ## Limitations
 It sadly does **not work with fullscreen**! You need to use borderless or windowed mode :(. Maybe this changes at some

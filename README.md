@@ -48,8 +48,6 @@ are done with your run.
 
 I only tested this on Windows, as most pogo players are on windows afaik. So it might not work on other Operating Systems.
 
-Windows 11 insists on having a 1px border around every window. If that's an issue you: [this might help](https://pureinfotech.com/remove-pixel-border-windows-11/) (i didnt test it myself tho).
-
 The Windows 11 window-shadow can be removed in settings. For all windows 11 users there should be information in the "Setup" tab of the app. **If thats not the case:** then contact me!
 
 ## Support

@@ -3,7 +3,7 @@ A pogostuck split tracker improving on the basic ingame tracker :).
 
 [Website 🐸](https://derjunker.github.io/junker-s-split-tracker-website/)
 
-<img alt="split timer with colored splits.png" src="pogostuck-tracker.jpg" width="1816"/>
+<img alt="split timer with colored splits.png" src="pogostuck-tracker.png" width="1816"/>
 
 
 ## What it does

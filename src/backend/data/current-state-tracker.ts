@@ -158,7 +158,7 @@ export class CurrentStateTracker {
         let validLastSplit: {split: number, time: number} | null = null;
         // go through the recorded splits until you find the expected from split, if you cant find it, return
         // (happens when you skip a split which is not supposed to be skipped)
-        do {
+        while (reversedRecordedSplits.length > 0) {
             passedSplit = reversedRecordedSplits.shift()!;
             log.debug(`[INTERRUPTION CHECK] Checking passed split ${JSON.stringify(passedSplit)} against expected from ${expectedSplit.from}`);
             // break condition
@@ -172,7 +172,7 @@ export class CurrentStateTracker {
             // selected as a skipped split, return, not even sure if this can happen, maybe with f5 splits?, just
             // making sure
 
-        } while (reversedRecordedSplits.length > 0);
+        }
         log.debug(`[INTERRUPTION CHECK] Valid last split found: ${JSON.stringify(validLastSplit)}`);
         if (!validLastSplit) return false;
         // by now we have found the path that the player should've been on, but maybe accidentally triggered splits

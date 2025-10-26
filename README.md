@@ -1,7 +1,11 @@
 # pogostuck-split-tracker
 A pogostuck split tracker improving on the basic ingame tracker :). 
 
-[Website 🐸](https://derjunker.github.io/junker-s-split-tracker-website/)
+[Website 🐸](https://derjunker.github.io/junker-s-split-tracker-website/) | 
+[Report a Bug / Leave Feedback 📝](https://docs.google.com/forms/d/e/1FAIpQLSeXa6HiFg7rdbIEup3HRJPcMTwQiwQxi5fOc5Fe1AJEw4nPmQ/viewform?usp=publish-editor) | 
+[Discord 💬](https://discord.gg/rdLTX0Zs8U) |
+[Setup Video 🎥](https://www.youtube.com/watch?v=TiV_zLOi0zc) |
+[Buy me a coffee ☕](https://buymeacoffee.com/derjunker)
 
 <img alt="split timer with colored splits.png" src="pogostuck-tracker.png" width="1816"/>
 

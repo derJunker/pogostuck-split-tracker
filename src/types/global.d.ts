@@ -17,6 +17,24 @@ export interface PbRunInfoAndSoB {
     playAnimation: boolean,
 }
 
+export interface SplitPassedInfo {
+    splitId: string,
+    splitTime: number,
+    splitDiff: number,
+    golden: boolean,
+    goldPace: boolean,
+    onlyDiffColored: boolean,
+    map3Route?: number
+}
+
+export interface OverlayStatus {
+    pogoPathValid: boolean;
+    steamPathValid: boolean;
+    friendCodeValid: boolean;
+    showLogDetectMessage: boolean;
+    logsDetected: boolean
+}
+
 declare global { interface Window {
     electronAPI: {
         // overlay subscribing to backend events
@@ -26,9 +44,9 @@ declare global { interface Window {
         redrawOverlay: (callback: (event: Electron.IpcRendererEvent,
                                    pbRunInfoAndSoB: PbRunInfoAndSoB, reverseSplits: boolean) => void) => void;
         onSplitPassed: (callback: (event: Electron.IpcRendererEvent,
-                                   splitInfo: { splitId: string, splitTime: number, splitDiff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route?: number}) => void) => void;
+                                   splitInfo: SplitPassedInfo) => void) => void;
         onGoldenSplitPassed: (callback: (event: Electron.IpcRendererEvent, sumOfBest: number) => void) => void;
-        onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => void) => void;
+        onStatusChanged: (callback: (event: Electron.IpcRendererEvent, statusMsg: OverlayStatus) => void) => void;
         showMessage: (callback: (event: Electron.IpcRendererEvent, message: string) => void) => void;
         clickThroughChanged: (callback: (event: Electron.IpcRendererEvent, notClickThrough: boolean) => void) => void;
         lootStarted: (callback: (event: Electron.IpcRendererEvent, seed:string, isSpeedrunning: boolean) => void) => void;

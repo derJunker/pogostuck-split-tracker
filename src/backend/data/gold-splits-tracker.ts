@@ -202,9 +202,7 @@ export class GoldSplitsTracker {
             }
         }
 
-        log.debug(`passed splits: ${JSON.stringify(passedSplits)}, last valid passed split: ${lastValidPassedSplit}`);
         const goldSplitsForMode = this.getGoldSplitsForMode(mode);
-        log.debug(`Gold splits for mode: ${JSON.stringify(goldSplitsForMode)}`);
         if (goldSplitsForMode) {
             let sumOfBest = 0;
             let pace = lastKnownTime ;

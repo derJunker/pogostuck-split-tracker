@@ -2,7 +2,7 @@ import './styles/overlay.css';
 import './styles/components.css';
 
 import { formatPbTime } from './util/time-formating';
-import {PbRunInfoAndSoB, SplitInfo} from "../types/global";
+import {OverlayStatus, PbRunInfoAndSoB, SplitInfo, SplitPassedInfo} from "../types/global";
 import {Stopwatch} from "./util/stopwatch";
 
 const animationDuration = 50;
@@ -44,6 +44,7 @@ const map3Routes: { [key: number]: string[] } = {
 };
 
 async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
+    __electronLog.debug(`[LOADMAPMODE] Loading map ${pbRunInfo.map}, animate: ${pbRunInfo.playAnimation}`);
     const {splits, sumOfBest, pace, settings, isUDMode, playAnimation} = pbRunInfo;
     await setLootDisplay("")
     // Clear splits
@@ -84,7 +85,7 @@ async function loadMapMode(pbRunInfo: PbRunInfoAndSoB) {
     }
     await toggleCustomModeDisplay(pbRunInfo.customModeName, playAnimation)
 
-    __electronLog.debug(`finished loading map and mode animate: ${playAnimation}`);
+    __electronLog.debug(`[LOADMAPMODE] finished animate: ${playAnimation}`);
 }
 
 function adjustSplitsGridRowLayout(pbRunInfo: PbRunInfoAndSoB, splitsDiv: HTMLElement) {
@@ -162,7 +163,8 @@ async function toggleCustomModeDisplay(customModeName: string | undefined, anima
     }
 }
 
-function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, golden: boolean, goldPace: boolean, onlyDiffColored: boolean, map3Route: number | undefined) {
+async function addSplitTimeAndDiff(splitInfo: SplitPassedInfo) {
+    const {splitId: splitKey, splitTime, splitDiff: diff, golden, goldPace, onlyDiffColored, map3Route} = splitInfo;
     __electronLog.info(`Adding split time for split ${splitKey}: ${splitTime}, diff: ${diff}, golden: ${golden} goldPace: ${goldPace} map3Route: ${map3Route}`);
     const splitDiv = document.getElementById(splitKey);
     if (!splitDiv) {
@@ -219,35 +221,62 @@ function addSplitTimeAndDiff(splitKey: string, splitTime: number, diff: number, 
     // }
 }
 
-const awaitingResets: PbRunInfoAndSoB[] = [];
-let isProcessingResets = false;
+const awaitingOverlayUpdates: (() => Promise<void>)[] = [];
+let isProcessingUpdates = false;
 
-window.electronAPI.resetOverlay(async (_event: Electron.IpcRendererEvent,
-                                       pbRunInfo: PbRunInfoAndSoB) => {
-    addToResetOverlayQueue(pbRunInfo)
-});
-
-async function processResetQueue() {
-    if (isProcessingResets) return;
-    isProcessingResets = true;
-    while (awaitingResets.length > 0) {
-        const nextItem = awaitingResets.shift()!;
+async function processUpdateQueue() {
+    if (isProcessingUpdates) return;
+    isProcessingUpdates = true;
+    while (awaitingOverlayUpdates.length > 0) {
+        const nextItem = awaitingOverlayUpdates.shift()!;
         try {
-            await loadMapMode(nextItem);
+            await nextItem();
         } catch (err) {
         }
     }
-    isProcessingResets = false;
+    isProcessingUpdates = false;
 }
 
-function addToResetOverlayQueue(pbRunInfo: PbRunInfoAndSoB, next: boolean = false) {
-    if (!next) {
-        awaitingResets.push(pbRunInfo);
-    } else {
-        // ensure the provided item is processed next
-        awaitingResets.unshift(pbRunInfo);
+function addToOverlayUpdateQueue(callback: (() => Promise<void>)) {
+    awaitingOverlayUpdates.push(callback);
+    void processUpdateQueue();
+}
+
+window.electronAPI.resetOverlay(async (_event: Electron.IpcRendererEvent,
+                                       pbRunInfo: PbRunInfoAndSoB) => {
+    addToOverlayUpdateQueue(() => loadMapMode(pbRunInfo));
+});
+
+window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
+                                        pbRunInfo: PbRunInfoAndSoB, reverseSplits: boolean) => addToOverlayUpdateQueue(() => redrawOverlay(pbRunInfo, reverseSplits)));
+
+window.electronAPI.mainMenuOpened(async () => addToOverlayUpdateQueue(() => onMainMenuOpened()));
+
+window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo: SplitPassedInfo) => addToOverlayUpdateQueue(() => addSplitTimeAndDiff(splitInfo)));
+
+window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOfBest: number) => {
+    const sumOfBestSpan = document.getElementById('sum-of-best');
+    if (sumOfBestSpan) {
+        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
     }
-    void processResetQueue();
+});
+
+window.electronAPI.onStatusChanged(async (_event: Electron.IpcRendererEvent, status: OverlayStatus) => addToOverlayUpdateQueue(() => onStatusChanged(status)))
+
+async function onStatusChanged(status: OverlayStatus) {
+    __electronLog.info(`[STATUS CHANGE] pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}, showLogDetectMessage: ${status.showLogDetectMessage}, logsDetected: ${status.logsDetected}`);
+    const statusElement = document.getElementById('status-msg')!;
+    statusElement.innerHTML = '';
+    const { pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage } = status;
+    const statusMsg = createStatusMessage(pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage)
+    statusMsg.split('\n').forEach(line => {
+        const div = document.createElement('div');
+        div.innerHTML = line;
+        statusElement.appendChild(div);
+    });
+    if (!(pogoPathValid && steamPathValid && friendCodeValid && logsDetected)) {
+        await setLootDisplay("")
+    }
 }
 
 window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notClickThrough: boolean) => {
@@ -261,9 +290,48 @@ window.electronAPI.clickThroughChanged((_event: Electron.IpcRendererEvent, notCl
     }
 })
 
-window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
-                                  pbRunInfo: PbRunInfoAndSoB, reverseSplits: boolean) => {
-    __electronLog.info(`[Frontend] Redrawing overlay`);
+window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => {
+    const body = document.body;
+    if (enableBackgroundColor) {
+        body.style.backgroundColor = enableBackgroundColor;
+    } else {
+        body.style.backgroundColor = '';
+    }
+})
+
+window.electronAPI.changeGoldSplitColor((_event: Electron.IpcRendererEvent, goldSplitColor: string) => {
+    document.documentElement.style.setProperty('--golden-split-col', goldSplitColor)
+})
+
+window.electronAPI.changeGoldPaceColor((_event: Electron.IpcRendererEvent, goldPaceColor: string) => {
+    document.documentElement.style.setProperty('--golden-pace-col', goldPaceColor)
+})
+
+window.electronAPI.changeFastSplitColor((_event: Electron.IpcRendererEvent, fastSplitColor: string) => {
+    document.documentElement.style.setProperty('--early-col', fastSplitColor)
+})
+
+window.electronAPI.changeSlowSplitColor((_event: Electron.IpcRendererEvent, slowSplitColor: string) => {
+    document.documentElement.style.setProperty('--late-col', slowSplitColor)
+})
+
+window.electronAPI.lootStarted(async (_event: Electron.IpcRendererEvent, seed: string, isSpeedrun: boolean) => addToOverlayUpdateQueue(() => setLootDisplay(seed, isSpeedrun)))
+
+window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: string) => {
+    const overlayMessageContainer = document.getElementById("overlay-messages")
+    if(!overlayMessageContainer) return;
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "overlay-message";
+    messageDiv.innerText = message;
+    overlayMessageContainer.appendChild(messageDiv);
+    __electronLog.debug(`Showing overlay message: '${message}'`);
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 6000)
+})
+
+async function redrawOverlay(pbRunInfo: PbRunInfoAndSoB, reverseSplits: boolean) {
+    __electronLog.info(`[REDRAW] Starting redraw`);
     await resetStats(pbRunInfo.sumOfBest, pbRunInfo.pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, false, pbRunInfo.settings.raceGoldSplits);
 
     const splitsDiv = document.getElementById('splits')!;
@@ -276,7 +344,60 @@ window.electronAPI.redrawOverlay(async (_event: Electron.IpcRendererEvent,
     if(pbRunInfo.isUDMode && pbRunInfo.settings.reverseUDModes) reverseSplitList(pbRunInfo.splits)
     await redrawSplits(currentSplits, pbRunInfo, splitsDiv)
     await toggleCustomModeDisplay(pbRunInfo.customModeName, false)
-});
+    __electronLog.info(`[REDRAW] Finished redraw`);
+}
+
+
+let stopwatch: Stopwatch | null = null;
+
+async function setLootDisplay(seed: string, isSpeedrun: boolean = false) {
+    const lootDisplayDiv = document.getElementById('loot-display')!
+    const lootSeedDiv = document.getElementById('loot-seed')!
+    const lootTimerDiv = document.getElementById('loot-timer')!
+    __electronLog.debug(`[UPDATE LOOT INFO] seed: '${seed}', isSpeedrun: ${isSpeedrun}`);
+    if (seed === "") {
+        stopwatch?.reset()
+        return hideAnimation(lootDisplayDiv)
+    }
+    await hideAnimation(document.getElementById('status-msg')!)
+    if (isSpeedrun) {
+        await showAnimation(lootTimerDiv)
+        if (!stopwatch) {
+            stopwatch = new Stopwatch((elapsed) => {
+                lootTimerDiv.innerText = formatPbTime(elapsed/1000, true);
+            });
+            stopwatch.start()
+        } else {
+            stopwatch.reset();
+            stopwatch.start();
+        }
+    } else {
+        hideElement(lootTimerDiv);
+    }
+    lootSeedDiv.innerText = "Seed: " + seed;
+    await showAnimation(lootDisplayDiv)
+}
+
+async function onMainMenuOpened() {
+    await setLootDisplay("")
+    await hideAnimation(document.getElementById('totals')!)
+    const sumOfBestSpan = document.getElementById('sum-of-best')!;
+    sumOfBestSpan.textContent = '';
+
+    const paceSpan = document.getElementById('pace')!;
+    paceSpan.textContent = '';
+    const splitsDiv = document.getElementById('splits');
+    if (splitsDiv) {
+        await hideAnimation(splitsDiv)
+        splitsDiv.innerHTML = '';
+    }
+    await playParallelAnimations(
+        {animation: hideAnimation, id: 'splits'},
+        {animation: hideAnimation, id: 'custom-mode-display'},
+        {animation: showAnimation, id: 'status-msg'},
+    )
+}
+
 
 async function redrawSplits(currentSplits: HTMLElement[], pbRunInfo: PbRunInfoAndSoB, splitsDiv: HTMLElement) {
     let highestResetCountDigits = 3;
@@ -375,125 +496,6 @@ async function resetStats(sumOfBest: number, pace: number, showSoB: boolean, sho
         paceSpan.parentElement!.style.gridColumn = ""
     }
 }
-window.electronAPI.mainMenuOpened(async () => {
-    await setLootDisplay("")
-    await hideAnimation(document.getElementById('totals')!)
-    const sumOfBestSpan = document.getElementById('sum-of-best')!;
-    sumOfBestSpan.textContent = '';
-
-    const paceSpan = document.getElementById('pace')!;
-    paceSpan.textContent = '';
-    const splitsDiv = document.getElementById('splits');
-    if (splitsDiv) {
-        await hideAnimation(splitsDiv)
-        splitsDiv.innerHTML = '';
-    }
-    await playParallelAnimations(
-        {animation: hideAnimation, id: 'splits'},
-        {animation: hideAnimation, id: 'custom-mode-display'},
-        {animation: showAnimation, id: 'status-msg'},
-    )
-});
-
-window.electronAPI.onSplitPassed((_event: Electron.IpcRendererEvent, splitInfo) => {
-    addSplitTimeAndDiff(splitInfo.splitId, splitInfo.splitTime, splitInfo.splitDiff, splitInfo.golden, splitInfo.goldPace, splitInfo.onlyDiffColored, splitInfo.map3Route);
-});
-
-window.electronAPI.onGoldenSplitPassed((_event: Electron.IpcRendererEvent, sumOfBest: number) => {
-    const sumOfBestSpan = document.getElementById('sum-of-best');
-    if (sumOfBestSpan) {
-        sumOfBestSpan.textContent = sumOfBest > 0 ? formatPbTime(sumOfBest) : '?'
-    }
-});
-
-window.electronAPI.onStatusChanged(async (_event: Electron.IpcRendererEvent, status: { pogoPathValid: boolean; steamPathValid: boolean; friendCodeValid: boolean; showLogDetectMessage: boolean; logsDetected: boolean }) => {
-    __electronLog.info(`[Frontend|Overlay] Status changed: pogoPathValid: ${status.pogoPathValid}, steamPathValid: ${status.steamPathValid}, friendCodeValid: ${status.friendCodeValid}, showLogDetectMessage: ${status.showLogDetectMessage}, logsDetected: ${status.logsDetected}`);
-    const statusElement = document.getElementById('status-msg')!;
-    statusElement.innerHTML = '';
-    const { pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage } = status;
-    const statusMsg = createStatusMessage(pogoPathValid, steamPathValid, friendCodeValid, logsDetected, showLogDetectMessage)
-    statusMsg.split('\n').forEach(line => {
-        const div = document.createElement('div');
-        div.innerHTML = line;
-        statusElement.appendChild(div);
-    });
-    if (!(pogoPathValid && steamPathValid && friendCodeValid && logsDetected)) {
-        await setLootDisplay("")
-    }
-})
-
-
-window.electronAPI.changeBackground((_event: Electron.IpcRendererEvent, enableBackgroundColor: string | null) => {
-    const body = document.body;
-    if (enableBackgroundColor) {
-        body.style.backgroundColor = enableBackgroundColor;
-    } else {
-        body.style.backgroundColor = '';
-    }
-})
-
-window.electronAPI.changeGoldSplitColor((_event: Electron.IpcRendererEvent, goldSplitColor: string) => {
-    document.documentElement.style.setProperty('--golden-split-col', goldSplitColor)
-})
-
-window.electronAPI.changeGoldPaceColor((_event: Electron.IpcRendererEvent, goldPaceColor: string) => {
-    document.documentElement.style.setProperty('--golden-pace-col', goldPaceColor)
-})
-
-window.electronAPI.changeFastSplitColor((_event: Electron.IpcRendererEvent, fastSplitColor: string) => {
-    document.documentElement.style.setProperty('--early-col', fastSplitColor)
-})
-
-window.electronAPI.changeSlowSplitColor((_event: Electron.IpcRendererEvent, slowSplitColor: string) => {
-    document.documentElement.style.setProperty('--late-col', slowSplitColor)
-})
-
-
-
-window.electronAPI.lootStarted(async (_event: Electron.IpcRendererEvent, seed: string, isSpeedrun: boolean) => await setLootDisplay(seed, isSpeedrun))
-
-let stopwatch: Stopwatch | null = null;
-
-async function setLootDisplay(seed: string, isSpeedrun: boolean = false) {
-    const lootDisplayDiv = document.getElementById('loot-display')!
-    const lootSeedDiv = document.getElementById('loot-seed')!
-    const lootTimerDiv = document.getElementById('loot-timer')!
-    __electronLog.debug(`setting loot display: '${seed}', isSpeedrun: ${isSpeedrun}`);
-    if (seed === "") {
-        stopwatch?.reset()
-        return hideAnimation(lootDisplayDiv)
-    }
-    await hideAnimation(document.getElementById('status-msg')!)
-    if (isSpeedrun) {
-        await showAnimation(lootTimerDiv)
-        if (!stopwatch) {
-            stopwatch = new Stopwatch((elapsed) => {
-                lootTimerDiv.innerText = formatPbTime(elapsed/1000, true);
-            });
-            stopwatch.start()
-        } else {
-            stopwatch.reset();
-            stopwatch.start();
-        }
-    } else {
-        hideElement(lootTimerDiv);
-    }
-    lootSeedDiv.innerText = "Seed: " + seed;
-    await showAnimation(lootDisplayDiv)
-}
-
-window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: string) => {
-    const overlayMessageContainer = document.getElementById("overlay-messages")
-    if(!overlayMessageContainer) return;
-    const messageDiv = document.createElement("div");
-    messageDiv.className = "overlay-message";
-    messageDiv.innerText = message;
-    overlayMessageContainer.appendChild(messageDiv);
-    __electronLog.debug(`Showing overlay message: '${message}'`);
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 6000)
-})
 
 function createStatusMessage(pogoPathValid: boolean, steamPathValid: boolean, friendCodeValid: boolean, logsDetected: boolean, showLogDetectMessage: boolean): string {
     let msg = "Config Status\n"
@@ -661,17 +663,3 @@ async function showSplits(splitsDiv: HTMLElement, pbRunInfo: PbRunInfoAndSoB) {
         resolve()
     }))
 }
-
-// async function hideSplits(splitsDiv: HTMLElement, pbRunInfo?: PbRunInfoAndSoB) {
-//     const splits = Array.from(splitsDiv.children) as Array<HTMLElement>;
-//     const animations = splits
-//         .filter((splitEl) => {
-//             if (!pbRunInfo) return true;
-//             const splitInfo = pbRunInfo.splits.find((s) => s.split === splitEl.id);
-//             if (!splitInfo) throw new Error(`Invalid split element with id ${splitEl.id}, no corresponding split info found, splits: ${JSON.stringify(pbRunInfo.splits)}`);
-//             return !splitInfo.skipped || (!splitInfo.hide)
-//         })
-//         .map((split) => ({animation: hideAnimation, id: split.id}))
-//     await playAnimations(...animations);
-//     splitsDiv.style.display = "none";
-// }

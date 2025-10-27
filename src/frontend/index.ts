@@ -58,7 +58,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('buy-coffee')?.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://buymeacoffee.com/derjunker"));
     document.querySelectorAll('.yt-vid').forEach(anchor => anchor.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://www.youtube.com/watch?v=TiV_zLOi0zc")))
-    document.querySelectorAll('.a-google-form').forEach(anchor => anchor.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://docs.google.com/forms/d/e/1FAIpQLSeXa6HiFg7rdbIEup3HRJPcMTwQiwQxi5fOc5Fe1AJEw4nPmQ/viewform?usp=publish-editor")))
+    document.querySelectorAll('.a-google-form, #report-bug-btn').forEach(anchor => anchor.addEventListener('click', () => window.electronAPI.openLinkInBrowser("https://docs.google.com/forms/d/e/1FAIpQLSeXa6HiFg7rdbIEup3HRJPcMTwQiwQxi5fOc5Fe1AJEw4nPmQ/viewform?usp=publish-editor")))
 
     document.getElementById('version')!.textContent = await window.electronAPI.getVersion();
 

@@ -206,7 +206,7 @@ async function addSplitTimeAndDiff(splitInfo: SplitPassedInfo) {
 
     if (splitKey === "pb") {
         const nameSpan = splitDiv.querySelector('.split-name');
-        if (nameSpan && diff > 0) nameSpan.textContent = "Finish";
+        if (nameSpan && !splitInfo.goldPace) nameSpan.textContent = "Finish";
         else __electronLog.error(`couldn't find name span when adding finish name to pb split`);
 
         const paceSpan = document.getElementById('pace')

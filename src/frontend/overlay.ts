@@ -324,14 +324,13 @@ window.electronAPI.showMessage((_event: Electron.IpcRendererEvent, message: stri
     messageDiv.className = "overlay-message";
     messageDiv.innerText = message;
     overlayMessageContainer.appendChild(messageDiv);
-    __electronLog.debug(`Showing overlay message: '${message}'`);
+    __electronLog.debug(`[SHOWMESSAGE] Showing overlay message: '${message}'`);
     setTimeout(() => {
         messageDiv.remove();
     }, 6000)
 })
 
 async function redrawOverlay(pbRunInfo: PbRunInfoAndSoB, reverseSplits: boolean) {
-    __electronLog.info(`[REDRAW] Starting redraw`);
     await resetStats(pbRunInfo.sumOfBest, pbRunInfo.pace, pbRunInfo.settings.showSoB, pbRunInfo.settings.showPace, false, pbRunInfo.settings.raceGoldSplits);
 
     const splitsDiv = document.getElementById('splits')!;
@@ -344,7 +343,6 @@ async function redrawOverlay(pbRunInfo: PbRunInfoAndSoB, reverseSplits: boolean)
     if(pbRunInfo.isUDMode && pbRunInfo.settings.reverseUDModes) reverseSplitList(pbRunInfo.splits)
     await redrawSplits(currentSplits, pbRunInfo, splitsDiv)
     await toggleCustomModeDisplay(pbRunInfo.customModeName, false)
-    __electronLog.info(`[REDRAW] Finished redraw`);
 }
 
 

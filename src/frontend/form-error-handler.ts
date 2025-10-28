@@ -1,61 +1,70 @@
-// global div where a list of elements with errors is stored
-// div id = error-messages
-// error class = error-message
-// each error is a div with the message inside
-// To make transitions there is always 1 empty error message field with class "hidden"
-// when you add an error you fill the hidden field and add a new empty hidden field
-// then add another hidden field
+import {getFrontendSettings} from "./config-window/backend-state-handler";
+import {getMessageByKey} from "./error-messages";
 
-import {Settings} from "../types/settings";
-import {getFrontendSettings, updateFrontendSettings} from "./config-window/backend-state-handler";
-import {getErrorMessage} from "./error-messages";
-import {error} from "electron-log";
-
-let errorContainer: HTMLDivElement | null = null;
-let hiddenErrorElement: HTMLDivElement | null = null;
+let messageContainer: HTMLDivElement | null = null;
+let hiddenMessageElement: HTMLDivElement | null = null;
 
 window.addEventListener('DOMContentLoaded', () => {
-    errorContainer = document.getElementById('error-messages') as HTMLDivElement;
-    createHiddenErrorElement()
+    messageContainer = document.getElementById('messages') as HTMLDivElement;
+    createHiddenMessageElement()
 });
+
+function htmlBaseIsValid(): boolean {
+    if (!messageContainer) {
+        __electronLog.error('Tried to check if html base is valid but errorContainer is null');
+        return false
+    }
+    if (!hiddenMessageElement) {
+        __electronLog.error('Tried to check if html base is valid but hiddenMessageElement is null');
+        return false
+    }
+    return true;
+}
+
+function showCurrentHiddenMessageElement() {
+    hiddenMessageElement!.classList.remove('hidden');
+    const messageElement = hiddenMessageElement;
+    setTimeout(() => {
+        messageElement!.classList.add('hidden');
+        setTimeout(() => messageElement!.remove(), 500)
+    }, 5000)
+    hiddenMessageElement = null;
+    createHiddenMessageElement();
+}
+
+export function addInfoMessage(messageCode: string, ...args: string[]): void {
+    const settings = getFrontendSettings()
+    if (!htmlBaseIsValid()) return;
+
+    hiddenMessageElement!.innerText = getMessageByKey(messageCode, settings.lang, ...args);
+    hiddenMessageElement!.classList.add('info-message');
+    showCurrentHiddenMessageElement();
+}
 
 export function addError(inputElement: HTMLInputElement, errorCode?: string, ...args:string[]): void {
     const settings = getFrontendSettings()
     inputElement.classList.add('invalid')
     if (!errorCode) return;
+    if(!htmlBaseIsValid()) return;
 
-    if (!errorContainer) {
-        __electronLog.error('Tried to add an error but errorContainer is null');
-        return
-    }
-    if (!hiddenErrorElement) {
-        __electronLog.error('Tried to add an error but hiddenErrorElement is null');
-        return
-    }
-    hiddenErrorElement.innerText = getErrorMessage(errorCode, settings.lang, ...args);
-    hiddenErrorElement.classList.remove('hidden');
-    const errorElement = hiddenErrorElement;
-    setTimeout(() => {
-        errorElement.classList.add('hidden');
-        setTimeout(() => errorElement.remove(), 500)
-    }, 5000)
-    hiddenErrorElement = null;
-    createHiddenErrorElement();
+    hiddenMessageElement!.innerText = getMessageByKey(errorCode, settings.lang, ...args);
+    hiddenMessageElement!.classList.add('error-message');
+    showCurrentHiddenMessageElement();
 }
 
-export function createHiddenErrorElement() {
-    if (hiddenErrorElement && hiddenErrorElement.textContent && hiddenErrorElement.textContent !== '') {
-        __electronLog.error(`Tried to create a hidden error element but one already exists with text: ${hiddenErrorElement.textContent}`);
+export function createHiddenMessageElement(): void {
+    if (hiddenMessageElement && hiddenMessageElement.textContent && hiddenMessageElement.textContent !== '') {
+        __electronLog.error(`Tried to create a hidden error element but one already exists with text: ${hiddenMessageElement.textContent}`);
         return
     }
-    if (!errorContainer) {
+    if (!messageContainer) {
         __electronLog.error('Tried to create a hidden error element but errorContainer is null');
         return
     }
-    hiddenErrorElement = document.createElement('div');
-    hiddenErrorElement.classList.add('error-message', 'hidden');
-    hiddenErrorElement.textContent = ""
-    errorContainer.appendChild(hiddenErrorElement);
+    hiddenMessageElement = document.createElement('div');
+    hiddenMessageElement.classList.add('message', 'hidden');
+    hiddenMessageElement.textContent = ""
+    messageContainer.appendChild(hiddenMessageElement);
 }
 
 export function removeError(inputElement: HTMLInputElement): void {

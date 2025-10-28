@@ -3,7 +3,7 @@ import './styles/loading-screen.css'
 import './styles/menus.css'
 import './styles/components.css';
 import './styles/preferences.css'
-import './styles/error-messages.css'
+import './styles/messages.css'
 import './styles/custom-modes.css'
 import './styles/pbs-tab.css'
 import './styles/splits-tab.css'

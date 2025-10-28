@@ -1,4 +1,4 @@
-const errorMessages: { [key: string]: { [lang: string]: string } } = {
+const messages: { [key: string]: { [lang: string]: string } } = {
     "NAME_NOT_EMPTY" : {
         "en": "Name cannot be empty.",
         "ja": "名前は空にできません。",
@@ -18,11 +18,15 @@ const errorMessages: { [key: string]: { [lang: string]: string } } = {
     "SPLIT_INVALID_FORMAT_OR_TOO_SLOW": {
         "en": "'%1' either had invalid format or was slower than your splits in your pb.",
         "ja": "'%1'は無効な形式であるか、PBのスプリットよりも遅かったです。"
-    }
+    },
+    "INFO_LOGS_COPIED": {
+        "en": "Logs copied to clipboard!",
+        "ja": "ログがクリップボードにコピーされました！"
+    },
 }
 
-export function getErrorMessage(code: string, lang: string, ...args: string[]): string {
-    let message = errorMessages[code]?.[lang] || errorMessages[code]?.["en"] || "Unknown error.";
+export function getMessageByKey(key: string, lang: string, ...args: string[]): string {
+    let message = messages[key]?.[lang] || messages[key]?.["en"] || "Unknown error.";
     args.forEach((arg, index) => {
         message = message.replace(`%${index + 1}`, arg);
     });

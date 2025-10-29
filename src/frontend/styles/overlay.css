@@ -13,7 +13,7 @@
 body {
     color: #fff;
     font-family: 'Courier Prime', monospace;
-    font-size: min(max(min(4.1vw, 7.5vh), 10px), 48px);
+    font-size: min(max(min(4.1vw, 7vh), 10px), 48px);
     -webkit-app-region: drag;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
     user-select: none;

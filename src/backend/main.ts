@@ -21,7 +21,6 @@ import fs from "fs";
 import {BackupGoldSplitTracker} from "./data/backup-gold-split-tracker";
 import {CustomModeHandler} from "./data/custom-mode-handler";
 import {PogoNameMappings} from "./data/pogo-name-mappings";
-import { net } from "electron";
 
 // @ts-ignore
 import WindowStateManager from 'electron-window-state-manager';
@@ -72,7 +71,7 @@ app.on("ready", async () => {
             contextIsolation: true,
             nodeIntegration: false
         },
-        title: "Junker's Split Tracker - v" + VERSION,
+        title: "Junker's Split Tracker v" + VERSION,
         icon: path.join(__dirname, '..', 'frontend', 'assets', 'clipboard.ico'),
         titleBarStyle: "hidden",
         // expose window controls in Windows/Linux
@@ -119,7 +118,6 @@ app.on("ready", async () => {
     userDataReader.initListeners();
     backupGoldTracker.initListeners(configWindow, overlayWindow)
     initWindows11Listeners();
-
     // I chose against this being parent window to overlayWindow so you can capture it for streaming or sth
     configWindow.on('close', () => {
         log.info(`Closing config window at position (${configWindow.getPosition().join(', ')}) with size (${configWindow.getSize().join(', ')})`);

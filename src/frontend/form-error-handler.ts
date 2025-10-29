@@ -50,6 +50,7 @@ export function addError(inputElement: HTMLInputElement, errorCode?: string, ...
     hiddenMessageElement!.innerText = getMessageByKey(errorCode, settings.lang, ...args);
     hiddenMessageElement!.classList.add('error-message');
     showCurrentHiddenMessageElement();
+    __electronLog.error(`[SHOW ERROR] '${errorCode}': ${hiddenMessageElement!.innerText}`);
 }
 
 export function createHiddenMessageElement(): void {

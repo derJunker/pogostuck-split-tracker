@@ -8,7 +8,8 @@
     "esModuleInterop": true,
     "allowJs": true,
     "types": ["node", "electron"],
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "build"]

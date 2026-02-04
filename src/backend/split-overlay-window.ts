@@ -15,12 +15,14 @@ import {CustomModeHandler} from "./data/custom-mode-handler";
 // @ts-ignore
 import WindowStateManager from 'electron-window-state-manager';
 import {UserStatTracker} from "./data/user-stat-tracker";
+import { pathToFileURL } from 'url';
 
 let correctWindowForOverlayInFocus = false;
 export let pogostuckHasBeenOpenedOnce = false;
 
 export function openOverlayWindow() {
     const overlayHTML = path.join(__dirname, "..", "frontend", "overlay.html");
+    const overlayURL = pathToFileURL(overlayHTML).href;
     const overlayWidth = 530;
     const overlayHeight = 300;
 
@@ -76,7 +78,7 @@ export function openOverlayWindow() {
             overlayWindow.showInactive();
     })
 
-    overlayWindow.loadURL(overlayHTML).catch((e) => console.error(e));
+    overlayWindow.loadURL(overlayURL).catch((e) => console.error(e));
     overlayWindow.on("moved", async () => {
         log.debug(`overlay window moved, saving position: (${overlayWindow.getPosition().join(', ')})`);
         overlayState.saveState(overlayWindow)
@@ -93,6 +95,11 @@ export function openOverlayWindow() {
 }
 
 export function addPogostuckOpenedListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
+    // For Linux, only the X11 windowing system is supported. <-- @paymoapp/active-window
+    if (process.env.XDG_SESSION_TYPE === "wayland") {
+        log.info("Skipping active-window tracking: Wayland unsupported");
+        return;
+    }
     ActiveWindow.subscribe(windowInfo => {
         onActiveWindowChanged(overlayWindow, configWindow, windowInfo);
     })

@@ -45,10 +45,14 @@
       "build/**/*"
     ],
     "icon": "build/frontend/assets/clipboard.ico",
+    "linux": {
+      "icon": "build/frontend/assets/clipboard_linux.png"
+    },
     "directories": {
       "buildResources": "build"
     },
     "win": {
+      "icon": "build/frontend/assets/clipboard.ico",
       "target": {
         "target": "nsis",
         "arch": [

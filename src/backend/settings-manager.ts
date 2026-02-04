@@ -507,8 +507,19 @@ export class SettingsManager {
                 return null;
             }
         })();
-        const tasklist = execSync('tasklist', { encoding: 'utf8' });
-        const pogoStuckCurrentlyOpen = tasklist.toLowerCase().includes('pogostuck.exe');
+        let pogoStuckCurrentlyOpen = false;
+        try {
+            if (process.platform === 'win32') {
+                const tasklist = execSync('tasklist', { encoding: 'utf8' });
+                pogoStuckCurrentlyOpen = tasklist.toLowerCase().includes('pogostuck.exe');
+            } else {
+                const psOutput = execSync('ps -A', { encoding: 'utf8' });
+                pogoStuckCurrentlyOpen = psOutput.toLowerCase().includes('pogostuck.exe');
+            }
+        } catch (err) {
+            log.error('Failed to check running processes:', err);
+            pogoStuckCurrentlyOpen = false;
+        }
         const valid = (pogostuckHasBeenOpenedOnce && acklogExists) && ((!lastMsgClose && pogoStuckCurrentlyOpen) || (lastMsgClose && !pogoStuckCurrentlyOpen));
         log.info(`checking if all config paths etc are valid`);
         log.info(`opened once: ${pogostuckHasBeenOpenedOnce}, acklogExists: ${acklogExists}, lastMsgClose: ${lastMsgClose}, pogoStuckCurrentlyOpen: ${pogoStuckCurrentlyOpen}, valid: ${valid}`);

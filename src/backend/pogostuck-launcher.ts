@@ -17,19 +17,12 @@ export async function launchPogostuckIfNotOpenYet(): Promise<boolean> {
         return false;
     }
     // Check if pogostuck.exe is already running
-    try {
-        const tasklist = execSync('tasklist', { encoding: 'utf8' });
-        if (tasklist.toLowerCase().includes('pogostuck.exe')) {
-
-            log.info('Trying to launch Pogostuck is already running. Not launching again.');
-            return false;
-        }
-    } catch (err) {
-        console.error('Failed to check running processes:', err);
-    }
+    if (isProcessRunning()) return false;
     const settingsManager = SettingsManager.getInstance();
     const steamDirPath = settingsManager.steamPath();
-    const steamExePath = path.join(steamDirPath, 'steam.exe');
+    const steamExePath = process.platform === 'win32'
+        ? path.join(steamDirPath, 'steam.exe')
+        : path.join(steamDirPath, 'steam.sh'); // Note: Non explicit fallback
     if (!fs.existsSync(steamExePath)) {
         log.error(`Steam executable not found at ${steamExePath}. Cannot launch Pogostuck. This should not happen, as steamPathIsValid() should have checked this.`);
         return false;
@@ -40,4 +33,27 @@ export async function launchPogostuckIfNotOpenYet(): Promise<boolean> {
 
     spawn(steamExePath, args, { detached: true, stdio: 'ignore' }).unref();
     return true;
+}
+
+function isProcessRunning(): boolean {
+    try {
+        if (process.platform === 'win32') {
+            const tasklist = execSync('tasklist', { encoding: 'utf8' });
+            if (tasklist.toLowerCase().includes('pogostuck.exe')) {
+                log.info('Pogostuck is already running on Windows. Not launching again.');
+                return true;
+            }
+        } else if (process.platform === 'linux') {
+            const psOutput = execSync('ps -A', { encoding: 'utf8' });
+            if (psOutput.toLowerCase().includes('pogostuck.exe')) {
+                log.info('Pogostuck is already running on Linux. Not launching again.');
+                return true;
+            }
+        } else {
+            log.debug(`Skipping process check on unsupported OS: ${process.platform}`);
+        }
+    } catch (err) {
+        log.error('Failed to check running processes:', err);
+    }
+    return false;
 }

@@ -212,13 +212,12 @@ async function addSplitTimeAndDiff(splitInfo: SplitPassedInfo) {
         const paceSpan = document.getElementById('pace')
         if (paceSpan) paceSpan.textContent = formatPbTime(splitTime)
     }
-// TODO use this after pogo update, when route is logged
-    // if (map3Route !== undefined && splitKey !== "pb") {
-    //     const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
-    //     if (splitNameSpan) {
-    //         splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
-    //     }
-    // }
+    if (map3Route !== undefined && splitKey !== "pb") {
+        const splitNameSpan = splitDiv.querySelector(".split-name") as HTMLElement | null;
+        if (splitNameSpan) {
+            splitNameSpan.innerText = map3Routes[map3Route][parseInt(splitKey)];
+        }
+    }
 }
 
 const awaitingOverlayUpdates: (() => Promise<void>)[] = [];

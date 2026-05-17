@@ -23,7 +23,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
     const userStatTracker = UserStatTracker.getInstance();
 
     const updateSplitsReg = /update splits at frame \d+: level_current\((?<map>\d+)\)m\((?<mode>\d+)\) run\((?<run>-?\d+)\)/;
-    const playerPassSplitReg = /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\).*old\((?<old>-?\d+)\)(, map3RouteCurrent(.*))?.*runTimeCurrent\((?<time>\d+\.?\d*)\)/;
+    const playerPassSplitReg = /playerCheckpointDo\(\) at frame \d+: new checkpoint\((?<checkpoint>\d+)\).*old\((?<old>-?\d+)\)(, map3RouteCurrent\((?<map3Route>\d+)\))?.*runTimeCurrent\((?<time>\d+\.?\d*)\)/;
     const playerReset = /playerReset\(\) .*? playerLocalDead\((?<localDead>\d+)\) dontResetTime\((?<dontResetTime>\d+)\) map3IsAGo\((?<map3IsAGo>\d+)\)/
 
     // map or mode gets logged
@@ -55,7 +55,7 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
                 return
             }
             mode = stateTracker.getCurrentMode(); // in case mode was changed due custom modes
-            const { checkpoint, time } = splitPassMatch.groups!;
+            const { checkpoint, time, map3Route: map3RouteStr } = splitPassMatch.groups!;
             stateTracker.ensuresRunStarted();
 
             const split = parseInt(checkpoint);
@@ -96,8 +96,8 @@ export function registerLogEventHandlers(overlayWindow: BrowserWindow, configWin
             }
             let map3Route: number | undefined = undefined
             if (map === 9) {
-                // TODO after pogostuck update, add the map3 route from regex
-                map3Route = 0;
+                map3Route = parseInt(map3RouteStr)
+                console.log(`map3RouteStr: '${map3RouteStr}'`)
             }
             log.info(`mode: ${mode} Split passed: ${split}, time: ${timeAsFloat}, diff: ${diff}, shouldSkip: ${shouldSkip} pbTime: ${pbTime} firstTimePass: ${firstTimePass} isGoldSplit: ${isGoldSplit}, isGoldPace: ${isGoldPace}`);
             overlayWindow.webContents.send('split-passed', { splitId: split.toString(), splitTime: timeAsFloat, splitDiff: diff, golden: isGoldSplit, goldPace: isGoldPace, onlyDiffColored: settingsManager.onlyDiffColored(), map3Route: map3Route});

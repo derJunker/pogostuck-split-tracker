@@ -56,7 +56,8 @@ point but i am limited by the [technology of my time](https://github.com/electro
 I will try to make it nicer to configure for a 2nd monitor or to run in the background, so you can see it after you 
 are done with your run.
 
-Linux support is now being added, but there is still an important limitation: the active-window tracking currently depends on `@paymoapp/active-window`, which supports Linux X11 but not Wayland. If you are on Wayland, the overlay can still run, but automatic show/hide and "window opened" detection may not work reliably.
+I added some linux support, but there is still an important limitation: the active-window tracking currently depends on `@paymoapp/active-window`, which supports Linux X11 but not Wayland. If you are on Wayland, the overlay can still run, but automatic show/hide and "window opened" detection may not work reliably.
+Wayland also does not work well with Electron's "always on top" feature, which is used to keep the overlay visible above the game window.
 
 So on Linux the best supported setup right now is X11 (or an XWayland session). If you stay on Wayland, you should expect reduced functionality.
 

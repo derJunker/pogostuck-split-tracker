@@ -13,7 +13,7 @@ window.electronAPI.onNewReleaseAvailable(async (_, releaseInfo: { tag_name: stri
             <p>${sanitizeHtml(releaseInfo.body)}</p>
         `
         const lang = getFrontendSettings().lang;
-        switchLangueTexts(lang === "en" ? "ja" : "en");
+        switchLangueTexts(lang);
 
         modal.style.display = 'block';
         const downloadLink = document.getElementById('release-download-link') as HTMLAnchorElement;

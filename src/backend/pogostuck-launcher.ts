@@ -1,4 +1,4 @@
-import {ipcMain, shell} from "electron";
+import {ipcMain} from "electron";
 import {SettingsManager} from "./settings-manager";
 import path from "path";
 import {spawn, execSync} from "child_process";
@@ -45,7 +45,8 @@ function isProcessRunning(): boolean {
             }
         } else if (process.platform === 'linux') {
             const psOutput = execSync('ps -A', { encoding: 'utf8' });
-            if (psOutput.toLowerCase().includes('pogostuck.exe')) {
+            const out = psOutput.toLowerCase();
+            if (out.includes('pogostuck') || out.includes('pogostuck.exe')) {
                 log.info('Pogostuck is already running on Linux. Not launching again.');
                 return true;
             }

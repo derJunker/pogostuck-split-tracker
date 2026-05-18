@@ -9,7 +9,6 @@ import {isUpsideDownMode, isValidModeAndMap} from "./data/valid-modes";
 import {PbRunInfoAndSoB} from "../types/global";
 import log from "electron-log/main";
 import {CurrentStateTracker} from "./data/current-state-tracker";
-import {FileWatcher} from "./logging/logs-watcher";
 import {Split} from "../types/mode-splits";
 import {CustomModeHandler} from "./data/custom-mode-handler";
 // @ts-ignore
@@ -68,7 +67,13 @@ export function openOverlayWindow() {
     overlayWindow.setBounds(overlayState.width, overlayState.height);
     overlayWindow.setPosition(overlayState.x, overlayState.y);
     overlayWindow.setIgnoreMouseEvents(SettingsManager.getInstance().clickThroughOverlay());
-    overlayWindow.setAlwaysOnTop(true, "screen-saver")
+    // Some Linux window managers do not support the 'screen-saver' level. Use the simpler
+    // setAlwaysOnTop call on Linux to maximize compatibility.
+    if (process.platform === 'linux') {
+        overlayWindow.setAlwaysOnTop(true);
+    } else {
+        overlayWindow.setAlwaysOnTop(true, "screen-saver");
+    }
 
     if (openedForFirstTime)
         overlayState.saveState(overlayWindow)
@@ -96,8 +101,9 @@ export function openOverlayWindow() {
 
 export function addPogostuckOpenedListener(overlayWindow: BrowserWindow, configWindow: BrowserWindow) {
     // For Linux, only the X11 windowing system is supported. <-- @paymoapp/active-window
-    if (process.env.XDG_SESSION_TYPE === "wayland") {
-        log.info("Skipping active-window tracking: Wayland unsupported");
+    const isWaylandSession = process.env.XDG_SESSION_TYPE?.toLowerCase() === "wayland" || !!process.env.WAYLAND_DISPLAY;
+    if (isWaylandSession) {
+        log.info("Skipping active-window tracking: Wayland is not supported by @paymoapp/active-window, so auto show/hide and window-open detection are disabled.");
         return;
     }
     ActiveWindow.subscribe(windowInfo => {
@@ -113,7 +119,6 @@ function onActiveWindowChanged(overlayWindow: BrowserWindow, configWindow: Brows
     correctWindowForOverlayInFocus = pogoIsActive || configIsActive;
     if (pogoIsActive) {
         pogostuckHasBeenOpenedOnce = true;
-        const logsWatcher = FileWatcher.getInstance();
         const settingsManager = SettingsManager.getInstance();
         settingsManager.updateFrontendStatus(overlayWindow, configWindow)
     }
@@ -129,15 +134,17 @@ function pogostuckIsActive(winInfo: WindowInfo | null, overlayWindow: BrowserWin
     configIsActive: boolean;
 } {
     if (!winInfo) return {pogoIsActive: false, configIsActive: false};
-    const isPogostuck = winInfo.title?.toLowerCase() === "pogostuck" && winInfo.application?.toLowerCase() === "pogostuck.exe";
-    const isThisWindow = (winInfo.title?.toLowerCase() === overlayWindow.title.toLowerCase() || winInfo.title?.toLowerCase() === mainWindow.title.toLowerCase());
+    const titleLower = winInfo.title?.toLowerCase() ?? "";
+    const appLower = winInfo.application?.toLowerCase() ?? "";
+    const isPogostuck = titleLower.includes('pogostuck') || appLower.includes('pogostuck');
+    const isThisWindow = (titleLower === overlayWindow.title.toLowerCase() || titleLower === mainWindow.title.toLowerCase());
     const configPathsValid = CurrentStateTracker.getInstance().configPathsAreValid()
-    // TODO put back in
-    // log.debug(`checking if pogostuck is active: ${isPogostuck}, isThisWindow: ${isThisWindow}, configPathsValid: ${configPathsValid}`);
+    log.debug(`checking if pogostuck is active: ${isPogostuck}, isThisWindow: ${isThisWindow}, configPathsValid: ${configPathsValid}`);
     if (isPogostuck && !configPathsValid) {
         const settingsManager = SettingsManager.getInstance();
         // path is something like ... \common\Pogostuck\pogostuck.exe, i want to remove the pogostuck.exe part
-        const path = winInfo.path.replace(/pogostuck\.exe/i, "");
+        // Accept both pogostuck and pogostuck.exe paths (Linux/Windows)
+        const path = winInfo.path.replace(/pogostuck(\.exe)?/i, "");
         settingsManager.updatePogoPath(path, mainWindow, overlayWindow)
     }
     return {pogoIsActive: isPogostuck, configIsActive: isThisWindow};

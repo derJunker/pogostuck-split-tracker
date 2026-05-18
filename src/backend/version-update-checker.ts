@@ -43,9 +43,15 @@ export async function getNewReleaseInfoIfOutdated(): Promise<{ tag_name: string,
             return null;
         }
 
+        // Only support automatic downloads on Windows. Other platforms should manually download.
+        if (process.platform !== 'win32') {
+            log.info(`Skipping download link for non-Windows platform (${process.platform}). Users should download from GitHub releases manually.`);
+            return { tag_name: tagName, body, browser_download_url: "" };
+        }
+
         const asset = releaseData.assets.find(a => a.browser_download_url.endsWith(".exe"));
         if(!asset) {
-            log.warn(`No executable asset found in release ${tagName}.`);
+            log.warn(`No .exe asset found in release ${tagName}.`);
             return null
         }
 

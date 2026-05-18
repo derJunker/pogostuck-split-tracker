@@ -791,14 +791,16 @@
                 <div id="release-info-content"></div>
                 <div id="release-btns">
                     <div>
-                        <button id="release-download-btn">
+                        <button id="release-download-btn" style="display: none">
                             <span lang="en" style="display: none">Update</span>
                             <span lang="ja" style="display: none">更新</span>
                         </button>
-                        <a class="button" id="release-download-link">
-                            <span lang="en" style="display: none">Manual Download</span>
-                            <span lang="ja" style="display: none">手動ダウンロード</span>
-                        </a>
+                        <div id="release-manual-download-btn" style="display: none">
+                            <a class="button" id="release-download-link">
+                                <span lang="en" style="display: none">Download from GitHub</span>
+                                <span lang="ja" style="display: none">GitHubからダウンロード</span>
+                            </a>
+                        </div>
                     </div>
                     <button id="release-modal-ok">
                         <span lang="en" style="display: none">Later</span>

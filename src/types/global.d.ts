@@ -95,6 +95,7 @@ declare global { interface Window {
         isWindows11: () => Promise<boolean>;
         hasPogostuckFullscreen: () => Promise<boolean>;
         openWindowsSettings: () => Promise<void>;
+        getPlatform: () => Promise<string>;
         getSplitPath: (mode: number) => Promise<{from: number, to: number}[]>;
         getGoldSplits: (mode: number) => Promise<{from: number, to: number, time: number}[]>;
         getGoldPaces: (mode: number) => Promise<{splitIndex: number, time: number}[]>;

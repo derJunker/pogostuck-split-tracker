@@ -3,7 +3,6 @@ import {Settings} from "../types/settings";
 import {OverlayStatus, PbRunInfoAndSoB, SplitPassedInfo} from "../types/global";
 import {PogoLevel} from "../types/pogo-index-mapping";
 import IpcRendererEvent = Electron.IpcRendererEvent;
-import {VERSION} from "../version";
 import {CustomModeInfo} from "../types/CustomMode";
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -61,6 +60,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     isWindows11: (): Promise<boolean> => ipcRenderer.invoke('is-windows-11'),
     hasPogostuckFullscreen: (): Promise<boolean> => ipcRenderer.invoke('has-fullscreen'),
     openWindowsSettings: (): Promise<void> => ipcRenderer.invoke('open-windows-settings'),
+    getPlatform: (): Promise<string> => ipcRenderer.invoke('get-platform'),
     getSplitPath: (mode: number) : Promise<{from: number, to: number}[]> => ipcRenderer.invoke('get-split-path', mode),
     getGoldSplits: (mode: number) : Promise<{from: number, to: number, time: number}[]> => ipcRenderer.invoke('get-gold-splits', mode),
     getGoldPaces: (mode: number) : Promise<{ splitIndex: number, time: number}[]> => ipcRenderer.invoke('get-gold-paces', mode),

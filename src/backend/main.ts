@@ -10,7 +10,7 @@ import {PbSplitTracker} from "./data/pb-split-tracker";
 import {GoldSplitsTracker} from "./data/gold-splits-tracker";
 import {readGoldenSplits, writeGoldenSplits, writeGoldSplitsIfChanged} from "./file-reading/read-golden-splits";
 import { SettingsManager } from "./settings-manager";
-import {initListeners, initListeners as initWindows11Listeners} from './windows11-listeners';
+import {initListeners as initWindows11Listeners} from './windows11-listeners';
 import {initLaunchPogoListener, launchPogostuckIfNotOpenYet} from "./pogostuck-launcher";
 import {UserDataReader} from "./data/user-data-reader";
 import { VERSION } from "../version";
@@ -29,9 +29,13 @@ log.initialize();
 log.info(`Junker's Split Tracker v${VERSION} is starting...`);
 
 ActiveWindow.initialize();
-if (!ActiveWindow.requestPermissions()) {
-    log.error('You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
-    process.exit(0);
+// On macOS ActiveWindow needs explicit screen-recording permission. On other platforms
+// the permission request either isn't needed or is a no-op, so only enforce it on darwin.
+if (process.platform === 'darwin') {
+    if (!ActiveWindow.requestPermissions()) {
+        log.error('You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
+        process.exit(0);
+    }
 }
 
 let configWindow: BrowserWindow;
@@ -154,6 +158,8 @@ app.on("ready", async () => {
     })
 
     ipcMain.handle('get-version', () => VERSION)
+
+    ipcMain.handle('get-platform', () => process.platform)
 
     ipcMain.handle('get-selected-tab', () => settingsManager.lastOpenedTab())
     ipcMain.handle("get-mappings", () => indexToNamesMappings.getAllLevels())

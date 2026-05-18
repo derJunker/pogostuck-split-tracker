@@ -46,7 +46,14 @@
     ],
     "icon": "build/frontend/assets/clipboard.ico",
     "linux": {
-      "icon": "build/frontend/assets/clipboard_linux.png"
+      "icon": "build/frontend/assets/clipboard_linux.png",
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Game",
+      "executableName": "pogostuck-split-tracker"
     },
     "directories": {
       "buildResources": "build"

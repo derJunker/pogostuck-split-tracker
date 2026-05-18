@@ -29,7 +29,12 @@ Additionally to the basic features it also has:
 ## Setup
 [Setup Video](https://www.youtube.com/watch?v=TiV_zLOi0zc)
 ### Installation
-So i personally would recommend using the newest release in the GitHub `Releases` tab on the right. For that just go to the lastest release and download the .exe installer!
+So i personally would recommend using the newest release in the GitHub `Releases` tab on the right. For Windows, download the `.exe` installer. For Linux, use the matching package for your distro (`.AppImage`, `.deb`, or `.rpm`).
+
+Linux release goal:
+- `AppImage` for a portable single-file download that works on many distros
+- `deb` for Debian / Ubuntu / Mint based systems
+- `rpm` for Fedora / openSUSE based systems
 
 If you want to get the newest changes (and maybe bugs) you can setup the project yourself.
 
@@ -51,7 +56,9 @@ point but i am limited by the [technology of my time](https://github.com/electro
 I will try to make it nicer to configure for a 2nd monitor or to run in the background, so you can see it after you 
 are done with your run.
 
-I only tested this on Windows, as most pogo players are on windows afaik. So it might not work on other Operating Systems.
+Linux support is now being added, but there is still an important limitation: the active-window tracking currently depends on `@paymoapp/active-window`, which supports Linux X11 but not Wayland. If you are on Wayland, the overlay can still run, but automatic show/hide and "window opened" detection may not work reliably.
+
+So on Linux the best supported setup right now is X11 (or an XWayland session). If you stay on Wayland, you should expect reduced functionality.
 
 The Windows 11 window-shadow can be removed in settings. For all windows 11 users there should be information in the "Setup" tab of the app. **If thats not the case:** then contact me!
 

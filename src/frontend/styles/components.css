@@ -94,6 +94,10 @@
     letter-spacing: 0.02em;
 }
 
+a.button {
+    display: inline-block;
+}
+
 
 .button, button {
     background: var(--color-bg);

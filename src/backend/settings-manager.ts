@@ -20,8 +20,6 @@ import {writeGoldPacesIfChanged} from "./file-reading/read-golden-paces";
 import {GoldPaceTracker} from "./data/gold-pace-tracker";
 import {execSync} from "child_process";
 import {Split} from "../types/mode-splits";
-import {Tokens} from "marked";
-import Br = Tokens.Br;
 
 export class SettingsManager {
     private static instance: SettingsManager | null = null;
@@ -507,14 +505,17 @@ export class SettingsManager {
                 return null;
             }
         })();
-        let pogoStuckCurrentlyOpen = false;
+        let pogoStuckCurrentlyOpen: boolean;
         try {
             if (process.platform === 'win32') {
                 const tasklist = execSync('tasklist', { encoding: 'utf8' });
-                pogoStuckCurrentlyOpen = tasklist.toLowerCase().includes('pogostuck.exe');
+                // tasklist output on Windows will likely contain the executable name; be lenient and check for 'pogostuck'
+                pogoStuckCurrentlyOpen = tasklist.toLowerCase().includes('pogostuck');
             } else {
                 const psOutput = execSync('ps -A', { encoding: 'utf8' });
-                pogoStuckCurrentlyOpen = psOutput.toLowerCase().includes('pogostuck.exe');
+                // On Linux users might run the game via wine or similar; check for both 'pogostuck' and 'pogostuck.exe'
+                const out = psOutput.toLowerCase();
+                pogoStuckCurrentlyOpen = out.includes('pogostuck') || out.includes('pogostuck.exe');
             }
         } catch (err) {
             log.error('Failed to check running processes:', err);
